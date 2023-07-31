@@ -26,11 +26,11 @@ class SwitcherActivity : AppCompatActivity() {
             text = "Enabled Icon"
             startIcon = ImageResource.Local(
                 contentDescription = "Close",
-                id = R.drawable.ic_close
+                id = com.blockchain.componentlib.R.drawable.ic_close
             )
             endIcon = ImageResource.Local(
                 contentDescription = "Refresh",
-                id = R.drawable.ic_refresh
+                id = com.blockchain.componentlib.R.drawable.ic_refresh
             )
             switcherState = SwitcherState.Enabled
         }
@@ -39,11 +39,11 @@ class SwitcherActivity : AppCompatActivity() {
             text = "Disabled Icon"
             startIcon = ImageResource.Local(
                 contentDescription = "Close",
-                id = R.drawable.ic_close
+                id = com.blockchain.componentlib.R.drawable.ic_close
             )
             endIcon = ImageResource.Local(
                 contentDescription = "Refresh",
-                id = R.drawable.ic_refresh
+                id = com.blockchain.componentlib.R.drawable.ic_refresh
             )
             switcherState = SwitcherState.Disabled
         }

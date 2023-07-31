@@ -31,7 +31,6 @@ import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
-import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.util.throttledClicks
 
@@ -93,15 +92,15 @@ class KycMobileEntryFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressListener.setupHostToolbar(R.string.kyc_phone_number_title)
+        progressListener.setupHostToolbar(com.blockchain.stringResources.R.string.kyc_phone_number_title)
 
         with(binding.editTextKycMobileNumber) {
             addTextChangedListener(PhoneNumberFormattingTextWatcher())
             setOnFocusChangeListener { _, hasFocus ->
                 binding.inputLayoutKycMobileNumber.hint = if (hasFocus) {
-                    getString(R.string.kyc_phone_number_hint_focused)
+                    getString(com.blockchain.stringResources.R.string.kyc_phone_number_hint_focused)
                 } else {
-                    getString(R.string.kyc_phone_number_hint_unfocused)
+                    getString(com.blockchain.stringResources.R.string.kyc_phone_number_hint_unfocused)
                 }
 
                 // Insert our best guess for the device's dialling code
@@ -124,7 +123,7 @@ class KycMobileEntryFragment :
 
         compositeDisposable +=
             binding.editTextKycMobileNumber
-                .onDelayedChange(KycStep.MobileNumberEntered)
+                .onDelayedChange()
                 .subscribe()
     }
 
@@ -153,7 +152,7 @@ class KycMobileEntryFragment :
     override fun showProgressDialog() {
         progressDialog = MaterialProgressDialog(requireContext()).apply {
             setOnCancelListener { presenter.onProgressCancelled() }
-            setMessage(R.string.kyc_country_selection_please_wait)
+            setMessage(com.blockchain.stringResources.R.string.kyc_country_selection_please_wait)
             show()
         }
     }
@@ -163,9 +162,7 @@ class KycMobileEntryFragment :
         progressDialog = null
     }
 
-    private fun TextView.onDelayedChange(
-        kycStep: KycStep
-    ): Observable<Boolean> =
+    private fun TextView.onDelayedChange(): Observable<Boolean> =
         this.afterTextChangeEvents()
             .debounce(300, TimeUnit.MILLISECONDS)
             .map { it.editable.toString() }

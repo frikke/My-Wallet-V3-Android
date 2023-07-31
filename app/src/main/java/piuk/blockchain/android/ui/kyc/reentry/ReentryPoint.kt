@@ -14,8 +14,5 @@ sealed class ReentryPoint(val entryPoint: String) {
         ReentryPoint("Extra Info Entry")
     object MobileEntry : ReentryPoint("Mobile Entry")
     object Veriff : ReentryPoint("Veriff Splash")
-    data class TierCurrentState(
-        val kycState: KycState,
-        val isSddVerified: Boolean,
-    ) : ReentryPoint("TierCurrentState")
+    data class TierCurrentState(val kycState: KycState) : ReentryPoint("TierCurrentState")
 }

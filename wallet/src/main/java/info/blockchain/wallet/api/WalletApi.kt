@@ -6,6 +6,7 @@ import info.blockchain.wallet.ApiCode
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
+import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -27,7 +28,7 @@ class WalletApi(
         token: String,
         guid: String,
         sharedKey: String
-    ): Observable<ResponseBody> {
+    ): Completable {
         return explorerInstance.postToWallet(
             "update-firebase",
             guid,
@@ -35,7 +36,7 @@ class WalletApi(
             token,
             token.length,
             api.apiCode
-        )
+        ).ignoreElement()
     }
 
     fun removeFirebaseNotificationToken(
@@ -49,7 +50,7 @@ class WalletApi(
             payload = "",
             length = 0,
             apiCode = api.apiCode
-        ).ignoreElements()
+        ).ignoreElement()
 
     fun sendSecureChannel(
         message: String
@@ -132,7 +133,7 @@ class WalletApi(
         val pipedAddresses = activeAddressList?.joinToString("|") ?: ""
         return sessionIdService.sessionId().flatMapCompletable { sessionId ->
             explorerInstance.syncWalletCall(
-                method = "secure-update",
+                method = "update",
                 guid = guid,
                 sessionId = sessionId.withBearerPrefix(),
                 sharedKey = sharedKey,
@@ -151,7 +152,7 @@ class WalletApi(
         }
     }
 
-    fun fetchWalletData(guid: String, sharedKey: String, sessionId: String): Single<ResponseBody> {
+    fun fetchWalletData(guid: String, sharedKey: String, sessionId: String): Single<WalletBaseDto> {
         return explorerInstance.fetchWalletData(
             "wallet.aes.json",
             guid,
@@ -303,7 +304,7 @@ class WalletApi(
         sharedKey: String,
         hasCloudBackup: Boolean,
         deviceType: Int
-    ): Single<ResponseBody> {
+    ): Completable {
         return explorerInstance.verifyCloudBackup(
             "verify-cloud-backup",
             guid,

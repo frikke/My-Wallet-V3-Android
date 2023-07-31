@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.composables
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,14 +24,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.DestructiveMinimalButton
+import com.blockchain.componentlib.button.MinimalErrorButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import java.net.URL
-import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 
 @Composable
@@ -43,33 +43,37 @@ fun OpenBankingPermissionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(AppColors.background)
             .padding(
-                horizontal = dimensionResource(R.dimen.huge_spacing),
-                vertical = dimensionResource(R.dimen.small_spacing)
+                horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.huge_spacing),
+                vertical = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
             ),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.weight(1F))
 
         Image(
             modifier = Modifier
-                .size(dimensionResource(id = R.dimen.asset_icon_size_large)),
+                .size(dimensionResource(id = com.blockchain.common.R.dimen.asset_icon_size_large)),
             imageResource = institution.iconLink?.toString()
                 ?.let { ImageResource.Remote(url = it) }
                 ?: ImageResource.None
         )
 
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.standard_spacing)))
+        Spacer(modifier = Modifier.height(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)))
 
         Text(
             modifier = Modifier.fillMaxWidth(),
             style = AppTheme.typography.title3,
-            color = Grey900,
+            color = AppColors.title,
             textAlign = TextAlign.Center,
-            text = stringResource(id = R.string.open_banking_permission_link_to_bank, institution.name)
+            text = stringResource(
+                id = com.blockchain.stringResources.R.string.open_banking_permission_link_to_bank,
+                institution.name
+            )
         )
 
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.smallest_spacing)))
+        Spacer(modifier = Modifier.height(dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)))
 
         TermAndPrivacyText(
             termsOfServiceLink = termsOfServiceLink,
@@ -80,15 +84,15 @@ fun OpenBankingPermissionScreen(
 
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.common_approve),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_approve),
             onClick = approveOnClick
         )
 
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.height(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
-        DestructiveMinimalButton(
+        MinimalErrorButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.common_deny),
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_deny),
             onClick = denyOnClick
         )
     }
@@ -102,8 +106,8 @@ private fun TermAndPrivacyText(
     val tosTag = "TOS"
     val privacyTag = "PRIVACY"
     val annotatedText = buildAnnotatedString {
-        withStyle(style = SpanStyle(color = Grey900)) {
-            append(stringResource(id = R.string.open_banking_permission_confirmation))
+        withStyle(style = SpanStyle(color = AppColors.body)) {
+            append(stringResource(id = com.blockchain.stringResources.R.string.open_banking_permission_confirmation))
         }
 
         append(" ")
@@ -112,8 +116,8 @@ private fun TermAndPrivacyText(
             tag = tosTag,
             annotation = termsOfServiceLink
         )
-        withStyle(style = SpanStyle(color = Blue600)) {
-            append(stringResource(id = R.string.open_banking_permission_terms_service))
+        withStyle(style = SpanStyle(color = AppColors.primary)) {
+            append(stringResource(id = com.blockchain.stringResources.R.string.open_banking_permission_terms_service))
         }
         pop()
 
@@ -123,8 +127,8 @@ private fun TermAndPrivacyText(
             tag = privacyTag,
             annotation = URL_OPEN_BANKING_PRIVACY_POLICY
         )
-        withStyle(style = SpanStyle(color = Blue600)) {
-            append(stringResource(id = R.string.open_banking_permission_privacy_policy))
+        withStyle(style = SpanStyle(color = AppColors.primary)) {
+            append(stringResource(id = com.blockchain.stringResources.R.string.open_banking_permission_privacy_policy))
         }
         pop()
     }
@@ -135,13 +139,17 @@ private fun TermAndPrivacyText(
         text = annotatedText,
         onClick = { offset ->
             annotatedText.getStringAnnotations(
-                tag = tosTag, start = offset, end = offset
+                tag = tosTag,
+                start = offset,
+                end = offset
             ).firstOrNull()?.let { annotation ->
                 urlOnclick(annotation.item)
             }
 
             annotatedText.getStringAnnotations(
-                tag = privacyTag, start = offset, end = offset
+                tag = privacyTag,
+                start = offset,
+                end = offset
             ).firstOrNull()?.let { annotation ->
                 urlOnclick(annotation.item)
             }
@@ -149,7 +157,7 @@ private fun TermAndPrivacyText(
     )
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 private fun PreviewOpenBankingPermissionScreen() {
     OpenBankingPermissionScreen(
@@ -164,4 +172,10 @@ private fun PreviewOpenBankingPermissionScreen() {
         approveOnClick = {},
         denyOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewOpenBankingPermissionScreenDark() {
+    PreviewOpenBankingPermissionScreen()
 }

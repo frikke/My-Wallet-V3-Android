@@ -20,7 +20,7 @@ class BuyPairsStore(
             }
         ),
         dataSerializer = SimpleBuyPairsDto.serializer(),
-        mediator = FreshnessMediator(Freshness.ofHours(24))
+        mediator = FreshnessMediator(Freshness.ofHours(48))
     ),
     FlushableDataSource {
 

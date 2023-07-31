@@ -1,11 +1,14 @@
 package info.blockchain.wallet.ethereum
 
 import com.blockchain.serialization.JsonSerializableAccount
+import info.blockchain.wallet.LabeledAccount
 import info.blockchain.wallet.ethereum.util.HashUtil
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.keys.SigningKeyImpl
+import java.math.BigInteger
 import org.bitcoinj.core.ECKey
+import org.bitcoinj.core.Sha256Hash
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
@@ -16,7 +19,7 @@ import org.web3j.crypto.Sign
 import org.web3j.crypto.StructuredDataEncoder
 import org.web3j.crypto.TransactionEncoder
 
-class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccount {
+class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccount, LabeledAccount {
 
     constructor(addressKey: ECKey, label: String) : this(
         EthAccountDto.fromCheckSumAddress(
@@ -87,6 +90,21 @@ class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccoun
         return retval
     }
 
+    fun signRawPreImage(rawPreImage: String, masterKey: MasterKey): String {
+        val signingKey = deriveSigningKey(masterKey).toECKey()
+        return getSignature(rawPreImage.removePrefix("0x"), signingKey)
+    }
+
+    private fun getSignature(rawPreImage: String, signingKey: ECKey): String {
+        val bytes = rawPreImage.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        val sha256Hash = Sha256Hash.wrap(bytes)
+        val resultSignature = signingKey.sign(sha256Hash)
+        val r = resultSignature.r.toPaddedHexString()
+        val s = resultSignature.s.toPaddedHexString()
+        val v = "0${signingKey.findRecoveryId(sha256Hash, resultSignature)}"
+        return r + s + v
+    }
+
     fun deriveSigningKey(masterKey: MasterKey): SigningKey =
         SigningKeyImpl(deriveECKey(masterKey.toDeterministicKey(), 0))
 
@@ -114,7 +132,6 @@ class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccoun
         }
 
         fun deriveECKey(masterKey: DeterministicKey, accountIndex: Int): ECKey {
-
             val purposeKey =
                 HDKeyDerivation.deriveChildKey(
                     masterKey,
@@ -140,4 +157,11 @@ class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccoun
             return ECKey.fromPrivate(addressKey.privKeyBytes)
         }
     }
+}
+
+private fun BigInteger.toPaddedHexString(): String {
+    val radix = 16 // For digit to character conversion (digit to hexadecimal in this case)
+    val desiredLength = 64
+    val padChar = '0'
+    return toString(radix).padStart(desiredLength, padChar)
 }

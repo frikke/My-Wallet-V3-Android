@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.domain.paymentmethods.model.FiatTransactionState
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetFiatTransactionBinding
-import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 
 class FiatTransactionBottomSheet : SlidingModalBottomDialog<DialogSheetFiatTransactionBinding>() {
 
@@ -33,17 +33,23 @@ class FiatTransactionBottomSheet : SlidingModalBottomDialog<DialogSheetFiatTrans
         with(binding) {
             when (transactionState) {
                 FiatTransactionState.SUCCESS -> transactionProgressView.showFiatTxSuccess(
-                    title, subtitle, fiatCurrency
+                    title,
+                    subtitle,
+                    fiatCurrency
                 )
                 FiatTransactionState.ERROR -> transactionProgressView.showFiatTxError(
-                    title, subtitle, fiatCurrency
+                    title,
+                    subtitle,
+                    fiatCurrency
                 )
                 FiatTransactionState.PENDING -> transactionProgressView.showFiatTxPending(
-                    title, subtitle, fiatCurrency
+                    title,
+                    subtitle,
+                    fiatCurrency
                 )
             }
             transactionProgressView.setupPrimaryCta(
-                text = getString(R.string.common_ok),
+                text = getString(com.blockchain.stringResources.R.string.common_ok),
                 onClick = {
                     dismiss()
                 }

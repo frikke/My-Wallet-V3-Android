@@ -2,6 +2,7 @@ package com.blockchain.domain.paymentmethods
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
@@ -19,12 +20,11 @@ interface PaymentMethodService {
 
     fun getPaymentMethodDetailsForId(
         paymentId: String,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
     ): Flow<DataResource<PaymentMethodDetails>>
 
     fun getAvailablePaymentMethodsTypes(
         fiatCurrency: FiatCurrency,
-        fetchSddLimits: Boolean,
         onlyEligible: Boolean
     ): Single<List<PaymentMethodTypeWithEligibility>>
 

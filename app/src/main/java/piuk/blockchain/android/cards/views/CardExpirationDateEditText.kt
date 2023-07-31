@@ -19,7 +19,7 @@ class CardExpirationDateEditText : ExpirationDateEditText {
     We need to do that because ExpirationDateEditText accepts expiration date only in mm / yy or mm / yyyy
     After using autocomplete of Google pay we are getting back mm/yy that its not acceptable and its modified as
     mm / /yy as framework add " / " after the 2 first characters.
-    */
+     */
 
     override fun afterTextChanged(editable: Editable?) {
         if (editable?.contains("/") == true && editable.contains(" / ").not()) {
@@ -30,6 +30,6 @@ class CardExpirationDateEditText : ExpirationDateEditText {
     }
 
     override fun getErrorMessage(): String {
-        return resources.getString(R.string.invalid_date)
+        return resources.getString(com.blockchain.stringResources.R.string.invalid_date)
     }
 }

@@ -18,9 +18,6 @@ class ColorsActivity : AppCompatActivity() {
         findViewById<AppCompatImageView>(R.id.body_color).setBackgroundColor(
             ViewSystemUtils.getSemanticColors(this).body.toArgb()
         )
-        findViewById<AppCompatImageView>(R.id.overlay_color).setBackgroundColor(
-            ViewSystemUtils.getSemanticColors(this).overlay.toArgb()
-        )
         findViewById<AppCompatImageView>(R.id.muted_color).setBackgroundColor(
             ViewSystemUtils.getSemanticColors(this).muted.toArgb()
         )
@@ -34,7 +31,7 @@ class ColorsActivity : AppCompatActivity() {
             ViewSystemUtils.getSemanticColors(this).light.toArgb()
         )
         findViewById<AppCompatImageView>(R.id.background_color).setBackgroundColor(
-            ViewSystemUtils.getSemanticColors(this).background.toArgb()
+            ViewSystemUtils.getSemanticColors(this).backgroundSecondary.toArgb()
         )
         findViewById<AppCompatImageView>(R.id.primary_color).setBackgroundColor(
             ViewSystemUtils.getSemanticColors(this).primary.toArgb()

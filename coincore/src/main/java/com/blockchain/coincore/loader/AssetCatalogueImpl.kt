@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 class AssetCatalogueImpl internal constructor(
     private val assetsService: DynamicAssetsService,
-    private val assetsDataManager: DynamicAssetsDataManager,
+    private val assetsDataManager: DynamicAssetsDataManager
 ) : AssetCatalogue {
 
     private val fullAssetLookup: AtomicReference<Map<String, Currency>> = AtomicReference(emptyMap())
@@ -48,7 +48,7 @@ class AssetCatalogueImpl internal constructor(
         l1chain: String,
         contractAddress: String
     ): AssetInfo? = fullAssetLookup.get().values.filterIsInstance<AssetInfo>().firstOrNull { asset ->
-        asset.l1chainTicker == l1chain &&
+        asset.coinNetwork?.networkTicker == l1chain &&
             asset.l2identifier?.equals(contractAddress, ignoreCase = true) == true
     }
 
@@ -70,16 +70,5 @@ class AssetCatalogueImpl internal constructor(
         get() = fullAssetLookup.get().values.filterIsInstance<FiatCurrency>().toList()
 
     override fun supportedL2Assets(chain: AssetInfo): List<AssetInfo> =
-        supportedCryptoAssets.filter { it.l1chainTicker == chain.networkTicker }
-
-    override fun availableL1Assets(): Single<List<AssetInfo>> = assetsService.availableL1Assets()
-
-    // Returns the AssetInfo for every Coin from coin definitions with the network type EVM except Ethereum
-    override fun otherEvmAssets(): Single<List<AssetInfo>> = assetsService.otherEvmAssets()
-
-    // Returns the list of EvmNetworks from the coin networks service including Ethereum
-    fun allEvmNetworks() = assetsService.allEvmNetworks()
-
-    // Returns the list of EvmNetworks from the coin networks service except Ethereum
-    fun otherEvmNetworks() = assetsService.otherEvmNetworks()
+        supportedCryptoAssets.filter { it.coinNetwork?.networkTicker == chain.networkTicker }
 }

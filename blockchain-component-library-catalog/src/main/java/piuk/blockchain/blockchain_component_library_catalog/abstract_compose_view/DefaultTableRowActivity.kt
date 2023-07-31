@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.tablerow.DefaultStackedIconTableRowView
 import com.blockchain.componentlib.tablerow.DefaultTableRowView
 import com.blockchain.componentlib.tablerow.ToggleTableRowView
 import com.blockchain.componentlib.tag.TagType
@@ -52,23 +51,6 @@ class DefaultTableRowActivity : AppCompatActivity() {
             primaryText = "Email Address"
             secondaryText = "satoshi@blockchain.com"
             tags = listOf(TagViewState("Confirmed", TagType.Success()))
-            onClick = {
-                Toast.makeText(this@DefaultTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
-
-        findViewById<DefaultStackedIconTableRowView>(R.id.stacked_icon_table_row).apply {
-            primaryText = "Primary text"
-            secondaryText = "Secondary text"
-            topImageResource = ImageResource.Remote(
-                url = "https://www.blockchain.com/static/img/prices/prices-btc.svg",
-                contentDescription = null,
-            )
-            bottomImageResource = ImageResource.Remote(
-                url = "https://www.blockchain.com/static/img/prices/prices-eth.svg",
-                contentDescription = null,
-            )
             onClick = {
                 Toast.makeText(this@DefaultTableRowActivity, "Clicked", Toast.LENGTH_SHORT)
                     .show()

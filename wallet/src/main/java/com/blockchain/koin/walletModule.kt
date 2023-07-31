@@ -11,14 +11,14 @@ import info.blockchain.wallet.api.session.SessionIdRepository
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthEndpoints
 import info.blockchain.wallet.ethereum.node.EthNodeEndpoints
-import info.blockchain.wallet.metadata.MetadataInteractor
-import info.blockchain.wallet.metadata.MetadataService
+import info.blockchain.wallet.metadata.MetadataApiService
 import info.blockchain.wallet.multiaddress.MultiAddressFactory
 import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc
 import info.blockchain.wallet.payload.BalanceManagerBch
 import info.blockchain.wallet.payload.BalanceManagerBtc
 import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.PayloadScopeWiper
+import info.blockchain.wallet.payload.store.PayloadDataStore
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.dsl.bind
@@ -32,13 +32,15 @@ val walletModule = module {
         scoped {
             PayloadManager(
                 walletApi = get(),
+                payloadDataStore = get(),
                 bitcoinApi = get(),
                 multiAddressFactory = get(),
                 balanceManagerBtc = get(),
                 balanceManagerBch = get(),
                 device = get(),
                 remoteLogger = get(),
-                appVersion = get()
+                appVersion = get(),
+                notificationTransmitter = get()
             )
         }
 
@@ -49,14 +51,14 @@ val walletModule = module {
         factory { BalanceManagerBch(bitcoinApi = get()) }
     }
 
-    factory {
-        MetadataInteractor(
-            metadataService = get()
+    single {
+        PayloadDataStore(
+            walletApi = get(),
         )
     }
 
     single {
-        get<Retrofit>(apiRetrofit).create(MetadataService::class.java)
+        get<Retrofit>(apiRetrofit).create(MetadataApiService::class.java)
     }
 
     factory {

@@ -12,7 +12,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
@@ -25,15 +24,18 @@ fun StackedIcons(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.size(width = dimensionResource(R.dimen.large_spacing), height = 40.dp)
+        modifier = modifier.size(
+            width = dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing),
+            height = 40.dp
+        )
     ) {
         Image(
             imageResource = bottomImageResource,
             modifier = Modifier
-                .size(dimensionResource(R.dimen.standard_spacing))
+                .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                 .clip(CircleShape)
-                .background(AppTheme.colors.background)
-                .align(Alignment.BottomEnd),
+                .background(AppTheme.colors.backgroundSecondary)
+                .align(Alignment.BottomEnd)
         )
 
         Image(
@@ -41,9 +43,9 @@ fun StackedIcons(
             modifier = Modifier
                 .size(28.dp)
                 .clip(CircleShape)
-                .background(AppTheme.colors.background)
-                .border(2.dp, AppTheme.colors.background, shape = CircleShape)
-                .align(Alignment.TopStart),
+                .background(AppTheme.colors.backgroundSecondary)
+                .border(2.dp, AppTheme.colors.backgroundSecondary, shape = CircleShape)
+                .align(Alignment.TopStart)
         )
     }
 }
@@ -55,7 +57,7 @@ fun StackedIcons_Basic() {
         AppSurface {
             StackedIcons(
                 topImageResource = ImageResource.Remote("", null),
-                bottomImageResource = ImageResource.Remote("", null),
+                bottomImageResource = ImageResource.Remote("", null)
             )
         }
     }

@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.auth.newlogin.data
 
+import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.koin.payloadScopeQualifier
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.auth.newlogin.data.repository.SecureChannelRepository
-import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 
 val secureChannelDataModule = module {
     scope(payloadScopeQualifier) {

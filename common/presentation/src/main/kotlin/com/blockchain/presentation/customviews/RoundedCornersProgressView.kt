@@ -15,7 +15,8 @@ class RoundedCornersProgressView : View {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context, attrs,
+        context,
+        attrs,
         defStyleAttr
     )
 
@@ -52,7 +53,9 @@ class RoundedCornersProgressView : View {
     private fun updateRect() {
         val strokeWidth = backgroundPaint.strokeWidth
         rect.set(
-            strokeWidth, strokeWidth, diameter - strokeWidth,
+            strokeWidth,
+            strokeWidth,
+            diameter - strokeWidth,
             diameter - strokeWidth
         )
     }

@@ -13,21 +13,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.annotation.StringRes
-import androidx.appcompat.widget.AppCompatButton
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.button.common.BaseButtonView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.paymentmethods.model.BankAuthError
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
+import com.blockchain.domain.paymentmethods.model.BankLinkingProcessState
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.extensions.exhaustive
-import com.blockchain.presentation.getResolvedDrawable
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.FiatCurrency
@@ -98,11 +100,11 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity.updateToolbar(
-            if (isForApproval) {
-                getString(R.string.approve_payment)
+            toolbarTitle = if (isForApproval) {
+                getString(com.blockchain.stringResources.R.string.approve_payment)
             } else {
-                getString(R.string.link_a_bank)
-            },
+                getString(com.blockchain.stringResources.R.string.link_a_bank)
+            }
         )
 
         if (savedInstanceState == null) {
@@ -117,12 +119,15 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                         )
                     }
                 }
+
                 isFromDeepLink -> {
                     model.process(BankAuthIntent.GetLinkedBankState(linkingBankId, isFromDeepLink))
                 }
+
                 refreshBankAccountId != null -> {
                     model.process(BankAuthIntent.RefreshPlaidAccount(refreshBankAccountId))
                 }
+
                 else -> {
                     startBankAuthentication()
                 }
@@ -130,11 +135,18 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
 
         with(binding) {
-            mainCta.setOnClickListener {
-                logRetryLaunchAnalytics()
-                mainCta.gone()
-                secondaryCta.gone()
-                startBankAuthentication()
+            mainCta.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_retry)
+                onClick = {
+                    logRetryLaunchAnalytics()
+                    mainCta.gone()
+                    secondaryCta.gone()
+                    startBankAuthentication()
+                }
+            }
+
+            secondaryCta.apply {
+                text = getString(com.blockchain.stringResources.R.string.yodlee_linking_cancel)
             }
         }
     }
@@ -161,6 +173,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 navigator().bankAuthCancelled()
                 return
             }
+
             BankLinkingProcessState.LINKING -> showLinkingInProgress(newState.linkBankTransfer)
             BankLinkingProcessState.ACTIVATING -> showActivationInProgress()
             BankLinkingProcessState.IN_EXTERNAL_FLOW -> {
@@ -170,6 +183,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     }
                 }
             }
+
             BankLinkingProcessState.IN_REFRESH_FLOW -> {
                 showLoading()
                 newState.refreshBankInfo?.let {
@@ -183,11 +197,13 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     )
                 }
             }
+
             BankLinkingProcessState.APPROVAL -> {
                 approvalData?.let {
                     showApprovalInProgress(it.linkedBank)
                 }
             }
+
             BankLinkingProcessState.APPROVAL_WAIT -> showBankApproval()
             BankLinkingProcessState.LINKING_SUCCESS -> processLinkingSuccess(newState)
             BankLinkingProcessState.NONE -> {
@@ -242,7 +258,11 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 } else {
                     model.process(
                         BankAuthIntent.UpdateAccountProvider(
-                            accountProviderId, accountId, linkingBankId, it, authSource
+                            accountProviderId,
+                            accountId,
+                            linkingBankId,
+                            it,
+                            authSource
                         )
                     )
                 }
@@ -255,8 +275,9 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             mainCta.visible()
             linkBankProgress.gone()
             linkBankStateIndicator.visible()
-            linkBankTitle.text = getString(R.string.yapily_bank_link_choice_error_title)
-            linkBankSubtitle.text = getString(R.string.yapily_bank_link_choice_error_subtitle)
+            linkBankTitle.text = getString(com.blockchain.stringResources.R.string.yapily_bank_link_choice_error_title)
+            linkBankSubtitle.text =
+                getString(com.blockchain.stringResources.R.string.yapily_bank_link_choice_error_subtitle)
             linkBankStateIndicator.setImageResource(R.drawable.ic_alert_white_bkgd)
         }
         model.process(BankAuthIntent.ResetBankLinking)
@@ -280,13 +301,17 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         val receiverIntent = Intent(context, receiver.javaClass)
         val pendingIntent =
             PendingIntent.getBroadcast(
-                context, 0, receiverIntent,
+                context,
+                0,
+                receiverIntent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
         try {
             startActivity(
                 Intent.createChooser(
-                    intent, getString(R.string.yapily_bank_link_app_choice_title), pendingIntent.intentSender
+                    intent,
+                    getString(com.blockchain.stringResources.R.string.yapily_bank_link_app_choice_title),
+                    pendingIntent.intentSender
                 )
             )
             hasExternalLinkingLaunched = true
@@ -295,7 +320,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             model.process(BankAuthIntent.ErrorIntent())
             BlockchainSnackbar.make(
                 binding.root,
-                getString(R.string.yapily_bank_link_no_apps),
+                getString(com.blockchain.stringResources.R.string.yapily_bank_link_no_apps),
                 type = SnackbarType.Error
             ).show()
         }
@@ -305,45 +330,47 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         showLoading()
         setTitleAndSubtitle(
             getString(
-                R.string.yapily_linking_in_progress_title,
-                approvalData?.linkedBank?.accountName ?: getString(R.string.yapily_linking_default_bank)
+                com.blockchain.stringResources.R.string.yapily_linking_in_progress_title,
+                approvalData?.linkedBank?.accountName ?: getString(
+                    com.blockchain.stringResources.R.string.yapily_linking_default_bank
+                )
             ),
-            getString(R.string.yapily_approval_in_progress_subtitle)
+            getString(com.blockchain.stringResources.R.string.yapily_approval_in_progress_subtitle)
         )
 
         binding.mainCta.visible()
-        showCancelButton(R.string.cancel_order)
+        showCancelButton(com.blockchain.stringResources.R.string.cancel_order)
     }
 
     private fun showActivationInProgress() {
         showLoading()
         binding.linkBankIcon.setImageResource(R.drawable.ic_blockchain_blue_circle)
         setTitleAndSubtitle(
-            getString(R.string.yapily_activating_title),
-            getString(R.string.yapily_activating_subtitle)
+            getString(com.blockchain.stringResources.R.string.yapily_activating_title),
+            getString(com.blockchain.stringResources.R.string.yapily_activating_subtitle)
         )
     }
 
     private fun showApprovalInProgress(linkedBank: LinkedBank) {
         showLoading()
         setTitleAndSubtitle(
-            getString(R.string.yapily_approving_title, linkedBank.bankName),
-            getString(R.string.yapily_approving_subtitle)
+            getString(com.blockchain.stringResources.R.string.yapily_approving_title, linkedBank.bankName),
+            getString(com.blockchain.stringResources.R.string.yapily_approving_subtitle)
         )
         model.process(BankAuthIntent.ClearApprovalState)
     }
 
     private fun showExternalFlow(attrs: YapilyAttributes) {
         showLoading()
-        showCancelButton(R.string.common_cancel)
+        showCancelButton(com.blockchain.stringResources.R.string.common_cancel)
         hasChosenExternalApp = false
         setTitleAndSubtitle(
             getString(
-                R.string.yapily_linking_in_progress_title,
+                com.blockchain.stringResources.R.string.yapily_linking_in_progress_title,
                 attrs.institutionList.find { institution -> institution.id == accountId }?.name
-                    ?: getString(R.string.yapily_linking_default_bank)
+                    ?: getString(com.blockchain.stringResources.R.string.yapily_linking_default_bank)
             ),
-            getString(R.string.yapily_linking_in_progress_subtitle)
+            getString(com.blockchain.stringResources.R.string.yapily_linking_in_progress_subtitle)
         )
         model.process(BankAuthIntent.GetLinkedBankState(linkingBankId))
     }
@@ -370,23 +397,25 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     navigateBack(partner, linkBankTransferId)
                 }
             }
+
             BankAuthError.LinkedBankInvalid,
-            BankAuthError.LinkedBankAccountUnsupported,
+            BankAuthError.LinkedBankAccountUnsupported
             -> {
                 showGoBackButton(binding.mainCta) {
                     navigateBack(partner, linkBankTransferId)
                 }
             }
+
             BankAuthError.LinkedBankInfoNotFound,
             BankAuthError.LinkedBankInternalFailure,
             BankAuthError.LinkedBankFailure,
             BankAuthError.LinkedBankFraud,
-            BankAuthError.LinkedBankRejected,
+            BankAuthError.LinkedBankRejected
             -> {
                 binding.mainCta.apply {
-                    text = getString(R.string.bank_linking_try_again)
+                    text = getString(com.blockchain.stringResources.R.string.bank_linking_try_again)
                     visible()
-                    setOnClickListener {
+                    onClick = {
                         logRetryAnalytics(errorState, partner)
                         retryLinking(partner, linkBankTransferId)
                     }
@@ -396,11 +425,12 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     navigator().bankAuthCancelled()
                 }
             }
+
             BankAuthError.LinkedBankExpired -> {
                 binding.mainCta.apply {
-                    text = getString(R.string.bank_linking_try_another_method)
+                    text = getString(com.blockchain.stringResources.R.string.bank_linking_try_another_method)
                     visible()
-                    setOnClickListener {
+                    onClick = {
                         logRetryAnalytics(errorState, partner)
                         retryLinking(partner, linkBankTransferId)
                     }
@@ -410,11 +440,12 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     navigator().bankAuthCancelled()
                 }
             }
+
             BankAuthError.LinkedBankNamesMismatched -> {
                 binding.mainCta.apply {
-                    text = getString(R.string.bank_linking_try_different_account)
+                    text = getString(com.blockchain.stringResources.R.string.bank_linking_try_different_account)
                     visible()
-                    setOnClickListener {
+                    onClick = {
                         logRetryAnalytics(errorState, partner)
                         retryLinking(partner, linkBankTransferId)
                     }
@@ -424,6 +455,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     navigator().bankAuthCancelled()
                 }
             }
+
             else -> {
                 showGoBackButton(binding.mainCta) {
                     navigator().bankAuthCancelled()
@@ -436,10 +468,13 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         when (partner) {
             BankPartner.YAPILY ->
                 navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+
             BankPartner.YODLEE ->
                 navigator().launchYodleeSplash(linkBankTransfer?.attributes as YodleeAttributes, bankId)
+
             BankPartner.PLAID ->
                 navigator().bankAuthCancelled()
+
             null ->
                 navigator().bankAuthCancelled()
         }.exhaustive
@@ -449,10 +484,13 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         when (partner) {
             BankPartner.YAPILY ->
                 navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+
             BankPartner.YODLEE ->
                 navigator().launchYodleeSplash(linkBankTransfer?.attributes as YodleeAttributes, bankId)
+
             BankPartner.PLAID ->
                 navigator().launchPlaidLink(linkBankTransfer?.attributes as PlaidAttributes, bankId)
+
             null ->
                 navigator().bankAuthCancelled()
         }.exhaustive
@@ -465,56 +503,63 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         when (errorState) {
             BankAuthError.BankLinkingTimeout -> {
                 setTitleAndSubtitle(
-                    getString(R.string.bank_linking_timeout_error_title),
-                    getString(R.string.bank_linking_timeout_error_subtitle)
+                    getString(com.blockchain.stringResources.R.string.bank_linking_timeout_error_title),
+                    getString(com.blockchain.stringResources.R.string.bank_linking_timeout_error_subtitle)
                 )
             }
+
             BankAuthError.LinkedBankInvalid,
-            BankAuthError.LinkedBankAccountUnsupported,
+            BankAuthError.LinkedBankAccountUnsupported
             -> {
                 logAnalytics(BankAuthAnalytics.INCORRECT_ACCOUNT, partner)
                 when (partner) {
                     BankPartner.YODLEE, BankPartner.PLAID ->
                         setTitleAndSubtitle(
-                            getString(R.string.bank_linking_account_ach_error_title),
-                            getString(R.string.bank_linking_account_ach_error_subtitle)
+                            getString(com.blockchain.stringResources.R.string.bank_linking_account_ach_error_title),
+                            getString(com.blockchain.stringResources.R.string.bank_linking_account_ach_error_subtitle)
                         )
+
                     BankPartner.YAPILY, null ->
                         setTitleAndSubtitle(
-                            getString(R.string.bank_linking_account_ob_error_title),
-                            getString(R.string.bank_linking_account_ob_error_subtitle)
+                            getString(com.blockchain.stringResources.R.string.bank_linking_account_ob_error_title),
+                            getString(com.blockchain.stringResources.R.string.bank_linking_account_ob_error_subtitle)
                         )
                 }.exhaustive
             }
+
             BankAuthError.LinkedBankInfoNotFound,
             BankAuthError.LinkedBankInternalFailure,
             BankAuthError.LinkedBankFailure,
-            BankAuthError.LinkedBankFraud,
+            BankAuthError.LinkedBankFraud
             -> {
                 when (partner) {
                     BankPartner.YODLEE, BankPartner.PLAID ->
                         setTitleAndSubtitle(
-                            getString(R.string.bank_linking_failed_ob_title),
-                            getString(R.string.bank_linking_failed_subtitle)
+                            getString(com.blockchain.stringResources.R.string.bank_linking_failed_ob_title),
+                            getString(com.blockchain.stringResources.R.string.bank_linking_failed_subtitle)
                         )
+
                     BankPartner.YAPILY, null ->
                         setTitleAndSubtitle(
-                            getString(R.string.bank_linking_failed_ach_title),
-                            getString(R.string.bank_linking_failed_subtitle)
+                            getString(com.blockchain.stringResources.R.string.bank_linking_failed_ach_title),
+                            getString(com.blockchain.stringResources.R.string.bank_linking_failed_subtitle)
                         )
                 }.exhaustive
             }
+
             BankAuthError.LinkedBankAlreadyLinked -> {
                 logAnalytics(BankAuthAnalytics.ALREADY_LINKED, partner)
                 setTitleAndSubtitle(
-                    getString(R.string.bank_linking_already_linked_error_title),
-                    getString(R.string.bank_linking_already_linked_error_subtitle)
+                    getString(com.blockchain.stringResources.R.string.bank_linking_already_linked_error_title),
+                    getString(com.blockchain.stringResources.R.string.bank_linking_already_linked_error_subtitle)
                 )
             }
+
             BankAuthError.LinkedBankNamesMismatched -> {
                 logAnalytics(BankAuthAnalytics.ACCOUNT_MISMATCH, partner)
                 with(binding) {
-                    linkBankTitle.text = getString(R.string.bank_linking_mismatched_title)
+                    linkBankTitle.text =
+                        getString(com.blockchain.stringResources.R.string.bank_linking_mismatched_title)
 
                     val linksMap = mapOf<String, Uri>(
                         "learn_more" to Uri.parse(URL_YODLEE_SUPPORT_LEARN_MORE)
@@ -522,34 +567,37 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
                     val text = StringUtils.getStringWithMappedAnnotations(
                         requireContext(),
-                        R.string.bank_linking_mismatched_subtitle,
+                        com.blockchain.stringResources.R.string.bank_linking_mismatched_subtitle,
                         linksMap
                     )
                     linkBankSubtitle.text = text
                     linkBankSubtitle.movementMethod = LinkMovementMethod.getInstance()
                 }
             }
+
             BankAuthError.LinkedBankExpired -> {
                 when (partner) {
                     BankPartner.YODLEE, BankPartner.PLAID ->
                         setTitleAndSubtitle(
-                            getString(R.string.bank_linking_expired_ach_title),
-                            getString(R.string.bank_linking_expired_subtitle)
+                            getString(com.blockchain.stringResources.R.string.bank_linking_expired_ach_title),
+                            getString(com.blockchain.stringResources.R.string.bank_linking_expired_subtitle)
                         )
+
                     BankPartner.YAPILY, null ->
                         setTitleAndSubtitle(
-                            getString(R.string.bank_linking_expired_ob_title),
-                            getString(R.string.bank_linking_expired_subtitle)
+                            getString(com.blockchain.stringResources.R.string.bank_linking_expired_ob_title),
+                            getString(com.blockchain.stringResources.R.string.bank_linking_expired_subtitle)
                         )
                 }.exhaustive
             }
+
             BankAuthError.LinkedBankRejected -> {
                 with(binding) {
-                    linkBankTitle.text = getString(R.string.bank_linking_rejected_title)
+                    linkBankTitle.text = getString(com.blockchain.stringResources.R.string.bank_linking_rejected_title)
 
                     val text = StringUtils.getStringWithMappedAnnotations(
                         requireContext(),
-                        R.string.bank_linking_rejected_subtitle,
+                        com.blockchain.stringResources.R.string.bank_linking_rejected_subtitle,
                         emptyMap(),
                         onClick = {
                             requireActivity().startActivity(SupportCentreActivity.newIntent(requireContext()))
@@ -560,22 +608,25 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     linkBankSubtitle.movementMethod = LinkMovementMethod.getInstance()
                 }
             }
+
             is BankAuthError.ServerSideDrivenLinkedBankError -> setTitleAndSubtitle(
                 errorState.title,
                 errorState.message
             )
+
             else -> {
                 logAnalytics(BankAuthAnalytics.GENERIC_ERROR, partner)
                 when (partner) {
                     BankPartner.YODLEE, BankPartner.PLAID ->
                         setTitleAndSubtitle(
-                            getString(R.string.bank_linking_failed_ach_title),
-                            getString(R.string.bank_linking_failed_subtitle)
+                            getString(com.blockchain.stringResources.R.string.bank_linking_failed_ach_title),
+                            getString(com.blockchain.stringResources.R.string.bank_linking_failed_subtitle)
                         )
+
                     BankPartner.YAPILY, null ->
                         setTitleAndSubtitle(
-                            getString(R.string.bank_linking_failed_ob_title),
-                            getString(R.string.bank_linking_failed_subtitle)
+                            getString(com.blockchain.stringResources.R.string.bank_linking_failed_ob_title),
+                            getString(com.blockchain.stringResources.R.string.bank_linking_failed_subtitle)
                         )
                 }.exhaustive
             }
@@ -583,7 +634,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
     }
 
     private fun setErrorIcons(
-        state: BankAuthError,
+        state: BankAuthError
     ) {
         with(binding) {
             linkBankProgress.gone()
@@ -608,7 +659,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                             },
                             onStatusIconLoadError = {
                                 showDefaultErrorIcons(state)
-                            },
+                            }
                         )
                     }
                     // we only have one icon
@@ -687,17 +738,18 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                         val attrs = linkBank.attributes as YapilyAttributes
                         setTitleAndSubtitle(
                             getString(
-                                R.string.yapily_linking_pending_title,
+                                com.blockchain.stringResources.R.string.yapily_linking_pending_title,
                                 attrs.institutionList.find { institution -> institution.id == accountId }?.name
-                                    ?: getString(R.string.yapily_linking_default_bank)
+                                    ?: getString(com.blockchain.stringResources.R.string.yapily_linking_default_bank)
                             ),
-                            getString(R.string.yapily_linking_pending_subtitle)
+                            getString(com.blockchain.stringResources.R.string.yapily_linking_pending_subtitle)
                         )
                     }
+
                     BankPartner.YODLEE, BankPartner.PLAID -> {
                         setTitleAndSubtitle(
-                            getString(R.string.yodlee_linking_title),
-                            getString(R.string.yodlee_linking_subtitle)
+                            getString(com.blockchain.stringResources.R.string.yodlee_linking_title),
+                            getString(com.blockchain.stringResources.R.string.yodlee_linking_subtitle)
                         )
                     }
                 }.exhaustive
@@ -709,10 +761,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         with(binding) {
             secondaryCta.apply {
                 visible()
-                background = requireContext().getResolvedDrawable(R.drawable.bkgd_button_no_bkgd_red_selection_selector)
-                setTextColor(resources.getColorStateList(R.color.button_red_text_states, null))
                 text = getString(resId)
-                setOnClickListener {
+                onClick = {
                     model.process(BankAuthIntent.CancelOrder)
                 }
                 analytics.logEvent(bankAuthEvent(BankAuthAnalytics.PIS_EXTERNAL_FLOW_CANCEL, authSource))
@@ -720,13 +770,11 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
     }
 
-    private fun showGoBackButton(button: AppCompatButton, onClick: () -> Unit) {
+    private fun showGoBackButton(button: BaseButtonView, onClick: () -> Unit) {
         button.apply {
-            text = getString(R.string.common_go_back)
+            text = getString(com.blockchain.stringResources.R.string.common_go_back)
             visible()
-            setOnClickListener {
-                onClick()
-            }
+            this@apply.onClick = onClick
         }
     }
 
@@ -741,15 +789,15 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 visible()
             }
             mainCta.apply {
-                text = getString(R.string.common_continue)
+                text = getString(com.blockchain.stringResources.R.string.common_continue)
                 visible()
-                setOnClickListener {
+                onClick = {
                     navigator().bankLinkingFinished(id, currency)
                 }
             }
             setTitleAndSubtitle(
-                getString(R.string.bank_linking_success_title),
-                getString(R.string.bank_linking_success_subtitle, label)
+                getString(com.blockchain.stringResources.R.string.bank_linking_success_title),
+                getString(com.blockchain.stringResources.R.string.bank_linking_success_subtitle, label)
             )
         }
     }
@@ -789,7 +837,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             linkingBankId: String,
             linkingBankToken: String? = null,
             linkBankTransfer: LinkBankTransfer? = null,
-            authSource: BankAuthSource,
+            authSource: BankAuthSource
         ) = BankAuthFragment().apply {
             arguments = Bundle().apply {
                 putString(ACCOUNT_PROVIDER_ID, accountProviderId)
@@ -803,7 +851,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
         fun newInstance(
             errorState: BankAuthError,
-            authSource: BankAuthSource,
+            authSource: BankAuthSource
         ) = BankAuthFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(ERROR_STATE, errorState)
@@ -813,7 +861,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
         fun newInstance(
             approvalData: BankPaymentApproval,
-            authSource: BankAuthSource,
+            authSource: BankAuthSource
         ) = BankAuthFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(APPROVAL_DATA, approvalData)
@@ -825,7 +873,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         fun newInstance(
             linkingId: String,
             authSource: BankAuthSource,
-            fromDeepLink: Boolean = true,
+            fromDeepLink: Boolean = true
         ) = BankAuthFragment().apply {
             arguments = Bundle().apply {
                 putBoolean(FROM_DEEP_LINK, fromDeepLink)
@@ -836,7 +884,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
         fun newInstance(
             refreshBankAccountId: String?,
-            authSource: BankAuthSource,
+            authSource: BankAuthSource
         ) = BankAuthFragment().apply {
             arguments = Bundle().apply {
                 putString(REFRESH_BANK_ACCOUNT_ID, refreshBankAccountId)

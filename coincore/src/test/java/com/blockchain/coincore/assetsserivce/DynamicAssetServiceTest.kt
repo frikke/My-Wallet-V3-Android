@@ -3,11 +3,16 @@ package com.blockchain.coincore.assetsserivce
 import com.blockchain.api.services.DynamicAsset
 import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.coincore.loader.toAssetInfo
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoCurrency
 import org.junit.Test
 
 class DynamicAssetServiceTest {
+    private val network = mock<CoinNetwork> {
+        on { nativeAssetTicker }.thenReturn("networkTicker")
+    }
 
     @Test
     fun `Private Key Dynamic Asset should be mapped properly to Asset Info`() {
@@ -18,10 +23,14 @@ class DynamicAssetServiceTest {
             isFiat = false,
             precision = 12,
             minConfirmations = 1,
-            products = setOf(DynamicAssetProducts.PrivateKey, DynamicAssetProducts.DynamicSelfCustody),
+            products = setOf(DynamicAssetProducts.PrivateKey, DynamicAssetProducts.DynamicSelfCustody)
         )
 
-        val assetInfo = dynamicAsset.toAssetInfo()
+        val assetInfo = dynamicAsset.toAssetInfo(
+            listOf(
+                network
+            )
+        )
         assert(
             assetInfo == CryptoCurrency(
                 displayTicker = "displayTicker",
@@ -30,6 +39,7 @@ class DynamicAssetServiceTest {
                 precisionDp = 12,
                 requiredConfirmations = 1,
                 colour = "#0C6CF2",
+                coinNetwork = network,
                 categories = setOf(AssetCategory.NON_CUSTODIAL)
             )
         )
@@ -44,10 +54,10 @@ class DynamicAssetServiceTest {
             isFiat = false,
             precision = 12,
             minConfirmations = 1,
-            products = setOf(DynamicAssetProducts.CustodialWalletBalance),
+            products = setOf(DynamicAssetProducts.CustodialWalletBalance)
         )
 
-        val assetInfo = dynamicAsset.toAssetInfo()
+        val assetInfo = dynamicAsset.toAssetInfo(listOf(network))
         assert(
             assetInfo == CryptoCurrency(
                 displayTicker = "CustodialDisplayTicker",

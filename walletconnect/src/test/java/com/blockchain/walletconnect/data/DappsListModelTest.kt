@@ -2,12 +2,14 @@ package com.blockchain.walletconnect.data
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.walletconnect.domain.ClientMeta
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletconnect.domain.WalletInfo
 import com.blockchain.walletconnect.ui.dapps.DappsListIntent
 import com.blockchain.walletconnect.ui.dapps.DappsListModel
@@ -31,6 +33,8 @@ class DappsListModelTest {
     private val remoteLogger = mock<RemoteLogger>()
     private var sessionsRepository = mock<SessionRepository>()
     private var walletConnectServiceAPI = mock<WalletConnectServiceAPI>()
+    private var walletConnectV2Service = mock<WalletConnectV2Service>()
+    private val walletConnectV2FeatureFlag = mock<FeatureFlag>()
 
     @get:Rule
     val rx = rxInit {
@@ -46,17 +50,21 @@ class DappsListModelTest {
             enviromentConfig,
             remoteLogger,
             sessionsRepository,
-            walletConnectServiceAPI
+            walletConnectServiceAPI,
+            walletConnectV2Service,
+            walletConnectV2FeatureFlag
         )
+
+        whenever(walletConnectV2FeatureFlag.enabled).thenReturn(Single.just(false))
     }
 
     @Test
     fun `Repository  sessions should be represented in the state`() {
-
         whenever(sessionsRepository.retrieve()).thenReturn(
             Single.just(
                 listOf(
-                    fakeSession1, fakeSession2
+                    fakeSession1,
+                    fakeSession2
                 )
             )
         )

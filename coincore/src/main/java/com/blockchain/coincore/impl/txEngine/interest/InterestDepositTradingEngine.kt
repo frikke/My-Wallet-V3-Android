@@ -1,11 +1,10 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxConfirmationValue
@@ -17,7 +16,6 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -28,25 +26,24 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositTradingEngine(
-    private val interestBalanceStore: InterestBalancesStore,
+    private val interestBalanceStore: FlushableDataSource,
     interestService: InterestService,
     private val tradingStore: TradingStore,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager
 ) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(interestBalanceStore, tradingStore)
+        get() = listOf(interestBalanceStore, tradingStore, paymentTransactionHistoryStore)
 
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)
-        check(txTarget is InterestAccount)
+        check(txTarget is EarnRewardsAccount.Interest)
         check(txTarget is CryptoAccount)
         check(sourceAsset == (txTarget as CryptoAccount).currency)
     }
 
     private val availableBalance: Single<Money>
-        get() = sourceAccount.balanceRx.firstOrError().map { it.total }
+        get() = sourceAccount.balanceRx().firstOrError().map { it.total }
 
     override fun doInitialiseTx(): Single<PendingTx> {
         return Single.zip(
@@ -106,7 +103,9 @@ class InterestDepositTradingEngine(
             txConfirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
                 TxConfirmationValue.To(
-                    txTarget, AssetAction.InterestDeposit, sourceAccount
+                    txTarget,
+                    AssetAction.InterestDeposit,
+                    sourceAccount
                 ),
                 TxConfirmationValue.Total(
                     totalWithFee = (pendingTx.amount as CryptoValue).plus(

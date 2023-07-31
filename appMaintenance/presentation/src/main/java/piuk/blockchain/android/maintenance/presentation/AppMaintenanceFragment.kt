@@ -80,7 +80,6 @@ class AppMaintenanceFragment :
 
     override fun route(navigationEvent: AppMaintenanceNavigationEvent) {
         when (navigationEvent) {
-
             is AppMaintenanceNavigationEvent.OpenUrl -> {
                 openUrl(navigationEvent.url)
             }
@@ -120,7 +119,7 @@ class AppMaintenanceFragment :
         view?.let {
             BlockchainSnackbar.make(
                 it,
-                getString(R.string.app_maintenance_error_inapp_update),
+                getString(com.blockchain.stringResources.R.string.app_maintenance_error_inapp_update),
                 type = SnackbarType.Error
             ).show()
         }

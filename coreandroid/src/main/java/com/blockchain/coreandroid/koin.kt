@@ -15,23 +15,31 @@ import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
-import com.blockchain.preferences.BlockchainCardPrefs
+import com.blockchain.preferences.CountryPrefs
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.DexPrefs
 import com.blockchain.preferences.ExchangeCampaignPrefs
+import com.blockchain.preferences.HandholdPrefs
+import com.blockchain.preferences.IterableAnnouncementsPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.MaskedValuePrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.PricesPrefs
+import com.blockchain.preferences.RecurringBuyPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.preferences.RuntimePermissionsPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.preferences.SmallBalancesPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
+import com.blockchain.preferences.ThemePrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
@@ -60,13 +68,17 @@ val coreAndroidModule = module {
     }.apply {
         bind(SessionPrefs::class)
         bind(CurrencyPrefs::class)
+        bind(SmallBalancesPrefs::class)
         bind(NotificationPrefs::class)
         bind(DashboardPrefs::class)
+        bind(DexPrefs::class)
         bind(SecurityPrefs::class)
+        bind(CountryPrefs::class)
         bind(PricesPrefs::class)
         bind(WalletModePrefs::class)
         bind(RemoteConfigPrefs::class)
         bind(SimpleBuyPrefs::class)
+        bind(RecurringBuyPrefs::class)
         bind(WalletStatusPrefs::class)
         bind(EncryptedPrefs::class)
         bind(TransactionPrefs::class)
@@ -82,13 +94,18 @@ val coreAndroidModule = module {
         bind(LocalSettingsPrefs::class)
         bind(SuperAppMvpPrefs::class)
         bind(CowboysPrefs::class)
-        bind(BlockchainCardPrefs::class)
         bind(ExchangeCampaignPrefs::class)
+        bind(IterableAnnouncementsPrefs::class)
+        bind(MaskedValuePrefs::class)
+        bind(HandholdPrefs::class)
+        bind(ThemePrefs::class)
+        bind(RuntimePermissionsPrefs::class)
     }
 
     factory {
         PreferenceManager.getDefaultSharedPreferences(
-            /* context = */ get()
+            /* context = */
+            get()
         )
     }
 
@@ -101,7 +118,7 @@ val coreAndroidModule = module {
             firebaseRemoteConfig = get(),
             remoteConfigPrefs = get(),
             experimentsStore = get(),
-            json = get(),
+            json = get()
         )
     }.bind(RemoteConfigService::class)
 }

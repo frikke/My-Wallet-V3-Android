@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow.flow.sheets
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,13 +32,12 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.control.PagerIndicatorDots
 import com.blockchain.componentlib.sheets.SheetHeader
-import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.White
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -61,6 +61,10 @@ class StakingAccountWithdrawWarning : ComposeModalBottomDialog() {
         arguments?.getString(ASSET_ICON_URL)
     }
 
+    private val unbondingDays: Int? by lazy {
+        arguments?.getInt(UNBONDING_DAYS)
+    }
+
     interface Host : HostedBottomSheet.Host {
         fun learnMoreClicked()
         fun onNextClicked()
@@ -74,17 +78,22 @@ class StakingAccountWithdrawWarning : ComposeModalBottomDialog() {
             onClose = { host.onClose() },
             onLearnMoreClicked = host::learnMoreClicked,
             onNext = host::onNextClicked,
-            assetIcon = assetIconUrl?.let { ImageResource.Remote(it) } ?: ImageResource.Local(R.drawable.ic_blockchain),
-            accountTypeIcon = ImageResource.Local(R.drawable.ic_staking_explainer)
+            assetIcon = assetIconUrl?.let {
+                ImageResource.Remote(it)
+            } ?: ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain),
+            accountTypeIcon = ImageResource.Local(R.drawable.ic_staking_explainer),
+            unbondingDays = unbondingDays ?: 42
         )
     }
 
     companion object {
         private const val ASSET_ICON_URL = "ASSET_ICON_URL"
-        fun newInstance(assetIconUrl: String?) =
+        private const val UNBONDING_DAYS = "UNBONDING_DAYS"
+        fun newInstance(assetIconUrl: String?, unbondingDays: Int) =
             StakingAccountWithdrawWarning().apply {
                 arguments = Bundle().apply {
                     putString(ASSET_ICON_URL, assetIconUrl)
+                    putInt(UNBONDING_DAYS, unbondingDays)
                 }
             }
     }
@@ -98,9 +107,18 @@ fun StakingAccountInfo(
     onLearnMoreClicked: () -> Unit,
     onNext: () -> Unit,
     assetIcon: ImageResource,
-    accountTypeIcon: ImageResource
+    accountTypeIcon: ImageResource,
+    unbondingDays: Int
 ) {
-    val items = listOf(InfoItem(stringResource(id = R.string.staking_cannot_withdraw_paragraph)))
+    val items =
+        listOf(
+            InfoItem(
+                stringResource(
+                    id = com.blockchain.stringResources.R.string.staking_cannot_withdraw_paragraph,
+                    unbondingDays
+                )
+            )
+        )
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
     val scroll = rememberScrollState(0)
@@ -115,18 +133,19 @@ fun StakingAccountInfo(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.background(White)
+        modifier = Modifier.background(AppColors.background)
     ) {
         SheetHeader(
             onClosePress = {
                 onClose()
                 dismiss()
             },
-            title = stringResource(id = R.string.default_label_staking_wallet),
-            shouldShowDivider = false
+            title = stringResource(id = com.blockchain.stringResources.R.string.default_label_staking_wallet),
+            shouldShowDivider = false,
+            backgroundSecondary = false,
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)))
 
         Box(
             modifier = Modifier.size(102.dp)
@@ -134,38 +153,38 @@ fun StakingAccountInfo(
             Image(
                 imageResource = assetIcon,
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.epic_spacing))
+                    .size(dimensionResource(com.blockchain.componentlib.R.dimen.epic_spacing))
                     .clip(CircleShape)
-                    .background(AppTheme.colors.background)
-                    .align(Alignment.Center),
+                    .background(AppTheme.colors.backgroundSecondary)
+                    .align(Alignment.Center)
             )
 
             Image(
                 imageResource = accountTypeIcon,
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.huge_spacing))
+                    .size(dimensionResource(com.blockchain.componentlib.R.dimen.huge_spacing))
                     .clip(CircleShape)
-                    .background(AppTheme.colors.background)
+                    .background(AppTheme.colors.backgroundSecondary)
                     .border(
-                        dimensionResource(R.dimen.borderRadiiSmallest),
-                        color = AppTheme.colors.background,
+                        dimensionResource(com.blockchain.componentlib.R.dimen.borderRadiiSmallest),
+                        color = AppTheme.colors.backgroundSecondary,
                         shape = CircleShape
                     )
-                    .align(Alignment.BottomEnd),
+                    .align(Alignment.BottomEnd)
             )
         }
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)))
 
         SimpleText(
-            text = stringResource(id = R.string.staking_cannot_withdraw_title),
+            text = stringResource(id = com.blockchain.stringResources.R.string.staking_cannot_withdraw_title),
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre,
             modifier = Modifier.padding(
-                start = dimensionResource(R.dimen.standard_spacing),
-                end = dimensionResource(R.dimen.standard_spacing),
-                bottom = dimensionResource(R.dimen.very_small_spacing)
+                start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                bottom = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
             )
         )
 
@@ -185,9 +204,9 @@ fun StakingAccountInfo(
                         .fillMaxSize()
                         .verticalScroll(scroll)
                         .padding(
-                            start = dimensionResource(R.dimen.standard_spacing),
-                            end = dimensionResource(R.dimen.standard_spacing),
-                            bottom = dimensionResource(R.dimen.xlarge_spacing)
+                            start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                            end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                            bottom = dimensionResource(com.blockchain.componentlib.R.dimen.xlarge_spacing)
                         )
                 )
             }
@@ -195,24 +214,27 @@ fun StakingAccountInfo(
             PagerIndicatorDots(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = dimensionResource(R.dimen.small_spacing)),
+                    .padding(bottom = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)),
                 selectedIndex = pagerState.currentPage,
                 count = items.size
             )
         }
 
-        SmallMinimalButton(text = stringResource(R.string.common_learn_more), onClick = onLearnMoreClicked)
+        MinimalPrimarySmallButton(
+            text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
+            onClick = onLearnMoreClicked
+        )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing)))
 
         PrimaryButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = dimensionResource(R.dimen.standard_spacing)),
+                .padding(all = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)),
             text = if (pagerState.currentPage == pagerState.pageCount - 1) {
-                stringResource(id = R.string.common_i_understand)
+                stringResource(id = com.blockchain.stringResources.R.string.common_i_understand)
             } else {
-                stringResource(id = R.string.common_next)
+                stringResource(id = com.blockchain.stringResources.R.string.common_next)
             },
             onClick = {
                 if (pagerState.currentPage == pagerState.pageCount - 1) {
@@ -235,16 +257,19 @@ private data class InfoItem(
 @Preview
 @Composable
 fun StakingInfo() {
-    AppTheme {
-        AppSurface {
-            StakingAccountInfo(
-                {},
-                {},
-                {},
-                {},
-                ImageResource.Local(R.drawable.ic_blockchain),
-                ImageResource.Local(R.drawable.ic_staking_explainer)
-            )
-        }
-    }
+    StakingAccountInfo(
+        {},
+        {},
+        {},
+        {},
+        ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain),
+        ImageResource.Local(R.drawable.ic_staking_explainer),
+        42
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun StakingInfoDark() {
+    StakingInfo()
 }

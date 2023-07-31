@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import piuk.blockchain.android.databinding.ItemSendLargeTxConfirmItemBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -28,7 +29,9 @@ class LargeTransactionWarningItemDelegate<in T>(
         holder: RecyclerView.ViewHolder
     ) = (holder as LargeTransactionViewHolder).bind(
         items[position] as TxConfirmationValue.TxBooleanConfirmation<Unit>,
-        model
+        model,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -37,12 +40,18 @@ private class LargeTransactionViewHolder(private val binding: ItemSendLargeTxCon
 
     fun bind(
         item: TxConfirmationValue.TxBooleanConfirmation<Unit>,
-        model: TransactionModel
+        model: TransactionModel,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
-        with(binding.confirmCheckbox) {
-            isChecked = item.value
-            setOnCheckedChangeListener { _, isChecked ->
-                model.process(TransactionIntent.ModifyTxOption(item.copy(value = isChecked)))
+        with(binding) {
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
+            with(confirmCheckbox) {
+                isChecked = item.value
+                setOnCheckedChangeListener { _, isChecked ->
+                    model.process(TransactionIntent.ModifyTxOption(item.copy(value = isChecked)))
+                }
             }
         }
     }

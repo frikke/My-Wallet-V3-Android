@@ -1,26 +1,25 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.activity.common.ActivityStackView
+import com.blockchain.image.LocalLogo
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.CurrencyType
 import java.util.Date
 
-private fun TradeActivitySummaryItem.isSwapPair(): Boolean = currencyPair.source.type == CurrencyType.CRYPTO &&
+internal fun TradeActivitySummaryItem.isSwapPair(): Boolean = currencyPair.source.type == CurrencyType.CRYPTO &&
     currencyPair.destination.type == CurrencyType.CRYPTO && currencyPair.source != currencyPair.destination
 
-private fun TradeActivitySummaryItem.isSellingPair(): Boolean =
+internal fun TradeActivitySummaryItem.isSellingPair(): Boolean =
     currencyPair.source.type == CurrencyType.CRYPTO && currencyPair.destination.type == CurrencyType.FIAT
 
-@DrawableRes internal fun TradeActivitySummaryItem.iconSummary(): Int {
+internal fun TradeActivitySummaryItem.iconSummary(): LocalLogo {
     return when {
-        isSwapPair() -> R.drawable.ic_activity_swap
-        isSellingPair() -> R.drawable.ic_activity_sell
+        isSwapPair() -> LocalLogo.Swap
+        isSellingPair() -> LocalLogo.Sell
         else -> error("unsupported")
     }
 }
@@ -30,14 +29,14 @@ internal fun TradeActivitySummaryItem.leadingTitle(): ActivityStackView {
         value =
         when {
             isSwapPair() -> TextValue.IntResValue(
-                value = R.string.tx_title_swapped,
+                value = com.blockchain.stringResources.R.string.tx_title_swapped,
                 args = listOf(
                     currencyPair.source.displayTicker,
                     currencyPair.destination.displayTicker
                 )
             )
             isSellingPair() -> TextValue.IntResValue(
-                value = R.string.tx_title_sold,
+                value = com.blockchain.stringResources.R.string.tx_title_sold,
                 args = listOf(
                     currencyPair.source.displayTicker
                 )
@@ -76,7 +75,7 @@ internal fun TradeActivitySummaryItem.trailingTitle(): ActivityStackView {
     }
 
     return ActivityStackView.Text(
-        value = TextValue.StringValue(value.toStringWithSymbol()),
+        value = TextValue.StringValue(fiatValue.toStringWithSymbol()),
         style = basicTitleStyle.copy(color = color, strikethrough = trailingStrikethrough())
     )
 }
@@ -84,7 +83,7 @@ internal fun TradeActivitySummaryItem.trailingTitle(): ActivityStackView {
 internal fun TradeActivitySummaryItem.trailingSubtitle(): ActivityStackView {
     return ActivityStackView.Text(
         value = when {
-            isSwapPair() -> TextValue.StringValue(fiatValue.toStringWithSymbol())
+            isSwapPair() -> TextValue.StringValue(value.toStringWithSymbol())
             isSellingPair() -> TextValue.StringValue(receivingValue.toStringWithSymbol())
             else -> error("unsupported")
         },

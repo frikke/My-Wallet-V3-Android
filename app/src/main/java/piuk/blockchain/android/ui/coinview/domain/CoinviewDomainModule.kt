@@ -16,7 +16,8 @@ val coinviewDomainModule = module {
                 interestService = get(),
                 exchangeRatesDataManager = get(),
                 currencyPrefs = get(),
-                stakingService = get()
+                stakingService = get(),
+                activeRewardsService = get()
             )
         }
 
@@ -30,16 +31,16 @@ val coinviewDomainModule = module {
 
         scoped {
             LoadAssetRecurringBuysUseCase(
-                tradeDataService = get(),
+                recurringBuyService = get(),
                 custodialWalletManager = get()
             )
         }
 
         scoped {
             LoadQuickActionsUseCase(
-                kycService = get(),
                 userFeaturePermissionService = get(),
-                custodialWalletManager = get()
+                custodialWalletManager = get(),
+                kycService = get()
             )
         }
     }

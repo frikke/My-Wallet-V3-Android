@@ -62,22 +62,24 @@ class XlmOnChainTxEngine(
         check(sourceAsset == CryptoCurrency.XLM)
     }
 
-    override fun restart(txTarget: TransactionTarget, pendingTx: PendingTx): Single<PendingTx> {
-        return super.restart(txTarget, pendingTx).map { px ->
-            targetXlmAddress.memo?.let {
-                px.setMemo(
-                    TxConfirmationValue.Memo(
-                        text = it,
-                        isRequired = isMemoRequired(),
-                        id = null
+    override fun doAfterOnRestart(txTarget: TransactionTarget, pendingTx: PendingTx): Single<PendingTx> {
+        return super.doAfterOnRestart(txTarget, pendingTx).flatMap { px ->
+            isMemoRequired().map { isMemoRequired ->
+                targetXlmAddress.memo?.let {
+                    px.setMemo(
+                        TxConfirmationValue.Memo(
+                            text = it,
+                            isRequired = isMemoRequired,
+                            id = null
+                        )
                     )
-                )
-            } ?: px
+                } ?: px
+            }
         }
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        Single.just(
+        isMemoRequired().map { memoReq ->
             PendingTx(
                 amount = Money.zero(sourceAsset),
                 totalBalance = Money.zero(sourceAsset),
@@ -93,25 +95,26 @@ class XlmOnChainTxEngine(
             ).setMemo(
                 TxConfirmationValue.Memo(
                     text = targetXlmAddress.memo,
-                    isRequired = isMemoRequired(),
+                    isRequired = memoReq,
                     id = null
                 )
             )
-        )
+        }
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
         require(amount is CryptoValue)
         require(amount.currency == CryptoCurrency.XLM)
 
         return Single.zip(
-            sourceAccount.balanceRx.firstOrError(),
+            sourceAccount.balanceRx().firstOrError(),
             absoluteFee()
         ) { balance, fees ->
             pendingTx.copy(
                 amount = amount,
                 totalBalance = balance.total,
                 availableBalance = Money.max(
-                    balance.withdrawable - fees, CryptoValue.zero(CryptoCurrency.XLM)
+                    balance.withdrawable - fees,
+                    CryptoValue.zero(CryptoCurrency.XLM)
                 ) as CryptoValue,
                 feeForFullAvailable = fees,
                 feeAmount = fees,
@@ -139,7 +142,7 @@ class XlmOnChainTxEngine(
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         Singles.zip(
-            sourceAccount.balanceRx.firstOrError().map { it.withdrawable },
+            sourceAccount.balanceRx().firstOrError().map { it.withdrawable },
             absoluteFee()
         ) { balance: Money, fee: Money ->
             if (fee + pendingTx.amount > balance) {
@@ -155,7 +158,9 @@ class XlmOnChainTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.Send, sourceAccount
+                        txTarget,
+                        AssetAction.Send,
+                        sourceAccount
                     ),
                     TxConfirmationValue.CompoundNetworkFee(
                         sendingFeeInfo = if (!pendingTx.feeAmount.isZero) {
@@ -164,7 +169,9 @@ class XlmOnChainTxEngine(
                                 pendingTx.feeAmount.toUserFiat(exchangeRates),
                                 sourceAsset
                             )
-                        } else null,
+                        } else {
+                            null
+                        },
                         feeLevel = pendingTx.feeSelection.selectedLevel
                     ),
                     TxConfirmationValue.Total(
@@ -188,24 +195,26 @@ class XlmOnChainTxEngine(
             }
     }
 
-    private fun isMemoRequired(): Boolean =
+    private fun isMemoRequired(): Single<Boolean> =
         walletOptionsDataManager.isXlmAddressExchange(targetXlmAddress.address)
 
-    private fun isMemoValid(memoConfirmation: TxConfirmationValue.Memo): Boolean {
-        return if (!isMemoRequired()) {
-            true
-        } else {
-            !memoConfirmation.text.isNullOrEmpty() && memoConfirmation.text.length in 1..28 ||
-                memoConfirmation.id != null
+    private fun isMemoValid(memoConfirmation: TxConfirmationValue.Memo): Single<Boolean> {
+        return isMemoRequired().map {
+            if (!it) {
+                true
+            } else {
+                !memoConfirmation.text.isNullOrEmpty() && memoConfirmation.text.length in 1..28 ||
+                    memoConfirmation.id != null
+            }
         }
     }
 
     private fun validateOptions(pendingTx: PendingTx): Completable =
-        Completable.fromCallable {
-            if (!isMemoValid(getMemoOption(pendingTx))) {
+        isMemoValid(getMemoOption(pendingTx)).map {
+            if (!it) {
                 throw TxValidationFailure(ValidationState.OPTION_INVALID)
             }
-        }
+        }.ignoreElement()
 
     override fun doValidateAll(pendingTx: PendingTx): Single<PendingTx> =
         validateAddress()
@@ -237,6 +246,7 @@ class XlmOnChainTxEngine(
                 SUCCESS -> {
                     // do nothing
                 }
+
                 else -> throw TransactionError.ExecutionFailed
             }
         }.ignoreElement()

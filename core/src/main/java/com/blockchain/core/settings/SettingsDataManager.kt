@@ -4,8 +4,9 @@ import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.core.settings.datastore.SettingsStore
 import com.blockchain.core.utils.schedulers.applySchedulers
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.firstOutcome
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
@@ -33,7 +34,7 @@ class SettingsDataManager(
      */
     fun getSettings(): Observable<Settings> =
         rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
-            settingsStore.stream(FreshnessStrategy.Cached(false)).firstOutcome()
+            settingsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)).firstOutcome()
         }.toObservable()
 
     fun clearSettingsCache() = settingsStore.markAsStale()

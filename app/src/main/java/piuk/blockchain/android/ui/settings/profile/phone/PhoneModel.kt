@@ -62,16 +62,20 @@ class PhoneModel(
                             process(
                                 PhoneIntent.LoadProfileSucceeded(
                                     userInfoSettings = WalletSettingsService.UserInfoSettings(
-                                        userInfo.email, emailVerified = userInfo.isEmailVerified,
-                                        mobileWithPrefix = userInfo.smsNumber, mobileVerified = userInfo.isSmsVerified,
-                                        authType = userInfo.authType, smsDialCode = userInfo.smsDialCode
+                                        userInfo.email,
+                                        emailVerified = userInfo.isEmailVerified,
+                                        mobileWithPrefix = userInfo.smsNumber,
+                                        mobileVerified = userInfo.isSmsVerified,
+                                        authType = userInfo.authType,
+                                        smsDialCode = userInfo.smsDialCode
                                     )
                                 )
                             )
-                        }, onError = {
-                        process(PhoneIntent.FetchProfile)
-                        Timber.e("PhoneIntent.LoadProfile failure " + it)
-                    }
+                        },
+                        onError = {
+                            process(PhoneIntent.FetchProfile)
+                            Timber.e("PhoneIntent.LoadProfile failure " + it)
+                        }
                     )
             }
             is PhoneIntent.FetchProfile -> {
@@ -84,10 +88,11 @@ class PhoneModel(
                                     userInfoSettings = userInfo
                                 )
                             )
-                        }, onError = {
-                        process(PhoneIntent.LoadProfileFailed)
-                        Timber.e("PhoneIntent.FetchProfile failure " + it)
-                    }
+                        },
+                        onError = {
+                            process(PhoneIntent.LoadProfileFailed)
+                            Timber.e("PhoneIntent.FetchProfile failure " + it)
+                        }
                     )
             }
             is PhoneIntent.ResendCodeSMS -> {

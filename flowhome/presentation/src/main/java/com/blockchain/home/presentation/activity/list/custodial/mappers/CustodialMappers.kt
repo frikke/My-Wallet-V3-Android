@@ -1,16 +1,18 @@
 package com.blockchain.home.presentation.activity.list.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.ActivitySummaryItem
+import com.blockchain.coincore.CustodialActiveRewardsActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.home.presentation.activity.common.ActivityComponent
-import com.blockchain.home.presentation.activity.common.ActivityIconState
 import com.blockchain.home.presentation.activity.common.ActivityStackView
+import com.blockchain.image.LogoValue
+import com.blockchain.image.LogoValueSource
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
@@ -29,10 +31,12 @@ internal val basicSubtitleStyle = ActivityTextStyle(
 
 internal fun ActivityTextStyle.muted() = copy(color = ActivityTextColor.Muted)
 
-@DrawableRes internal fun ActivitySummaryItem.iconSummary() = when (this) {
+internal fun ActivitySummaryItem.iconSummary() = when (this) {
     is CustodialTradingActivitySummaryItem -> iconSummary()
     is CustodialTransferActivitySummaryItem -> iconSummary()
     is CustodialInterestActivitySummaryItem -> iconSummary()
+    is CustodialStakingActivitySummaryItem -> iconSummary()
+    is CustodialActiveRewardsActivitySummaryItem -> iconSummary()
     is RecurringBuyActivitySummaryItem -> iconSummary()
     is TradeActivitySummaryItem -> iconSummary()
     is FiatActivitySummaryItem -> iconSummary()
@@ -44,6 +48,8 @@ private fun ActivitySummaryItem.leading(): List<ActivityStackView> {
         is CustodialTradingActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is CustodialTransferActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is CustodialInterestActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        is CustodialStakingActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
+        is CustodialActiveRewardsActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is RecurringBuyActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is TradeActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
         is FiatActivitySummaryItem -> listOf(leadingTitle(), leadingSubtitle())
@@ -56,6 +62,8 @@ private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
         is CustodialTradingActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is CustodialTransferActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is CustodialInterestActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
+        is CustodialStakingActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
+        is CustodialActiveRewardsActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is RecurringBuyActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is TradeActivitySummaryItem -> listOf(trailingTitle(), trailingSubtitle())
         is FiatActivitySummaryItem -> listOfNotNull(trailingTitle(), trailingSubtitle())
@@ -65,9 +73,13 @@ private fun ActivitySummaryItem.trailing(): List<ActivityStackView> {
 
 fun ActivitySummaryItem.toActivityComponent(): ActivityComponent {
     return ActivityComponent.StackView(
-        id = txId,
-        leadingImage = ActivityIconState.SingleIcon.Local(iconSummary()),
+        // hack for now - when interacting with interest there are 2 activities with the same txid
+        // but e.g. one is SEND the other is INTEREST DEPOSIT
+        id = "$txId|${this::class}",
+        leadingImage = LogoValue.SingleIcon(LogoValueSource.Local(iconSummary())),
         leading = leading(),
         trailing = trailing()
-    )
+    ).run {
+        copy(leadingImageDark = leadingImage)
+    }
 }

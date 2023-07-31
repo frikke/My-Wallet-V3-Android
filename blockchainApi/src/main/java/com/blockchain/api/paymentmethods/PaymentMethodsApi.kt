@@ -13,6 +13,7 @@ import com.blockchain.api.paymentmethods.models.GooglePayResponse
 import com.blockchain.api.paymentmethods.models.LinkWithAliasRequestBody
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.api.paymentmethods.models.UpdateCvvRequestBody
 import com.blockchain.api.payments.data.BankInfoResponse
 import com.blockchain.api.payments.data.BankTransferChargeResponse
 import com.blockchain.api.payments.data.BankTransferPaymentBody
@@ -44,7 +45,6 @@ interface PaymentMethodsApi {
     @GET("eligible/payment-methods")
     fun getAvailablePaymentMethodsTypes(
         @Query("currency") currency: String,
-        @Query("tier") tier: Int?,
         @Query("eligibleOnly") eligibleOnly: Boolean
     ): Single<List<PaymentMethodResponse>>
 
@@ -69,6 +69,11 @@ interface PaymentMethodsApi {
     fun getCardDetails(
         @Path("cardId") cardId: String
     ): Single<CardResponse>
+
+    @GET("payments/cards/{cardId}")
+    suspend fun getCardDetailsCo(
+        @Path("cardId") cardId: String
+    ): Outcome<Exception, CardResponse>
 
     @DELETE("payments/cards/{cardId}")
     fun deleteCard(
@@ -173,4 +178,9 @@ interface PaymentMethodsApi {
     suspend fun checkNewCardRejectionState(
         @Query("bin") binNumber: String
     ): Outcome<Exception, CardRejectionStateResponse>
+
+    @POST("payments/cassy/charge/cvv")
+    suspend fun updateCvv(
+        @Body body: UpdateCvvRequestBody
+    ): Outcome<Exception, Unit>
 }

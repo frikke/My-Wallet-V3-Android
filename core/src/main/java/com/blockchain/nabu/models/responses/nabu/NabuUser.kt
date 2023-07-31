@@ -39,7 +39,14 @@ data class NabuUser(
      * ISO-8601 Timestamp w/millis, eg 2018-08-15T17:00:45.129Z
      */
     val updatedAt: String? = null,
-    private val tags: Map<String, Map<String, @Serializable(with = AnyToStringSerializer::class) Any>>? = null,
+    private val tags: Map<
+        String,
+        Map<
+            String,
+            @Serializable(with = AnyToStringSerializer::class)
+            Any
+            >
+        >? = null,
     val userName: String? = null,
     val tiers: TierLevels? = null,
     val currencies: CurrenciesResponse,
@@ -83,6 +90,10 @@ data class NabuUser(
     val isCowboysUser: Boolean
         get() = tags?.containsKey(COWBOYS_TAG) ?: false
 
+    // TODO(aromano): CASSY Remove when cassy goes live
+    val isCassyAlphaTester: Boolean
+        get() = tags?.containsKey(CARD_CASSY_ALPHA_TAG) ?: false
+
     val tagKeys: Set<String>
         get() = tags?.keys ?: emptySet()
 
@@ -91,6 +102,7 @@ data class NabuUser(
 
     companion object {
         private const val COWBOYS_TAG = "COWBOYS_2022"
+        private const val CARD_CASSY_ALPHA_TAG = "CARD_CASSY_ALPHA"
     }
 }
 
@@ -158,7 +170,7 @@ enum class KycState {
     UnderReview,
     Rejected,
     Expired,
-    Verified,
+    Verified
 }
 
 @Serializable(with = UserStateSerializer::class)

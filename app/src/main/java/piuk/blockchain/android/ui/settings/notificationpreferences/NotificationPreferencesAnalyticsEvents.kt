@@ -6,7 +6,7 @@ import piuk.blockchain.android.ui.settings.notificationpreferences.details.Conta
 
 sealed class NotificationPreferencesAnalyticsEvents(
     override val event: String,
-    override val params: Map<String, String> = emptyMap(),
+    override val params: Map<String, String> = emptyMap()
 ) : AnalyticsEvent {
 
     object NotificationClicked : NotificationPreferencesAnalyticsEvents(AnalyticsNames.NOTIFICATION_CLICKED.eventName)

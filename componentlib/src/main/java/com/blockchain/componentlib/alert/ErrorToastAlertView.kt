@@ -25,8 +25,7 @@ class ErrorToastAlertView @JvmOverloads constructor(
         AppTheme {
             AppSurface {
                 ErrorToastAlert(
-                    text = text,
-                    startIconDrawableRes = startIconDrawableRes
+                    text = text
                 )
             }
         }

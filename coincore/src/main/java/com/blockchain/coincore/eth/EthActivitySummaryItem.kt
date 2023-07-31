@@ -14,7 +14,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import java.util.Locale
 
-/*internal*/ class EthActivitySummaryItem(
+/*internal*/
+class EthActivitySummaryItem(
     private val ethDataManager: EthDataManager,
     val ethTransaction: EthTransaction,
     override val isFeeTransaction: Boolean,
@@ -23,7 +24,7 @@ import java.util.Locale
     override val account: EthCryptoWalletAccount
 ) : NonCustodialActivitySummaryItem() {
 
-    override val asset: AssetInfo = CryptoCurrency.ETHER
+    override val currency: AssetInfo = CryptoCurrency.ETHER
 
     override val transactionType: TransactionSummary.TransactionType by unsafeLazy {
         val ethAddress = account.address.toLowerCase(Locale.ROOT)

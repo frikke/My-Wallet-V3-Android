@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/backgroundSecondary"
     android:layout_height="wrap_content"
     android:minHeight="80dp">
 
@@ -28,6 +29,7 @@
         app:layout_goneMarginBottom="@dimen/standard_spacing"
         android:ellipsize="end"
         android:maxLines="2"
+        android:textColor="@color/title"
         app:layout_constraintBottom_toTopOf="@id/text_gold_tier_description"
         app:layout_constraintEnd_toStartOf="@+id/text_tier_state"
         app:layout_constraintStart_toEndOf="@id/icon_tier"
@@ -40,6 +42,7 @@
         style="@style/Text.Standard.12"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textColor="@color/body"
         android:layout_marginEnd="@dimen/small_spacing"
         android:ellipsize="end"
         android:maxLines="2"
@@ -51,18 +54,14 @@
         app:layout_constraintTop_toBottomOf="@id/text_tier"
         app:layout_constraintVertical_chainStyle="packed" />
 
-    <TextView
+    <com.blockchain.componentlib.tag.InfoAltTagView
         android:id="@+id/text_tier_state"
-        style="@style/Text.Semibold.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@drawable/bkgd_blue_100_rounded"
-        android:textColor="@color/blue_600"
-        android:text="@string/feature_limits_tier_state_approved" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <View
         style="@style/Divider"

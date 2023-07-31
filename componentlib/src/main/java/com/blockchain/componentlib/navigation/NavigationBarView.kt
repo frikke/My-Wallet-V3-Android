@@ -6,39 +6,57 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
+import com.blockchain.walletmode.WalletMode
 
 class NavigationBarView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0,
+    defStyleAttr: Int = 0
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var onBackButtonClick by mutableStateOf(null as? (() -> Unit)?)
     var startNavigationButton by mutableStateOf(null as? NavigationBarButton?)
 
+    var icon: StackedIcon by mutableStateOf(StackedIcon.None)
+
     var title by mutableStateOf("")
     var endNavigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
 
+    var modeColor: ModeBackgroundColor by mutableStateOf(ModeBackgroundColor.Current)
+    var mutedBackground by mutableStateOf(false)
+
     @Composable
     override fun Content() {
-        AppTheme {
-            AppSurface {
-                if (startNavigationButton != null) {
-                    NavigationBar(
-                        title = title,
-                        startNavigationBarButton = startNavigationButton,
-                        endNavigationBarButtons = endNavigationBarButtons
-                    )
-                } else {
-                    NavigationBar(
-                        title = title,
-                        onBackButtonClick = onBackButtonClick,
-                        navigationBarButtons = endNavigationBarButtons
-                    )
-                }
+        if (isInEditMode) {
+            NavigationBar(
+                walletMode = WalletMode.CUSTODIAL,
+                mutedBg = mutedBackground,
+                title = title,
+                icon = icon,
+                startNavigationBarButton = startNavigationButton,
+                endNavigationBarButtons = endNavigationBarButtons
+            )
+        } else {
+            if (startNavigationButton != null) {
+                NavigationBar(
+                    modeColor = modeColor,
+                    mutedBackground = mutedBackground,
+                    title = title,
+                    icon = icon,
+                    startNavigationBarButton = startNavigationButton,
+                    endNavigationBarButtons = endNavigationBarButtons
+                )
+            } else {
+                NavigationBar(
+                    modeColor = modeColor,
+                    mutedBackground = mutedBackground,
+                    title = title,
+                    icon = icon,
+                    onBackButtonClick = onBackButtonClick,
+                    navigationBarButtons = endNavigationBarButtons
+                )
             }
         }
     }

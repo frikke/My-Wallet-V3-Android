@@ -1,5 +1,6 @@
 package com.blockchain.koin
 
+import com.blockchain.analytics.TraitsService
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.nabuApi
 import com.blockchain.core.experiments.cache.ExperimentsStore
@@ -12,6 +13,7 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.nabu.api.getuser.data.UserCountryRepository
 import com.blockchain.nabu.api.getuser.data.UserFeaturePermissionRepository
 import com.blockchain.nabu.api.getuser.data.UserRepository
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
@@ -42,6 +44,7 @@ import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.service.UserTagsRepository
 import com.blockchain.nabu.stores.NabuSessionTokenStore
+import kotlinx.coroutines.Dispatchers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -76,7 +79,7 @@ val nabuModule = module {
                 walletReporter = get(uniqueId),
                 userReporter = get(uniqueUserAnalytics),
                 trust = get(),
-                userService = get(),
+                userService = get()
             )
         }.bind(NabuDataManager::class)
 
@@ -86,6 +89,7 @@ val nabuModule = module {
                 userReporter = get(uniqueUserAnalytics),
                 trust = get(),
                 remoteLogger = get(),
+                countryPrefs = get(),
                 walletReporter = get(uniqueId),
                 sessionInfo = SessionInfo,
                 payloadDataManager = get()
@@ -102,8 +106,8 @@ val nabuModule = module {
             UserFeaturePermissionRepository(
                 kycService = get(),
                 interestService = get(),
-                sddService = get(),
                 eligibilityService = get(),
+                coroutinesDispatcher = Dispatchers.IO,
                 simpleBuyService = get()
             )
         }
@@ -112,16 +116,15 @@ val nabuModule = module {
             LiveCustodialWalletManager(
                 assetCatalogue = get(),
                 nabuService = get(),
-                paymentAccountMapperMappers = mapOf(
-                    "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd), "ARS" to get(ars)
-                ),
                 transactionsCache = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
                 simpleBuyService = get(),
                 paymentMethodsEligibilityStore = get(),
-                fiatCurrenciesService = get()
+                fiatCurrenciesService = get(),
+                recurringBuyService = get(),
+                recurringBuyStore = get()
             )
         }.bind(CustodialWalletManager::class)
 
@@ -131,7 +134,6 @@ val nabuModule = module {
 
         scoped {
             NabuUserIdentity(
-                custodialWalletManager = get(),
                 interestService = get(),
                 kycService = get(),
                 simpleBuyService = get(),
@@ -166,13 +168,15 @@ val nabuModule = module {
             KycRepository(
                 kycTiersStore = get(),
                 userService = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                kycApiService = get(),
+                proveFeatureFlag = get(proveFeatureFlag)
             )
         }
 
         scoped {
             KycTiersStore(
-                kycApiService = get(),
+                kycApiService = get()
             )
         }
 
@@ -184,7 +188,7 @@ val nabuModule = module {
             NabuUserSyncUpdateUserWalletInfoWithJWT(
                 nabuDataManager = get(),
                 nabuService = get(),
-                getUserStore = get(),
+                getUserStore = get()
             )
         }.bind(NabuUserSync::class)
 
@@ -214,7 +218,7 @@ val nabuModule = module {
 
         factory {
             QuotesProvider(
-                nabuService = get(),
+                nabuService = get()
             )
         }
     }
@@ -247,8 +251,14 @@ val nabuModule = module {
     }
 
     single {
+        UserCountryRepository(
+            countryPrefs = lazy { get() }
+        )
+    }.bind(TraitsService::class)
+
+    single {
         ExperimentsStore(
-            experimentsApiService = get(),
+            experimentsApiService = get()
         )
     }
 }

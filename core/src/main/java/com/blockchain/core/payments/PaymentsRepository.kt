@@ -2,7 +2,6 @@ package com.blockchain.core.payments
 
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.brokerage.data.DepositTermsResponse
-import com.blockchain.api.mapActions
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
@@ -18,6 +17,7 @@ import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.api.payments.data.BankInfoResponse
 import com.blockchain.api.payments.data.BankMediaResponse
 import com.blockchain.api.payments.data.BankMediaResponse.Companion.ICON
+import com.blockchain.api.payments.data.BankTransferCapabilitiesResponse
 import com.blockchain.api.payments.data.BankTransferChargeAttributes
 import com.blockchain.api.payments.data.BankTransferChargeResponse
 import com.blockchain.api.payments.data.BankTransferPaymentAttributes
@@ -38,16 +38,20 @@ import com.blockchain.api.payments.data.YapilyMediaResponse
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.toMobilePaymentType
+import com.blockchain.core.common.mapper.toDomain
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.CardDetailsStore
 import com.blockchain.core.payments.cache.LinkedBankStore
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cache.PaymentMethodsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.domain.common.model.ServerErrorAction
-import com.blockchain.domain.common.model.ServerSideUxErrorInfo
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
+import com.blockchain.data.firstOutcome
+import com.blockchain.data.mapData
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -75,6 +79,8 @@ import com.blockchain.domain.paymentmethods.model.InstitutionCountry
 import com.blockchain.domain.paymentmethods.model.LinkBankAttributes
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.LinkedBankCapabilities
+import com.blockchain.domain.paymentmethods.model.LinkedBankCapability
 import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
 import com.blockchain.domain.paymentmethods.model.LinkedBankState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
@@ -84,6 +90,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeCapability
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
@@ -105,9 +112,6 @@ import com.blockchain.outcome.mapError
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.store.asSingle
-import com.blockchain.store.firstOutcome
-import com.blockchain.store.mapData
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.AssetCatalogue
@@ -125,7 +129,6 @@ import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.rxSingle
 
@@ -133,6 +136,7 @@ class PaymentsRepository(
     private val paymentsService: PaymentsService,
     private val paymentMethodsStore: PaymentMethodsStore,
     private val paymentMethodsService: PaymentMethodsService,
+    private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore,
     private val cardDetailsStore: CardDetailsStore,
     private val linkedCardsStore: LinkedCardsStore,
     private val linkedBankStore: LinkedBankStore,
@@ -144,7 +148,7 @@ class PaymentsRepository(
     private val environmentConfig: EnvironmentConfig,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val googlePayFeatureFlag: FeatureFlag,
-    private val plaidFeatureFlag: FeatureFlag,
+    private val plaidFeatureFlag: FeatureFlag
 ) : BankService, CardService, PaymentMethodService {
 
     private val googlePayEnabled: Single<Boolean> by lazy {
@@ -152,7 +156,7 @@ class PaymentsRepository(
     }
 
     override suspend fun getPaymentMethodDetailsForIdLegacy(
-        paymentId: String,
+        paymentId: String
     ): Outcome<Exception, PaymentMethodDetails> {
         return paymentsService.getPaymentMethodDetailsForId(paymentId)
             .map { it.toPaymentDetails() }
@@ -166,9 +170,12 @@ class PaymentsRepository(
             .mapData { it.toPaymentDetails() }
     }
 
-    override fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
-        withdrawLocksStore.stream(
-            FreshnessStrategy.Cached(forceRefresh = true)
+    override fun getWithdrawalLocks(
+        localCurrency: Currency,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<FundsLocks>> {
+        return withdrawLocksStore.stream(
+            FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
         )
             .mapData { locks ->
                 FundsLocks(
@@ -181,24 +188,26 @@ class PaymentsRepository(
                                 assetCatalogue.fromNetworkTicker(currency)?.let {
                                     Money.fromMinor(it, value.toBigInteger())
                                 }
-                            },
+                            }
                         )
                     }
                 )
             }
-            .asSingle()
+    }
 
     override fun getAvailablePaymentMethodsTypes(
         fiatCurrency: FiatCurrency,
-        fetchSddLimits: Boolean,
-        onlyEligible: Boolean,
+        onlyEligible: Boolean
     ): Single<List<PaymentMethodTypeWithEligibility>> =
         Single.zip(
-            paymentMethodsService.getAvailablePaymentMethodsTypes(
-                currency = fiatCurrency.networkTicker,
-                tier = if (fetchSddLimits) SDD_ELIGIBLE_TIER else null,
-                eligibleOnly = onlyEligible
-            ),
+            paymentMethodsEligibilityStore.stream(
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
+                    PaymentMethodsEligibilityStore.Key(
+                        currencyTicker = fiatCurrency.networkTicker,
+                        eligibleOnly = onlyEligible
+                    )
+                )
+            ).asSingle(),
             googlePayEnabled,
             rxSingle {
                 googlePayManager.checkIfGooglePayIsAvailable(GooglePayRequestBuilder.buildForPaymentStatus())
@@ -246,7 +255,7 @@ class PaymentsRepository(
                             PaymentMethodType.BANK_TRANSFER,
                             PaymentMethodType.PAYMENT_CARD,
                             PaymentMethodType.GOOGLE_PAY,
-                            PaymentMethodType.UNKNOWN,
+                            PaymentMethodType.UNKNOWN
                             -> true
                         }
                     }
@@ -257,7 +266,6 @@ class PaymentsRepository(
     override fun getEligiblePaymentMethodTypes(fiatCurrency: FiatCurrency): Single<List<EligiblePaymentMethodType>> =
         getAvailablePaymentMethodsTypes(
             fiatCurrency = fiatCurrency,
-            fetchSddLimits = false,
             onlyEligible = true
         ).map { available ->
             available.map { EligiblePaymentMethodType(it.type, it.currency) }
@@ -276,7 +284,7 @@ class PaymentsRepository(
     }
 
     override fun getLinkedPaymentMethods(
-        currency: FiatCurrency,
+        currency: FiatCurrency
     ): Single<List<LinkedPaymentMethod>> =
         Single.zip(
             tradingService.getBalanceFor(currency).firstOrError(),
@@ -291,7 +299,7 @@ class PaymentsRepository(
 
     override fun getLinkedCards(
         request: FreshnessStrategy,
-        vararg states: CardStatus,
+        vararg states: CardStatus
     ): Flow<DataResource<List<LinkedPaymentMethod.Card>>> =
         linkedCardsStore.stream(request)
             .mapData {
@@ -300,7 +308,7 @@ class PaymentsRepository(
             }
 
     override fun getLinkedCardsLegacy(
-        vararg states: CardStatus,
+        vararg states: CardStatus
     ): Single<List<LinkedPaymentMethod.Card>> =
         rxSingleOutcome {
             getLinkedCards(FreshnessStrategy.Fresh, *states).firstOutcome()
@@ -326,7 +334,7 @@ class PaymentsRepository(
     override fun addNewCard(
         fiatCurrency: FiatCurrency,
         billingAddress: BillingAddress,
-        paymentMethodTokens: Map<String, String>?,
+        paymentMethodTokens: Map<String, String>?
     ): Single<CardToBeActivated> =
         paymentMethodsService.addNewCard(
             addNewCardBodyRequest = AddNewCardBodyRequest(
@@ -382,6 +390,26 @@ class PaymentsRepository(
             }
     }
 
+    override suspend fun getCardDetailsCo(cardId: String): Outcome<Exception, PaymentMethod.Card> =
+        paymentMethodsService.getCardDetailsCo(cardId = cardId).fold(
+            onSuccess = {
+                it.ux?.let { error ->
+                    Outcome.Failure(NabuApiExceptionFactory.fromServerSideError(error))
+                } ?: Outcome.Success(
+                    it.toPaymentMethod().toCardPaymentMethod(
+                        cardLimits = PaymentLimits(
+                            BigInteger.ZERO,
+                            BigInteger.ZERO,
+                            FiatCurrency.fromCurrencyCode(it.currency)
+                        )
+                    )
+                )
+            },
+            onFailure = {
+                Outcome.Failure(it)
+            }
+        )
+
     override fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayInfo> =
         paymentMethodsService.getGooglePayInfo(currency).map {
             GooglePayInfo(
@@ -422,10 +450,11 @@ class PaymentsRepository(
 
     override fun linkBank(currency: FiatCurrency): Single<LinkBankTransfer> =
         plaidFeatureFlag.enabled.flatMap { featureFlag ->
-            val supportedPartners = if (featureFlag)
+            val supportedPartners = if (featureFlag) {
                 listOf(PLAID_PARTNER, YODLEE_PARTNER, YAPILY_PARTNER)
-            else
+            } else {
                 emptyList()
+            }
 
             paymentMethodsService.linkBank(
                 currency.networkTicker,
@@ -496,7 +525,7 @@ class PaymentsRepository(
         id: String,
         amount: Money,
         currency: String,
-        callback: String?,
+        callback: String?
     ): Single<String> =
         paymentMethodsService.startBankTransferPayment(
             id = id,
@@ -506,7 +535,9 @@ class PaymentsRepository(
                 product = "SIMPLEBUY",
                 attributes = if (callback != null) {
                     BankTransferPaymentAttributes(callback)
-                } else null
+                } else {
+                    null
+                }
             )
         ).map {
             it.paymentId
@@ -516,7 +547,7 @@ class PaymentsRepository(
         linkingId: String,
         providerAccountId: String,
         accountId: String,
-        attributes: BankProviderAccountAttributes,
+        attributes: BankProviderAccountAttributes
     ): Completable = paymentMethodsService.updateAccountProviderId(
         linkingId,
         UpdateProviderAccountBody(attributes.toProviderAttributes())
@@ -525,7 +556,7 @@ class PaymentsRepository(
     override fun linkPlaidBankAccount(
         linkingId: String,
         accountId: String,
-        publicToken: String,
+        publicToken: String
     ): Completable = paymentMethodsService.linkPLaidAccount(
         linkingId,
         LinkPlaidAccountBody(LinkPlaidAccountBody.Attributes(accountId, publicToken))
@@ -594,7 +625,7 @@ class PaymentsRepository(
 
     override fun updateOpenBankingConsent(
         url: String,
-        token: String,
+        token: String
     ): Completable =
         paymentMethodsService.updateOpenBankingToken(
             url,
@@ -624,7 +655,6 @@ class PaymentsRepository(
             } else {
                 getAvailablePaymentMethodsTypes(
                     fiatCurrency = fiatCurrency,
-                    fetchSddLimits = false,
                     onlyEligible = true
                 ).map { available ->
                     available.any {
@@ -664,45 +694,17 @@ class PaymentsRepository(
             CardRejectionCheckError.REQUEST_FAILED
         }
 
-    private fun CardRejectionStateResponse.toDomain(): CardRejectionState =
-        when (this.block) {
-            true -> {
-                CardRejectionState.AlwaysRejected(
-                    errorId = this.ux?.id,
-                    title = this.ux?.title,
-                    description = this.ux?.message,
-                    actions = this.ux?.actions.takeUnless { it.isNullOrEmpty() }?.map { data ->
-                        ServerErrorAction(
-                            title = data.title,
-                            deeplinkPath = data.url.orEmpty()
-                        )
-                    }.orEmpty(),
-                    iconUrl = this.ux?.icon?.url,
-                    statusIconUrl = this.ux?.icon?.status?.url,
-                    analyticsCategories = this.ux?.categories.orEmpty()
-                )
-            }
-            false -> {
-                if (this.ux?.actions?.isNotEmpty() == true) {
-                    CardRejectionState.MaybeRejected(
-                        errorId = this.ux?.id,
-                        title = this.ux?.title,
-                        description = this.ux?.message,
-                        actions = this.ux?.actions.takeUnless { it.isNullOrEmpty() }?.map { data ->
-                            ServerErrorAction(
-                                title = data.title,
-                                deeplinkPath = data.url.orEmpty()
-                            )
-                        }.orEmpty(),
-                        iconUrl = this.ux?.icon?.url,
-                        statusIconUrl = this.ux?.icon?.status?.url,
-                        analyticsCategories = this.ux?.categories.orEmpty()
-                    )
-                } else {
-                    CardRejectionState.NotRejected
-                }
-            }
+    override suspend fun updateCvv(paymentId: String, cvv: String): Outcome<Exception, Unit> =
+        paymentMethodsService.updateCvv(paymentId, cvv)
+
+    private fun CardRejectionStateResponse.toDomain(): CardRejectionState {
+        val error = this.ux
+        return when {
+            this.block -> CardRejectionState.AlwaysRejected(error?.toDomain())
+            error != null -> CardRejectionState.MaybeRejected(error.toDomain())
+            else -> CardRejectionState.NotRejected
         }
+    }
 
     private fun CardResponse.toPaymentMethod(): LinkedPaymentMethod.Card =
         LinkedPaymentMethod.Card(
@@ -725,17 +727,7 @@ class PaymentsRepository(
                 ?: throw IllegalStateException("Unknown currency $currency"),
             mobilePaymentType = mobilePaymentType?.toMobilePaymentType(),
             cardRejectionState = CardRejectionStateResponse(block, ux).toDomain(),
-            serverSideUxErrorInfo = ux?.let {
-                ServerSideUxErrorInfo(
-                    id = it.id,
-                    title = it.title,
-                    description = it.message,
-                    iconUrl = it.icon?.url.orEmpty(),
-                    statusUrl = it.icon?.status?.url.orEmpty(),
-                    actions = it.mapActions(),
-                    categories = it.categories ?: emptyList()
-                )
-            }
+            serverSideUxErrorInfo = ux?.toDomain()
         )
 
     private fun LinkedPaymentMethod.Card.toCardPaymentMethod(cardLimits: PaymentLimits) =
@@ -762,6 +754,7 @@ class PaymentsRepository(
             iconUrl = attributes?.media?.find { it.type == BankMediaResponse.ICON }?.source.orEmpty(),
             isBankTransferAccount = isBankTransferAccount,
             state = state.toBankState(),
+            capabilities = capabilities?.toDomain(),
             currency = assetCatalogue.fiatFromNetworkTicker(currency) ?: return null
         )
     }
@@ -799,7 +792,7 @@ class PaymentsRepository(
             LinkedBankTransferResponse.ACTIVE -> LinkedBankState.ACTIVE
             LinkedBankTransferResponse.PENDING,
             LinkedBankTransferResponse.FRAUD_REVIEW,
-            LinkedBankTransferResponse.MANUAL_REVIEW,
+            LinkedBankTransferResponse.MANUAL_REVIEW
             -> LinkedBankState.PENDING
             LinkedBankTransferResponse.BLOCKED -> LinkedBankState.BLOCKED
             else -> LinkedBankState.UNKNOWN
@@ -830,7 +823,9 @@ class PaymentsRepository(
 
         return if (SUPPORTED_BANK_PARTNERS.contains(partner)) {
             partner
-        } else null
+        } else {
+            null
+        }
     }
 
     private fun String.toSettlementReason(): SettlementReason = try {
@@ -859,6 +854,21 @@ class PaymentsRepository(
             else -> BankState.UNKNOWN
         }
 
+    private fun BankTransferCapabilitiesResponse.toDomain(): LinkedBankCapabilities = LinkedBankCapabilities(
+        deposit = deposit?.let {
+            LinkedBankCapability(
+                enabled = it.enabled,
+                ux = it.ux?.toDomain()
+            )
+        },
+        withdrawal = withdrawal?.let {
+            LinkedBankCapability(
+                enabled = it.enabled,
+                ux = it.ux?.toDomain()
+            )
+        }
+    )
+
     private fun String.toCardStatus(): CardStatus =
         when (this) {
             CardResponse.ACTIVE -> CardStatus.ACTIVE
@@ -878,15 +888,23 @@ class PaymentsRepository(
         else -> PaymentMethodType.UNKNOWN
     }
 
+    private fun String.toPaymentMethodCapability(): PaymentMethodTypeCapability? = when (this) {
+        PaymentMethodResponse.CAPABILITY_DEPOSIT -> PaymentMethodTypeCapability.DEPOSIT
+        PaymentMethodResponse.CAPABILITY_WITHDRAWAL -> PaymentMethodTypeCapability.WITHDRAWAL
+        PaymentMethodResponse.CAPABILITY_BROKERAGE -> PaymentMethodTypeCapability.BROKERAGE
+        else -> null
+    }
+
     private fun PaymentMethodResponse.toAvailablePaymentMethodType(
-        currency: FiatCurrency,
+        currency: FiatCurrency
     ): PaymentMethodTypeWithEligibility =
         PaymentMethodTypeWithEligibility(
             eligible = eligible,
             currency = currency,
             type = type.toPaymentMethodType(),
             limits = limits.toPaymentLimits(currency),
-            cardFundSources = cardFundSources
+            cardFundSources = cardFundSources,
+            capabilities = capabilities?.mapNotNull { it.toPaymentMethodCapability() }
         )
 
     private fun BankTransferChargeResponse.toBankTransferDetails() =
@@ -912,15 +930,15 @@ class PaymentsRepository(
             BankTransferChargeAttributes.AWAITING_AUTHORIZATION,
             BankTransferChargeAttributes.PENDING,
             BankTransferChargeAttributes.AUTHORIZED,
-            BankTransferChargeAttributes.CREDITED,
+            BankTransferChargeAttributes.CREDITED
             -> BankTransferStatus.Pending
             BankTransferChargeAttributes.FAILED,
             BankTransferChargeAttributes.FRAUD_REVIEW,
             BankTransferChargeAttributes.MANUAL_REVIEW,
-            BankTransferChargeAttributes.REJECTED,
+            BankTransferChargeAttributes.REJECTED
             -> BankTransferStatus.Error(error)
             BankTransferChargeAttributes.CLEARED,
-            BankTransferChargeAttributes.COMPLETE,
+            BankTransferChargeAttributes.COMPLETE
             -> BankTransferStatus.Complete
             else -> BankTransferStatus.Unknown
         }
@@ -994,9 +1012,10 @@ class PaymentsRepository(
 
     companion object {
         private val SUPPORTED_BANK_PARTNERS = listOf(
-            BankPartner.YAPILY, BankPartner.YODLEE, BankPartner.PLAID
+            BankPartner.YAPILY,
+            BankPartner.YODLEE,
+            BankPartner.PLAID
         )
-        private const val SDD_ELIGIBLE_TIER = 3
     }
 }
 

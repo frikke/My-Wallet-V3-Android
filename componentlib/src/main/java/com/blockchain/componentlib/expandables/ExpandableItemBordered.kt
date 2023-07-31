@@ -20,8 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
 
 @Composable
@@ -33,7 +33,6 @@ fun ExpandableItemBordered(
     textButtonToExpand: String,
     textButtonToCollapse: String
 ) {
-
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     var isExpandable by rememberSaveable { mutableStateOf(false) }
 
@@ -55,7 +54,7 @@ fun ExpandableItemBordered(
             Text(
                 text = title,
                 style = AppTheme.typography.body2,
-                color = Grey700
+                color = AppColors.body
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -81,7 +80,7 @@ fun ExpandableItemBordered(
                     },
                     text = if (isExpanded) textButtonToCollapse else textButtonToExpand,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.primary,
+                    color = AppTheme.colors.primary
                 )
             }
         }
@@ -96,6 +95,6 @@ fun PreviewExpandableItemBordered() {
         text = "Kyoto Angels is a Collection of 10000 Kawaii Dolls Manufactured by Collection of 10000 Kawaii Dolls",
         numLinesVisible = 2,
         textButtonToExpand = "See More",
-        textButtonToCollapse = "See Less",
+        textButtonToCollapse = "See Less"
     )
 }

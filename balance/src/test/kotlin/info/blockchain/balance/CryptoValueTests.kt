@@ -26,7 +26,8 @@ class CryptoValueTests {
     @Test
     fun `toBigDecimal BTC`() {
         CryptoValue.fromMinor(
-            CryptoCurrency.BTC, 12345678901.toBigInteger()
+            CryptoCurrency.BTC,
+            12345678901.toBigInteger()
         ).toBigDecimal() `should be equal to` BigDecimal("123.45678901")
     }
 

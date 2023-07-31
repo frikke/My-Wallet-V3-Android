@@ -19,14 +19,14 @@ class NavigationActivity : AppCompatActivity() {
             title = "Activity"
             endNavigationBarButtons = listOf(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_home,
-                    contentDescription = R.string.accessibility_back
+                    drawable = com.blockchain.componentlib.R.drawable.ic_bottom_nav_activity,
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_back
                 ) {
                     Toast.makeText(this@NavigationActivity, "First icon button clicked", Toast.LENGTH_SHORT).show()
                 },
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_activity,
-                    contentDescription = R.string.accessibility_back
+                    drawable = com.blockchain.componentlib.R.drawable.ic_bottom_nav_activity,
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_back
                 ) {
                     Toast.makeText(this@NavigationActivity, "Second icon button clicked", Toast.LENGTH_SHORT).show()
                 }
@@ -56,8 +56,8 @@ class NavigationActivity : AppCompatActivity() {
             }
             endNavigationBarButtons = listOf(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_home,
-                    contentDescription = R.string.accessibility_back
+                    drawable = com.blockchain.componentlib.R.drawable.ic_bottom_nav_prices,
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_back
                 ) {
                     Toast.makeText(this@NavigationActivity, "First icon button clicked", Toast.LENGTH_SHORT).show()
                 }
@@ -70,7 +70,15 @@ class NavigationActivity : AppCompatActivity() {
                 Toast.makeText(this@NavigationActivity, "Back button clicked", Toast.LENGTH_SHORT).show()
             }
             endNavigationBarButtons = listOf(
-                NavigationBarButton.Text("Done", Color(ContextCompat.getColor(context, R.color.paletteBasePrimary))) {
+                NavigationBarButton.Text(
+                    "Done",
+                    Color(
+                        ContextCompat.getColor(
+                            context,
+                            com.blockchain.componentlib.R.color.paletteBasePrimary
+                        )
+                    )
+                ) {
                     Toast.makeText(this@NavigationActivity, "Text button clicked", Toast.LENGTH_SHORT).show()
                 }
             )

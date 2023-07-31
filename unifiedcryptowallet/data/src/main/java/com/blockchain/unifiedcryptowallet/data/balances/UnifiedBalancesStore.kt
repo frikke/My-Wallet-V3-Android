@@ -4,22 +4,26 @@ import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.api.selfcustody.CommonResponse
 import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.api.services.DynamicSelfCustodyService
+import com.blockchain.internalnotifications.NotificationEvent
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.CacheConfiguration
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
+import com.blockchain.store.impl.IsCachedMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.serialization.builtins.ListSerializer
 
-internal class UnifiedBalancesStore(
+class UnifiedBalancesStore(
     private val selfCustodyService: DynamicSelfCustodyService,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
 ) : Store<BalancesResponse> by PersistedJsonSqlDelightStoreBuilder()
     .build(
+        reset = CacheConfiguration.on(listOf(NotificationEvent.NonCustodialTransaction)),
         storeId = STORE_ID,
         fetcher = Fetcher.ofOutcome(
             mapper = {
@@ -29,11 +33,7 @@ internal class UnifiedBalancesStore(
             }
         ),
         dataSerializer = BalancesResponse.serializer(),
-        mediator = object : Mediator<Unit, BalancesResponse> {
-            override fun shouldFetch(cachedData: CachedData<Unit, BalancesResponse>?): Boolean {
-                return cachedData == null || cachedData.lastFetched == 0L
-            }
-        }
+        mediator = IsCachedMediator()
     ),
     FlushableDataSource {
 
@@ -48,13 +48,13 @@ internal class UnifiedBalancesStore(
 
 internal class UnifiedBalancesSubscribeStore(
     private val selfCustodyService: DynamicSelfCustodyService,
-    private val unifiedBalancesStore: UnifiedBalancesStore,
+    private val unifiedBalancesStore: UnifiedBalancesStore
 ) : KeyedStore<List<SubscriptionInfo>, CommonResponse> by PersistedJsonSqlDelightStoreBuilder().buildKeyed(
     storeId = STORE_ID,
     fetcher = Fetcher.Keyed.ofOutcome(
         mapper = { key ->
             selfCustodyService.subscribe(
-                data = key,
+                data = key
             ).doOnSuccess {
                 unifiedBalancesStore.invalidate()
             }

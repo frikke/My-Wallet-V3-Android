@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.DestructivePrimaryButtonView
 import com.blockchain.componentlib.button.PrimaryButtonView
 import com.blockchain.componentlib.basic.ImageResource
 import piuk.blockchain.blockchain_component_library_catalog.R
@@ -69,51 +68,9 @@ class PrimaryButtonActivity : AppCompatActivity() {
             text = "Icon"
             buttonState = ButtonState.Enabled
             icon = ImageResource.Local(
-                id = R.drawable.ic_qr_code,
+                id = com.blockchain.componentlib.R.drawable.ic_qr_code,
                 contentDescription = null,
             )
-        }
-
-        findViewById<DestructivePrimaryButtonView>(R.id.destructive_enabled).apply {
-            onClick = {
-                Toast
-                    .makeText(
-                        this@PrimaryButtonActivity,
-                        "Clicked",
-                        Toast.LENGTH_SHORT
-                    )
-                    .show()
-            }
-            text = "Enabled"
-            buttonState = ButtonState.Enabled
-        }
-
-        findViewById<DestructivePrimaryButtonView>(R.id.destructive_disabled).apply {
-            onClick = {
-                Toast
-                    .makeText(
-                        this@PrimaryButtonActivity,
-                        "This toast shouldn't show up",
-                        Toast.LENGTH_SHORT
-                    )
-                    .show()
-            }
-            text = "Disabled"
-            buttonState = ButtonState.Disabled
-        }
-
-        findViewById<DestructivePrimaryButtonView>(R.id.destructive_loading).apply {
-            onClick = {
-                Toast
-                    .makeText(
-                        this@PrimaryButtonActivity,
-                        "This toast shouldn't show up",
-                        Toast.LENGTH_SHORT
-                    )
-                    .show()
-            }
-            text = "Loading"
-            buttonState = ButtonState.Loading
         }
     }
 }

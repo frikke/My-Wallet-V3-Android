@@ -2,13 +2,13 @@ package piuk.blockchain.android.ui.coinview.presentation
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 import com.github.mikephil.charting.data.Entry
-import info.blockchain.balance.Currency
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
@@ -42,11 +42,11 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
 
     /**
      * Load recurring buys / show upsell when no data (if eligible)
-     * Not supported by [WalletMode.NON_CUSTODIAL_ONLY]
+     * Not supported by [WalletMode.NON_CUSTODIAL]
      */
-    object LoadRecurringBuysData : CoinviewIntent {
+    object RecurringBuyDeleted : CoinviewIntent {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.walletMode != WalletMode.NON_CUSTODIAL_ONLY
+            return modelState.walletMode != WalletMode.NON_CUSTODIAL
         }
     }
 
@@ -64,6 +64,8 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      * Load asset description / website
      */
     object LoadAssetInfo : CoinviewIntent
+
+    object LoadNews : CoinviewIntent
 
     /**
      * Performs price updates while chart is interactive
@@ -154,6 +156,9 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
         }
     }
 
-    data class LaunchStakingDepositFlow(val currency: Currency) : CoinviewIntent
-    data class LaunchStakingActivity(val currency: Currency) : CoinviewIntent
+    data class LaunchStakingDepositFlow(val account: EarnRewardsAccount.Staking) : CoinviewIntent
+    object LaunchStakingWithdrawFlow : CoinviewIntent
+    data class LaunchStakingActivity(val account: EarnRewardsAccount.Staking) : CoinviewIntent
+    object LaunchActiveRewardsDepositFlow : CoinviewIntent
+    object LaunchActiveRewardsWithdrawFlow : CoinviewIntent
 }

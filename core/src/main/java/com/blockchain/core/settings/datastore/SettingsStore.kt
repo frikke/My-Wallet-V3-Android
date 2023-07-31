@@ -8,13 +8,13 @@ import com.blockchain.store_caches_inmemory.InMemoryCacheStoreBuilder
 import info.blockchain.wallet.api.data.Settings
 
 class SettingsStore(
-    private val settingsService: SettingsService,
+    private val settingsService: SettingsService
 ) : Store<Settings> by InMemoryCacheStoreBuilder().build(
     storeId = STORE_ID,
     fetcher = Fetcher.ofSingle {
         settingsService.getSettingsObservable().singleOrError()
     },
-    mediator = IsCachedMediator(),
+    mediator = IsCachedMediator()
 ) {
     companion object {
         private const val STORE_ID = "SettingsStore"

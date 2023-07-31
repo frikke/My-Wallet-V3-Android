@@ -26,10 +26,10 @@ class PendingBalanceAccountDecorator(
     private val account: BlockchainAccount
 ) : CellDecorator {
     override fun view(context: Context): Maybe<View> {
-        return account.balanceRx.firstOrError().map { it.pending }.flatMapMaybe {
-            if (it.isZero)
+        return account.balanceRx().firstOrError().map { it.pending }.flatMapMaybe {
+            if (it.isZero) {
                 Maybe.empty()
-            else Maybe.just(composePendingBalanceView(context, it))
+            } else Maybe.just(composePendingBalanceView(context, it))
         }
     }
 
@@ -62,7 +62,7 @@ fun ConstraintLayout.addViewToBottomWithConstraints(
             ConstraintSet.BOTTOM,
             ConstraintSet.PARENT_ID,
             ConstraintSet.BOTTOM,
-            resources.getDimensionPixelSize(VIEW_SPACING)
+            resources.getDimensionPixelSize(com.blockchain.common.R.dimen.very_small_spacing)
         )
 
         bottomOfView?.let {
@@ -72,7 +72,7 @@ fun ConstraintLayout.addViewToBottomWithConstraints(
                 ConstraintSet.TOP,
                 it.id,
                 ConstraintSet.BOTTOM,
-                resources.getDimensionPixelSize(ADDED_VIEW_MARGIN)
+                resources.getDimensionPixelSize(com.blockchain.componentlib.R.dimen.smallest_spacing)
             )
         }
 
@@ -86,7 +86,7 @@ fun ConstraintLayout.addViewToBottomWithConstraints(
 
         constraintSet.applyTo(this)
 
-        if (this.paddingBottom == resources.getDimensionPixelSize(VIEW_SPACING)) {
+        if (this.paddingBottom == resources.getDimensionPixelSize(com.blockchain.common.R.dimen.very_small_spacing)) {
             this.setPadding(0, 0, 0, 0)
         }
     }
@@ -96,10 +96,8 @@ fun ConstraintLayout.removePossibleBottomView() {
     val view: View? = findViewWithTag(BOTTOM_VIEW_TAG)
     view?.let {
         removeView(it)
-        this.setPadding(0, 0, 0, resources.getDimensionPixelSize(VIEW_SPACING))
+        this.setPadding(0, 0, 0, resources.getDimensionPixelSize(com.blockchain.common.R.dimen.very_small_spacing))
     }
 }
 
 private const val BOTTOM_VIEW_TAG = "BOTTOM_VIEW"
-private const val ADDED_VIEW_MARGIN = R.dimen.smallest_spacing
-private const val VIEW_SPACING = R.dimen.very_small_spacing

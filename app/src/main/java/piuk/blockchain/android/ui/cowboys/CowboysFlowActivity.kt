@@ -40,10 +40,9 @@ import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.system.EmbeddedFragment
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.BUY_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.KYC_URL
 import com.blockchain.domain.common.model.PromotionStyleInfo
@@ -56,14 +55,14 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
-import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity.Companion.RESULT_KYC_FOR_SDD_COMPLETE
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity.Companion.RESULT_KYC_FOR_TIER_COMPLETE
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import timber.log.Timber
 
 class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
@@ -158,14 +157,7 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
         with(deeplinkPath) {
             when {
                 contains(KYC_URL) -> {
-                    when (this.split("=")[1].toInt()) {
-                        KycTier.SILVER.ordinal -> {
-                            launchKycForResult(SDD_REQUEST, CampaignType.SimpleBuy)
-                        }
-                        else -> {
-                            launchKycForResult(GOLD_VERIFICATION_REQUEST)
-                        }
-                    }
+                    launchKycForResult(GOLD_VERIFICATION_REQUEST)
                 }
                 contains(BUY_URL) -> {
                     assetCatalogue.assetInfoFromNetworkTicker(
@@ -191,10 +183,10 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
         }
     }
 
-    private fun launchKycForResult(requestCode: Int, campaignType: CampaignType = CampaignType.None) {
+    private fun launchKycForResult(requestCode: Int, entryPoint: KycEntryPoint = KycEntryPoint.Other) {
         KycNavHostActivity.startForResult(
             activity = this@CowboysFlowActivity,
-            campaignType = campaignType,
+            entryPoint = entryPoint,
             requestCode = requestCode
         )
     }
@@ -222,12 +214,12 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
             )
     }
 
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
     private fun navigateToMainActivity() {
         startActivity(
-            MainActivity.newIntent(
+            homeActivityLauncher.newIntent(
                 this@CowboysFlowActivity,
                 null,
-                shouldLaunchUiTour = false,
                 shouldBeNewTask = true
             )
         )
@@ -238,16 +230,13 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            SDD_REQUEST -> {
-                if (resultCode == RESULT_KYC_FOR_SDD_COMPLETE) {
+            GOLD_VERIFICATION_REQUEST -> {
+                if (resultCode == RESULT_KYC_FOR_TIER_COMPLETE) {
                     flowStep = FlowStep.Raffle
                     loadDataForStep(flowStep)
                 } else {
                     navigateToMainActivity()
                 }
-            }
-            GOLD_VERIFICATION_REQUEST -> {
-                navigateToMainActivity()
             }
         }
     }
@@ -288,7 +277,6 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
         }
 
     companion object {
-        private const val SDD_REQUEST = 567
         private const val GOLD_VERIFICATION_REQUEST = 890
         private const val BTC_TICKER = "BTC"
         private const val FLOW_STEP = "FLOW_STEP"
@@ -311,12 +299,12 @@ fun EmailKycHost(
         val emailKycFragment = remember { KycEmailVerificationFragment.newInstance(true) }
 
         NavigationBar(
-            title = stringResource(R.string.security_check),
+            title = stringResource(com.blockchain.stringResources.R.string.security_check),
             endNavigationBarButtons = if (shouldShowEmailSkipButton) {
                 listOf(
                     NavigationBarButton.Text(
-                        color = Blue600,
-                        text = stringResource(R.string.common_skip),
+                        color = AppColors.primary,
+                        text = stringResource(com.blockchain.stringResources.R.string.common_skip),
                         onTextClick = emailSkipAction
                     )
                 )
@@ -341,7 +329,6 @@ fun CowboysInterstitial(
     onPrimaryCtaClick: () -> Unit,
     onCloseClicked: () -> Unit
 ) {
-
     ConstraintLayout {
         val (primaryButton, closeButton, icon, backgroundImage, foregroundImage, title, subtitle) = createRefs()
 
@@ -363,7 +350,7 @@ fun CowboysInterstitial(
             AsyncMediaItem(
                 modifier = Modifier
                     .wrapContentHeight()
-                    .padding(top = dimensionResource(R.dimen.large_spacing))
+                    .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing))
                     .constrainAs(foregroundImage) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
@@ -386,8 +373,8 @@ fun CowboysInterstitial(
             AsyncMediaItem(
                 modifier = Modifier
                     .requiredSizeIn(
-                        minWidth = dimensionResource(id = R.dimen.epic_spacing),
-                        minHeight = dimensionResource(id = R.dimen.epic_spacing),
+                        minWidth = dimensionResource(id = com.blockchain.componentlib.R.dimen.epic_spacing),
+                        minHeight = dimensionResource(id = com.blockchain.componentlib.R.dimen.epic_spacing),
                         maxWidth = 100.dp,
                         maxHeight = 100.dp
                     )
@@ -405,9 +392,9 @@ fun CowboysInterstitial(
         MarkdownText(
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_spacing),
-                    end = dimensionResource(id = R.dimen.standard_spacing),
-                    top = dimensionResource(id = R.dimen.very_small_spacing)
+                    start = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                    top = dimensionResource(id = com.blockchain.componentlib.R.dimen.very_small_spacing)
                 )
                 .constrainAs(title) {
                     top.linkTo(
@@ -430,9 +417,9 @@ fun CowboysInterstitial(
         MarkdownText(
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_spacing),
-                    end = dimensionResource(id = R.dimen.standard_spacing),
-                    top = dimensionResource(id = R.dimen.tiny_spacing)
+                    start = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                    top = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                 )
                 .constrainAs(subtitle) {
                     top.linkTo(title.bottom, margin = 16.dp)
@@ -447,7 +434,10 @@ fun CowboysInterstitial(
         )
 
         createVerticalChain(
-            foregroundImage, icon, title, subtitle,
+            foregroundImage,
+            icon,
+            title,
+            subtitle,
             chainStyle = ChainStyle.Packed(0f)
         )
 
@@ -466,9 +456,9 @@ fun CowboysInterstitial(
         }
 
         Image(
-            imageResource = ImageResource.Local(R.drawable.ic_close_circle, null),
+            imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle, null),
             modifier = Modifier
-                .padding(all = dimensionResource(id = R.dimen.standard_spacing))
+                .padding(all = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing))
                 .clickable(true, onClick = onCloseClicked)
                 .constrainAs(closeButton) {
                     top.linkTo(parent.top)
@@ -495,14 +485,17 @@ fun CowboysInterstitial() {
                     foregroundColorScheme = emptyList(),
                     actions = listOf(
                         ServerErrorAction(
-                            "primary cta", ""
+                            "primary cta",
+                            ""
                         ),
                         ServerErrorAction(
-                            "secondary cta", ""
+                            "secondary cta",
+                            ""
                         )
                     )
                 ),
-                onPrimaryCtaClick = { }, onCloseClicked = {}
+                onPrimaryCtaClick = { },
+                onCloseClicked = {}
             )
         }
     }

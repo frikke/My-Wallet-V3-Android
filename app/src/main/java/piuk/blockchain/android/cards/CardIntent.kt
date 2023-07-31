@@ -9,6 +9,45 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 
 sealed class CardIntent : MviIntent<CardState> {
 
+    object ShowCardCreationError : CardIntent() {
+        override fun reduce(oldState: CardState): CardState =
+            oldState.copy(showCardCreationError = true)
+    }
+
+    object ErrorHandled : CardIntent() {
+        override fun reduce(oldState: CardState): CardState =
+            oldState.copy(showCardCreationError = false)
+    }
+
+    object CheckTokenizer : CardIntent() {
+        override fun reduce(oldState: CardState): CardState =
+            oldState.copy(isLoading = true)
+    }
+
+    data class TokenizerLoaded(
+        private val isVgsEnabled: Boolean,
+        private val cardTokenId: String? = null,
+        private val vaultId: String? = null
+    ) : CardIntent() {
+        override fun reduce(oldState: CardState): CardState =
+            oldState.copy(
+                isLoading = false,
+                isVgsEnabled = isVgsEnabled,
+                cardTokenId = cardTokenId,
+                vaultId = vaultId
+            )
+    }
+
+    object SubmitVgsCardInfo : CardIntent() {
+        override fun reduce(oldState: CardState): CardState =
+            oldState.copy(vgsTokenResponse = null)
+    }
+
+    data class VgsCardInfoReceived(private val cardInfo: String) : CardIntent() {
+        override fun reduce(oldState: CardState): CardState =
+            oldState.copy(vgsTokenResponse = cardInfo)
+    }
+
     class UpdateBillingAddress(private val billingAddress: BillingAddress) : CardIntent() {
         override fun reduce(oldState: CardState): CardState =
             oldState.copy(billingAddress = billingAddress)
@@ -61,7 +100,7 @@ sealed class CardIntent : MviIntent<CardState> {
             oldState.copy(addCard = false)
     }
 
-    object CheckCardStatus : CardIntent() {
+    data class CheckCardStatus(val vgsBeneficiaryId: String? = null) : CardIntent() {
         override fun reduce(oldState: CardState): CardState = oldState
     }
 
@@ -74,13 +113,17 @@ sealed class CardIntent : MviIntent<CardState> {
             oldState.copy(linkedCards = linkedCards)
     }
 
-    class CheckProviderFailureRate(val cardNumber: String) : CardIntent() {
-        override fun reduce(oldState: CardState): CardState = oldState
+    class CheckProviderFailureRate(val bin: String) : CardIntent() {
+        override fun reduce(oldState: CardState): CardState =
+            oldState.copy(isCardRejectionStateLoading = true, bin = bin, cardRejectionState = null)
+
+        override fun isValidFor(oldState: CardState): Boolean =
+            oldState.bin != bin
     }
 
     class UpdateCardRejectionState(private val state: CardRejectionState) : CardIntent() {
         override fun reduce(oldState: CardState): CardState =
-            oldState.copy(cardRejectionState = state)
+            oldState.copy(isCardRejectionStateLoading = false, cardRejectionState = state)
     }
 
     object ResetCardRejectionState : CardIntent() {

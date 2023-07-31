@@ -1,9 +1,12 @@
 package piuk.blockchain.android.linkbank
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.banking.BankTransferAction
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankAuthError
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
+import com.blockchain.domain.paymentmethods.model.BankLinkingProcessState
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankTransferAction
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
@@ -25,12 +28,9 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
-import piuk.blockchain.android.ui.linkbank.BankAuthError
 import piuk.blockchain.android.ui.linkbank.BankAuthIntent
 import piuk.blockchain.android.ui.linkbank.BankAuthModel
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankAuthState
-import piuk.blockchain.android.ui.linkbank.BankLinkingProcessState
 
 class BankAuthModelTest {
 
@@ -99,8 +99,11 @@ class BankAuthModelTest {
     @Test
     fun bankLinkUpdate_ok() {
         val intent = BankAuthIntent.UpdateAccountProvider(
-            accountProviderId = accountProviderId, accountId = accountId, linkingBankId = linkingBankId,
-            linkBankTransfer = linkBankTransfer, authSource = source
+            accountProviderId = accountProviderId,
+            accountId = accountId,
+            linkingBankId = linkingBankId,
+            linkBankTransfer = linkBankTransfer,
+            authSource = source
         )
 
         whenever(
@@ -117,7 +120,7 @@ class BankAuthModelTest {
         whenever(
             interactor.pollForLinkedBankState(
                 partner = any(),
-                id = any(),
+                id = any()
             )
         ).thenReturn(
             Single.just(
@@ -161,8 +164,11 @@ class BankAuthModelTest {
     @Test
     fun bankLinkUpdate_error() {
         val intent = BankAuthIntent.UpdateAccountProvider(
-            accountProviderId = accountProviderId, accountId = accountId, linkingBankId = linkingBankId,
-            linkBankTransfer = linkBankTransfer, authSource = source
+            accountProviderId = accountProviderId,
+            accountId = accountId,
+            linkingBankId = linkingBankId,
+            linkBankTransfer = linkBankTransfer,
+            authSource = source
         )
 
         whenever(
@@ -739,7 +745,11 @@ class BankAuthModelTest {
         val bankAuthSource: BankAuthSource = mock()
 
         val intent = BankAuthIntent.LinkPlaidAccount(
-            linkingBankId, linkBankAccountId, linkBankToken, linkBankTransfer, bankAuthSource
+            linkingBankId,
+            linkBankAccountId,
+            linkBankToken,
+            linkBankTransfer,
+            bankAuthSource
         )
 
         val expectedBank = LinkedBank(
@@ -789,7 +799,11 @@ class BankAuthModelTest {
         val bankAuthSource: BankAuthSource = mock()
 
         val intent = BankAuthIntent.LinkPlaidAccount(
-            linkingBankId, linkBankAccountId, linkBankToken, linkBankTransfer, bankAuthSource
+            linkingBankId,
+            linkBankAccountId,
+            linkBankToken,
+            linkBankTransfer,
+            bankAuthSource
         )
 
         whenever(bankService.linkPlaidBankAccount(linkingBankId, linkBankAccountId, linkBankToken)).thenReturn(

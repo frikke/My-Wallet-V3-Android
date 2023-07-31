@@ -77,11 +77,18 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
 
         binding.addPaymentMethod.visibleIf { isShowingPaymentMethods && canAddNewPayment }
         binding.title.text =
-            if (isShowingPaymentMethods) getString(R.string.pay_with_my_dotted) else getString(R.string.payment_methods)
-        binding.addPaymentMethod.setOnClickListener {
-            (host as? Host)?.showAvailableToAddPaymentMethods()
-            analytics.logEvent(BuyPaymentAddNewClickedEvent)
-            dismiss()
+            if (isShowingPaymentMethods) getString(
+                com.blockchain.stringResources.R.string.pay_with_my_dotted
+            ) else getString(
+                com.blockchain.stringResources.R.string.payment_methods
+            )
+        binding.addPaymentMethod.apply {
+            text = getString(com.blockchain.stringResources.R.string.add_payment_method)
+            onClick = {
+                (host as? Host)?.showAvailableToAddPaymentMethods()
+                analytics.logEvent(BuyPaymentAddNewClickedEvent)
+                dismiss()
+            }
         }
 
         analytics.logEvent(paymentMethodsShown(paymentMethods.map { it.toAnalyticsString() }.joinToString { "," }))

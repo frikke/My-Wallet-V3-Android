@@ -1,7 +1,7 @@
 <resources>
 
     <style name="Text">
-        <item name="android:textColor">@color/grey_800</item>
+        <item name="android:textColor">@color/body</item>
         <item name="android:gravity">start</item>
     </style>
 
@@ -50,7 +50,7 @@
     </style>
 
     <style name="Text.VeryLight">
-        <item name="android:textColor">@color/grey_400</item>
+        <item name="android:textColor">@color/body</item>
     </style>
 
     <style name="Text.VeryLight.Semibold">
@@ -62,27 +62,19 @@
     </style>
 
     <style name="Text.Light">
-        <item name="android:textColor">@color/grey_600</item>
+        <item name="android:textColor">@color/body</item>
     </style>
 
     <style name="Text.Blue">
-        <item name="android:textColor">@color/blue_600</item>
-    </style>
-
-    <style name="Text.Blue.12">
-        <item name="android:textSize">12sp</item>
-    </style>
-
-    <style name="Text.Blue.14">
-        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/primary</item>
     </style>
 
     <style name="Text.White">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/backgroundSecondary</item>
     </style>
 
     <style name="Text.Red">
-        <item name="android:textColor">@color/red_400</item>
+        <item name="android:textColor">@color/error</item>
     </style>
 
     <style name="Text.Red.Semibold">
@@ -227,7 +219,7 @@
     </style>
 
     <style name="Text.Semibold.Light">
-        <item name="android:textColor">@color/grey_600</item>
+        <item name="android:textColor">@color/body</item>
     </style>
 
     <style name="Text.Semibold.Light.14">
@@ -251,14 +243,14 @@
     </style>
 
     <style name="Text.Error">
-        <item name="android:textColor">@color/red_600</item>
+        <item name="android:textColor">@color/error</item>
         <item name="android:textSize">14sp</item>
         <item name="android:background">@drawable/rounded_error_text_background</item>
         <item name="android:gravity">center</item>
     </style>
 
     <style name="Text.Info">
-        <item name="android:textColor">@color/blue_600</item>
+        <item name="android:textColor">@color/primary</item>
         <item name="android:textSize">14sp</item>
         <item name="android:background">@drawable/rounded_info_text_bkgd</item>
     </style>

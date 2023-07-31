@@ -22,7 +22,7 @@ class EnterSecondPasswordFragment : TransactionFlowFragment<FragmentTxFlowPasswo
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
             ctaButton.apply {
-                text = getString(R.string.btn_continue)
+                text = getString(com.blockchain.stringResources.R.string.btn_continue)
                 onClick = ::onCtaClick
             }
             passwordInput.setOnEditorActionListener { _, actionId, _ ->
@@ -38,7 +38,11 @@ class EnterSecondPasswordFragment : TransactionFlowFragment<FragmentTxFlowPasswo
         Timber.d("!TRANSACTION!> Rendering! EnterSecondPasswordFragment")
 
         if (newState.errorState == TransactionErrorState.INVALID_PASSWORD) {
-            Toast.makeText(requireContext(), getString(R.string.invalid_password), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(com.blockchain.stringResources.R.string.invalid_password),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

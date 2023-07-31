@@ -14,7 +14,7 @@ sealed class ReceiveIntent : MviIntent<ReceiveState> {
 
     data class UpdateAssets(
         val assets: List<ReceiveItem>,
-        private val loadAccountsForAsset: (AssetInfo) -> Single<List<CryptoAccount>>,
+        private val loadAccountsForAsset: (AssetInfo) -> Single<List<CryptoAccount>>
     ) : ReceiveIntent() {
         override fun reduce(oldState: ReceiveState): ReceiveState =
             oldState.copy(
@@ -24,7 +24,7 @@ sealed class ReceiveIntent : MviIntent<ReceiveState> {
     }
 
     data class UpdateAccounts(
-        val accounts: List<SingleAccount>,
+        val accounts: List<SingleAccount>
     ) : ReceiveIntent() {
         override fun reduce(oldState: ReceiveState): ReceiveState =
             oldState.copy(

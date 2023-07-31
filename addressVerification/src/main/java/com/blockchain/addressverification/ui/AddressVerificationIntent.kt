@@ -19,6 +19,10 @@ sealed class AddressVerificationIntent : Intent<AddressVerificationModelState> {
 
     object ErrorHandled : AddressVerificationIntent()
 
+    object InvalidStateErrorHandled : AddressVerificationIntent()
+
+    object LaunchSupportClicked : AddressVerificationIntent()
+
     data class MainLineInputChanged(val newInput: String) : AddressVerificationIntent()
 
     data class SecondLineInputChanged(val newInput: String) : AddressVerificationIntent()

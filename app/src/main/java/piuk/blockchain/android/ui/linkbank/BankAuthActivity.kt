@@ -6,18 +6,23 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContract
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
+import com.blockchain.domain.paymentmethods.model.BankAuthError
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
+import com.blockchain.domain.paymentmethods.model.LINKED_BANK_ID_KEY
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
+import com.blockchain.domain.paymentmethods.model.toPreferencesValue
 import com.blockchain.extensions.exhaustive
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.presentation.koin.scopedInject
@@ -97,23 +102,22 @@ class BankAuthActivity :
         if (savedInstanceState == null) {
             when {
                 isFromDeepLink -> {
-                    title = getString(R.string.link_a_bank)
+                    title = getString(com.blockchain.stringResources.R.string.link_a_bank)
                     checkBankLinkingState(linkingId)
                 }
                 approvalDetails != null -> {
-
                     approvalDetails?.let {
-                        title = getString(R.string.approve_payment)
+                        title = getString(com.blockchain.stringResources.R.string.approve_payment)
 
                         yapilyApprovalAccepted(it)
                     } ?: launchBankLinkingWithError(BankAuthError.GenericError)
                 }
                 refreshBankAccountId != null -> {
-                    title = getString(R.string.link_a_bank)
+                    title = getString(com.blockchain.stringResources.R.string.link_a_bank)
                     launchPlaidRefresh()
                 }
                 else -> {
-                    title = getString(R.string.link_a_bank)
+                    title = getString(com.blockchain.stringResources.R.string.link_a_bank)
                     checkPartnerAndLaunchFlow(linkBankTransfer)
                 }
             }
@@ -348,14 +352,13 @@ class BankAuthActivity :
         private const val LINK_BANK_APPROVAL = "LINK_BANK_APPROVAL"
         private const val LAUNCHED_FROM_DEEP_LINK = "LAUNCHED_FROM_DEEP_LINK"
         const val LINK_BANK_REQUEST_CODE = 999
-        const val LINKED_BANK_ID_KEY = "LINKED_BANK_ID"
         const val LINKED_BANK_CURRENCY = "LINKED_BANK_CURRENCY"
         const val REFRESH_BANK_ACCOUNT_ID = "REFRESH_BANK_ACCOUNT_ID"
 
         fun newInstance(
             linkBankTransfer: LinkBankTransfer,
             authSource: BankAuthSource,
-            context: Context,
+            context: Context
         ): Intent {
             val intent = Intent(context, BankAuthActivity::class.java)
             intent.putExtra(LINK_BANK_TRANSFER_KEY, linkBankTransfer)
@@ -374,7 +377,7 @@ class BankAuthActivity :
         fun newBankRefreshInstance(
             accountId: String,
             authSource: BankAuthSource,
-            context: Context,
+            context: Context
         ): Intent {
             val intent = Intent(context, BankAuthActivity::class.java)
             intent.putExtra(REFRESH_BANK_ACCOUNT_ID, accountId)

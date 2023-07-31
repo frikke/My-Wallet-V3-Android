@@ -15,7 +15,6 @@ import com.blockchain.coincore.btc.BtcAddress
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
-import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingStore
@@ -23,13 +22,12 @@ import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.domain.trade.model.QuotePrice
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.datamanagers.TransferQuote
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -43,6 +41,7 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -226,15 +225,10 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         val sourceAccount = mockSourceAccount(totalBalance, availableBalance)
         val txTarget = mockTransactionTarget()
 
-        val txQuote: TransferQuote = mock {
-            on { sampleDepositAddress }.thenReturn(SAMPLE_DEPOSIT_ADDRESS)
-        }
+        val txPrice = mock<QuotePrice>()
 
-        val pricedQuote: PricedQuote = mock {
-            on { transferQuote }.thenReturn(txQuote)
-        }
-
-        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.just(pricedQuote))
+        whenever(quotesEngine.getPriceQuote()).thenReturn(Observable.just(txPrice))
+        whenever(quotesEngine.getSampleDepositAddress()).thenReturn(Single.just(SAMPLE_DEPOSIT_ADDRESS))
 
         subject.start(
             sourceAccount,
@@ -265,7 +259,8 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verifyQuotesEngineStarted()
         verifyOnChainEngineStarted(sourceAccount)
         verifyLimitsFetched()
-        verify(quotesEngine).getPricedQuote()
+        verify(quotesEngine).getPriceQuote()
+        verify(quotesEngine).getSampleDepositAddress()
         verify(onChainEngine).doInitialiseTx()
         // todo fix once start engine returns completable
         // verify(onChainEngine).assertInputsValid()
@@ -286,15 +281,10 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
 
         val txTarget = mockTransactionTarget()
 
-        val txQuote: TransferQuote = mock {
-            on { sampleDepositAddress }.thenReturn(SAMPLE_DEPOSIT_ADDRESS)
-        }
+        val txPrice = mock<QuotePrice>()
 
-        val pricedQuote: PricedQuote = mock {
-            on { transferQuote }.thenReturn(txQuote)
-        }
-
-        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.just(pricedQuote))
+        whenever(quotesEngine.getPriceQuote()).thenReturn(Observable.just(txPrice))
+        whenever(quotesEngine.getSampleDepositAddress()).thenReturn(Single.just(SAMPLE_DEPOSIT_ADDRESS))
 
         subject.start(
             sourceAccount,
@@ -325,7 +315,8 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verifyQuotesEngineStarted()
         verifyOnChainEngineStarted(sourceAccount)
         verifyLimitsFetched()
-        verify(quotesEngine).getPricedQuote()
+        verify(quotesEngine).getPriceQuote()
+        verify(quotesEngine).getSampleDepositAddress()
         verify(onChainEngine).doInitialiseTx()
         // todo fix once start engine returns completable
         // verify(onChainEngine).assertInputsValid()
@@ -346,7 +337,8 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
             on { getErrorCode() }.thenReturn(NabuErrorCodes.PendingOrdersLimitReached)
         }
 
-        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.error(error))
+        whenever(quotesEngine.getPriceQuote()).thenReturn(Observable.error(error))
+        whenever(quotesEngine.getSampleDepositAddress()).thenReturn(Single.just(SAMPLE_DEPOSIT_ADDRESS))
 
         subject.start(
             sourceAccount,
@@ -380,7 +372,8 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount, atLeastOnce()).currency
         verify(txTarget, atLeastOnce()).currency
         verifyQuotesEngineStarted()
-        verify(quotesEngine).getPricedQuote()
+        verify(quotesEngine).getPriceQuote()
+        verify(quotesEngine).getSampleDepositAddress()
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -526,11 +519,10 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(SRC_ASSET)
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(SRC_ASSET)
-        on { balanceRx }.thenReturn(
+        on { balanceRx() }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
-                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)
@@ -610,6 +602,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
 
     private fun verifyQuotesEngineStarted() {
         verify(quotesEngine).start(
+            Product.SELL,
             TransferDirection.FROM_USERKEY,
             CurrencyPair(SRC_ASSET, TEST_API_FIAT)
         )

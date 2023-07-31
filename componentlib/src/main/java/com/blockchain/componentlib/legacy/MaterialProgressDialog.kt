@@ -26,8 +26,8 @@ class MaterialProgressDialog(context: Context) {
         get() = dialog.isShowing
 
     init {
-        dialog = AlertDialog.Builder(context, R.style.AlertDialogStyle)
-            .setTitle(context.getString(R.string.app_name))
+        dialog = AlertDialog.Builder(context, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(context.getString(com.blockchain.stringResources.R.string.app_name))
             .setView(binding.root)
             .create()
 

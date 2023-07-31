@@ -17,6 +17,7 @@ fun Money.toUserFiat(exchangeRates: ExchangeRates): Money =
         is FiatValue -> exchangeRates.getLastFiatToUserFiatRate(this.currency).convert(this)
         else -> throw IllegalStateException("Unknown money type")
     }
+
 @Deprecated("Use the reactive from ExchangeRateDataManager")
 fun Money.toFiat(targetFiat: FiatCurrency, exchangeRates: ExchangeRates): Money =
     when (this) {

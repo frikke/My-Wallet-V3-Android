@@ -3,18 +3,18 @@
 object Versions {
 
     // Release info
-    const val minSdk = 24
+    const val minSdk = 26
 
     const val targetSdk = 33
     const val compileSdk = 33
 
-    const val versionCode = 25045
-    const val versionName = "202212.1.4"
+    const val versionCode = 27830
+    const val versionName = "202308.1.0"
 
     const val buildTools = "30.0.3"
 
     // Build tools and languages
-    const val androidPlugin = "7.2.1"
+    const val androidPlugin = "8.0.1"
     const val kotlin = "1.7.0"
 
     // Coroutines
@@ -24,7 +24,7 @@ object Versions {
     const val immutableCollections = "0.3.5"
 
     const val googleServicesPlugin = "4.3.3"
-    const val ktlint = "0.43.0"
+    const val ktlint = "0.45.0"
     const val detekt = "1.20.0"
     const val kotlinJvmTarget = "1.8"
     const val javaCompatibilityVersion = 1.8
@@ -42,10 +42,11 @@ object Versions {
     const val multidex = "2.0.1"
     const val desugaring = "1.1.5"
     const val installReferrer = "2.2"
-    const val navigation = "2.3.5"
+    const val navigation = "2.5.0"
     const val lifecycle = "2.4.1"
     const val camera = "1.0.0-rc04"
     const val cameraView = "1.0.0-alpha23"
+    const val customTabs = "1.5.0"
 
     // Support Libraries
     const val googleServices = "17.1.0"
@@ -74,15 +75,16 @@ object Versions {
     // SqlDelight
     const val sqlDelight = "1.5.0"
 
-    const val koin = "3.2.2"
-    const val koinAndroid = "3.3.0"
+    const val koin = "3.3.2"
+    const val koinAndroid = "3.3.1"
+    const val koinCompose = "3.3.0"
     const val rxJava = "3.0.7"
     const val rxKotlin = "3.0.1"
     const val rxAndroid = "3.0.0"
     const val rxBinding = "4.0.0"
     const val rxReplayShare = "3.0.0"
     const val rxRelay = "3.0.0"
-    const val glide = "4.13.1"
+    const val glide = "4.14.2"
 
     // Utils, BTC, Ethereum
     const val bitcoinj = "0.16"
@@ -109,33 +111,37 @@ object Versions {
     const val countryPicker = "2.0.4"
 
     // Compose
-    const val compose = "1.2.0"
+    const val composeCompiler = "1.2.0"
+    const val compose = "1.4.2"
     const val composeShowkase = "1.1.1"
-    const val coil = "2.1.0"
+    const val coil = "2.2.2"
+    const val landscapist = "2.1.3"
     const val composeActivity = "1.5.0"
     const val constraintLayoutCompose = "1.0.1"
     const val composeRx = "1.2.0"
     const val composeNavigation = "2.5.1"
     const val composeFlowLayout = "0.25.0"
+    const val composeLifecycle = "2.6.0-alpha03"
     const val composePoolingContainer = "1.0.0"
 
     // Accompanist
     const val systemUi = "0.25.0"
-    const val navigationMaterial = "0.25.0"
-    const val swipeRefresh = "0.25.0"
+    const val navigationMaterial = "0.29.1-alpha"
+    const val swipeRefresh = "0.29.1-alpha"
     const val pager = "0.25.0"
     const val pagerIndicators = "0.25.0"
     const val drawablePainter = "0.25.0"
+    const val permissions = "0.31.5-beta"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
     // List.sort() is not available on Android SDK < 24 so DO NOT UPGRADE until project target min is 24
-    const val zxing = "3.3.0"
+    const val zxing = "3.5.1"
     const val materialDatePicker = "3.6.4"
     const val sparkline = "1.2.0"
 
     // Third Party SDKs
-    const val veriff = "4.2.0"
+    const val veriff = "6.8.0"
     const val sift = "0.11.1"
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
@@ -144,9 +150,10 @@ object Versions {
     const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "20.3.0"
-    const val intercomVersion = "12.5.1"
+    const val intercomVersion = "15.0.0"
     const val plaidLinkVersion = "3.9.0"
     const val exoPlayerVersion = "2.18.1"
+    const val vgsVersion = "1.7.1"
 
     /**
      * [composeMarkdownVersion]
@@ -174,8 +181,9 @@ object Versions {
     const val turbine = "0.8.0"
     const val mockk = "1.12.2"
     const val hamcrestJunit = "2.0.0.0"
-    const val junit = "4.12"
-    const val robolectric = "4.4"
+    const val junit = "4.13.2"
+    const val robolectric = "4.10.3"
+
     const val json = "20140107"
     const val espresso = "3.2.0"
     const val androidxTesting = "1.3.0"
@@ -196,6 +204,7 @@ object Libraries {
         "org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.immutableCollections}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val ktlint = "com.pinterest:ktlint:${Versions.ktlint}"
+    const val ktlintCore = "com.pinterest.ktlint:ktlint-core:${Versions.ktlint}"
     const val detekt = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Versions.detekt}"
     const val detektFormat = "io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.detekt}"
 
@@ -224,6 +233,7 @@ object Libraries {
     const val camera = "androidx.camera:camera-camera2:${Versions.camera}"
     const val cameraView = "androidx.camera:camera-view:${Versions.cameraView}"
     const val cameraLifecycle = "androidx.camera:camera-lifecycle:${Versions.camera}"
+    const val customTabs = "androidx.browser:browser:${Versions.customTabs}"
 
     // Google & Firebase
     const val firebaseBom = "com.google.firebase:firebase-bom:${Versions.firebaseBom}"
@@ -251,7 +261,6 @@ object Libraries {
     const val biometricsApi = "androidx.biometric:biometric:${Versions.biometrics}"
     const val adsIdentifier = "com.google.android.gms:play-services-ads-identifier:${Versions.adsIdentifier}"
 
-
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofitRxJavaAdapter = "com.squareup.retrofit2:adapter-rxjava3:${Versions.retrofit}"
@@ -273,7 +282,7 @@ object Libraries {
     const val koinAndroid = "io.insert-koin:koin-android:${Versions.koinAndroid}"
     const val koinTest = "io.insert-koin:koin-test:${Versions.koin}"
     const val koinTestJunit = "io.insert-koin:koin-test-junit4:${Versions.koin}"
-    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koinAndroid}"
+    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koinCompose}"
     const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideAnnotations = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"
@@ -292,6 +301,8 @@ object Libraries {
     const val bitcoinj = "org.bitcoinj:bitcoinj-core:${Versions.bitcoinj}"
     const val web3j = "org.web3j:core:${Versions.web3j}"
     const val walletConnect = "com.github.TrustWallet:wallet-connect-kotlin:${Versions.walletConnect}"
+    const val walletConnectV2Web3Wallet = "com.walletconnect:web3wallet:1.10.0"
+    const val walletConnectV2AndroidCore = "com.walletconnect:android-core:1.17.0"
     const val spongyCastle = "com.madgag.spongycastle:prov:${Versions.spongycastle}"
     const val jjwt = "io.jsonwebtoken:jjwt:${Versions.jjwt}"
     const val lambdaWorks = "com.lambdaworks:codec:${Versions.lambdaWorks}"
@@ -330,12 +341,15 @@ object Libraries {
     const val composeMaterial = "androidx.compose.material:material:${Versions.compose}"
     const val composePreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
     const val composeUiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
-    const val composeUiPoolingContainer = "androidx.customview:customview-poolingcontainer:${Versions.composePoolingContainer}"
+    const val composeUiPoolingContainer =
+        "androidx.customview:customview-poolingcontainer:${Versions.composePoolingContainer}"
     const val composeActivity = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
+    const val composelifecycle = "androidx.lifecycle:lifecycle-runtime-compose:${Versions.composeLifecycle}"
     const val composeCoil = "io.coil-kt:coil-compose:${Versions.coil}"
     const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
     const val composeCoilGif = "io.coil-kt:coil-gif:${Versions.coil}"
+    const val composeLandScapist = "com.github.skydoves:landscapist-glide:${Versions.landscapist}"
     const val composeLottie = "com.airbnb.android:lottie-compose:${Versions.lottieVersion}"
     const val constraintLayoutCompose =
         "androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayoutCompose}"
@@ -353,6 +367,8 @@ object Libraries {
         "com.google.accompanist:accompanist-pager-indicators:${Versions.pagerIndicators}"
     const val accompanistDrawablePainter =
         "com.google.accompanist:accompanist-drawablepainter:${Versions.drawablePainter}"
+    const val accompanistPermissions =
+        "com.google.accompanist:accompanist-permissions:${Versions.permissions}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"
@@ -368,6 +384,7 @@ object Libraries {
     const val plaidLink = "com.plaid.link:sdk-core:${Versions.plaidLinkVersion}"
     const val exoPlayer = "com.google.android.exoplayer:exoplayer:${Versions.exoPlayerVersion}"
     const val composeMarkdown = "com.github.jeziellago:compose-markdown:${Versions.composeMarkdownVersion}"
+    const val vgs = "com.verygoodsecurity:vgscollect:${Versions.vgsVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"
@@ -377,8 +394,6 @@ object Libraries {
     const val firebaseCrashlyticsPlugin =
         "com.google.firebase:firebase-crashlytics-gradle:${Versions.firebaseCrashlyticsPlugin}"
     const val firebaseAnalytics = "com.google.firebase:firebase-analytics"
-    const val embraceIOSwazzler = "io.embrace:embrace-swazzler:${Versions.embraceIO}"
-    const val embraceIOSDK = "io.embrace:embrace-android-sdk:${Versions.embraceIO}"
 
     // Debugging
     const val stetho = "com.facebook.stetho:stetho:${Versions.stetho}"

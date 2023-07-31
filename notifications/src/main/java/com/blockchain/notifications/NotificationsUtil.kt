@@ -6,8 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.net.Uri
-import android.os.Build
-import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -64,21 +62,19 @@ class NotificationsUtil(
                 .setDefaults(Notification.DEFAULT_LIGHTS)
                 .setContentText(text)
 
-            if (isAndroid26orHigher()) {
-                // TODO: Maybe pass in specific channel names here, such as "payments" and "contacts"
-                val importance = NotificationManager.IMPORTANCE_HIGH
-                val notificationChannel = NotificationChannel(
-                    channelId ?: NOTIFICATION_CHANNEL_ID,
-                    context.getString(appName),
-                    importance
-                ).apply {
-                    enableLights(true)
-                    lightColor = ContextCompat.getColor(context, colorRes)
-                    enableVibration(true)
-                    vibrationPattern = longArrayOf(100)
-                }
-                notificationManager.createNotificationChannel(notificationChannel)
+            // TODO: Maybe pass in specific channel names here, such as "payments" and "contacts"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val notificationChannel = NotificationChannel(
+                channelId ?: NOTIFICATION_CHANNEL_ID,
+                context.getString(appName),
+                importance
+            ).apply {
+                enableLights(true)
+                lightColor = ContextCompat.getColor(context, colorRes)
+                enableVibration(true)
+                vibrationPattern = longArrayOf(100)
             }
+            notificationManager.createNotificationChannel(notificationChannel)
 
             notificationManager.notify(id, builder.build())
             analytics.logEvent(NotificationReceived)
@@ -92,7 +88,3 @@ class NotificationsUtil(
         const val ID_BACKGROUND_NOTIFICATION_2FA = 1339
     }
 }
-
-@ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
-private fun isAndroid26orHigher(): Boolean =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O

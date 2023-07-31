@@ -59,7 +59,6 @@ class WalletBodyTest : WalletApiMockedResponseTest() {
 
     @Test
     fun testKotlinSerializerJSON() {
-
         // Ensure toJson doesn't write any unintended fields
         val body = loadResourceContent("wallet_body_1.txt")
         val wallet = Wallet.fromJson(body, 4)
@@ -82,7 +81,10 @@ class WalletBodyTest : WalletApiMockedResponseTest() {
         val balanceResponse5 = makeBalanceResponse(recoverBalance_9)
         Mockito.`when`(
             bitcoinApi.getBalance(
-                any(), any(), any(), any()
+                any(),
+                any(),
+                any(),
+                any()
             )
         )
             .thenReturn(balanceResponse1)
@@ -105,7 +107,10 @@ class WalletBodyTest : WalletApiMockedResponseTest() {
         val balanceResponse4 = makeBalanceResponse(recoverBalance_4)
         Mockito.`when`(
             bitcoinApi.getBalance(
-                any(), any(), any(), any()
+                any(),
+                any(),
+                any(),
+                any()
             )
         )
             .thenReturn(balanceResponse1)

@@ -23,9 +23,9 @@ data class TransactionSummary(
     @SerialName("absoluteFeeEstimate")
     val absoluteFeeEstimate: String,
     @SerialName("amount")
-    val amount: String,
+    val amount: String?,
     @SerialName("balance")
-    val balance: String
+    val balance: String?
 )
 
 @Serializable

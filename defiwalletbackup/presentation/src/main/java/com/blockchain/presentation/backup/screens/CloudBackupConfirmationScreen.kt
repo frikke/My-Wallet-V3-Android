@@ -1,5 +1,7 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,14 +26,19 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.presentation.R
+import com.blockchain.componentlib.theme.LargeVerticalSpacer
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.CopyState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import com.blockchain.walletmode.WalletMode
 import java.util.Locale
 
 @Composable
@@ -63,39 +70,43 @@ fun CloudBackupConfirmationScreen(
     doneOnClick: () -> Unit,
     backUpManualOnClick: () -> Unit
 ) {
-
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = null)
+        NavigationBar(
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
+            title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
+            onBackButtonClick = null
+        )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
+        TinyVerticalSpacer()
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_spacing)),
+                .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_title),
-                style = ComposeTypographies.Title2,
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_title),
+                style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+            StandardVerticalSpacer()
 
             BackupStatus(BackUpStatus.BACKED_UP)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+            LargeVerticalSpacer()
 
             HidableMnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            SmallVerticalSpacer()
 
             CopyMnemonicCta(
                 copyState = copyState,
@@ -103,11 +114,11 @@ fun CloudBackupConfirmationScreen(
                 mnemonicCopied = mnemonicCopied
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_description),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -117,15 +128,15 @@ fun CloudBackupConfirmationScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.done),
+                text = stringResource(id = com.blockchain.stringResources.R.string.done),
                 onClick = doneOnClick
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            SmallVerticalSpacer()
 
             SecondaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_backup_manual),
+                text = stringResource(id = com.blockchain.stringResources.R.string.recovery_phrase_backup_manual),
                 onClick = backUpManualOnClick
             )
         }
@@ -139,9 +150,9 @@ private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
 }.shuffled().subList(0, 12)
 
-@Preview(name = "Cloud Backup Confirmation", backgroundColor = 0xFFFFFF, showBackground = true)
+@Preview(name = "Cloud Backup Confirmation")
 @Composable
-fun PreviewCloudBackupConfirmationScreen() {
+private fun PreviewCloudBackupConfirmationScreen() {
     CloudBackupConfirmationScreen(
         mnemonic = mnemonic,
         copyState = CopyState.Idle(false),
@@ -149,4 +160,10 @@ fun PreviewCloudBackupConfirmationScreen() {
         doneOnClick = {},
         backUpManualOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewCloudBackupConfirmationScreenDark() {
+    PreviewCloudBackupConfirmationScreen()
 }

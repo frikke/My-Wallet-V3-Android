@@ -1,0 +1,62 @@
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
+
+android {
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {}
+    }
+
+    lintOptions {
+        warningsAsErrors true
+        abortOnError true
+    }
+
+    buildFeatures {
+        compose = true
+    }
+    namespace 'com.blockchain.transactions.presentation'
+    composeOptions {
+        kotlinCompilerExtensionVersion Versions.composeCompiler
+    }
+}
+
+dependencies {
+    implementation project(':flowtransactions:domain')
+    implementation project(':commonarch')
+    implementation project(':common:interface')
+    implementation project(':common:presentation')
+    implementation project(':componentlib')
+    implementation project(':commonarch')
+    implementation project(':chrome:common')
+    implementation project(':coincore')
+    implementation project(':unifiedcryptowallet:domain')
+    implementation project(':core')
+    implementation project(':blockchainApi')
+    implementation project(':store:core')
+    implementation project(':analytics:domain')
+    implementation project(':logging:domain')
+    implementation project(':betternavigation')
+    implementation project(':unifiedcryptowallet:domain')
+    implementation project(':flowprices:domain')
+    implementation project(':deeplinking')
+    implementation project(':notifications')
+    implementation project(':flowprices:presentation')
+    implementation project(':flowhome:presentation')
+
+    implementation Libraries.composeUi
+    implementation Libraries.composePreview
+    implementation Libraries.composeMaterial
+    implementation Libraries.accompanistNavigationMaterial
+
+    implementation Libraries.kotlinImmutableCollections
+
+    // koin
+    implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
+
+    debugImplementation Libraries.composeUiTooling
+    debugImplementation Libraries.composeUiPoolingContainer
+}

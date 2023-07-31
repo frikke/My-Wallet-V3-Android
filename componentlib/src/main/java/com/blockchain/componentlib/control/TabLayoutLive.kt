@@ -24,11 +24,9 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Green600
-import com.blockchain.componentlib.theme.Grey400
 
 // This composable assumes the first item given is the Live item
 @Composable
@@ -44,7 +42,8 @@ fun TabLayoutLive(
         backgroundColor = Color.Transparent,
         contentColor = AppTheme.colors.primary,
         divider = {},
-        modifier = modifier,
+        indicator = {},
+        modifier = modifier
     ) {
         items.forEachIndexed { index, itemName ->
             val isSelected = selectedItemIndex == index
@@ -61,7 +60,7 @@ fun TabLayoutLive(
                     isSelected = isSelected,
                     modifier = Modifier
                         .clickable { onItemSelected(index) }
-                        .padding(vertical = 14.dp),
+                        .padding(vertical = 14.dp)
                 )
             }
         }
@@ -78,14 +77,14 @@ private fun LiveTabLayoutItem(
         Row(modifier) {
             Box(
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.smallest_spacing))
+                    .size(dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
                     .background(
-                        color = if (isSelected) Green600 else Grey400,
+                        color = if (isSelected) AppColors.success else AppColors.muted,
                         shape = CircleShape
                     )
                     .align(Alignment.CenterVertically)
             )
-            Spacer(Modifier.width(dimensionResource(R.dimen.minuscule_spacing)))
+            Spacer(Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing)))
             TabLayoutItem(
                 itemName = itemName,
                 isSelected = isSelected,
@@ -103,8 +102,8 @@ private fun TabLayoutItem(
 ) {
     Text(
         text = itemName,
-        color = if (isSelected) AppTheme.colors.primary else Grey400,
-        style = AppTheme.typography.body2,
+        color = if (isSelected) AppTheme.colors.title else AppColors.muted,
+        style = AppTheme.typography.paragraph2,
         modifier = modifier,
         textAlign = TextAlign.Center
     )

@@ -160,6 +160,7 @@
 -keep public class info.blockchain.wallet.ethereum.data.** { *; }
 -keep public class info.blockchain.wallet.prices.data.** { *; }
 -keep public class com.blockchain.nabu.api.** { *; }
+-keep public class com.blockchain.api.fees.** { *; }
 -keepclassmembers class org.web3j.protocol.** { *; }
 -keepclassmembers class org.web3j.crypto.* { *; }
 -keep class * extends org.web3j.abi.TypeReference
@@ -192,6 +193,9 @@
 -keep class com.github.mikephil.charting.** { *; }
 -dontwarn io.realm.**
 
+# VGS
+-keep public class com.google.android.material**  { *; }
+
 # Guava (official)
 ## Not yet defined: follow https://github.com/google/guava/issues/2117
 # Guava (unofficial)
@@ -215,7 +219,6 @@
 # Kotlinx serialisation
 -keep public class com.blockchain.api.** { *; }
 -keep public class com.blockchain.payments.googlepay.** { *; }
--keep public class com.blockchain.blockchaincard.data.** { *; }
 
 -keepattributes *Annotation*, InnerClasses, AnnotationDefault, RuntimeVisibleAnnotations
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
@@ -253,6 +256,8 @@
 -keep public class piuk.blockchain.android.ui.auth.newlogin.** { *; }
 -keep public class piuk.blockchain.android.ui.login.auth.** { *; }
 
+#trustwallet
+-keep public class com.trustwallet.walletconnect.** { *; }
 
 # Sardine
 -keep public class com.google.android.gms.** { *; }

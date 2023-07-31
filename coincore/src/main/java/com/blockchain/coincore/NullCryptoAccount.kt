@@ -1,10 +1,13 @@
 package com.blockchain.coincore
 
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 
 object NullCryptoAddress : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.BTC
@@ -29,19 +32,18 @@ class NullCryptoAccount(
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.NOT_SUPPORTED)
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.error(NotImplementedError())
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
+        return Observable.error(NotImplementedError())
+    }
 
-    override val activity: Single<ActivitySummaryList>
-        get() = Single.just(emptyList())
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> =
+        Observable.just(emptyList())
 
     override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
 
-    override val isFunded: Boolean = false
-
-    override val hasTransactions: Boolean = false
-
-    override fun requireSecondPassword(): Single<Boolean> = Single.just(false)
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return Single.just(ActionState.Unavailable)
+    }
 
     override fun matches(other: CryptoAccount): Boolean =
         other is NullCryptoAccount
@@ -62,16 +64,22 @@ object NullFiatAccount : FiatAccount {
 
     override val label: String = ""
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.error(NotImplementedError())
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
+        return Observable.error(NotImplementedError())
+    }
 
-    override val activity: Single<ActivitySummaryList>
-        get() = Single.just(emptyList())
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
+        return Observable.just(emptyList())
+    }
 
     override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
 
-    override val isFunded: Boolean = false
-    override val hasTransactions: Boolean = false
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return Single.just(ActionState.Unavailable)
+    }
 
-    override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
+    override fun canWithdrawFunds() = flowOf(DataResource.Data(false))
+
+    override fun matches(other: FiatAccount): Boolean =
+        other is NullFiatAccount
 }

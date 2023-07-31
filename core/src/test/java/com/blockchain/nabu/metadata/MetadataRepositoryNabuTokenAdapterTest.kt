@@ -45,7 +45,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
 
         MetadataRepositoryNabuTokenAdapter(
             accountCredentialsMetadata,
-            mock(),
+            mock()
         ).fetchNabuToken()
             .test()
             .values()
@@ -66,7 +66,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         accountMetadata.givenAccountMetadata(Maybe.just(offlineToken))
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
             accountMetadata,
-            mock(),
+            mock()
         )
         // Act
         val testObserver = nabuToken.fetchNabuToken().test()
@@ -110,7 +110,8 @@ class MetadataRepositoryNabuTokenAdapterTest {
         token `should be equal to` lifetimeToken
         verify(accountCredentialsMetadata).save(
             NabuOfflineToken(
-                "ID", "LIFETIME_TOKEN"
+                "ID",
+                "LIFETIME_TOKEN"
             )
         )
     }
@@ -147,7 +148,8 @@ class MetadataRepositoryNabuTokenAdapterTest {
         token `should be equal to` lifetimeToken
         verify(accountCredentialsMetadata).save(
             NabuOfflineToken(
-                "ID", "LIFETIME_TOKEN"
+                "ID",
+                "LIFETIME_TOKEN"
             )
         )
     }
@@ -169,7 +171,9 @@ class MetadataRepositoryNabuTokenAdapterTest {
                 on { createNabuOfflineToken() }.thenReturn(
                     Single.just(
                         NabuOfflineTokenResponse(
-                            "", "", true
+                            "",
+                            "",
+                            true
                         )
                     )
                 )
@@ -190,7 +194,8 @@ class MetadataRepositoryNabuTokenAdapterTest {
         )
 
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
-            accountCredentialsMetadata, mock()
+            accountCredentialsMetadata,
+            mock()
         )
         nabuToken.fetchNabuToken().test()
             .assertNotComplete()
@@ -211,7 +216,6 @@ class MetadataRepositoryNabuTokenAdapterTest {
 
     @Test
     fun `if the metadata is available, it does not update, proving cached`() {
-
         val accountCredentialsMetadata: AccountCredentialsMetadata = mock()
         whenever(accountCredentialsMetadata.load()).thenReturn(
             Maybe.just(NabuLegacyCredentialsMetadata("USER1", "TOKEN1"))
@@ -219,7 +223,8 @@ class MetadataRepositoryNabuTokenAdapterTest {
 
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
 
-            accountCredentialsMetadata, mock()
+            accountCredentialsMetadata,
+            mock()
         )
         nabuToken.fetchNabuToken().test()
             .assertComplete()
@@ -240,7 +245,8 @@ class MetadataRepositoryNabuTokenAdapterTest {
         whenever(accountCredentialsMetadata.load()).thenReturn(
             Maybe.just(
                 NabuLegacyCredentialsMetadata(
-                    "USER2", "TOKEN2"
+                    "USER2",
+                    "TOKEN2"
                 )
             )
         )

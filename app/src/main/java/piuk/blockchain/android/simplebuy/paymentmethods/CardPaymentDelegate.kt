@@ -52,19 +52,25 @@ class CardPaymentDelegate(
                         titleStart = buildAnnotatedString { append(it.uiLabel()) }
                         titleEnd = buildAnnotatedString { append(it.dottedEndDigits()) }
                         startImageResource = ImageResource.Local(
-                            id = it.cardType.icon(),
+                            id = it.cardType.icon()
                         )
                         bodyStart = buildAnnotatedString {
                             append(
                                 context.getString(
-                                    R.string.common_spaced_strings, it.limits.max.toStringWithSymbol(),
-                                    context.getString(R.string.deposit_enter_amount_limit_title)
+                                    com.blockchain.stringResources.R.string.common_spaced_strings,
+                                    it.limits.max.toStringWithSymbol(),
+                                    context.getString(
+                                        com.blockchain.stringResources.R.string.deposit_enter_amount_limit_title
+                                    )
                                 )
                             )
                         }
                         bodyEnd = buildAnnotatedString {
                             append(
-                                context.getString(R.string.card_expiry_date, it.expireDate.formatted())
+                                context.getString(
+                                    com.blockchain.stringResources.R.string.card_expiry_date,
+                                    it.expireDate.formatted()
+                                )
                             )
                         }
                         onClick = {
@@ -83,20 +89,18 @@ class CardPaymentDelegate(
                             is CardRejectionState.AlwaysRejected -> {
                                 listOf(
                                     TagViewState(
-                                        value = cardState.title ?: context.getString(
-                                            R.string.card_issuer_always_rejects_title
+                                        value = cardState.error?.title ?: context.getString(
+                                            com.blockchain.stringResources.R.string.card_issuer_always_rejects_title
                                         ),
-                                        type = TagType.Error(),
+                                        type = TagType.Error()
                                     )
                                 )
                             }
                             is CardRejectionState.MaybeRejected -> {
                                 listOf(
                                     TagViewState(
-                                        value = cardState.title ?: context.getString(
-                                            R.string.card_issuer_sometimes_rejects_title
-                                        ),
-                                        type = TagType.Warning(),
+                                        value = cardState.error.title,
+                                        type = TagType.Warning()
                                     )
                                 )
                             }

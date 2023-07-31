@@ -1,16 +1,18 @@
 package com.blockchain.coincore.xlm
 
-import com.blockchain.android.testutils.rxInit
+import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class XlmAssetUriParseTest {
+class XlmAssetUriParseTest : CoincoreTestBase() {
 
     @get:Rule
     val rxSchedulers = rxInit {
@@ -25,18 +27,23 @@ class XlmAssetUriParseTest {
     private val walletOptionsDataManager: WalletOptionsDataManager = mock()
     private val walletPreferences: WalletStatusPrefs = mock()
 
-    private val subject = XlmAsset(
-        payloadManager = payloadManager,
-        xlmDataManager = xlmDataManager,
-        xlmFeesFetcher = xlmFeesFetcher,
-        walletOptionsDataManager = walletOptionsDataManager,
-        walletPreferences = walletPreferences,
-        addressResolver = mock()
-    )
+    private lateinit var subject: XlmAsset
+
+    @Before
+    fun setup() {
+        initMocks()
+        subject = XlmAsset(
+            payloadManager = payloadManager,
+            xlmDataManager = xlmDataManager,
+            xlmFeesFetcher = xlmFeesFetcher,
+            walletOptionsDataManager = walletOptionsDataManager,
+            walletPreferences = walletPreferences,
+            addressResolver = mock()
+        )
+    }
 
     @Test
     fun parseValidAddress() {
-
         val expectedResult = XlmAddress(
             _address = VALID_SCAN_URI,
             _label = VALID_SCAN_URI
@@ -50,7 +57,6 @@ class XlmAssetUriParseTest {
 
     @Test
     fun parseInvalidAddress() {
-
         subject.parseAddress(INVALID_SCAN_URI)
             .test()
             .assertNoErrors()

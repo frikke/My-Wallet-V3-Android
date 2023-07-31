@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.transactionflow.analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.earn.TxFlowAnalyticsAccountType
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
@@ -19,7 +19,9 @@ class SellAnalyticsEvent(
     constructor(event: SellAnalytics, asset: Currency, source: String) : this(
         event.value,
         constructMap(
-            asset = asset, source = source, target = WALLET_TYPE_CUSTODIAL
+            asset = asset,
+            source = source,
+            target = WALLET_TYPE_CUSTODIAL
         )
     )
 }
@@ -67,11 +69,11 @@ object SellAssetScreenViewedEvent : AnalyticsEvent {
 }
 
 class SellAssetSelectedEvent(
-    type: String,
+    type: String
 ) : AnalyticsEvent {
     override val event: String = AnalyticsNames.SELL_ASSET_SELECTED.eventName
     override val params: Map<String, String> = mapOf(
-        "type" to type,
+        "type" to type
     )
 }
 
@@ -112,7 +114,7 @@ class SellAmountScreenNextClicked(
         INPUT_AMOUNT to amount.toBigDecimal(),
         INPUT_CURRENCY to amount.currencyCode,
         OUTPUT_CURRENCY to outputCurrency
-    ).withoutNullValues()
+    ).filterNotNullValues()
 }
 
 object SellCheckoutScreenViewedEvent : AnalyticsEvent {

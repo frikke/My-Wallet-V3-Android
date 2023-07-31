@@ -2,12 +2,12 @@ package piuk.blockchain.android.ui.recover
 
 import com.blockchain.core.auth.metadata.WalletRecoveryMetadata
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.metadata.MetadataInteractor
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.utils.then
 import info.blockchain.wallet.metadata.Metadata
 import info.blockchain.wallet.metadata.MetadataDerivation
-import info.blockchain.wallet.metadata.MetadataInteractor
 import io.reactivex.rxjava3.core.Completable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -21,7 +21,6 @@ class AccountRecoveryInteractor(
 ) {
 
     fun recoverCredentials(seedPhrase: String): Completable {
-
         val masterKey = payloadDataManager.generateMasterKeyFromSeed(seedPhrase)
         val metadataNode = metadataDerivation.deriveMetadataNode(masterKey)
 

@@ -4,6 +4,7 @@ import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.addressverification.AddressVerificationApi
 import com.blockchain.api.analytics.AnalyticsApiInterface
+import com.blockchain.api.announcements.AnnouncementsApi
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
 import com.blockchain.api.assetdiscovery.data.AssetInformationDto
 import com.blockchain.api.assetdiscovery.data.AssetType
@@ -16,28 +17,45 @@ import com.blockchain.api.assetdiscovery.data.assetTypeSerializers
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
-import com.blockchain.api.blockchainCard.BlockchainCardApi
-import com.blockchain.api.blockchainCard.WalletHelperUrl
 import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.dataremediation.DataRemediationApi
+import com.blockchain.api.dex.DexApi
+import com.blockchain.api.dex.DexApiService
+import com.blockchain.api.dex.DexEligibilityApiService
+import com.blockchain.api.dex.DexQuotesApi
+import com.blockchain.api.dex.DexQuotesApiService
+import com.blockchain.api.dex.DexTransactionsApiService
+import com.blockchain.api.dex.DexTxApi
+import com.blockchain.api.earn.active.ActiveRewardsApi
+import com.blockchain.api.earn.active.ActiveRewardsApiService
+import com.blockchain.api.earn.passive.InterestApiInterface
+import com.blockchain.api.earn.passive.InterestApiService
+import com.blockchain.api.earn.staking.StakingApi
+import com.blockchain.api.earn.staking.StakingApiService
 import com.blockchain.api.eligibility.EligibilityApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.experiments.ExperimentsApi
+import com.blockchain.api.fees.FeesApi
+import com.blockchain.api.fees.WithdrawFeesService
 import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
 import com.blockchain.api.fraud.FraudApi
-import com.blockchain.api.interest.InterestApiInterface
-import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.kyc.KycApiInterface
 import com.blockchain.api.kyc.KycApiService
+import com.blockchain.api.kyc.ProveApi
+import com.blockchain.api.kyc.ProveApiService
 import com.blockchain.api.mercuryexperiments.MercuryExperimentsApi
 import com.blockchain.api.nabu.NabuUserApi
+import com.blockchain.api.news.NewsApi
+import com.blockchain.api.news.NewsApiService
+import com.blockchain.api.news.NewsApiServiceImpl
 import com.blockchain.api.nfts.api.NftApi
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
 import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.payments.PaymentsApi
+import com.blockchain.api.recurringbuy.RecurringBuyApi
 import com.blockchain.api.referral.ReferralApi
 import com.blockchain.api.selfcustody.SelfCustodyApi
 import com.blockchain.api.selfcustody.activity.ActivityRequest
@@ -50,10 +68,10 @@ import com.blockchain.api.services.ActivityWebSocketService
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AddressVerificationApiService
 import com.blockchain.api.services.AnalyticsService
+import com.blockchain.api.services.AnnouncementsApiService
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.AuthApiService
-import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.api.services.BrokerageService
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.DataRemediationApiService
@@ -71,19 +89,19 @@ import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
+import com.blockchain.api.services.RecurringBuyApiService
 import com.blockchain.api.services.ReferralApiService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.services.WatchlistApiService
-import com.blockchain.api.staking.StakingApi
-import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
 import com.blockchain.api.watchlist.WatchlistApi
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.authOkHttpClient
+import com.blockchain.koin.iterableRetrofit
 import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.kotlinXApiRetrofit
 import com.blockchain.koin.kotlinXCoinApiRetrofit
@@ -100,6 +118,8 @@ import com.blockchain.serializers.IsoDateSerializer
 import com.blockchain.serializers.KZonedDateTimeSerializer
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -110,7 +130,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.scope.Scope
-import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
@@ -119,6 +138,7 @@ val blockchainApi = StringQualifier("blockchain-api")
 val walletPubkeyApi = StringQualifier("wallet-pubkey-api")
 val explorerApi = StringQualifier("explorer-api")
 val nabuApi = StringQualifier("nabu-api")
+val dexApi = StringQualifier("dex-api")
 val assetsApi = StringQualifier("assets-api")
 
 val blockchainApiModule = module {
@@ -163,6 +183,26 @@ val blockchainApiModule = module {
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
             .addConverterFactory(get(kotlinJsonConverterFactory))
+            .build()
+    }
+
+    single(dexApi) {
+        Retrofit.Builder()
+            .baseUrl(getBaseUrl("dex-api"))
+            .client(get(authOkHttpClient))
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
+            .build()
+    }
+
+    single(iterableRetrofit) {
+        Retrofit.Builder()
+            .baseUrl(getBaseUrl("iterable-api"))
+            .client(get())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
             .build()
     }
 
@@ -343,6 +383,34 @@ val blockchainApiModule = module {
     }
 
     factory {
+        val api = get<Retrofit>(dexApi).create(DexApi::class.java)
+        DexApiService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(DexApi::class.java)
+        DexEligibilityApiService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(DexQuotesApi::class.java)
+        DexQuotesApiService(
+            dexQuotesApi = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(ProveApi::class.java)
+        ProveApiService(
+            api = api
+        )
+    }
+
+    factory {
         val api = get<Retrofit>(nabuApi).create(PaymentsApi::class.java)
         PaymentsService(
             api
@@ -399,9 +467,23 @@ val blockchainApiModule = module {
     }
 
     factory {
+        val api = get<Retrofit>(nabuApi).create(RecurringBuyApi::class.java)
+        RecurringBuyApiService(
+            api = api
+        )
+    }
+
+    factory {
         val api = get<Retrofit>(nabuApi).create(TxLimitsApi::class.java)
         TxLimitsService(
             api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(FeesApi::class.java)
+        WithdrawFeesService(
+            feesApi = api
         )
     }
 
@@ -413,29 +495,14 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(nabuApi).create(BlockchainCardApi::class.java)
-        BlockchainCardService(
-            api,
-            get()
-        )
-    }
-
-    factory {
         val api = get<Retrofit>(nabuApi).create(FraudApi::class.java)
         FraudRemoteService(api)
     }
 
     factory {
-        object : WalletHelperUrl {
-            override val url: String
-                get() = getProperty("wallet-helper-url")
-        }
-    }.bind(WalletHelperUrl::class)
-
-    factory {
         val api = get<Retrofit>(nabuApi).create(ReferralApi::class.java)
         ReferralApiService(
-            api = api,
+            api = api
         )
     }
 
@@ -468,9 +535,30 @@ val blockchainApiModule = module {
     }
 
     factory {
+        val api = get<Retrofit>(nabuApi).create(ActiveRewardsApi::class.java)
+        ActiveRewardsApiService(
+            activeRewardsApi = api
+        )
+    }
+
+    factory {
         val api = get<Retrofit>(nabuApi).create(MercuryExperimentsApi::class.java)
         MercuryExperimentsApiService(
             api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(iterableRetrofit).create(AnnouncementsApi::class.java)
+        AnnouncementsApiService(
+            api = api
+        )
+    }
+
+    factory<NewsApiService> {
+        val api = get<Retrofit>(blockchainApi).create(NewsApi::class.java)
+        NewsApiServiceImpl(
+            api = api
         )
     }
 
@@ -481,6 +569,14 @@ val blockchainApiModule = module {
             DynamicSelfCustodyService(
                 selfCustodyApi = api,
                 credentials = get()
+            )
+        }
+
+        scoped {
+            val api = get<Retrofit>(blockchainApi).create(DexTxApi::class.java)
+            DexTransactionsApiService(
+                api = api,
+                dynamicSelfCustodyService = get()
             )
         }
 
@@ -500,6 +596,8 @@ val blockchainApiModule = module {
                 webSocket = webSocket,
                 activityCacheService = get(),
                 credentials = get(),
+                lifecycleObservable = get(),
+                coroutineContext = Dispatchers.IO,
                 wsScope = get(applicationScope)
             )
         }

@@ -19,10 +19,12 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.invisibleIf
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.consume
+import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.unsafeLazy
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -32,13 +34,13 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragmentDirections
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 
 class KycNavHostActivity :
     BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
@@ -61,11 +63,11 @@ class KycNavHostActivity :
     private val compositeDisposable = CompositeDisposable()
     private val userIdentity: UserIdentity by scopedInject()
     private val fraudService: FraudService by inject()
+    private val kycService: KycService by scopedInject()
 
-    override val campaignType by unsafeLazy {
-        intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType
+    override val entryPoint by unsafeLazy {
+        intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as KycEntryPoint
     }
-
     override val isCowboysUser: Boolean
         get() = intent.getBooleanExtra(FROM_COWBOYS, false)
 
@@ -81,9 +83,12 @@ class KycNavHostActivity :
         updateToolbar(
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
+
+        updateToolbarBackground()
+
         analytics.logEvent(
             KYCAnalyticsEvents.UpgradeKycVeriffClicked(
-                campaignType.toLaunchOrigin(),
+                entryPoint.toLaunchOrigin(),
                 KycTier.GOLD.ordinal
             )
         )
@@ -124,7 +129,7 @@ class KycNavHostActivity :
 
     override fun navigate(directions: NavDirections) {
         if (directions.actionId != R.id.action_startTierCurrentState) {
-            updateToolbarTitle(getString(R.string.identity_verification))
+            updateToolbarTitle(getString(com.blockchain.stringResources.R.string.identity_verification))
         }
         navController.navigate(directions)
         navInitialDestination = navController.currentDestination
@@ -146,7 +151,7 @@ class KycNavHostActivity :
 
     override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) {
         updateToolbarTitle(
-            title = getString(R.string.kyc_email_title)
+            title = getString(com.blockchain.stringResources.R.string.kyc_email_title)
         )
     }
 
@@ -154,19 +159,26 @@ class KycNavHostActivity :
         compositeDisposable +=
             Singles.zip(
                 userIdentity.getUserCountry().defaultIfEmpty(""),
-                userIdentity.getUserState().defaultIfEmpty("")
+                userIdentity.getUserState().defaultIfEmpty(""),
+                rxSingleOutcome { kycService.shouldLaunchProve() }
             )
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
-                    onSuccess = { (country, state) ->
-                        navigate(
-                            KycEmailVerificationFragmentDirections.actionAfterValidation(country, state, state)
-                        )
+                    onSuccess = { (country, state, shouldLaunchProve) ->
+                        if (shouldLaunchProve) {
+                            navigate(
+                                KycEmailVerificationFragmentDirections.actionProve(country, state)
+                            )
+                        } else {
+                            navigate(
+                                KycEmailVerificationFragmentDirections.actionAfterValidation(country, state, state)
+                            )
+                        }
                     },
                     onError = {
                         BlockchainSnackbar.make(
                             binding.root,
-                            getString(R.string.common_error),
+                            getString(com.blockchain.stringResources.R.string.common_error),
                             type = SnackbarType.Error
                         ).show()
                     }
@@ -218,66 +230,62 @@ class KycNavHostActivity :
     override fun getView(): KycNavHostView = this
 
     companion object {
-        const val RESULT_KYC_FOR_SDD_COMPLETE = 35432
         const val RESULT_KYC_FOR_TIER_COMPLETE = 8954234
         private const val EXTRA_CAMPAIGN_TYPE = "piuk.blockchain.android.EXTRA_CAMPAIGN_TYPE"
         private const val FROM_COWBOYS = "FROM_COWBOYS"
 
         @JvmStatic
-        fun start(context: Context, campaignType: CampaignType) {
-            newIntent(context, campaignType)
+        fun start(context: Context, entryPoint: KycEntryPoint) {
+            newIntent(context, entryPoint)
                 .run { context.startActivity(this) }
         }
 
         @JvmStatic
-        fun startForResult(activity: Activity, campaignType: CampaignType, requestCode: Int) {
-            newIntent(activity, campaignType)
-                .run { activity.startActivityForResult(this, requestCode) }
-        }
-
-        @JvmStatic
-        fun startForResultForCowboys(activity: Activity, campaignType: CampaignType, requestCode: Int) {
-            newIntent(activity, campaignType).apply {
-                putExtra(FROM_COWBOYS, true)
-            }
+        fun startForResult(activity: Activity, entryPoint: KycEntryPoint, requestCode: Int) {
+            newIntent(activity, entryPoint)
                 .run { activity.startActivityForResult(this, requestCode) }
         }
 
         @JvmStatic
         fun startForResult(
             fragment: Fragment,
-            campaignType: CampaignType,
+            entryPoint: KycEntryPoint,
             requestCode: Int
         ) {
-            newIntent(fragment.requireContext(), campaignType)
+            newIntent(fragment.requireContext(), entryPoint)
                 .run { fragment.startActivityForResult(this, requestCode) }
         }
 
         @JvmStatic
         fun newIntent(
             context: Context,
-            campaignType: CampaignType
+            entryPoint: KycEntryPoint
         ): Intent =
             Intent(context, KycNavHostActivity::class.java)
                 .apply {
-                    putExtra(EXTRA_CAMPAIGN_TYPE, campaignType)
+                    putExtra(EXTRA_CAMPAIGN_TYPE, entryPoint)
                 }
     }
 }
 
-private fun CampaignType.toLaunchOrigin(): LaunchOrigin =
+private fun KycEntryPoint.toLaunchOrigin(): LaunchOrigin =
     when (this) {
-        CampaignType.Swap -> LaunchOrigin.SWAP
-        CampaignType.Resubmission -> LaunchOrigin.RESUBMISSION
-        CampaignType.SimpleBuy -> LaunchOrigin.SIMPLETRADE
-        CampaignType.FiatFunds -> LaunchOrigin.FIAT_FUNDS
-        CampaignType.Interest -> LaunchOrigin.SAVINGS
-        CampaignType.None -> LaunchOrigin.SETTINGS
+        KycEntryPoint.Airdrop -> LaunchOrigin.AIRDROP
+        KycEntryPoint.CoinView -> LaunchOrigin.COIN_VIEW
+        KycEntryPoint.FiatFunds -> LaunchOrigin.FIAT_FUNDS
+        KycEntryPoint.Interest -> LaunchOrigin.INTEREST
+        KycEntryPoint.Onboarding -> LaunchOrigin.ONBOARDING
+        KycEntryPoint.Resubmission -> LaunchOrigin.RESUBMISSION
+        KycEntryPoint.Buy -> LaunchOrigin.SIMPLEBUY
+        KycEntryPoint.Sell -> LaunchOrigin.SIMPLETRADE
+        KycEntryPoint.Swap -> LaunchOrigin.SWAP
+        KycEntryPoint.Cowboys -> LaunchOrigin.DASHBOARD
+        KycEntryPoint.Other -> LaunchOrigin.SETTINGS
     }
 
 interface KycProgressListener {
 
-    val campaignType: CampaignType
+    val entryPoint: KycEntryPoint
 
     fun setupHostToolbar(@StringRes title: Int?, navigationBarButtons: List<NavigationBarButton> = emptyList())
 

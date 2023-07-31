@@ -6,7 +6,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 
 class FirebaseRemoteLogger : RemoteLogger {
-
     private val firebaseInstance
         get() = try {
             FirebaseCrashlytics.getInstance()

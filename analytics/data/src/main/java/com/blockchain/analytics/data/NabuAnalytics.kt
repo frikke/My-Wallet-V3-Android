@@ -1,29 +1,36 @@
 package com.blockchain.analytics.data
 
 import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.AnalyticsContext
 import com.blockchain.analytics.AnalyticsContextProvider
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.AnalyticsLocalPersistence
+import com.blockchain.analytics.AnalyticsSettings
 import com.blockchain.analytics.NabuAnalyticsEvent
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.services.AnalyticsService
+import com.blockchain.koin.payloadScope
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.stores.NabuSessionTokenStore
-import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.utils.then
 import com.blockchain.utils.toJsonElement
 import com.blockchain.utils.toUtcIso8601
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
+import com.blockchain.walletmode.WalletModeStore
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
@@ -31,13 +38,14 @@ import timber.log.Timber
 
 class NabuAnalytics(
     private val analyticsService: AnalyticsService,
+    private val walletModeStore: Lazy<WalletModeStore>,
     private val prefs: Lazy<SessionPrefs>,
     private val localAnalyticsPersistence: AnalyticsLocalPersistence,
     private val remoteLogger: RemoteLogger,
     lifecycleObservable: LifecycleObservable,
     private val analyticsContextProvider: AnalyticsContextProvider,
     private val tokenStore: NabuSessionTokenStore
-) : Analytics, AppStartUpFlushable {
+) : Analytics, AnalyticsSettings {
     private val compositeDisposable = CompositeDisposable()
 
     init {
@@ -52,11 +60,14 @@ class NabuAnalytics(
     }
 
     override fun logEvent(analyticsEvent: AnalyticsEvent) {
-        val nabuEvent = analyticsEvent.toNabuAnalyticsEvent()
         logEventInTerminal(analyticsEvent)
 
-        compositeDisposable += localAnalyticsPersistence.save(nabuEvent)
-            .subscribeOn(Schedulers.computation())
+        compositeDisposable += localAnalyticsPersistence.save(
+            analyticsEvent.toNabuAnalyticsEvent().withWalletMode(
+                walletModeStore.value.walletMode ?: WalletMode.NON_CUSTODIAL
+            )
+        )
+            .subscribeOn(Schedulers.io())
             .doOnError {
                 remoteLogger.logException(it)
             }
@@ -94,9 +105,6 @@ class NabuAnalytics(
         }
     }
 
-    override val tag: String
-        get() = "nabu_analytics_flush"
-
     override fun flush(): Completable {
         return localAnalyticsPersistence.getAllItems().flatMapCompletable { events ->
             // Whats happening here is that we split the retrieved items into sublists of size = BATCH_SIZE
@@ -110,7 +118,7 @@ class NabuAnalytics(
             }
 
             val completables = listOfSublists.map { list ->
-                postEvents(list).then {
+                postEvents(events = list).then {
                     localAnalyticsPersistence.removeOldestItems(list.size)
                 }
             }
@@ -127,20 +135,20 @@ class NabuAnalytics(
     }
 
     private fun postEvents(events: List<NabuAnalyticsEvent>): Completable =
-        rxSingle {
-            analyticsContextProvider.context()
-        }.flatMapCompletable { context ->
-            tokenStore.getAccessToken().firstOrError().flatMapCompletable {
-                analyticsService.postEvents(
-                    events = events,
-                    id = id,
-                    analyticsContext = context,
-                    platform = "WALLET",
-                    device = "APP-Android",
-                    authorization = if (it is Optional.Some) it.element.authHeader else null
-                )
+        rxSingle { analyticsContextProvider.context() }
+            .plusWalletModeTrait(events = events)
+            .flatMapCompletable { context ->
+                tokenStore.getAccessToken().firstOrError().flatMapCompletable {
+                    analyticsService.postEvents(
+                        events = events,
+                        id = id,
+                        analyticsContext = context,
+                        platform = "WALLET",
+                        device = "APP-Android",
+                        authorization = if (it is Optional.Some) it.element.authHeader else null
+                    )
+                }
             }
-        }
 
     override fun logEventOnce(analyticsEvent: AnalyticsEvent) {}
 
@@ -148,6 +156,38 @@ class NabuAnalytics(
 
     companion object {
         private const val BATCH_SIZE = 30
+    }
+}
+
+private fun Single<AnalyticsContext>.plusWalletModeTrait(
+    events: List<NabuAnalyticsEvent>
+): Single<AnalyticsContext> {
+    val appModeTrait = (
+        events.firstOrNull { it.properties.containsKey("app_mode") }
+            ?.properties?.get("app_mode") as? JsonPrimitive?
+        )?.content
+
+    fun AnalyticsContext.withWalletModeTrait(appModeTrait: String): AnalyticsContext {
+        return copy(
+            traits = traits + mapOf(
+                "app_mode" to appModeTrait
+            )
+        )
+    }
+
+    return flatMap { analyticsContext ->
+        appModeTrait?.let {
+            Single.just(
+                analyticsContext.withWalletModeTrait(appModeTrait)
+            )
+        } ?: kotlin.run {
+            // default to current app mode
+            val walletModeService = payloadScope.get<WalletModeService>()
+            rxSingle { walletModeService.walletModeSingle.await() }
+                .map { appMode ->
+                    analyticsContext.withWalletModeTrait(appMode.toTraitsString())
+                }
+        }
     }
 }
 
@@ -161,9 +201,20 @@ private fun AnalyticsEvent.toNabuAnalyticsEvent(): NabuAnalyticsEvent =
         }.plusOriginIfAvailable(this.origin)
     )
 
+private fun NabuAnalyticsEvent.withWalletMode(walletMode: WalletMode) = copy(
+    properties = properties.plus("app_mode" to walletMode.toTraitsString().toJsonElement())
+)
+
 private fun Map<String, JsonElement>.plusOriginIfAvailable(launchOrigin: LaunchOrigin?): Map<String, JsonElement> {
     val origin = launchOrigin ?: return this
     return this.toMutableMap().apply {
         this["origin"] = JsonPrimitive(origin.name)
     }.toMap()
+}
+
+private fun WalletMode.toTraitsString(): String {
+    return when (this) {
+        WalletMode.CUSTODIAL -> "TRADING"
+        WalletMode.NON_CUSTODIAL -> "PKW"
+    }
 }

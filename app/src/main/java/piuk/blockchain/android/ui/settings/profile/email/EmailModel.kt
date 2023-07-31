@@ -61,16 +61,20 @@ class EmailModel(
                             process(
                                 EmailIntent.LoadProfileSucceeded(
                                     userInfoSettings = WalletSettingsService.UserInfoSettings(
-                                        userInfo.email, emailVerified = userInfo.isEmailVerified,
-                                        mobileWithPrefix = userInfo.smsNumber, mobileVerified = userInfo.isSmsVerified,
-                                        authType = userInfo.authType, smsDialCode = userInfo.smsDialCode
+                                        userInfo.email,
+                                        emailVerified = userInfo.isEmailVerified,
+                                        mobileWithPrefix = userInfo.smsNumber,
+                                        mobileVerified = userInfo.isSmsVerified,
+                                        authType = userInfo.authType,
+                                        smsDialCode = userInfo.smsDialCode
                                     )
                                 )
                             )
-                        }, onError = {
-                        process(EmailIntent.FetchProfile)
-                        Timber.e("EmailIntent.LoadProfile failure " + it)
-                    }
+                        },
+                        onError = {
+                            process(EmailIntent.FetchProfile)
+                            Timber.e("EmailIntent.LoadProfile failure " + it)
+                        }
                     )
             }
             is EmailIntent.FetchProfile -> {
@@ -83,10 +87,11 @@ class EmailModel(
                                     userInfoSettings = userInfo
                                 )
                             )
-                        }, onError = {
-                        process(EmailIntent.LoadProfileFailed)
-                        Timber.e("EmailIntent.FetchProfile failure " + it)
-                    }
+                        },
+                        onError = {
+                            process(EmailIntent.LoadProfileFailed)
+                            Timber.e("EmailIntent.FetchProfile failure " + it)
+                        }
                     )
             }
             is EmailIntent.ResendEmail -> {

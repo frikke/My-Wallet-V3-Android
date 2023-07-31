@@ -22,8 +22,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.KycNavXmlDirections
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.getBlankNabuUser
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecisionKycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryPoint
@@ -51,12 +51,14 @@ class KycNavHostPresenterTest {
             userService = userService,
             reentryDecision = reentryDecision,
             kycNavigator = ReentryDecisionKycNavigator(
-                userService, reentryDecision, analytics
+                userService,
+                reentryDecision,
+                analytics
             ),
             kycTiersStore = kycTiersStore,
             getUserStore = getUserStore,
             analytics = mock(),
-            productEligibilityStore = mock(),
+            productEligibilityStore = mock()
         )
         subject.initView(view)
     }
@@ -100,7 +102,7 @@ class KycNavHostPresenterTest {
     fun `onViewReady, should redirect to country selection`() {
         // Arrange
         givenReentryDecision(ReentryPoint.CountrySelection)
-        whenever(view.campaignType).thenReturn(CampaignType.Swap)
+        whenever(view.entryPoint).thenReturn(KycEntryPoint.Swap)
         whenever(userService.getUser())
             .thenReturn(
                 Single.just(
@@ -139,7 +141,7 @@ class KycNavHostPresenterTest {
     fun `onViewReady resubmission campaign, should redirect to splash`() {
         // Arrange
         givenReentryDecision(ReentryPoint.CountrySelection)
-        whenever(view.campaignType).thenReturn(CampaignType.Resubmission)
+        whenever(view.entryPoint).thenReturn(KycEntryPoint.Resubmission)
         whenever(userService.getUser())
             .thenReturn(
                 Single.just(
@@ -178,7 +180,7 @@ class KycNavHostPresenterTest {
     fun `onViewReady resubmission user, should redirect to splash`() {
         // Arrange
         givenReentryDecision(ReentryPoint.CountrySelection)
-        whenever(view.campaignType).thenReturn(CampaignType.Swap)
+        whenever(view.entryPoint).thenReturn(KycEntryPoint.Swap)
         whenever(userService.getUser())
             .thenReturn(
                 Single.just(

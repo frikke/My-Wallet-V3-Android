@@ -4,11 +4,15 @@ package com.blockchain.componentlib.media
 
 import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import coil.ImageLoader
 import coil.annotation.ExperimentalCoilApi
@@ -26,8 +30,11 @@ import com.airbnb.lottie.compose.rememberLottieRetrySignal
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.skydoves.landscapist.ImageOptions
+import com.skydoves.landscapist.glide.GlideImage
 
 @ExperimentalCoilApi
 @Composable
@@ -41,7 +48,6 @@ fun AsyncMediaItem(
     @DrawableRes onErrorDrawable: Int = R.drawable.ic_error
 ) {
     val context = LocalContext.current
-
     when (url.getUrlType().ifEmpty { fallbackUrlType?.name }) {
         UrlType.MP4.name,
         UrlType.WAV.name,
@@ -58,31 +64,26 @@ fun AsyncMediaItem(
                 onRetry = { _, _ ->
                     retrySignal.retry()
                     true
-                },
+                }
             )
 
             LottieAnimation(
                 modifier = modifier,
                 composition = composition,
-                iterations = LottieConstants.IterateForever,
+                iterations = LottieConstants.IterateForever
             )
         }
         UrlType.JPG.name,
         UrlType.PNG.name -> {
-            val imageRequest = ImageRequest.Builder(context)
-                .data(url)
-                .placeholder(onLoadingPlaceholder)
-                .error(onErrorDrawable)
-                .crossfade(true)
-                .build()
-
-            context.imageLoader.enqueue(imageRequest)
-
-            AsyncImage(
-                model = imageRequest,
+            GlideImage(
+                imageModel = {
+                    url
+                },
                 modifier = modifier,
-                contentDescription = contentDescription,
-                contentScale = contentScale
+                imageOptions = ImageOptions(
+                    contentScale = contentScale,
+                    contentDescription = contentDescription
+                )
             )
         }
         UrlType.SVG.name,
@@ -117,7 +118,6 @@ fun AsyncMediaItem(
     }
 }
 
-@ExperimentalCoilApi
 @Composable
 fun AsyncMediaItem(
     modifier: Modifier = Modifier,
@@ -129,15 +129,21 @@ fun AsyncMediaItem(
     @DrawableRes onErrorDrawable: Int = R.drawable.ic_error
 ) {
     when (imageResource) {
-        is ImageResource.Remote -> AsyncMediaItem(
-            modifier = modifier,
-            url = imageResource.url,
-            fallbackUrlType = fallbackUrlType,
-            contentDescription = contentDescription,
-            contentScale = contentScale,
-            onLoadingPlaceholder = onLoadingPlaceholder,
-            onErrorDrawable = onErrorDrawable
-        )
+        is ImageResource.Remote -> {
+            if (LocalInspectionMode.current) {
+                Box(modifier = modifier.fillMaxSize().background(AppColors.title))
+            } else {
+                AsyncMediaItem(
+                    modifier = modifier,
+                    url = imageResource.url,
+                    fallbackUrlType = fallbackUrlType,
+                    contentDescription = contentDescription,
+                    contentScale = contentScale,
+                    onLoadingPlaceholder = onLoadingPlaceholder,
+                    onErrorDrawable = onErrorDrawable
+                )
+            }
+        }
         ImageResource.None -> {
         }
         else -> {

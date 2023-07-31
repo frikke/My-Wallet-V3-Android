@@ -9,8 +9,8 @@ import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.impl.AllWalletsAccount
@@ -30,13 +30,13 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
 
     fun fetch(
         account: BlockchainAccount,
-        isRefreshRequested: Boolean,
+        isRefreshRequested: Boolean
     ): Single<ActivitySummaryList> {
         val cacheMaybe = if (isRefreshRequested || isCacheExpired()) Maybe.empty() else getFromCache(account)
         return cacheMaybe.defaultIfEmpty(emptyList()).flatMap {
-            if (it.isEmpty())
+            if (it.isEmpty()) {
                 requestNetwork(account).defaultIfEmpty(emptyList())
-            else Single.just(it)
+            } else Single.just(it)
         }.map { list ->
             list.filter { item ->
                 when (account) {
@@ -44,10 +44,10 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
                         account.includes(item.account)
                     }
                     is CustodialInterestAccount -> {
-                        account.currency == (item as? CustodialInterestActivitySummaryItem)?.asset
+                        account.currency == (item as? CustodialInterestActivitySummaryItem)?.currency
                     }
                     is CustodialStakingAccount -> {
-                        account.currency == (item as? CustodialStakingActivitySummaryItem)?.asset
+                        account.currency == (item as? CustodialStakingActivitySummaryItem)?.currency
                     }
                     else -> {
                         account == item.account
@@ -80,7 +80,7 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
         }.toSet()
 
     private fun reconcileTransfersAndBuys(
-        list: ActivitySummaryList,
+        list: ActivitySummaryList
     ): List<ActivitySummaryItem> {
         val custodialWalletActivity = list.filterIsInstance<CustodialTradingActivitySummaryItem>()
         val activityList = list.toMutableList()
@@ -101,10 +101,10 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
     }
 
     private fun reconcileCustodialAndInterestTxs(
-        list: ActivitySummaryList,
+        list: ActivitySummaryList
     ): List<ActivitySummaryItem> {
         val interestWalletActivity = list.filter {
-            it.account is InterestAccount && it is CustodialInterestActivitySummaryItem
+            it.account is EarnRewardsAccount.Interest && it is CustodialInterestActivitySummaryItem
         }
         val activityList = list.toMutableList()
 
@@ -124,7 +124,7 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
 
     fun findCachedItem(asset: AssetInfo, txHash: String): ActivitySummaryItem? =
         transactionCache.filterIsInstance<CryptoActivitySummaryItem>().find {
-            it.asset == asset && it.txId == txHash
+            it.currency == asset && it.txId == txHash
         }
 
     fun findCachedItemById(txHash: String): ActivitySummaryItem? =
@@ -145,16 +145,7 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
     }
 
     override fun getFromNetwork(param: BlockchainAccount): Maybe<ActivitySummaryList> =
-        param.activity
-            .doOnSuccess { activityList ->
-                if (activityList.isNotEmpty()) {
-                    transactionCache.clear()
-                    transactionCache.addAll(activityList)
-                }
-                lastUpdatedTimestamp = System.currentTimeMillis()
-            }.map { list ->
-                list
-            }.toMaybe()
+        Maybe.empty()
 
     override fun getFromCache(param: BlockchainAccount): Maybe<ActivitySummaryList> {
         return when (param) {

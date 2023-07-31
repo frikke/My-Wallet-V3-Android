@@ -117,11 +117,32 @@ class PayloadDataManager internal constructor(
     override val guid: String
         get() = wallet.guid
 
-    override val hashedSharedKey: String
+    override val guidOrNull: String?
+        get() = try {
+            guid
+        } catch (ex: UninitializedPropertyAccessException) {
+            null
+        }
+
+    private val hashedSharedKey: String
         get() = String(Hex.encode(Sha256Hash.hash(sharedKey.toByteArray())))
 
-    override val hashedGuid: String
+    override val hashedSharedKeyOrNull: String?
+        get() = try {
+            hashedSharedKey
+        } catch (ex: UninitializedPropertyAccessException) {
+            null
+        }
+
+    private val hashedGuid: String
         get() = String(Hex.encode(Sha256Hash.hash(guid.toByteArray())))
+
+    override val hashedGuidOrNull: String?
+        get() = try {
+            hashedGuid
+        } catch (ex: UninitializedPropertyAccessException) {
+            null
+        }
 
     override val sharedKey: String
         get() = wallet.sharedKey
@@ -289,7 +310,7 @@ class PayloadDataManager internal constructor(
         }.applySchedulers()
 
     private fun v4Upgrade(
-        secondPassword: String?,
+        secondPassword: String?
     ) = payloadManager.upgradeV3PayloadToV4(secondPassword).doOnError {
         remoteLogger.logException(it)
     }.onErrorResumeNext {
@@ -654,8 +675,7 @@ class PayloadDataManager internal constructor(
     fun getAccount(accountPosition: Int): Account =
         wallet.walletBody?.getAccount(accountPosition) ?: throw NoSuchElementException()
 
-    fun getAccountTransactions(xpub: XPubs, limit: Int, offset: Int):
-        Single<List<TransactionSummary>> =
+    fun getAccountTransactions(xpub: XPubs, limit: Int, offset: Int): Single<List<TransactionSummary>> =
         Single.fromCallable {
             payloadManager.getAccountTransactions(xpub, limit, offset)
         }
@@ -750,6 +770,10 @@ class PayloadDataManager internal constructor(
     fun updateAccountLabel(internalAccount: JsonSerializableAccount, newLabel: String): Completable {
         return payloadManager.updateAccountLabel(internalAccount, newLabel)
             .applySchedulers()
+    }
+
+    fun updateAccountsLabel(internalAccounts: Map<Account, String>): Completable {
+        return payloadManager.updateAccountsLabels(internalAccounts)
     }
 
     fun updateAccountArchivedState(internalAccount: JsonSerializableAccount, isArchived: Boolean): Completable {

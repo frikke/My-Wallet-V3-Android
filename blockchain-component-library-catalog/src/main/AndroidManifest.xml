@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="piuk.blockchain.blockchain_component_library_catalog">
-
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,16 +13,7 @@
             android:name=".abstract_compose_view.ExpandablesActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.SheetActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.SectionHeadersActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.SwitcherActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.TabLayoutActivity"
             android:exported="false" />
         <activity
             android:name=".abstract_compose_view.PagerActivity"
@@ -34,37 +22,7 @@
             android:name=".abstract_compose_view.ControlsActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.DoublePrimaryButtonsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.DoubleMinimalButtonsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.SplitButtonsActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.SmallSecondaryButtonActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.SmallPrimaryButtonActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.SmallMinimalButtonActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.SecondaryButtonActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.MinimalButtonActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.ExchangeSplitButtonsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.ExchangeSellButtonActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.ExchangeBuyButtonActivity"
             android:exported="false" />
         <activity
             android:name=".abstract_compose_view.AlertButtonActivity"
@@ -76,16 +34,7 @@
             android:name=".abstract_compose_view.DividerActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.BalanceTableRowActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.ActionTableRowActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.DefaultTableRowActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.TagsActivity"
             android:exported="false" />
         <activity
             android:name=".abstract_compose_view.SpacingActivity"
@@ -97,16 +46,7 @@
             android:name=".abstract_compose_view.ColorsActivity"
             android:exported="false" />
         <activity
-            android:name=".abstract_compose_view.BottomNavigationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.NavigationActivity"
-            android:exported="false" />
-        <activity
             android:name=".abstract_compose_view.TextInputActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.DialogueActivity"
             android:exported="false" />
         <activity
             android:name=".abstract_compose_view.CardAlertActivity"
@@ -119,9 +59,6 @@
             android:exported="false" />
         <activity
             android:name=".abstract_compose_view.ProgressActivity"
-            android:exported="false" />
-        <activity
-            android:name=".abstract_compose_view.DatePickerActivity"
             android:exported="false" />
         <activity
             android:name=".abstract_compose_view.SimpleTextViewActivity"

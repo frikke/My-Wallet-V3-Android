@@ -1,22 +1,28 @@
 package com.blockchain.coincore.testutil
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.selfcustody.BalancesResponse
+import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.custodial.fees.WithdrawFeesStore
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.Store
+import com.blockchain.testutils.rxInit
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.mockk.mockk
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 import org.junit.After
 import org.junit.Rule
 import org.koin.core.context.startKoin
@@ -48,9 +54,16 @@ open class CoincoreTestBase {
         on { selectedFiatCurrency }.thenReturn(TEST_USER_FIAT)
     }
 
+    protected val withdrawFeesStore: WithdrawFeesStore = mock()
+
+    private val userFeaturePermissionService: UserFeaturePermissionService = mock {
+        on { isEligibleFor(eq(Feature.CustodialAccounts), any()) }.thenReturn(flowOf(DataResource.Data(true)))
+    }
+
+    private val tradingService: TradingService = mock()
+
     private val mockedRemoteLogger: RemoteLogger = mock()
     private val balancesStore: Store<BalancesResponse> = mock()
-    protected val unifiedBalancesService: UnifiedBalancesService = mockk()
 
     private val userFiatToUserFiat = ExchangeRate(
         from = TEST_USER_FIAT,
@@ -69,6 +82,9 @@ open class CoincoreTestBase {
         on { getLastFiatToUserFiatRate(TEST_API_FIAT) }.thenReturn(apiFiatToUserFiat)
     }
 
+    protected val unifiedBalancesService: UnifiedBalancesService = mockk()
+    protected val assetCatalogue: AssetCatalogue = mock()
+
     protected open fun initMocks() {
         injectMocks(
             module {
@@ -78,6 +94,16 @@ open class CoincoreTestBase {
                     }
                 }
                 factory {
+                    assetCatalogue
+                }.bind(AssetCatalogue::class)
+
+                factory { withdrawFeesStore }
+
+                factory {
+                    userFeaturePermissionService
+                }.bind(UserFeaturePermissionService::class)
+
+                factory {
                     mockedRemoteLogger
                 }.bind(RemoteLogger::class)
 
@@ -85,15 +111,13 @@ open class CoincoreTestBase {
                     unifiedBalancesService
                 }.bind(UnifiedBalancesService::class)
 
-                factory(unifiedBalancesFlag) {
-                    mock<FeatureFlag> {
-                        on { enabled }.thenReturn(Single.just(true))
-                    }
-                }.bind(FeatureFlag::class)
-
                 factory {
                     balancesStore
                 }.bind(Store::class)
+
+                factory {
+                    tradingService
+                }.bind(TradingService::class)
             }
         )
     }

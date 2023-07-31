@@ -4,7 +4,9 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.experiments.RemoteConfigService
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import io.reactivex.rxjava3.core.Completable
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -25,7 +28,7 @@ class RemoteConfigRepository(
     private val firebaseRemoteConfig: FirebaseRemoteConfig,
     private val remoteConfigPrefs: RemoteConfigPrefs,
     private val experimentsStore: ExperimentsStore,
-    private val json: Json,
+    private val json: Json
 ) : RemoteConfigService {
 
     override fun getIfFeatureEnabled(key: String): Single<Boolean> =
@@ -35,6 +38,15 @@ class RemoteConfigRepository(
 
     override suspend fun getValueForFeature(key: String): Any =
         getRemoteConfig(key)
+
+    override suspend fun <T : Any> getParsedJsonValue(key: String, serializer: KSerializer<T>): Outcome<Exception, T> {
+        val jsonString = getRemoteConfig(key).toString()
+        return try {
+            Outcome.Success(json.decodeFromString(serializer, jsonString))
+        } catch (ex: Exception) {
+            Outcome.Failure(ex)
+        }
+    }
 
     override fun getRawJson(key: String): Single<String> =
         rxSingle {
@@ -47,7 +59,7 @@ class RemoteConfigRepository(
     }
 
     private suspend fun getValueFromCacheFlow(): Map<String, Int> {
-        return experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+        return experimentsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .filter { it !is DataResource.Loading }
             .map { dataResourceMap ->
                 when (dataResourceMap) {
@@ -82,7 +94,6 @@ class RemoteConfigRepository(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     suspend fun getMapToReturn(inputJson: Map<String, Any>): Map<*, *> {
-
         val experimentStoreValues = getValueFromCacheFlow()
 
         return inputJson.deepMapJson {
@@ -119,8 +130,9 @@ class RemoteConfigRepository(
     fun <T> Iterable<T>.firstAndOnly(): T? {
         val iterator = iterator()
         val first = iterator.next()
-        if (iterator.hasNext())
+        if (iterator.hasNext()) {
             throw NoSuchElementException("Collection has more than one element.")
+        }
         return first
     }
 
@@ -195,12 +207,14 @@ class RemoteConfigRepository(
                     if (isRemoteConfigStale) {
                         remoteConfigPrefs.updateRemoteConfigStaleStatus(false)
                     }
-                    if (!emitter.isDisposed)
+                    if (!emitter.isDisposed) {
                         emitter.onComplete()
+                    }
                 }
             }.addOnFailureListener {
-                if (!emitter.isDisposed)
+                if (!emitter.isDisposed) {
                     emitter.onError(it)
+                }
             }
     }.cache()
 

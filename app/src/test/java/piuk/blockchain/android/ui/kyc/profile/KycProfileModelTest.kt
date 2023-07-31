@@ -12,15 +12,17 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.util.toISO8601DateString
+import com.blockchain.outcome.Outcome
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.testutils.date
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.times
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import io.reactivex.rxjava3.core.Completable
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -42,7 +44,9 @@ class KycProfileModelTest {
 
     private lateinit var subject: KycProfileModel
     private val analytics: Analytics = mockk(relaxed = true)
-    private val nabuDataManager: NabuDataManager = mockk()
+    private val nabuDataManager: NabuDataManager = mockk {
+        coEvery { isProfileNameValid(any(), any()) } returns Outcome.Success(true)
+    }
     private val userService: UserService = mockk {
         every { getUserFlow(any()) } returns flow { throw NullPointerException() }
     }
@@ -54,7 +58,7 @@ class KycProfileModelTest {
             analytics,
             nabuDataManager,
             userService,
-            getUserStore,
+            getUserStore
         )
     }
 
@@ -89,15 +93,19 @@ class KycProfileModelTest {
                 ("application/json").toMediaTypeOrNull(),
                 "{}"
             )
-        every {
+        val createBasicUserDeferred = CompletableDeferred<Unit>()
+        coEvery {
             nabuDataManager.createBasicUser(
                 firstName,
                 lastName,
-                dateOfBirth.toISO8601DateString(),
+                dateOfBirth.toISO8601DateString()
             )
-        } returns Completable.error {
-            NabuApiExceptionFactory.fromResponseBody(
-                HttpException(Response.error<Unit>(409, responseBody))
+        } coAnswers {
+            createBasicUserDeferred.await()
+            Outcome.Failure(
+                NabuApiExceptionFactory.fromResponseBody(
+                    HttpException(Response.error<Unit>(409, responseBody))
+                )
             )
         }
         subject.viewState.test {
@@ -105,6 +113,7 @@ class KycProfileModelTest {
             // Act
             subject.onIntent(KycProfileIntent.ContinueClicked)
             awaitItem().continueButtonState shouldBeEqualTo ButtonState.Loading
+            createBasicUserDeferred.complete(Unit)
             // Assert
             awaitItem().apply {
                 continueButtonState shouldBeEqualTo ButtonState.Enabled

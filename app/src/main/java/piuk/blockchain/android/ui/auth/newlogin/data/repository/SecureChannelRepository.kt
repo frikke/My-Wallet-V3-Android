@@ -1,6 +1,10 @@
 package piuk.blockchain.android.ui.auth.newlogin.data.repository
 
 import com.blockchain.coreandroid.utils.pubKeyHash
+import com.blockchain.domain.auth.SecureChannelBrowserMessage
+import com.blockchain.domain.auth.SecureChannelLoginData
+import com.blockchain.domain.auth.SecureChannelService
+import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.SecureChannelPrefs
@@ -13,6 +17,8 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -21,8 +27,6 @@ import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelMessageD
 import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelPairingCodeDto
 import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelPairingResponseDto
 import piuk.blockchain.android.ui.auth.newlogin.data.model.toDomain
-import piuk.blockchain.android.ui.auth.newlogin.domain.model.SecureChannelBrowserMessage
-import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import timber.log.Timber
 
 class SecureChannelRepository(
@@ -31,6 +35,13 @@ class SecureChannelRepository(
     private val payloadManager: PayloadManager,
     private val walletApi: WalletApi
 ) : SecureChannelService {
+
+    private val _secureLogin: MutableSharedFlow<SecureChannelLoginData> = MutableSharedFlow(
+        replay = 0
+    )
+
+    override val secureLoginAttempted: Flow<SecureChannelLoginData>
+        get() = _secureLogin
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -69,6 +80,24 @@ class SecureChannelRepository(
 
         sendMessage(loginMessage, channelId, pubKeyHash, true)
         secureChannelPrefs.updateBrowserIdentityUsedTimestamp(pubKeyHash)
+    }
+
+    override suspend fun secureChannelLogin(payload: Map<String, String?>) {
+        val pubKeyHash = payload[NotificationPayload.PUB_KEY_HASH] ?: return
+
+        val messageRawEncrypted = payload[NotificationPayload.DATA_MESSAGE] ?: return
+
+        val message = decryptMessage(pubKeyHash, messageRawEncrypted) ?: return
+
+        _secureLogin.emit(
+            SecureChannelLoginData(
+                pubKeyHash = pubKeyHash,
+                message = message,
+                originIp = payload[ORIGIN_IP] ?: "",
+                originLocation = payload[ORIGIN_COUNTRY] ?: "",
+                originBrowser = payload[ORIGIN_BROWSER] ?: ""
+            )
+        )
     }
 
     override fun decryptMessage(pubKeyHash: String, messageEncrypted: String): SecureChannelBrowserMessage? {
@@ -122,5 +151,8 @@ class SecureChannelRepository(
 
     companion object {
         private const val TIME_OUT_IN_MINUTES: Long = 10
+        private const val ORIGIN_IP = "origin_ip"
+        private const val ORIGIN_COUNTRY = "origin_country"
+        private const val ORIGIN_BROWSER = "origin_browser"
     }
 }

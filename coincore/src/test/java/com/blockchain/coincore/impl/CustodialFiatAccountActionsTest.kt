@@ -4,10 +4,12 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.domain.paymentmethods.BankService
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.ExchangeRate
@@ -21,8 +23,8 @@ import org.junit.Test
 
 class CustodialFiatAccountActionsTest : CoincoreTestBase() {
 
-    private val custodialManager: CustodialWalletManager = mock()
     private val tradingService: TradingService = mock()
+    private val simpleBuyService: SimpleBuyService = mock()
     private val bankService: BankService = mock()
 
     @Before
@@ -39,7 +41,7 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             canTransactWithBankMethods = false,
             accountBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN),
-            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN),
+            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN)
         )
 
         // Act
@@ -60,7 +62,7 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             canTransactWithBankMethods = true,
             accountBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN),
-            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.ZERO),
+            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.ZERO)
         )
 
         // Act
@@ -83,7 +85,7 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             canTransactWithBankMethods = true,
             accountBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN),
-            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN),
+            actionableBalance = FiatValue.fromMinor(TEST_FIAT_ASSET, BigInteger.TEN)
         )
 
         // Act
@@ -106,8 +108,8 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
             currency = TEST_FIAT_ASSET,
             isDefault = false,
             exchangeRates = exchangeRates,
-            custodialWalletManager = custodialManager,
             tradingService = tradingService,
+            simpleBuyService = simpleBuyService,
             bankService = bankService
         )
 
@@ -115,9 +117,8 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
         canTransactWithBankMethods: Boolean,
         accountBalance: FiatValue,
         actionableBalance: FiatValue,
-        pendingBalance: FiatValue = FiatValue.zero(TEST_FIAT_ASSET),
+        pendingBalance: FiatValue = FiatValue.zero(TEST_FIAT_ASSET)
     ) {
-
         whenever(bankService.canTransactWithBankMethods(TEST_FIAT_ASSET))
             .thenReturn(
                 Single.just(canTransactWithBankMethods)
@@ -125,13 +126,12 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
 
         val balance = TradingAccountBalance(
             total = accountBalance,
-            dashboardDisplay = accountBalance,
             withdrawable = actionableBalance,
             pending = pendingBalance,
             hasTransactions = true
         )
 
-        whenever(tradingService.getBalanceFor(FiatCurrency.Dollars))
+        whenever(tradingService.getBalanceFor(eq(FiatCurrency.Dollars), any()))
             .thenReturn(Observable.just(balance))
     }
 

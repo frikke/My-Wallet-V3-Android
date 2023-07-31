@@ -1,4 +1,5 @@
 @file:UseSerializers(BigIntSerializer::class)
+
 package info.blockchain.wallet.api.dust.data
 
 import com.blockchain.serializers.BigIntSerializer

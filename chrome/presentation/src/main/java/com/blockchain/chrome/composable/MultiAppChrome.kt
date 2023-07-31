@@ -1,10 +1,13 @@
 package com.blockchain.chrome.composable
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -22,7 +25,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,15 +34,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -49,112 +51,196 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.blockchain.analytics.Analytics
+import com.blockchain.chrome.ChromeAnalyticsEvents
 import com.blockchain.chrome.ChromeBackgroundColors
 import com.blockchain.chrome.ChromeBottomNavigationItem
+import com.blockchain.chrome.ChromeModeOptions
+import com.blockchain.chrome.LocalChromePillProvider
 import com.blockchain.chrome.MultiAppIntents
+import com.blockchain.chrome.MultiAppNavigationEvent
 import com.blockchain.chrome.MultiAppViewModel
 import com.blockchain.chrome.MultiAppViewState
 import com.blockchain.chrome.navigation.MultiAppBottomNavigationHost
 import com.blockchain.chrome.toolbar.CollapsingToolbarState
 import com.blockchain.chrome.toolbar.EnterAlwaysCollapsedState
 import com.blockchain.chrome.toolbar.ScrollState
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
+import com.blockchain.componentlib.alert.PillAlert
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.navigation.AssetActionsNavigation
-import com.blockchain.koin.payloadScope
+import com.blockchain.earn.navigation.EarnNavigation
+import com.blockchain.extensions.safeLet
+import com.blockchain.home.presentation.navigation.QrScanNavigation
+import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.walletmode.WalletMode
+import info.blockchain.balance.Money
 import kotlin.math.min
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.get
 
 @Composable
-private fun rememberToolbarState(): CollapsingToolbarState {
+private fun rememberToolbarState(modeSwitcherOptions: ChromeModeOptions): CollapsingToolbarState {
+    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
+
+    val bottomSectionHeight = if (modeSwitcherOptions is ChromeModeOptions.SingleSelection) {
+        0
+    } else {
+        headerSectionHeightPx.toInt()
+    }
+
     return rememberSaveable(saver = EnterAlwaysCollapsedState.Saver) {
-        // initialize with minHeight:0 maxHeight:0
-        // the size will be calculated at runtime after drawing to get the real view heights
-        EnterAlwaysCollapsedState(145, 145)
+        EnterAlwaysCollapsedState(
+            topSectionHeight = headerSectionHeightPx.toInt(),
+            bottomSectionHeight = bottomSectionHeight
+        )
     }
 }
 
 @Composable
 fun MultiAppChrome(
-    viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
-    openCryptoAssets: () -> Unit,
-    assetActionsNavigation: AssetActionsNavigation,
-    openActivity: () -> Unit
+    viewModel: MultiAppViewModel,
+    analytics: Analytics = get(),
+    onModeLongClicked: (WalletMode) -> Unit,
+    showDefiIntro: () -> Unit,
+    showCustodialIntro: () -> Unit,
+    startPhraseRecovery: () -> Unit,
+    showAppRating: () -> Unit,
+    qrScanNavigation: QrScanNavigation,
+    graphNavController: NavController,
+    openExternalUrl: (url: String) -> Unit,
+    openNftHelp: () -> Unit,
+    processAnnouncementUrl: (String) -> Unit,
+    openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
+    nftNavigation: NftNavigation,
+    earnNavigation: EarnNavigation,
 ) {
     DisposableEffect(key1 = viewModel) {
-        viewModel.viewCreated(ModelConfigArgs.NoArgs)
+        viewModel.onIntent(MultiAppIntents.LoadData)
         onDispose { }
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val viewState: MultiAppViewState? by stateFlowLifecycleAware.collectAsState(null)
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest {
+            when (it) {
+                is MultiAppNavigationEvent.DefiIntro -> showDefiIntro()
+                is MultiAppNavigationEvent.CustodialIntro -> showCustodialIntro()
+                is MultiAppNavigationEvent.AppRating -> showAppRating()
+            }
+        }
+    }
+
+    val viewState: MultiAppViewState by viewModel.viewState.collectAsStateLifecycleAware()
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    if (viewState != null && statusBarHeight > 0.dp && navBarHeight > 0.dp) {
-        viewState?.let { state ->
-            MultiAppChromeScreen(
-                statusBarHeight = statusBarHeight,
-                navBarHeight = navBarHeight,
-                modeSwitcherOptions = state.modeSwitcherOptions,
-                selectedMode = state.selectedMode,
-                backgroundColors = state.backgroundColors,
-                balance = state.totalBalance,
-                shouldRevealBalance = state.shouldRevealBalance,
-                bottomNavigationItems = state.bottomNavigationItems,
-                onModeSelected = { walletMode ->
-                    viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
-                },
-                openCryptoAssets = openCryptoAssets,
-                openActivity = openActivity,
-                assetActionsNavigation = assetActionsNavigation,
-                onBalanceRevealed = {
-                    viewModel.onIntent(MultiAppIntents.BalanceRevealed)
-                }
-            )
-        }
+    safeLet(
+        viewState.modeSwitcherOptions,
+        viewState.selectedMode,
+        viewState.backgroundColors,
+        viewState.bottomNavigationItems
+    ) { modeSwitcherOptions, selectedMode, backgroundColors, bottomNavigationItems ->
+        MultiAppChromeScreen(
+            analytics = analytics,
+            statusBarHeight = statusBarHeight,
+            navBarHeight = navBarHeight,
+            modeSwitcherOptions = modeSwitcherOptions,
+            selectedMode = selectedMode,
+            backgroundColors = backgroundColors,
+            balance = viewState.totalBalance,
+            shouldRevealBalance = viewState.shouldRevealBalance,
+            bottomNavigationItems = bottomNavigationItems.toImmutableList(),
+            selectedBottomNavigationItem = viewState.selectedBottomNavigationItem,
+            onBottomNavigationItemSelected = { navItem ->
+                viewModel.onIntent(MultiAppIntents.BottomNavigationItemSelected(navItem))
+            },
+            onModeSelected = { walletMode ->
+                viewModel.onIntent(MultiAppIntents.WalletModeSelected(walletMode))
+            },
+            onModeLongClicked = onModeLongClicked,
+            graphNavController = graphNavController,
+            qrScanNavigation = qrScanNavigation,
+            onBalanceRevealed = {
+                viewModel.onIntent(MultiAppIntents.BalanceRevealed)
+            },
+            startPhraseRecovery = {
+                startPhraseRecovery()
+            },
+            openExternalUrl = openExternalUrl,
+            openNftHelp = openNftHelp,
+            openNftDetail = openNftDetail,
+            nftNavigation = nftNavigation,
+            earnNavigation = earnNavigation,
+            processAnnouncementUrl = processAnnouncementUrl,
+        )
     }
 }
 
 @Composable
 fun MultiAppChromeScreen(
+    analytics: Analytics,
     statusBarHeight: Dp,
     navBarHeight: Dp,
-    modeSwitcherOptions: List<WalletMode>,
+    modeSwitcherOptions: ChromeModeOptions,
     selectedMode: WalletMode,
     backgroundColors: ChromeBackgroundColors,
-    balance: DataResource<String>,
+    balance: DataResource<Money>,
     shouldRevealBalance: Boolean,
-    bottomNavigationItems: List<ChromeBottomNavigationItem>,
+    bottomNavigationItems: ImmutableList<ChromeBottomNavigationItem>,
+    selectedBottomNavigationItem: ChromeBottomNavigationItem,
+    onBottomNavigationItemSelected: (ChromeBottomNavigationItem) -> Unit,
     onModeSelected: (WalletMode) -> Unit,
-    openCryptoAssets: () -> Unit,
-    assetActionsNavigation: AssetActionsNavigation,
-    openActivity: () -> Unit,
-    onBalanceRevealed: () -> Unit
+    onModeLongClicked: (WalletMode) -> Unit,
+    qrScanNavigation: QrScanNavigation,
+    onBalanceRevealed: () -> Unit,
+    graphNavController: NavController,
+    startPhraseRecovery: () -> Unit,
+    openExternalUrl: (url: String) -> Unit,
+    openNftHelp: () -> Unit,
+    openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
+    nftNavigation: NftNavigation,
+    earnNavigation: EarnNavigation,
+    processAnnouncementUrl: (String) -> Unit,
 ) {
-    //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
-    //    var balanceSectionHeight = remember { headerSectionHeightPx }
-    //    var tabsSectionHeight = remember { headerSectionHeightPx }
+    val toolbarState = rememberToolbarState(modeSwitcherOptions)
+    val navController = rememberNavController()
 
-    val toolbarState = rememberToolbarState()
+    LaunchedEffect(selectedBottomNavigationItem) {
+        navController.navigate(selectedBottomNavigationItem.route) {
+            navController.graph.startDestinationRoute?.let { screen_route ->
+                popUpTo(screen_route) {
+                    saveState = true
+                }
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 
-    /**
-     * if the screen is currently trying pull to refresh
-     * i.e. is pulling and seeing the loading indicator
-     * (refreshing is not triggered yet at this point, just the interaction swipe up and down)
-     */
-    var isPullToRefreshSwipeInProgress by remember { mutableStateOf(false) }
-
-    var selectedNavigationItem by remember { mutableStateOf(bottomNavigationItems.first()) }
+    // //////////////////////////////////////////////
+    // update vm selected bottom nav item on back press if needed
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val navControllerBottomNav = bottomNavigationItems.firstOrNull { it.route == navBackStackEntry?.destination?.route }
+    LaunchedEffect(key1 = navControllerBottomNav) {
+        navControllerBottomNav?.let {
+            onBottomNavigationItemSelected(it)
+        }
+    }
+    // //////////////////////////////////////////////
 
     // //////////////////////////////////////////////
     // snap header views depending on scroll position
@@ -182,13 +268,6 @@ fun MultiAppChromeScreen(
         )
         animateSnap = false
         toolbarState.isAutoScrolling = false
-    }
-
-    fun updateOffsetScoped(targetValue: Float, delay: Long = 0L) {
-        coroutineScopeSnaps.launch {
-            delay(delay)
-            updateOffset(targetValue)
-        }
     }
 
     fun updateOffsetNoAnimation(targetValue: Float) {
@@ -224,25 +303,12 @@ fun MultiAppChromeScreen(
             durationMillis = ANIMATION_DURATION
         )
     )
-    var balanceScrollAlpha by remember { mutableStateOf(1F) }
-    balanceScrollAlpha =
-        (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / toolbarState.halfCollapsedOffset)
-            .coerceIn(0F, 1F)
-
-    var switcherScrollAlpha by remember { mutableStateOf(1F) }
-    switcherScrollAlpha =
-        (
-            1 - (toolbarState.scrollOffset - toolbarState.halfCollapsedOffset) /
-                (toolbarState.fullCollapsedOffset - toolbarState.halfCollapsedOffset)
-            ).coerceIn(0F, 1F)
-
     // //////////////////////////////////////////////
 
     // //////////////////////////////////////////////
     // first launch
     var firstLaunch by remember { mutableStateOf(true) }
     if (firstLaunch) {
-        balanceScrollAlpha = 0F
         updateOffsetNoAnimation(targetValue = toolbarState.halfCollapsedOffset)
         firstLaunch = false
     }
@@ -250,13 +316,8 @@ fun MultiAppChromeScreen(
     val coroutineScopeBalanceReveal = rememberCoroutineScope()
 
     /**
-     * is reveal animation in progress
-     */
-    var isBalanceRevealInProgress by remember { mutableStateOf(false) }
-
-    /**
      * true if the balance is the target to show.
-     * once it's shown and [REVEAL_BALANCE_DELAY_MS] is over,
+     * once it's shown and [REVEAL_DELAY_MS] is over,
      * it will be false to revert back to the switcher
      */
     var isRevealingTargetBalance by remember { mutableStateOf(false) }
@@ -275,8 +336,8 @@ fun MultiAppChromeScreen(
         finishedListener = {
             // reveal in progress and switcher is back to fully visible
             // -> all done
-            if (isBalanceRevealInProgress && it == 1F) {
-                isBalanceRevealInProgress = false
+            if (toolbarState.isBalanceRevealInProgress && it == 1F) {
+                toolbarState.isBalanceRevealInProgress = false
             }
         }
     )
@@ -292,15 +353,14 @@ fun MultiAppChromeScreen(
     }
 
     fun revealBalance() {
-        if (isBalanceRevealInProgress.not()) {
-
-            isBalanceRevealInProgress = true
+        if (toolbarState.isBalanceRevealInProgress.not()) {
+            toolbarState.isBalanceRevealInProgress = true
             isRevealingTargetBalance = true
 
             onBalanceRevealed()
 
             coroutineScopeBalanceReveal.launch {
-                delay(REVEAL_BALANCE_DELAY_MS)
+                delay(REVEAL_DELAY_MS)
                 revealSwitcher()
             }
         }
@@ -310,8 +370,7 @@ fun MultiAppChromeScreen(
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-
-                if (isPullToRefreshSwipeInProgress) {
+                if (toolbarState.isPullToRefreshSwipeInProgress) {
                     toolbarState.isInteractingWithPullToRefresh = true
                     // let pull to refresh consume the scroll
                     return Offset.Zero
@@ -373,12 +432,22 @@ fun MultiAppChromeScreen(
                         )
                     }
                 }
-                // if switcher is scrolled but still visible, snap to the top of it
+                // hide switcher if the offset is 1/2 below its height
                 if (toolbarState.scrollOffset > toolbarState.halfCollapsedOffset &&
                     toolbarState.scrollOffset < toolbarState.fullCollapsedOffset
                 ) {
+                    val halfSwitcherHeight = (toolbarState.fullCollapsedOffset + toolbarState.halfCollapsedOffset) / 2
+
                     coroutineScopeSnaps.launch {
-                        updateOffset(targetValue = toolbarState.halfCollapsedOffset)
+                        updateOffset(
+                            targetValue = if (toolbarState.scrollOffset < halfSwitcherHeight) {
+                                // snap to top of it
+                                toolbarState.halfCollapsedOffset
+                            } else {
+                                // snap below (hide it)
+                                toolbarState.fullCollapsedOffset
+                            }
+                        )
                     }
                 }
 
@@ -420,36 +489,22 @@ fun MultiAppChromeScreen(
         }
         verifyHeaderPositionForNewScreen = false
     }
-    // //////////////////////////////////////////////
-
-    // //////////////////////////////////////////////
-    // show and hide balance on first launch
-    var hideBalanceAfterInitialValue by remember { mutableStateOf(false) }
-    fun showAndHideBalanceOnFirstLaunch() {
-        coroutineScopeSnaps.launch {
-            if (balance is DataResource.Data && hideBalanceAfterInitialValue.not() && toolbarState.offsetValuesSet) {
-                hideBalanceAfterInitialValue = true
-
-                updateOffset(0F)
-
-                delay(2000L)
-
-                updateOffset(toolbarState.halfCollapsedOffset)
-            }
-        }
-    }
-    // //////////////////////////////////////////////
 
     // //////////////////////////////////////////////
     // bottomnav animation
-    var currentBottomNavigationItems by remember { mutableStateOf(bottomNavigationItems) }
+    var currentBottomNavigationItems by remember { mutableStateOf(emptyList<ChromeBottomNavigationItem>()) }
+
     var bottomNavigationVisible by remember { mutableStateOf(true) }
+
+    if (bottomNavigationVisible && currentBottomNavigationItems.toSet() != bottomNavigationItems.toSet()) {
+        currentBottomNavigationItems = bottomNavigationItems
+    }
+
     val bottomNavOffsetY by animateIntAsState(
         targetValue = if (bottomNavigationVisible) 0 else 300,
         finishedListener = {
             if (bottomNavigationVisible.not()) {
                 bottomNavigationVisible = true
-                currentBottomNavigationItems = bottomNavigationItems
             }
         },
         animationSpec = tween(
@@ -458,7 +513,33 @@ fun MultiAppChromeScreen(
     )
     // //////////////////////////////////////////////
 
-    val navController = rememberNavController()
+    // //////////////////////////////////////////////
+    // pill alert
+    val pillAlert by LocalChromePillProvider.current.alert.collectAsStateLifecycleAware(null)
+    var showPill by remember { mutableStateOf(false) }
+    LaunchedEffect(pillAlert) {
+        pillAlert?.let {
+            showPill = true
+            delay(REVEAL_DELAY_MS)
+            showPill = false
+        }
+    }
+    val pillAlertOffsetY by animateFloatAsState(
+        targetValue = if (showPill) 0F else -300F,
+        animationSpec = tween(
+            durationMillis = ANIMATION_DURATION
+        )
+    )
+
+    fun pillAlphaInterpolator(value: Float): Float {
+        val x1 = 0f
+        val x2 = -300f
+        val y1 = 1f
+        val y2 = 0.5f
+        return (value - x1) * (y2 - y1) / (x2 - x1) + y1
+    }
+    // //////////////////////////////////////////////
+
     // this container has the following format
     // -> Space for the toolbar
     // -> collapsable header
@@ -493,8 +574,7 @@ fun MultiAppChromeScreen(
                 .fillMaxSize()
                 .nestedScroll(nestedScrollConnection)
         ) {
-
-            // ///// header
+            // /// header
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -507,78 +587,92 @@ fun MultiAppChromeScreen(
                     modifier = Modifier
                         .height(54.dp)
                         .fillMaxWidth()
-                        .alpha(if (isRefreshing) balanceLoadingAlpha else balanceScrollAlpha),
+                        .graphicsLayer {
+                            alpha = if (isRefreshing) {
+                                balanceLoadingAlpha
+                            } else {
+                                toolbarState.balanceScrollAlpha(firstLaunch)
+                            }
+                        },
                     balance = balance
                 )
 
                 // ///// mode tabs
-                Box(
-                    modifier = Modifier
-                        .height(54.dp)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    val revealPadding = remember { 40 }
+                when (modeSwitcherOptions) {
+                    is ChromeModeOptions.MultiSelection -> {
+                        Box(
+                            modifier = Modifier
+                                .height(54.dp)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val revealPadding = remember { 40 }
 
-                    TotalBalance(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer {
-                                translationY = (balanceRevealAlpha - 1) * revealPadding
+                            TotalBalance(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .graphicsLayer {
+                                        translationY = (balanceRevealAlpha - 1) * revealPadding
+                                        alpha = min(balanceRevealAlpha, toolbarState.switcherScrollAlpha())
+                                    },
+                                balance = balance
+                            )
+
+                            if (
+                                balance is DataResource.Data && shouldRevealBalance &&
+                                toolbarState.isBalanceRevealInProgress.not()
+                            ) {
+                                revealBalance()
                             }
-                            .alpha(min(balanceRevealAlpha, switcherScrollAlpha)),
-                        balance = balance
-                    )
 
-                    if (balance is DataResource.Data && shouldRevealBalance && isBalanceRevealInProgress.not()) {
-                        revealBalance()
+                            ModeSwitcher(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .graphicsLayer {
+                                        translationY = -1 * ((switcherRevealAlpha - 1) * revealPadding)
+                                        alpha = if (toolbarState.isBalanceRevealInProgress) {
+                                            min(switcherRevealAlpha, toolbarState.switcherScrollAlpha())
+                                        } else {
+                                            toolbarState.switcherScrollAlpha()
+                                        }
+                                    },
+                                modes = modeSwitcherOptions.modes.toImmutableList(),
+                                selectedMode = selectedMode,
+                                onModeClicked = { walletMode ->
+                                    if (toolbarState.isBalanceRevealInProgress.not()) {
+                                        stopRefresh()
+                                        bottomNavigationVisible = false
+                                        onModeSelected(walletMode)
+                                    }
+
+                                    analytics.logEvent(ChromeAnalyticsEvents.ModeClicked(walletMode))
+                                },
+                                onModeLongClicked = { walletMode ->
+                                    onModeLongClicked(walletMode)
+
+                                    analytics.logEvent(ChromeAnalyticsEvents.ModeLongClicked(walletMode))
+                                }
+                            )
+                        }
                     }
 
-                    ModeSwitcher(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer {
-                                translationY = -1 * ((switcherRevealAlpha - 1) * revealPadding)
-                            }
-                            .alpha(
-                                if (isBalanceRevealInProgress) {
-                                    min(switcherRevealAlpha, switcherScrollAlpha)
-                                } else {
-                                    switcherScrollAlpha
-                                }
-                            ),
-                        modes = modeSwitcherOptions,
-                        selectedMode = selectedMode,
-                        onModeClicked = { walletMode ->
-                            if (isBalanceRevealInProgress.not()) {
-                                stopRefresh()
-                                bottomNavigationVisible = false
-                                onModeSelected(walletMode)
-                            }
-                        },
-                    )
+                    is ChromeModeOptions.SingleSelection -> {
+                        // n/a
+                    }
                 }
             }
 
             // ////// content
             // the screen can look jumpy at first launch since views positions are initialized dynamically
-            // content will be hidden at first until we have the view heights
-            val contentAlpha by animateFloatAsState(
-                targetValue = if (toolbarState.offsetValuesSet) 1F else 0F,
-                animationSpec = tween(
-                    durationMillis = ANIMATION_DURATION / 2
-                )
-            )
-
+            // content will be hidden at first until we have the view heights (toolbarState.offsetValuesSet)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
                         translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
                     }
-                    .alpha(contentAlpha)
                     .background(
-                        color = Color(0XFFF1F2F7),
+                        color = AppColors.background,
                         shape = RoundedCornerShape(
                             topStart = AppTheme.dimensions.standardSpacing,
                             topEnd = AppTheme.dimensions.standardSpacing
@@ -586,52 +680,83 @@ fun MultiAppChromeScreen(
                     )
             )
 
-            MultiAppBottomNavigationHost(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
-                    }
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {
-                                // ignore the reveal if user interacts with the
-                                // content already before getting the balance
-                                if (isBalanceRevealInProgress.not()) {
-                                    onBalanceRevealed()
-                                    coroutineScopeBalanceReveal.coroutineContext.cancelChildren()
+            AnimatedVisibility(
+                visible = toolbarState.offsetValuesSet,
+                enter = fadeIn(tween(durationMillis = ANIMATION_DURATION / 2)),
+                exit = fadeOut(tween(durationMillis = ANIMATION_DURATION / 2))
+            ) {
+                MultiAppBottomNavigationHost(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
+                        }
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = {
+                                    // ignore the reveal if user interacts with the
+                                    // content already before getting the balance
+                                    if (toolbarState.isBalanceRevealInProgress.not()) {
+                                        onBalanceRevealed()
+                                        coroutineScopeBalanceReveal.coroutineContext.cancelChildren()
+                                    }
+
+                                    coroutineScopeSnaps.coroutineContext.cancelChildren()
+                                    animateSnap = false
+                                    verifyHeaderPositionForNewScreen = false
+                                    toolbarState.isAutoScrolling = false
                                 }
+                            )
+                        },
+                    navControllerProvider = { navController },
+                    enableRefresh = enablePullToRefresh,
+                    updateScrollInfo = { (navItem, listStateInfo) ->
+                        toolbarState.scrollTopLimitReached = listStateInfo.isFirstItemVisible &&
+                            listStateInfo.isFirstVisibleItemOffsetZero
 
-                                coroutineScopeSnaps.coroutineContext.cancelChildren()
-                                animateSnap = false
-                                verifyHeaderPositionForNewScreen = false
-                                toolbarState.isAutoScrolling = false
-                            }
-                        )
+                        toolbarState.isPullToRefreshSwipeInProgress = listStateInfo.isSwipeInProgress
+
+                        if (verifyHeaderPositionForNewScreen && selectedBottomNavigationItem == navItem) {
+                            verifyAndCollapseHeaderForNewScreen()
+                        }
+                    },
+                    selectedNavigationItem = selectedBottomNavigationItem,
+                    refreshStarted = {
+                        isRefreshing = true
+                    },
+                    refreshComplete = {
+                        stopRefresh()
+                    },
+                    navController = graphNavController,
+                    qrScanNavigation = qrScanNavigation,
+                    startPhraseRecovery = startPhraseRecovery,
+                    openExternalUrl = openExternalUrl,
+                    openNftHelp = openNftHelp,
+                    openNftDetail = openNftDetail,
+                    nftNavigation = nftNavigation,
+                    earnNavigation = earnNavigation,
+                    processAnnouncementUrl = processAnnouncementUrl,
+                    navigateToMode = {
+                        stopRefresh()
+                        bottomNavigationVisible = false
+                        onModeSelected(it)
                     }
-                    .alpha(contentAlpha),
-                navController = navController,
-                enableRefresh = enablePullToRefresh,
-                updateScrollInfo = { (navItem, listStateInfo) ->
-                    toolbarState.scrollTopLimitReached = listStateInfo.firstVisibleItemIndex == 0 &&
-                        listStateInfo.firstVisibleItemScrollOffset == 0
+                )
+            }
 
-                    isPullToRefreshSwipeInProgress = listStateInfo.isSwipeInProgress
-
-                    if (verifyHeaderPositionForNewScreen && selectedNavigationItem == navItem) {
-                        verifyAndCollapseHeaderForNewScreen()
-                    }
-                },
-                refreshStarted = {
-                    isRefreshing = true
-                },
-                refreshComplete = {
-                    stopRefresh()
-                },
-                openCryptoAssets = openCryptoAssets,
-                openActivity = openActivity,
-                assetActionsNavigation = assetActionsNavigation
-            )
+            // error pill
+            pillAlert?.let {
+                PillAlert(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(AppTheme.dimensions.tinySpacing)
+                        .graphicsLayer {
+                            translationY = pillAlertOffsetY
+                            alpha = pillAlphaInterpolator(pillAlertOffsetY)
+                        },
+                    config = it
+                )
+            }
         }
 
         // ////// bottom nav
@@ -650,16 +775,17 @@ fun MultiAppChromeScreen(
                         y = bottomNavOffsetY
                     )
                 },
-            navigationItems = currentBottomNavigationItems,
-            navController = navController
-        ) {
-            if (isRefreshing) {
-                stopRefresh()
-            } else {
-                selectedNavigationItem = it
-                verifyHeaderPositionForNewScreen = true
+            navigationItems = currentBottomNavigationItems.toImmutableList(),
+            selectedNavigationItem = selectedBottomNavigationItem,
+            onSelected = {
+                if (isRefreshing) {
+                    stopRefresh()
+                } else {
+                    onBottomNavigationItemSelected(it)
+                    verifyHeaderPositionForNewScreen = true
+                }
             }
-        }
+        )
 
         // we have to reserve spaces for the statusbar and nav bar because the screen can draw on them
         // so we can have custom gradient status bar
@@ -689,27 +815,3 @@ fun MultiAppChromeScreen(
         )
     }
 }
-
-/*@Preview
-@Composable
-fun PreviewMultiAppContainer() {
-    MultiAppChromeScreen(
-        statusBarHeight = 25.dp,
-        navBarHeight = 50.dp,
-        modeSwitcherOptions = listOf(WalletMode.CUSTODIAL_ONLY, WalletMode.NON_CUSTODIAL_ONLY),
-        selectedMode = WalletMode.CUSTODIAL_ONLY,
-        backgroundColors = ChromeBackgroundColors.Trading,
-        balance = DataResource.Data("$278,031.12"),
-        shouldRevealBalance = false,
-        bottomNavigationItems = listOf(
-            ChromeBottomNavigationItem.Home,
-            ChromeBottomNavigationItem.Trade,
-            ChromeBottomNavigationItem.Card
-        ),
-        onModeSelected = {},
-        openCryptoAssets = {},
-        openActivity = {},
-        onBalanceRevealed = {}
-    )
-    }
-    */

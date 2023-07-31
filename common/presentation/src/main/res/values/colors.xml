@@ -12,8 +12,6 @@
     <color name="pit_text_body_app_able_to_text">@color/green_200</color>
 
     <!-- Toasts -->
-    <color name="toast_error_background">@color/red_100</color>
-    <color name="toast_error_text">@color/red_800</color>
     <color name="toast_warning_background">@color/orange_100</color>
     <color name="toast_warning_text">@color/orange_800</color>
     <color name="toast_info_background">@color/green_100</color>
@@ -36,12 +34,9 @@
     <color name="secondary_yellow_medium">@color/orange_400</color>
     <color name="secondary_teal_light">@color/teal_300</color>
     <color name="secondary_teal_medium">@color/teal_500</color>
-    <color name="secondary_pink_light">@color/red_300</color>
-    <color name="secondary_red_light">@color/red_500</color>
 
     <!-- For warning messages -->
     <color name="product_green_medium">@color/green_600</color>
-    <color name="product_red_medium">@color/red_600</color>
     <color name="product_orange_medium">@color/orange_600</color>
 
     <!-- Specified in designs but not named in spec -->
@@ -50,9 +45,6 @@
     <color name="primary_grey_light">@color/grey_400</color>
     <color name="primary_grey_lightest">@color/grey_000</color>
 
-    <color name="product_red_sent">@color/red_500</color>
-    <color name="product_red_sent_50">@color/red_200</color>
-    <color name="product_red_error_12">@color/red_000</color>
     <color name="product_green_received">@color/teal_500</color>
     <color name="product_green_received_50">@color/teal_200</color>
     <color name="product_grey_watch_only">@color/grey_600</color>
@@ -143,7 +135,6 @@
     <color name="default_tour_pulse_color">@color/blue_600</color>
 
     <color name="pit_application_able_to">@color/green_200</color>
-    <color name="pit_application_not_able">@color/red_900</color>
     <color name="benefits_text_color">@color/grey_800</color>
 
     <color name="mobile_notice_dialog_title">@color/grey_800</color>
@@ -159,9 +150,7 @@
     <color name="tour_icon_tint">@color/blue_600</color>
 
     <color name="dashboard_delta_positive">@color/green_500</color>
-    <color name="dashboard_delta_negative">@color/red_600</color>
 
-    <color name="dashboard_chart_negative">@color/red_500</color>
     <color name="dashboard_chart_positive">@color/green_500</color>
     <color name="dashboard_chart_unknown">@color/grey_400</color>
     <color name="dashboard_chart_indicator_color">@color/blue_600</color>

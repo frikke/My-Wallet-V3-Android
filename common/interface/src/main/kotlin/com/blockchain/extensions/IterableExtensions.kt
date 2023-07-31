@@ -22,8 +22,11 @@ fun <E> Set<E>.minus(predicate: (E) -> Boolean): Set<E> = toMutableSet().apply {
     removeIf(predicate)
 }.toSet()
 
-inline fun <K, reified V> Map<K, V?>.withoutNullValues(): Map<K, V> =
-    this.filterValues { it != null }.mapValues { it.value as V }
+fun <K, V> Map<K, V?>.filterNotNullValues(): Map<K, V> =
+    this.filterValues { it != null } as Map<K, V>
+
+fun <K, V> Map<K?, V>.filterNotNullKeys(): Map<K, V> =
+    this.filterKeys { it != null } as Map<K, V>
 
 fun <E> Collection<E>.filterIf(condition: Boolean, predicate: (E) -> Boolean) =
     if (condition) filter(predicate) else this

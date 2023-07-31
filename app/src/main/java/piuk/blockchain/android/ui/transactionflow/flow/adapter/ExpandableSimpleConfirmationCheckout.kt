@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.getResolvedColor
 import piuk.blockchain.android.R
@@ -34,7 +35,9 @@ class ExpandableSimpleConfirmationCheckout(private val mapper: TxConfirmReadOnly
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as ExpandableSimpleConfirmationCheckoutItemViewHolder).bind(
-        items[position]
+        items[position],
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -55,24 +58,37 @@ private class ExpandableSimpleConfirmationCheckoutItemViewHolder(
         }
     }
 
-    fun bind(item: TxConfirmationValue) {
+    fun bind(
+        item: TxConfirmationValue,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
+    ) {
         with(binding) {
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
             mapper.map(item).run {
                 expandableItemLabel.text = this[ConfirmationPropertyKey.LABEL] as String
                 expandableItemTitle.text = this[ConfirmationPropertyKey.TITLE] as String
                 expandableItemExpansion.setText(
-                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder, TextView.BufferType.SPANNABLE
+                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder,
+                    TextView.BufferType.SPANNABLE
                 )
                 if (item is TxConfirmationValue.ExchangePriceConfirmation) {
                     when {
                         item.isNewQuote -> {
                             expandableItemTitle.setTextColor(
-                                ContextCompat.getColor(expandableItemLabel.context, R.color.blue_600)
+                                ContextCompat.getColor(
+                                    expandableItemLabel.context,
+                                    com.blockchain.componentlib.R.color.primary
+                                )
                             )
                         }
                         else -> {
                             expandableItemTitle.setTextColor(
-                                ContextCompat.getColor(expandableItemLabel.context, R.color.grey_800)
+                                ContextCompat.getColor(
+                                    expandableItemLabel.context,
+                                    com.blockchain.componentlib.R.color.body
+                                )
                             )
                         }
                     }
@@ -89,11 +105,11 @@ private class ExpandableSimpleConfirmationCheckoutItemViewHolder(
 
             if (isExpanded) {
                 expandableItemLabel.compoundDrawables[DRAWABLE_END]?.setTint(
-                    expandableItemLabel.context.getResolvedColor(R.color.blue_600)
+                    expandableItemLabel.context.getResolvedColor(com.blockchain.common.R.color.blue_600)
                 )
             } else {
                 expandableItemLabel.compoundDrawables[DRAWABLE_END]?.setTint(
-                    expandableItemLabel.context.getResolvedColor(R.color.grey_300)
+                    expandableItemLabel.context.getResolvedColor(com.blockchain.common.R.color.grey_300)
                 )
             }
         }

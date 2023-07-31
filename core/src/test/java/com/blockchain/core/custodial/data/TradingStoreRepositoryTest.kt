@@ -55,7 +55,10 @@ class TradingStoreRepositoryTest {
         Pair(
             it.displayTicker,
             TradingBalanceResponseDto(
-                pending = "3", total = "1", withdrawable = "2", mainBalanceToDisplay = "4"
+                pending = "3",
+                total = "1",
+                withdrawable = "2",
+                mainBalanceToDisplay = "4"
             )
         )
     }
@@ -114,7 +117,6 @@ class TradingStoreRepositoryTest {
             total = Money.fromMinor(asset, 1.toBigInteger()),
             withdrawable = Money.fromMinor(asset, 2.toBigInteger()),
             pending = Money.fromMinor(asset, 3.toBigInteger()),
-            dashboardDisplay = Money.fromMinor(asset, 4.toBigInteger()),
             hasTransactions = true
         )
 
@@ -123,6 +125,5 @@ class TradingStoreRepositoryTest {
             total = Money.zero(asset),
             withdrawable = Money.zero(asset),
             pending = Money.zero(asset),
-            dashboardDisplay = Money.zero(asset),
         )
 }

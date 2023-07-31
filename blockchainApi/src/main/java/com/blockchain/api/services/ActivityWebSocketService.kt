@@ -4,11 +4,21 @@ import com.blockchain.api.selfcustody.AuthInfo
 import com.blockchain.api.selfcustody.activity.ActivityRequest
 import com.blockchain.api.selfcustody.activity.ActivityRequestParams
 import com.blockchain.api.selfcustody.activity.ActivityResponse
+import com.blockchain.extensions.range
+import com.blockchain.extensions.safeLet
+import com.blockchain.lifecycle.AppState
+import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import java.util.Locale
+import java.util.TimeZone
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
@@ -16,8 +26,10 @@ import kotlinx.coroutines.rx3.asFlow
 class ActivityWebSocketService(
     private val webSocket: WebSocket<ActivityRequest, ActivityResponse>,
     private val activityCacheService: ActivityCacheService,
+    private val lifecycleObservable: LifecycleObservable,
     private val credentials: SelfCustodyServiceAuthCredentials,
-    private val wsScope: CoroutineScope
+    private val wsScope: CoroutineScope,
+    private val coroutineContext: CoroutineContext
 ) {
     private var isActive: Boolean = false
     private var activityJob: Job? = null
@@ -30,41 +42,74 @@ class ActivityWebSocketService(
                         ConnectionEvent.Connected -> {
                             isActive = true
                             activityJob = wsScope.launch {
-                                webSocket.responses.asFlow()
+                                webSocket.responses.asFlow().flowOn(Dispatchers.IO)
                                     .collect {
                                         activityCacheService.addOrUpdateActivityItems(it)
                                     }
                             }
                         }
+
                         is ConnectionEvent.Failure,
                         ConnectionEvent.ClientDisconnect -> {
                             isActive = false
                             activityJob?.cancel()
                         }
+
                         ConnectionEvent.Authenticated -> {}
                     }
-                }.collect()
+                }.flowOn(Dispatchers.IO).collect()
+        }
+        wsScope.launch {
+            lifecycleObservable.onStateUpdated.asFlow().collectLatest { appState: AppState ->
+                when (appState) {
+                    AppState.BACKGROUNDED -> {
+                        webSocket.close()
+                    }
+
+                    AppState.FOREGROUNDED -> openSocket()
+                }
+            }
         }
     }
 
-    private val authInfo: AuthInfo
-        get() = AuthInfo(
-            guidHash = credentials.hashedGuid,
-            sharedKeyHash = credentials.hashedSharedKey,
-        )
+    private var openSocket = {}
 
-    fun open() {
-        if (isActive.not()) webSocket.open()
+    private val authInfo: AuthInfo?
+        get() = safeLet(
+            credentials.hashedGuidOrNull,
+            credentials.hashedSharedKeyOrNull
+        ) { hashedGuid, hashedSharedKey ->
+            AuthInfo(
+                guidHash = hashedGuid,
+                sharedKeyHash = hashedSharedKey
+            )
+        }
+
+    fun open(fiatCurrency: String) {
+        openSocket = {
+            wsScope.launch(coroutineContext) {
+                if (isActive.not()) {
+                    webSocket.open()
+                    send(
+                        fiatCurrency = fiatCurrency,
+                        acceptLanguage = Locale.getDefault().range,
+                        timeZone = TimeZone.getDefault().id
+                    )
+                }
+            }
+        }
+        openSocket()
     }
 
     fun send(fiatCurrency: String, acceptLanguage: String, timeZone: String) {
+        val authInfo = authInfo ?: return
         webSocket.send(
             ActivityRequest(
                 auth = authInfo,
                 params = ActivityRequestParams(
-                    timezone = timeZone,
+                    timeZone = timeZone,
                     fiatCurrency = fiatCurrency,
-                    acceptLanguage = acceptLanguage // "en-GB;q=1.0, en"
+                    locales = acceptLanguage
                 ),
                 action = UNIFIED_ACTIVITY_WS_ACTION,
                 channel = UNIFIED_ACTIVITY_WS_CHANNEL
@@ -72,7 +117,8 @@ class ActivityWebSocketService(
         )
     }
 
-    fun stop() {
+    fun close() {
+        openSocket = {}
         webSocket.close()
     }
 

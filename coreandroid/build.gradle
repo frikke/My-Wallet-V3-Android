@@ -25,6 +25,10 @@ android {
             manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesDebugKey'].toString()]
         }
     }
+
+    android {
+        namespace 'com.blockchain.coreandroid'
+    }
 }
 
 dependencies {

@@ -45,6 +45,6 @@ class XlmCryptoValueTest {
     @Test
     fun `format in French locale`() {
         Locale.setDefault(Locale.FRANCE)
-        1234.56789.lumens().toStringWithSymbol() `should be equal to` "1 234,56789 XLM"
+        1234.56789.lumens().toStringWithSymbol() `should be equal to` "1 234,56789 XLM"
     }
 }

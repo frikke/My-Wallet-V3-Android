@@ -12,12 +12,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.control.PrimarySwitch
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import piuk.blockchain.android.R
 
 @Preview
 @Composable
@@ -55,10 +54,10 @@ fun PreferenceToggleRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(AppTheme.colors.background)
+                .background(AppTheme.colors.backgroundSecondary)
                 .padding(
-                    start = dimensionResource(R.dimen.standard_spacing),
-                    end = dimensionResource(R.dimen.standard_spacing)
+                    start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                 ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -66,7 +65,8 @@ fun PreferenceToggleRow(
         ) {
             Text(
                 text = primaryText,
-                style = AppTheme.typography.body2,
+                color = AppColors.title,
+                style = AppTheme.typography.body2
             )
 
             PrimarySwitch(
@@ -77,7 +77,7 @@ fun PreferenceToggleRow(
         if (!enabled) {
             Box(
                 modifier = Modifier
-                    .background(White.copy(alpha = .75f))
+                    .background(AppColors.backgroundSecondary.copy(alpha = .75f))
                     .matchParentSize()
                     .clickable(enabled = true, onClick = { })
             )

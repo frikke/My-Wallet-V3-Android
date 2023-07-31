@@ -1,10 +1,12 @@
 package com.blockchain.earn.data
 
-import com.blockchain.api.interest.InterestApiService
-import com.blockchain.api.interest.data.InterestAccountBalanceDto
+import com.blockchain.api.earn.passive.InterestApiService
+import com.blockchain.api.earn.passive.data.InterestAccountBalanceDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
+import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.data.dataresources.interest.InterestEligibilityStore
@@ -24,6 +26,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.last
@@ -42,6 +45,7 @@ class InterestServiceTest {
     private val currencyPrefs = mockk<CurrencyPrefs>()
     private val interestApiService = mockk<InterestApiService>()
     private val interestRatesForAll = mockk<InterestRateForAllStore>()
+    private val historicRateFetcher = mockk<HistoricRateFetcher>()
 
     private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,
@@ -53,7 +57,8 @@ class InterestServiceTest {
         paymentTransactionHistoryStore = paymentTransactionHistoryStore,
         currencyPrefs = currencyPrefs,
         interestApiService = interestApiService,
-        interestAllRatesStore = interestRatesForAll
+        interestAllRatesStore = interestRatesForAll,
+        historicRateFetcher = historicRateFetcher
     )
 
     private val cryptoCurrency = object : CryptoCurrency(
@@ -72,7 +77,7 @@ class InterestServiceTest {
         pendingDeposit = "3",
         totalInterest = "4",
         pendingWithdrawal = "5",
-        lockedBalance = "6",
+        lockedBalance = "6"
     )
 
     private val interestAccountBalance = InterestAccountBalance(
@@ -104,7 +109,11 @@ class InterestServiceTest {
             .assertValue {
                 it == data
             }
-        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(true)) }
+        verify(exactly = 1) {
+            interestBalancesStore.stream(
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            )
+        }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -116,7 +125,11 @@ class InterestServiceTest {
             .assertValue {
                 it == interestAccountBalance
             }
-        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(true)) }
+        verify(exactly = 1) {
+            interestBalancesStore.stream(
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            )
+        }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -126,9 +139,11 @@ class InterestServiceTest {
 
         assertEquals(setOf(cryptoCurrency), result)
 
-        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(true)) }
+        verify(exactly = 1) {
+            interestBalancesStore.stream(
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES))
+            )
+        }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
-
-    // todo (othman) more unit tests
 }

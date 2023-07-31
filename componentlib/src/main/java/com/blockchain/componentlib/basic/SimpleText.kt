@@ -29,18 +29,20 @@ import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 
 @Composable
 fun SimpleText(
-    text: String,
     modifier: Modifier = Modifier,
+    text: String,
     style: ComposeTypographies,
     color: ComposeColors,
     gravity: ComposeGravities,
-    isMultiline: Boolean = true
+    overflow: TextOverflow = TextOverflow.Clip,
+    isMultiline: Boolean = true,
 ) {
     Text(
         modifier = modifier,
         text = text,
         style = style.toComposeTypography(),
         color = color.toComposeColor(),
+        overflow = overflow,
         textAlign = gravity.toTextAlignment(),
         maxLines = if (isMultiline) {
             Integer.MAX_VALUE
@@ -58,7 +60,7 @@ fun SimpleText(
     color: ComposeColors,
     gravity: ComposeGravities,
     isMultiline: Boolean = true,
-    onAnnotationClicked: ((tag: String, value: String) -> Unit)? = null,
+    onAnnotationClicked: ((tag: String, value: String) -> Unit)? = null
 ) {
     val composeColor = color.toComposeColor()
     val composeStyle = style.toComposeTypography()
@@ -72,7 +74,7 @@ fun SimpleText(
         val mergedStyle = composeStyle.merge(
             TextStyle(
                 color = textColor,
-                textAlign = composeTextAlign,
+                textAlign = composeTextAlign
             )
         )
 
@@ -127,7 +129,7 @@ fun ExpandableSimpleText(
     val mergedStyle = composeStyle.merge(
         TextStyle(
             color = textColor,
-            textAlign = composeTextAlign,
+            textAlign = composeTextAlign
         )
     )
 
@@ -139,7 +141,7 @@ fun ExpandableSimpleText(
             text = buildAnnotatedString { append(text) },
             style = mergedStyle,
             maxLines = if (expanded) Int.MAX_VALUE else maxLinesWhenCollapsed,
-            overflow = overflow,
+            overflow = overflow
         )
 
         SmallHorizontalSpacer()
@@ -153,7 +155,7 @@ fun ExpandableSimpleText(
             imageResource = expandIcon,
             modifier = Modifier
                 .align(Alignment.CenterVertically)
-                .size(dimensionResource(R.dimen.standard_spacing))
+                .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                 .clickable { expanded = !expanded }
         )
     }
@@ -168,7 +170,7 @@ fun ExpandableSimpleText(
     gravity: ComposeGravities,
     maxLinesWhenCollapsed: Int,
     overflow: TextOverflow = TextOverflow.Ellipsis,
-    onAnnotationClicked: ((tag: String, value: String) -> Unit)? = null,
+    onAnnotationClicked: ((tag: String, value: String) -> Unit)? = null
 ) {
     val composeColor = color.toComposeColor()
     val composeStyle = style.toComposeTypography()
@@ -181,14 +183,13 @@ fun ExpandableSimpleText(
     val mergedStyle = composeStyle.merge(
         TextStyle(
             color = textColor,
-            textAlign = composeTextAlign,
+            textAlign = composeTextAlign
         )
     )
 
     var expanded by remember { mutableStateOf(false) }
 
     Row(modifier = modifier) {
-
         if (onAnnotationClicked != null) {
             val textColor = composeColor.takeOrElse {
                 composeStyle.color.takeOrElse {
@@ -198,7 +199,7 @@ fun ExpandableSimpleText(
             val mergedStyle = composeStyle.merge(
                 TextStyle(
                     color = textColor,
-                    textAlign = composeTextAlign,
+                    textAlign = composeTextAlign
                 )
             )
 
@@ -218,7 +219,7 @@ fun ExpandableSimpleText(
                 text = text,
                 style = mergedStyle,
                 maxLines = if (expanded) Int.MAX_VALUE else maxLinesWhenCollapsed,
-                overflow = overflow,
+                overflow = overflow
             )
         }
 
@@ -233,7 +234,7 @@ fun ExpandableSimpleText(
             imageResource = expandIcon,
             modifier = Modifier
                 .align(Alignment.CenterVertically)
-                .size(dimensionResource(R.dimen.standard_spacing))
+                .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                 .clickable { expanded = !expanded }
         )
     }

@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.coinview.domain
 
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.data.DataResource
 import com.blockchain.extensions.minus
@@ -13,6 +12,7 @@ import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.awaitFirst
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.isActiveRewardsAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isInterestAccount
 import piuk.blockchain.android.ui.coinview.domain.model.isStakingAccount
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
@@ -24,10 +24,9 @@ data class GetAccountActionsUseCase(
 ) {
     suspend operator fun invoke(account: CoinviewAccount): DataResource<List<StateAwareAction>> {
         return supervisorScope {
-            val actionsDeferred = async(dispatcher) { account.account.stateAwareActions.await() }
-            val balanceDeferred = async(dispatcher) { account.account.balanceRx.awaitFirst() }
-
             try {
+                val actionsDeferred = async(dispatcher) { account.account.stateAwareActions.await() }
+                val balanceDeferred = async(dispatcher) { account.account.balanceRx().awaitFirst() }
                 val actions = actionsDeferred.await()
                 val balance = balanceDeferred.await()
 
@@ -48,10 +47,20 @@ data class GetAccountActionsUseCase(
                             actions
                         }
                     }
-                    else -> actions.minus {
-                        it.action == AssetAction.InterestDeposit || it.action == AssetAction.StakingDeposit
+                    account.isActiveRewardsAccount() -> {
+                        if (actions.none { it.action == AssetAction.ActiveRewardsDeposit }) {
+                            actions + StateAwareAction(ActionState.Available, AssetAction.ActiveRewardsDeposit)
+                        } else {
+                            actions
+                        }
                     }
-                }.sortedWith(assetActionsComparator)
+                    // TODO(EARN): Why are these shennenigans of removing actions and adding on the above cases here?
+                    else -> actions.minus {
+                        it.action == AssetAction.InterestDeposit ||
+                            it.action == AssetAction.StakingDeposit ||
+                            it.action == AssetAction.ActiveRewardsDeposit
+                    }
+                }.minus { it.action == AssetAction.ViewActivity }.sortedWith(assetActionsComparator)
 
                 DataResource.Data(sortedActions)
             } catch (e: Exception) {
@@ -63,37 +72,19 @@ data class GetAccountActionsUseCase(
     /**
      * @return Pair<isIntroSeen: Boolean, markAsSeen: () -> Unit>
      */
-    fun getSeenAccountExplainerState(account: CoinviewAccount): Pair<Boolean, () -> Unit> {
-        return when (account) {
-            is CoinviewAccount.Universal -> {
-                when (account.filter) {
-                    AssetFilter.Trading -> {
-                        Pair(dashboardPrefs.isCustodialIntroSeen) { dashboardPrefs.isCustodialIntroSeen = true }
-                    }
-                    AssetFilter.Interest -> {
-                        Pair(dashboardPrefs.isRewardsIntroSeen) { dashboardPrefs.isRewardsIntroSeen = true }
-                    }
-                    AssetFilter.NonCustodial -> {
-                        Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
-                    }
-                    AssetFilter.Staking -> {
-                        Pair(dashboardPrefs.isStakingIntroSeen) { dashboardPrefs.isStakingIntroSeen = true }
-                    }
-                    else -> error("account type not supported")
-                }
-            }
-            is CoinviewAccount.Custodial.Interest -> {
-                Pair(dashboardPrefs.isCustodialIntroSeen) { dashboardPrefs.isCustodialIntroSeen = true }
-            }
-            is CoinviewAccount.Custodial.Trading -> {
-                Pair(dashboardPrefs.isRewardsIntroSeen) { dashboardPrefs.isRewardsIntroSeen = true }
-            }
-            is CoinviewAccount.Custodial.Staking -> {
-                Pair(dashboardPrefs.isStakingIntroSeen) { dashboardPrefs.isStakingIntroSeen = true }
-            }
-            is CoinviewAccount.PrivateKey -> {
-                Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
+    fun getSeenAccountExplainerState(account: CoinviewAccount): Pair<Boolean, () -> Unit> =
+        with(dashboardPrefs) {
+            when (account) {
+                is CoinviewAccount.Custodial.Interest ->
+                    Pair(isCustodialIntroSeen) { isCustodialIntroSeen = true }
+                is CoinviewAccount.Custodial.Trading ->
+                    Pair(isRewardsIntroSeen) { isRewardsIntroSeen = true }
+                is CoinviewAccount.Custodial.Staking ->
+                    Pair(isStakingIntroSeen) { isStakingIntroSeen = true }
+                is CoinviewAccount.Custodial.ActiveRewards ->
+                    Pair(isActiveRewardsIntroSeen) { isActiveRewardsIntroSeen = true }
+                is CoinviewAccount.PrivateKey ->
+                    Pair(isPrivateKeyIntroSeen) { isPrivateKeyIntroSeen = true }
             }
         }
-    }
 }

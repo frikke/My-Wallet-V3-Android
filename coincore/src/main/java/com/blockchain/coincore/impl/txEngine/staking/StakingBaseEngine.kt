@@ -5,9 +5,11 @@ import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.txEngine.interest.TransferData
+import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
+import com.blockchain.data.asSingle
 import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
-import com.blockchain.store.asSingle
+import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -23,10 +25,12 @@ abstract class StakingBaseEngine(
     protected val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()
 
+    protected val paymentTransactionHistoryStore: PaymentTransactionHistoryStore by scopedInject()
+
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,
         termsChecked: Boolean = getTermsOptionValue(pendingTx),
-        agreementChecked: Boolean = getTermsOptionValue(pendingTx),
+        agreementChecked: Boolean = getTermsOptionValue(pendingTx)
     ): PendingTx =
         pendingTx.removeOption(TxConfirmation.DESCRIPTION)
             .addOrReplaceOption(
@@ -39,7 +43,8 @@ abstract class StakingBaseEngine(
                 TxConfirmationValue.TxBooleanConfirmation(
                     confirmation = TxConfirmation.AGREEMENT_STAKING_TRANSFER,
                     data = TransferData.Staking(
-                        pendingTx.amount, pendingTx.stakingLimits
+                        pendingTx.amount,
+                        pendingTx.stakingLimits
                     ),
                     value = agreementChecked
                 )

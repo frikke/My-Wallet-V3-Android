@@ -43,16 +43,20 @@ class ProfileModel(
                             process(
                                 ProfileIntent.LoadProfileSucceeded(
                                     userInfoSettings = WalletSettingsService.UserInfoSettings(
-                                        userInfo.email, emailVerified = userInfo.isEmailVerified,
-                                        mobileWithPrefix = userInfo.smsNumber, mobileVerified = userInfo.isSmsVerified,
-                                        authType = userInfo.authType, smsDialCode = userInfo.smsDialCode
+                                        userInfo.email,
+                                        emailVerified = userInfo.isEmailVerified,
+                                        mobileWithPrefix = userInfo.smsNumber,
+                                        mobileVerified = userInfo.isSmsVerified,
+                                        authType = userInfo.authType,
+                                        smsDialCode = userInfo.smsDialCode
                                     )
                                 )
                             )
-                        }, onError = {
-                        process(ProfileIntent.FetchProfile)
-                        Timber.e("ProfileIntent.LoadProfile failure " + it)
-                    }
+                        },
+                        onError = {
+                            process(ProfileIntent.FetchProfile)
+                            Timber.e("ProfileIntent.LoadProfile failure " + it)
+                        }
                     )
             }
             is ProfileIntent.FetchProfile -> {
@@ -65,10 +69,11 @@ class ProfileModel(
                                     userInfoSettings = userInfo
                                 )
                             )
-                        }, onError = {
-                        process(ProfileIntent.LoadProfileFailed)
-                        Timber.e("ProfileIntent.FetchProfile failure " + it)
-                    }
+                        },
+                        onError = {
+                            process(ProfileIntent.LoadProfileFailed)
+                            Timber.e("ProfileIntent.FetchProfile failure " + it)
+                        }
                     )
             }
             is ProfileIntent.LoadProfileSucceeded,

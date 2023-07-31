@@ -5,8 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -24,10 +25,12 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Red000
-import com.blockchain.componentlib.theme.Red900
 
 @Composable
 fun NoPaddingRadio(
@@ -35,14 +38,12 @@ fun NoPaddingRadio(
     state: RadioButtonState,
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
 ) {
     Radio(
         state = state,
         onSelectedChanged = onSelectedChanged,
         modifier = modifier,
         enabled = enabled,
-        isDarkMode = isDarkMode,
         withPadding = false
     )
 }
@@ -53,14 +54,12 @@ fun Radio(
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
 ) {
     Radio(
         state = state,
         onSelectedChanged = onSelectedChanged,
         modifier = modifier,
         enabled = enabled,
-        isDarkMode = isDarkMode,
         withPadding = true
     )
 }
@@ -71,14 +70,12 @@ private fun Radio(
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
-    withPadding: Boolean = true,
+    withPadding: Boolean = true
 ) {
-
     val selectedColor = AppTheme.colors.primary
     val unselectedColor = AppTheme.colors.medium
     val errorColor = AppTheme.colors.error
-    val errorFillColor = if (isDarkMode) Red900 else Red000
+    val errorFillColor = AppTheme.colors.errorLight
 
     var radioRingColor by remember(
         state,
@@ -138,8 +135,8 @@ private fun Radio(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(
                             bounded = false,
-                            radius = dimensionResource(R.dimen.standard_spacing),
-                        ),
+                            radius = dimensionResource(R.dimen.standard_spacing)
+                        )
                     ) {
                         onSelectedChanged(
                             when (state) {
@@ -153,11 +150,15 @@ private fun Radio(
                     this
                 }
             }
-            .padding(dimensionResource(if (withPadding) R.dimen.very_small_spacing else R.dimen.zero_spacing))
+            .padding(
+                dimensionResource(
+                    if (withPadding) R.dimen.very_small_spacing else R.dimen.zero_spacing
+                )
+            )
             .size(dimensionResource(R.dimen.standard_spacing))
             .background(
                 color = animateColorAsState(targetValue = radioFillColor).value,
-                shape = CircleShape,
+                shape = CircleShape
             )
             .border(
                 width = 2.dp,
@@ -167,8 +168,8 @@ private fun Radio(
             .padding(5.dp)
             .background(
                 color = animateColorAsState(targetValue = radioCenterColor).value,
-                shape = CircleShape,
-            ),
+                shape = CircleShape
+            )
     )
 }
 
@@ -183,7 +184,7 @@ private fun RadioPreview_NotChecked() {
         AppSurface {
             Radio(
                 state = RadioButtonState.Unselected,
-                onSelectedChanged = {},
+                onSelectedChanged = {}
             )
         }
     }
@@ -196,7 +197,7 @@ private fun RadioPreview_Error() {
         AppSurface {
             Radio(
                 state = RadioButtonState.Error,
-                onSelectedChanged = {},
+                onSelectedChanged = {}
             )
         }
     }
@@ -209,7 +210,7 @@ private fun RadioPreview_IsChecked() {
         AppSurface {
             Radio(
                 state = RadioButtonState.Selected,
-                onSelectedChanged = {},
+                onSelectedChanged = {}
             )
         }
     }
@@ -223,7 +224,7 @@ private fun RadioPreview_NotChecked_NotEnabled() {
             Radio(
                 state = RadioButtonState.Unselected,
                 onSelectedChanged = {},
-                enabled = false,
+                enabled = false
             )
         }
     }
@@ -237,7 +238,59 @@ private fun RadioPreview_IsChecked_NotEnabled() {
             Radio(
                 state = RadioButtonState.Selected,
                 onSelectedChanged = {},
-                enabled = false,
+                enabled = false
+            )
+        }
+    }
+}
+
+@Composable
+fun RadioCheckMark(state: RadioButtonState, onSelectedChanged: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier
+            .size(AppTheme.dimensions.standardSpacing)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(bounded = false, radius = AppTheme.dimensions.standardSpacing),
+                onClick = onSelectedChanged
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        if (state == RadioButtonState.Selected) {
+            Image(
+                imageResource = Icons.Filled.Check
+                    .withTint(AppColors.primary),
+                modifier = Modifier
+                    .fillMaxSize()
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .border(
+                        width = AppTheme.dimensions.composeSmallestSpacing,
+                        color = AppColors.medium,
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CircleCheckboxPreview() {
+    // Use interactive mode to preview the animation
+
+    var isChecked by remember { mutableStateOf(false) }
+
+    AppTheme {
+        AppSurface {
+            RadioCheckMark(
+                state = if (isChecked) RadioButtonState.Selected else RadioButtonState.Unselected,
+                onSelectedChanged = {
+                    isChecked = !isChecked
+                }
             )
         }
     }

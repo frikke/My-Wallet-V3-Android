@@ -1,16 +1,16 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -24,13 +24,17 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.presentation.R
+import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.CopyState
 import com.blockchain.presentation.backup.TOTAL_STEP_COUNT
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import com.blockchain.walletmode.WalletMode
 import java.util.Locale
 
 private const val STEP_INDEX = 1
@@ -65,46 +69,52 @@ fun ManualBackupScreen(
     nextOnClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
-            title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
+            title = stringResource(
+                com.blockchain.stringResources.R.string.backup_phrase_title_steps,
+                STEP_INDEX,
+                TOTAL_STEP_COUNT
+            ),
             onBackButtonClick = backOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
+        TinyVerticalSpacer()
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_spacing)),
+                .padding(dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.manual_backup_title),
+                text = stringResource(id = com.blockchain.stringResources.R.string.manual_backup_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+            SmallVerticalSpacer()
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.manual_backup_description),
-                style = ComposeTypographies.Paragraph1,
+                text = stringResource(id = com.blockchain.stringResources.R.string.manual_backup_description),
+                style = ComposeTypographies.Body1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            SmallVerticalSpacer()
 
             Mnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            SmallVerticalSpacer()
 
             CopyMnemonicCta(
                 copyState = copyState,
@@ -112,11 +122,11 @@ fun ManualBackupScreen(
                 mnemonicCopied = mnemonicCopied
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            SmallVerticalSpacer()
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.manual_backup_copy_description),
+                text = stringResource(id = com.blockchain.stringResources.R.string.manual_backup_copy_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -126,7 +136,7 @@ fun ManualBackupScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.common_next),
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_next),
                 onClick = nextOnClick
             )
         }
@@ -143,7 +153,7 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 
 @Preview(name = "Manual Backup Copy", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
-fun PreviewManualBackupScreenCopy() {
+private fun PreviewManualBackupScreenCopy() {
     ManualBackupScreen(
         mnemonic = mnemonic,
         copyState = CopyState.Idle(false),
@@ -154,9 +164,15 @@ fun PreviewManualBackupScreenCopy() {
     )
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewManualBackupScreenCopyDark() {
+    PreviewManualBackupScreenCopy()
+}
+
 @Preview(name = "Manual Backup Copied", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
-fun PreviewManualBackupScreenCopied() {
+private fun PreviewManualBackupScreenCopied() {
     ManualBackupScreen(
         mnemonic = mnemonic,
         copyState = CopyState.Copied,
@@ -165,4 +181,10 @@ fun PreviewManualBackupScreenCopied() {
         mnemonicCopied = {},
         nextOnClick = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewManualBackupScreenCopiedDark() {
+    PreviewManualBackupScreenCopied()
 }

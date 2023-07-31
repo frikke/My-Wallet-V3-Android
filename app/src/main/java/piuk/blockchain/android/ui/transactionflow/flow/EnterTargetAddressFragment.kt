@@ -10,23 +10,27 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.isVisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -39,7 +43,6 @@ import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.ui.customviews.EditTextUpdateThrottle
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
-import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -77,16 +80,24 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 onLoadError = {
                     hideTransferList()
                 }
-                onListLoaded = {
-                    if (it) hideTransferList()
+                onListLoaded = { accounts ->
+                    if (accounts.isEmpty()) hideTransferList()
+
+                    val uxErrors = accounts.mapNotNull {
+                        if (it.account !is LinkedBankAccount) return@mapNotNull null
+                        val error = it.account.capabilities?.withdrawal?.ux ?: return@mapNotNull null
+                        error
+                    }.distinct()
+                    binding.uxErrorsList.submitList(uxErrors)
                 }
             }
 
             ctaButton.apply {
                 buttonState = ButtonState.Disabled
-                text = getString(R.string.common_next)
+                text = getString(com.blockchain.stringResources.R.string.common_next)
             }
         }
+
         model.process(TransactionIntent.LoadSendToDomainBannerPref(DOMAIN_ALERT_DISMISS_KEY))
     }
 
@@ -110,8 +121,11 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         Timber.d("!TRANSACTION!> Rendering! EnterTargetAddressFragment")
 
         with(binding) {
+            listLoadingProgress.visibleIf { newState.isLoading && newState.availableTargets.isEmpty() }
 
-            listLoadingProgress.visibleIf { newState.isLoading }
+            if (newState.canSwitchBetweenAccountType && accountTypeSwitcher.isVisible().not()) {
+                showAccountTypeSwitch()
+            }
 
             if (sourceSlot == null) {
                 sourceSlot = customiser.installAddressSheetSource(requireContext(), fromDetails, newState)
@@ -120,7 +134,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 showSendNetworkWarning(newState)
                 showDomainCardAlert(newState)
             }
-            configureSwitch(newState)
+
             updateList(newState)
             sourceSlot?.update(newState)
 
@@ -143,52 +157,61 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
     }
 
     private fun updateList(newState: TransactionState) {
-        if (newState.selectedTarget == NullAddress) {
+        if (newState.selectedTarget == NullAddress && newState.availableTargets.isNotEmpty()) {
             binding.walletSelect.loadItems(
                 accountsSource = Single.just(
-                    newState.availableTargets.filterIsInstance<BlockchainAccount>().map {
-                        if (newState.action == AssetAction.Send && it is CryptoAccount) {
-                            mapToSendRecipientAccountItem(it)
-                        } else {
-                            AccountListViewItem.create(it)
-                        }
+                    newState.availableTargets.filterIsInstance<SingleAccount>().map {
+                        AccountListViewItem(
+                            account = it,
+                            showRewardsUpsell = it is EarnRewardsAccount.Interest,
+                            emphasiseNameOverCurrency = newState.action == AssetAction.Send
+                        )
                     }
                 ),
-                accountsLocksSource = Single.just(emptyList())
+                accountsLocksSource = Single.just(emptyList()),
+                showTradingAccounts = newState.showTradingAccounts,
+                canSwitchBetweenAccountTypes = newState.canSwitchBetweenAccountType
             )
         }
     }
 
-    private fun configureSwitch(newState: TransactionState) {
+    private fun showAccountTypeSwitch() {
         with(binding) {
-            val canFilterOutTradingAccounts = newState.canFilterOutTradingAccounts
-            showTradingAccounts.visibleIf { canFilterOutTradingAccounts }
-            tradingAccountsSwitch.visibleIf { canFilterOutTradingAccounts }
-            if (canFilterOutTradingAccounts) {
-                tradingAccountsSwitch.onCheckChanged = { isChecked ->
-                    transactionPrefs.showTradingAccountsOnPkwMode = isChecked
-                    model.process(TransactionIntent.FilterTradingTargets(showTrading = isChecked))
+            accountTypeSwitcher.apply {
+                tabs = listOf(
+                    getString(com.blockchain.stringResources.R.string.pkw_wallets),
+                    getString(com.blockchain.stringResources.R.string.default_label_custodial_wallets)
+                )
+                onTabChanged = { tabIndex ->
+                    model.process(TransactionIntent.SwitchAccountType(showTrading = tabIndex == 1))
                 }
-                val showTrading = transactionPrefs.showTradingAccountsOnPkwMode
-                binding.tradingAccountsSwitch.isChecked = showTrading
-                model.process(TransactionIntent.FilterTradingTargets(showTrading = showTrading))
+                initialTabIndex = 0
+                visibility = View.VISIBLE
             }
         }
+
+        model.process(TransactionIntent.SwitchAccountType(showTrading = false))
     }
 
     private fun setupLabels(state: TransactionState) {
         with(binding) {
-            titleFrom.title = customiser.selectTargetSourceLabel(state)
-            titleTo.title = customiser.selectTargetDestinationLabel(state)
-            subtitle.visibleIf { customiser.selectTargetShouldShowSubtitle(state) }
-            subtitle.text = customiser.selectTargetSubtitle(state)
+            titleFromText.text = customiser.selectTargetSourceLabel(state)
+            titleToText.text = customiser.selectTargetDestinationLabel(state)
             warningMessage.apply {
-                visibleIf { state.networkName != null }
-                text = customiser.selectTargetAddressInputWarning(state)
+                (state.sendingAsset as? AssetInfo)?.takeIf { it.isLayer2Token }?.coinNetwork?.let {
+                    visible()
+                    text = customiser.selectTargetAddressInputWarning(
+                        state.action,
+                        state.sendingAsset,
+                        it
+                    )
+                } ?: run {
+                    gone()
+                }
             }
             titlePick.apply {
                 visibleIf { customiser.selectTargetShouldShowTargetPickTitle(state) }
-                title = customiser.selectTargetAddressTitlePick(state)
+                titlePickText.text = customiser.selectTargetAddressTitlePick(state)
             }
         }
     }
@@ -212,6 +235,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 model.process(TransactionIntent.DismissSendToDomainBanner(DOMAIN_ALERT_DISMISS_KEY))
                 gone()
             }
+            isBordered = false
             visibleIf { customiser.shouldShowSendToDomainBanner(state) }
         }
     }
@@ -254,56 +278,53 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
     }
 
+    private val walletModeService: WalletModeService by scopedInject()
     private fun setupTransferList(state: TransactionState) {
         val fragmentState = customiser.enterTargetAddressFragmentState(state)
-
-        with(binding.walletSelect) {
-            initialise(
-                source = Single.just(
-                    fragmentState.accounts.filterIsInstance<BlockchainAccount>().map {
-                        if (state.action == AssetAction.Send && it is CryptoAccount) {
-                            mapToSendRecipientAccountItem(it)
-                        } else {
-                            AccountListViewItem.create(it)
+        walletModeService.walletModeSingle.subscribeBy {
+            with(binding.walletSelect) {
+                initialise(
+                    source = Single.just(
+                        fragmentState.accounts.filterIsInstance<SingleAccount>().map {
+                            AccountListViewItem(
+                                account = it,
+                                emphasiseNameOverCurrency = state.action == AssetAction.Send,
+                                showRewardsUpsell = it is EarnRewardsAccount.Interest
+                            )
                         }
-                    }
-                ),
-                status = customiser.selectTargetStatusDecorator(state),
-                shouldShowSelectionStatus = true,
-                shouldShowAddNewBankAccount = nabuUserIdentity.isArgentinian(),
-                assetAction = state.action
-            )
+                    ),
+                    status = customiser.selectTargetStatusDecorator(state, it),
+                    shouldShowSelectionStatus = true,
+                    shouldShowAddNewBankAccount = nabuUserIdentity.isArgentinian(),
+                    assetAction = state.action,
+                    showTradingAccounts = state.showTradingAccounts,
+                    canSwitchBetweenAccountTypes = state.canSwitchBetweenAccountType
+                )
 
-            onAddNewBankAccountClicked = {
-                bankAliasLinkLauncher.launch(state.sendingAccount.currency.networkTicker)
-            }
-
-            onAccountSelected = when (fragmentState) {
-                is TargetAddressSheetState.SelectAccountWhenWithinMaxLimit -> {
-                    {
-                        accountSelected(it)
-                    }
+                onAddNewBankAccountClicked = {
+                    bankAliasLinkLauncher.launch(state.sendingAccount.currency.networkTicker)
                 }
-                is TargetAddressSheetState.TargetAccountSelected -> {
-                    updatedSelectedAccount(
-                        fragmentState.accounts.filterIsInstance<BlockchainAccount>().first()
-                    )
-                    (
+
+                onAccountSelected = when (fragmentState) {
+                    is TargetAddressSheetState.SelectAccountWhenWithinMaxLimit -> {
                         {
                             accountSelected(it)
                         }
+                    }
+                    is TargetAddressSheetState.TargetAccountSelected -> {
+                        updatedSelectedAccount(
+                            fragmentState.accounts.filterIsInstance<BlockchainAccount>().first()
                         )
+                        (
+                            {
+                                accountSelected(it)
+                            }
+                            )
+                    }
                 }
             }
         }
     }
-
-    private fun mapToSendRecipientAccountItem(it: CryptoAccount) = AccountListViewItem.Crypto(
-        title = it.label,
-        subTitle = it.currency.name,
-        showRewardsUpsell = it is InterestAccount,
-        account = it
-    )
 
     private fun hideTransferList() {
         binding.titlePick.gone()
@@ -322,7 +343,13 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
     private fun onLaunchAddressScan() {
         analyticsHooks.onScanQrClicked(state)
-        QrScanActivity.start(this, QrExpected.ASSET_ADDRESS_QR(state.sendingAsset.asAssetInfoOrThrow()))
+        startActivityForResult(
+            QrScanActivity.newInstance(
+                requireContext(),
+                QrExpected.ASSET_ADDRESS_QR(state.sendingAsset.asAssetInfoOrThrow())
+            ),
+            QrScanActivity.SCAN_URI_RESULT
+        )
     }
 
     private fun addressEntered(address: String, asset: AssetInfo) {
@@ -362,15 +389,18 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                         onComplete = {
                             BlockchainSnackbar.make(
                                 binding.root,
-                                getString(R.string.scan_mismatch_transaction_target, state.sendingAsset.displayTicker),
-                                duration = Snackbar.LENGTH_SHORT,
+                                getString(
+                                    com.blockchain.stringResources.R.string.scan_mismatch_transaction_target,
+                                    state.sendingAsset.displayTicker
+                                ),
+                                duration = Snackbar.LENGTH_SHORT
                             ).show()
                         },
                         onError = {
                             BlockchainSnackbar.make(
                                 binding.root,
-                                getString(R.string.scan_failed),
-                                duration = Snackbar.LENGTH_SHORT,
+                                getString(com.blockchain.stringResources.R.string.scan_failed),
+                                duration = Snackbar.LENGTH_SHORT
                             ).show()
                         }
                     )

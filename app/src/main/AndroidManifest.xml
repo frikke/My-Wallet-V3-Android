@@ -12,6 +12,7 @@
         </intent>
     </queries>
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -27,6 +28,9 @@
         tools:node="remove" />
 
     <uses-feature android:name="android.hardware.location.gps" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:name=".BlockchainApplication"
@@ -42,11 +46,11 @@
         tools:replace="android:label, android:allowBackup, android:theme">
 
         <activity
-            android:name=".ui.launcher.LauncherActivityV2"
+            android:name=".ui.launcher.LauncherActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.Splash"
-            android:exported="true">
+            android:theme="@style/AppTheme.Splash">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/debug_shortcuts" />
@@ -88,6 +92,22 @@
                     android:host="${DEEPLINKING_URL}"
                     android:scheme="https" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="wc" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="bc-dapp-request" /> <!--allows a dapp to deeplink into our app for send/sign -->
+            </intent-filter>
         </activity>
         <activity
             android:name=".ui.linkbank.yodlee.YodleeEntryActivity"
@@ -119,16 +139,12 @@
             android:clearTaskOnLaunch="true"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".ui.educational.walletmodes.EducationalWalletModeActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
-            android:name=".ui.home.MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/AppTheme.MainActivity"
-            android:windowSoftInputMode="adjustPan" />
-        <activity
             android:name="com.blockchain.chrome.MultiAppActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:exported="true">
+        </activity>
+
         <activity
             android:name=".ui.scan.QrScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
@@ -137,9 +153,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.transfer.receive.detail.ReceiveDetailActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
-            android:name=".ui.dashboard.onboarding.DashboardOnboardingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.login.LoginActivity"
@@ -162,12 +175,13 @@
         <activity
             android:name=".ui.settings.security.pin.PinActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="true"
-            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
+            android:theme="@style/AppTheme.PinActivity"
+            android:exported="true" />
 
         <activity
             android:name=".ui.login.auth.LoginAuthActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.start.LandingActivity"
@@ -184,9 +198,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="com.blockchain.presentation.onboarding.DeFiOnboardingActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
             android:name="com.blockchain.presentation.backup.BackupPhraseActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
@@ -194,9 +205,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.airdrops.AirdropCentreActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
-            android:name=".ui.backup.BackupWalletActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.start.ManualPairingActivity"
@@ -215,18 +223,12 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.onboarding.OnboardingActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
             android:name=".ui.ssl.SSLVerifyActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.kyc.navhost.KycNavHostActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask" />
-        <activity
-            android:name=".ui.kyc.status.KycStatusActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".simplebuy.SimpleBuyActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -240,16 +242,18 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.interest.InterestDashboardActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
             android:name=".ui.linkbank.BankAuthActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
+
         <activity
             android:name=".ui.linkbank.alias.BankAliasLinkActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
+
         <activity
             android:name=".ui.transactionflow.flow.TransactionFlowActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.blockchain.transactions.NewTransactionFlowActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity"
@@ -265,10 +269,11 @@
         <activity
             android:name=".ui.settings.profile.ProfileActivity"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.dashboard.coinview.CoinViewActivity" />
-        <activity android:name=".ui.coinview.presentation.CoinViewActivityV2" />
+        <activity
+            android:name=".ui.coinview.presentation.CoinViewActivity"
+            android:exported="true" />
         <activity android:name=".ui.cowboys.CowboysFlowActivity" />
-        <activity android:name=".ui.blockchaincard.BlockchainCardActivity" />
+        <activity android:name=".cards.cvv.SecurityCodeActivity" />
 
         <!-- Force Theme.AppCompat on internal PLAID Activity to prevent crash -->
         <activity
@@ -288,7 +293,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:label="${APP_NAME}"
-            android:targetActivity=".ui.launcher.LauncherActivityV2">
+            android:targetActivity=".ui.launcher.LauncherActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -302,7 +307,7 @@
             android:exported="true"
             android:icon="@drawable/ic_blockchain_blue_circle"
             android:label="${APP_NAME}"
-            android:targetActivity=".ui.launcher.LauncherActivityV2">
+            android:targetActivity=".ui.launcher.LauncherActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -316,7 +321,7 @@
             android:exported="true"
             android:icon="@drawable/ic_blockchain"
             android:label="${APP_NAME}"
-            android:targetActivity=".ui.launcher.LauncherActivityV2">
+            android:targetActivity=".ui.launcher.LauncherActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

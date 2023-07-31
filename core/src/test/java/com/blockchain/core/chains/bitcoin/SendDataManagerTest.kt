@@ -198,7 +198,8 @@ class SendDataManagerTest {
         testObserver.assertNoErrors()
         testObserver.values()[0] shouldEqual txHash
         verify(mockPaymentService).submitBchPayment(
-            mockTx, dustInput
+            mockTx,
+            dustInput
         )
         verifyNoMoreInteractions(mockPaymentService)
     }
@@ -351,7 +352,12 @@ class SendDataManagerTest {
         val outputs = SpendableUnspentOutputs()
         whenever(
             mockPaymentService.getSpendableCoins(
-                unspent, targetOutputType, changeOutputType, payment.toBigInteger(), fee, true
+                unspent,
+                targetOutputType,
+                changeOutputType,
+                payment.toBigInteger(),
+                fee,
+                true
             )
         ).thenReturn(outputs)
         // Act
@@ -360,7 +366,12 @@ class SendDataManagerTest {
         // Assert
         result shouldEqual outputs
         verify(mockPaymentService).getSpendableCoins(
-            unspent, targetOutputType, changeOutputType, payment.toBigInteger(), fee, true
+            unspent,
+            targetOutputType,
+            changeOutputType,
+            payment.toBigInteger(),
+            fee,
+            true
         )
         verifyNoMoreInteractions(mockPaymentService)
     }

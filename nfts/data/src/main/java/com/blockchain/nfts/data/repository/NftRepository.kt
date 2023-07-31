@@ -4,6 +4,7 @@ import com.blockchain.api.nfts.data.NftAssetsDto
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.mapData
 import com.blockchain.nfts.data.dataresources.NftCollectionStore
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftAssetsPage
@@ -11,7 +12,6 @@ import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
 import com.blockchain.nfts.domain.models.NftTrait
 import com.blockchain.nfts.domain.service.NftService
-import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
 
 class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftService {

@@ -25,7 +25,7 @@ class LoginAuthModel(
             is LoginAuthIntents.GetSessionId -> getSessionId()
             is LoginAuthIntents.AuthorizeApproval ->
                 authorizeApproval(
-                    authToken = previousState.authToken,
+                    authToken = previousState.authToken
                 )
             is LoginAuthIntents.GetPayload -> getPayload(guid = previousState.guid, sessionId = previousState.sessionId)
             is LoginAuthIntents.VerifyPassword ->
@@ -84,9 +84,10 @@ class LoginAuthModel(
             .subscribeBy(
                 onSuccess = {
                     process(LoginAuthIntents.Update2FARetryCount(interactor.getRemaining2FaRetries()))
-                }, onError = { throwable ->
-                processError(throwable)
-            }
+                },
+                onError = { throwable ->
+                    processError(throwable)
+                }
             )
 
     private fun getSessionId(): Disposable? {

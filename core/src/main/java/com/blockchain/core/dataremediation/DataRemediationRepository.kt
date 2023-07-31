@@ -5,7 +5,6 @@ import com.blockchain.core.dataremediation.mapper.toDomain
 import com.blockchain.core.dataremediation.mapper.toError
 import com.blockchain.core.dataremediation.mapper.toNetwork
 import com.blockchain.domain.dataremediation.DataRemediationService
-import com.blockchain.domain.dataremediation.model.DataRemediationError
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.dataremediation.model.SubmitQuestionnaireError
@@ -19,9 +18,8 @@ class DataRemediationRepository(
 
     override suspend fun getQuestionnaire(
         questionnaireContext: QuestionnaireContext
-    ): Outcome<DataRemediationError, Questionnaire?> =
+    ): Outcome<Exception, Questionnaire?> =
         api.getQuestionnaire(questionnaireContext.toNetwork())
-            .mapError { DataRemediationError.REQUEST_FAILED }
             .map { it?.toDomain() }
 
     override suspend fun submitQuestionnaire(

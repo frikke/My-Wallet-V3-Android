@@ -15,10 +15,15 @@ class QuoteRequestBody(
 @Serializable
 class BrokerageQuoteResponse(
     val quoteId: String,
-    val price: String,
+    val price: String, // price, in target curr, for each "major unit" of source curr
+    val resultAmount: String, // target curr : (amount(major)-dynamicFee)*price - networkFee
     val quoteMarginPercent: Double,
     val quoteCreatedAt: String,
     val quoteExpiresAt: String,
+    // networkFee refers to the 2nd leg of the transaction, to in case of NC BTC -> NC ETH,
+    // it will only refer to the NC ETH networkFee, we'll still have to calculate the NC BTC networkFee ourselves
+    val networkFee: String, // destination curr
+    val staticFee: String, // source curr
     @SerialName("feeDetails")
     val feeDetails: FeeDetailsResponse,
     @SerialName("settlementDetails")

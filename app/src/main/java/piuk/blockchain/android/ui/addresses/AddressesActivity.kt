@@ -11,10 +11,12 @@ import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.consume
@@ -31,7 +33,6 @@ import piuk.blockchain.android.ui.addresses.adapter.AccountAdapter
 import piuk.blockchain.android.ui.addresses.adapter.AccountListItem
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
-import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -66,7 +67,7 @@ class AddressesActivity :
         setupBackPress()
 
         updateToolbar(
-            toolbarTitle = getString(R.string.drawer_addresses),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.drawer_addresses),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         onBackPressCloseHeaderCallback.isEnabled = binding.currencyHeader.isOpen()
@@ -119,7 +120,7 @@ class AddressesActivity :
         createNewAccount()
     }
 
-    override fun onAccountClicked(account: CryptoAccount) {
+    override fun onAccountClicked(account: SingleAccount) {
         Timber.d("Click ${account.label}")
         showBottomSheet(AccountEditSheet.newInstance(account))
     }
@@ -135,7 +136,10 @@ class AddressesActivity :
     }
 
     private fun showScanActivity() {
-        QrScanActivity.start(this, QrExpected.IMPORT_KEYS_QR)
+        startActivityForResult(
+            QrScanActivity.newInstance(this, QrExpected.IMPORT_KEYS_QR),
+            QrScanActivity.SCAN_URI_RESULT
+        )
     }
 
     private fun createNewAccount() {
@@ -144,16 +148,16 @@ class AddressesActivity :
                 onSuccess = { password ->
                     promptForAccountLabel(
                         ctx = this@AddressesActivity,
-                        title = R.string.create_a_new_wallet,
-                        msg = R.string.create_a_new_wallet_helper_text,
+                        title = com.blockchain.stringResources.R.string.create_a_new_wallet,
+                        msg = com.blockchain.stringResources.R.string.create_a_new_wallet_helper_text,
                         okAction = { presenter.createNewAccount(it, password) }
                     )
                 },
                 onComplete = {
                     promptForAccountLabel(
                         ctx = this@AddressesActivity,
-                        title = R.string.create_a_new_wallet,
-                        msg = R.string.create_a_new_wallet_helper_text,
+                        title = com.blockchain.stringResources.R.string.create_a_new_wallet,
+                        msg = com.blockchain.stringResources.R.string.create_a_new_wallet_helper_text,
                         okAction = { presenter.createNewAccount(it) }
                     )
                 },
@@ -195,7 +199,7 @@ class AddressesActivity :
                 data.getRawScanData() != null -> {
                 data.getRawScanData()?.let {
                     handleImportScan(it)
-                } ?: showError(R.string.privkey_error)
+                } ?: showError(com.blockchain.stringResources.R.string.privkey_error)
             }
             requestCode == TX_FLOW_REQUEST -> presenter.refresh(binding.currencyHeader.getSelectedCurrency())
             else -> {
@@ -226,12 +230,12 @@ class AddressesActivity :
     override fun showRenameImportedAddressDialog(account: CryptoNonCustodialAccount) =
         promptForAccountLabel(
             ctx = this,
-            title = R.string.app_name,
-            msg = R.string.label_address,
+            title = com.blockchain.stringResources.R.string.app_name,
+            msg = com.blockchain.stringResources.R.string.label_address,
             initialText = account.label,
             okAction = { presenter.updateImportedAddressLabel(it, account) },
-            okBtnText = R.string.save_name,
-            cancelText = R.string.polite_no
+            okBtnText = com.blockchain.stringResources.R.string.save_name,
+            cancelText = com.blockchain.stringResources.R.string.polite_no
         )
 
     override fun showError(@StringRes message: Int) =
@@ -260,8 +264,9 @@ class AddressesActivity :
         startActivityForResult(
             TransactionFlowActivity.newIntent(
                 context = this,
+                origin = "AddressActivity",
                 sourceAccount = sourceAccount,
-                action = AssetAction.Send
+                action = AssetAction.Send,
             ),
             TX_FLOW_REQUEST
         )

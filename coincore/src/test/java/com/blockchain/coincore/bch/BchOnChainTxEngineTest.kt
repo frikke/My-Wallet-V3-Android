@@ -215,7 +215,8 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
         val unspentOutputs = listOf<Utxo>(
-            mock(), mock()
+            mock(),
+            mock()
         )
 
         whenever(sendDataManager.getUnspentBchOutputs(SOURCE_XPUB))
@@ -288,7 +289,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).xpubAddress
-        verify(sourceAccount, times(2)).balanceRx
+        verify(sourceAccount, times(2)).balanceRx()
         verify(feeManager).bchFeeOptions
         verify(bchFeeOptions).regularFee
         verify(sendDataManager).getUnspentBchOutputs(SOURCE_XPUB)
@@ -497,11 +498,10 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<BchCryptoWalletAccount> {
             on { currency }.thenReturn(ASSET)
-            on { balanceRx }.thenReturn(
+            on { balanceRx() }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,
-                        dashboardDisplay = totalBalance,
                         withdrawable = availableBalance,
                         pending = Money.zero(totalBalance.currency),
                         exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

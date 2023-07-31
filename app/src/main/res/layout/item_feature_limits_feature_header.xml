@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/feature_limits_header"
+    android:background="@color/light"
     android:paddingTop="@dimen/tiny_spacing"
     android:paddingBottom="@dimen/tiny_spacing">
 
@@ -11,6 +11,7 @@
         style="@style/Text.Semibold.12"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/title"
         android:layout_marginStart="@dimen/standard_spacing"
         android:text="@string/feature_limits_your_limits_and_features"
         />

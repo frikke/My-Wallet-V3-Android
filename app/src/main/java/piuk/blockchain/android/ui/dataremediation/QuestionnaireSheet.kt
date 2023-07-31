@@ -15,6 +15,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.disableDragging
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.koin.payloadScope
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
@@ -30,13 +31,9 @@ class QuestionnaireSheet() :
     AndroidScopeComponent,
     QuestionnaireDropdownPickerSheet.Host {
 
-    interface Host : MVIBottomSheet.Host {
-        fun questionnaireSubmittedSuccessfully()
-        fun questionnaireSkipped()
-    }
-
-    override val host: Host by lazy {
-        (activity as? Host) ?: (parentFragment as? Host) ?: throw IllegalStateException(
+    override val host: QuestionnaireSheetHost by lazy {
+        (activity as? QuestionnaireSheetHost)
+            ?: (parentFragment as? QuestionnaireSheetHost) ?: throw IllegalStateException(
             "Host is not a QuestionnaireFragment.Host"
         )
     }
@@ -109,8 +106,9 @@ class QuestionnaireSheet() :
                         if (showsDialog) dismiss()
                     },
                     onBackClicked = {
-                        if (showsDialog) dismiss()
-                        else requireActivity().onBackPressedDispatcher.onBackPressed()
+                        if (showsDialog) {
+                            dismiss()
+                        } else requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
                 )
             }
@@ -120,13 +118,19 @@ class QuestionnaireSheet() :
     override fun onStateUpdated(state: QuestionnaireState) {
         if (state.error != null) {
             val errorMessage = when (state.error) {
-                is QuestionnaireError.InvalidNode -> getString(R.string.kyc_additional_info_invalid_node_error)
+                is QuestionnaireError.InvalidNode -> getString(
+                    com.blockchain.stringResources.R.string.kyc_additional_info_invalid_node_error
+                )
                 is QuestionnaireError.InvalidOpenEndedRegexMatch ->
-                    getString(R.string.questionnaire_error_invalid_format)
-                is QuestionnaireError.Unknown -> state.error.message ?: getString(R.string.server_unreachable_exit)
+                    getString(com.blockchain.stringResources.R.string.questionnaire_error_invalid_format)
+                is QuestionnaireError.Unknown -> state.error.message ?: getString(
+                    com.blockchain.stringResources.R.string.server_unreachable_exit
+                )
             }
             BlockchainSnackbar.make(
-                requireView(), errorMessage, type = SnackbarType.Error
+                requireView(),
+                errorMessage,
+                type = SnackbarType.Error
             ).show()
             model.onIntent(QuestionnaireIntent.ErrorHandled)
         }

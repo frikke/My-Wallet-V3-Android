@@ -7,27 +7,24 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
+import com.blockchain.coincore.loader.HistoricActiveBalancesRepository
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.isErc20
-import com.blockchain.core.chains.ethereum.EthDataManager
-import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.chains.ethereum.EvmNetworksService
 import com.blockchain.core.fees.FeeDataManager
-import com.blockchain.core.kyc.domain.KycService
-import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.scopedInject
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 
 internal class Erc20Asset(
     override val currency: AssetInfo,
@@ -35,82 +32,51 @@ internal class Erc20Asset(
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     private val labels: DefaultLabels,
+    private val currencyPrefs: CurrencyPrefs,
     private val formatUtils: FormatUtilities,
-    private val addressResolver: EthHotWalletAddressResolver,
-    private val layerTwoFeatureFlag: FeatureFlag,
-    private val coinNetworksFeatureFlag: FeatureFlag,
-    private val evmNetworks: Single<List<EvmNetwork>>,
-    private val tradingService: TradingService,
-    private val kycService: KycService,
-    private val walletModeService: WalletModeService
+    private val historicActiveBalancesRepository: HistoricActiveBalancesRepository,
+    private val addressResolver: EthHotWalletAddressResolver
 ) : CryptoAssetBase() {
     private val erc20address
         get() = erc20DataManager.accountHash
 
-    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Singles.zip(
-            layerTwoFeatureFlag.enabled,
-            coinNetworksFeatureFlag.enabled
-        )
-            .flatMap { (isL2Enabled, isCoinNetworksEnabled) ->
-                when {
-                    isL2Enabled && isCoinNetworksEnabled -> {
-                        // Find the correct network from the new coin networks endpoint
-                        evmNetworks.map { networks ->
-                            loadNonCustodialAccount(networks)
-                        }
-                    }
-                    isL2Enabled -> {
-                        // Get the network from the remote config
-                        erc20DataManager.getSupportedNetworks().map { networks ->
-                            loadNonCustodialAccount(networks.toList())
-                        }
-                    }
-                    else -> {
-                        Single.fromCallable {
-                            // Only load ERC20 accounts on the Ethereum network when the FF is disabled
-                            if (
-                                currency.categories.contains(AssetCategory.NON_CUSTODIAL) &&
-                                CryptoCurrency.ETHER.networkTicker == currency.l1chainTicker
-                            ) {
-                                listOf(getNonCustodialAccount(EthDataManager.ethChain))
-                            } else {
-                                emptyList()
-                            }
-                        }
-                    }
-                }
-            }
+    private val coinNetwork: CoinNetwork
+        get() = currency.coinNetwork!!
 
-    private fun loadNonCustodialAccount(supportedNetworks: List<EvmNetwork>): SingleAccountList {
-        return if (currency.categories.contains(AssetCategory.NON_CUSTODIAL)) {
-            supportedNetworks.firstOrNull { evmNetwork ->
-                evmNetwork.networkTicker == currency.l1chainTicker
-            }?.let { evmNetwork ->
-                listOf(getNonCustodialAccount(evmNetwork))
-            } ?: emptyList()
-        } else {
-            emptyList()
-        }
+    private val evmNetworksService: EvmNetworksService by scopedInject()
+
+    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
+        if (AssetCategory.NON_CUSTODIAL !in currency.categories) return Single.just(emptyList())
+        return evmNetworksService.allEvmNetworks()
+            .zipWith(historicActiveBalancesRepository.currencyWasFunded(currency)) { networks, isFunded ->
+                networks to isFunded
+            }.map { (networks, isFunded) ->
+                networks.firstOrNull { network -> network.networkTicker == coinNetwork.networkTicker }?.let { network ->
+                    if (network.networkTicker in listOf("MATIC", "ETH") || isFunded) {
+                        listOf(getNonCustodialAccount(network))
+                    } else {
+                        emptyList()
+                    }
+                } ?: emptyList()
+            }
     }
 
-    private fun getNonCustodialAccount(evmNetwork: EvmNetwork): Erc20NonCustodialAccount =
+    private fun getNonCustodialAccount(evmNetwork: CoinNetwork): Erc20NonCustodialAccount =
         Erc20NonCustodialAccount(
             currency,
             erc20DataManager,
             erc20address,
             feeDataManager,
             labels.getDefaultNonCustodialWalletLabel(),
+            currencyPrefs,
             exchangeRates,
             walletPreferences,
-            custodialManager,
             addressResolver,
             evmNetwork
         )
 
     @CommonCode("Exists in EthAsset")
     override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> {
-
         return if (address.startsWith(FormatUtilities.ETHEREUM_PREFIX)) {
             processEip681Format(address, label, isDomainAddress)
         } else {
@@ -119,7 +85,7 @@ internal class Erc20Asset(
                     if (isValid) {
                         erc20DataManager.isContractAddress(
                             address = address,
-                            l1Chain = currency.l1chainTicker
+                            l1Chain = coinNetwork.networkTicker
                         )
                             .flatMapMaybe { isContract ->
                                 Maybe.just(
@@ -165,7 +131,8 @@ internal class Erc20Asset(
             it.startsWith(ERC20_ADDRESS_AMOUNT_PART, true)
         }?.let { param ->
             CryptoValue.fromMinor(
-                currency, param.removePrefix(ERC20_ADDRESS_AMOUNT_PART).toBigDecimal()
+                currency,
+                param.removePrefix(ERC20_ADDRESS_AMOUNT_PART).toBigDecimal()
             )
         }
 
@@ -175,7 +142,7 @@ internal class Erc20Asset(
 
         return erc20DataManager.isContractAddress(
             address = addressSegment,
-            l1Chain = currency.l1chainTicker
+            l1Chain = coinNetwork.networkTicker
         )
             .flatMapMaybe { isContract ->
                 Maybe.just(
@@ -205,9 +172,9 @@ internal class Erc20Address(
     override val isDomain: Boolean = false,
     override val amount: Money? = null,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
-    val isContract: Boolean = false,
+    val isContract: Boolean = false
 ) : CryptoAddress {
     init {
-        require(asset.isErc20())
+        require(asset.isLayer2Token)
     }
 }

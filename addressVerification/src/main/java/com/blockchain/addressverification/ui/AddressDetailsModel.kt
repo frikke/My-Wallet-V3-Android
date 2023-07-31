@@ -10,5 +10,5 @@ data class AddressDetailsModel(
     val address: String? = null,
     val postalCode: String? = null,
     val locality: String? = null,
-    val stateIso: StateIso? = null,
+    val stateIso: StateIso? = null
 ) : Parcelable

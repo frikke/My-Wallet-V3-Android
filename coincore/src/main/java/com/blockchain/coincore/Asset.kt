@@ -1,11 +1,9 @@
 package com.blockchain.coincore
 
-import android.os.Parcelable
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.walletmode.WalletMode
@@ -15,8 +13,8 @@ import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import java.io.Serializable
 import kotlinx.coroutines.flow.Flow
-import kotlinx.parcelize.Parcelize
 
 enum class AssetFilter {
     All,
@@ -24,14 +22,14 @@ enum class AssetFilter {
     Trading,
     Interest,
     Staking,
-    Custodial // Trading + Interest + Staking (Accounts held by Blockchain.com)
+    ActiveRewards,
+    Custodial // Trading + Interest + Staking + ActiveRewards (Accounts held by Blockchain.com)
 }
 
 fun WalletMode.defaultFilter(): AssetFilter =
     when (this) {
-        WalletMode.NON_CUSTODIAL_ONLY -> AssetFilter.NonCustodial
-        WalletMode.CUSTODIAL_ONLY -> AssetFilter.Custodial
-        WalletMode.UNIVERSAL -> AssetFilter.All
+        WalletMode.NON_CUSTODIAL -> AssetFilter.NonCustodial
+        WalletMode.CUSTODIAL -> AssetFilter.Custodial
     }
 
 enum class ActionOrigin {
@@ -40,7 +38,7 @@ enum class ActionOrigin {
 }
 
 enum class AssetAction(
-    val origin: ActionOrigin,
+    val origin: ActionOrigin
 ) {
     // Display account activity
     ViewActivity(ActionOrigin.FROM_SOURCE),
@@ -81,44 +79,46 @@ enum class AssetAction(
     // External fiat to custodial fiat
     FiatDeposit(ActionOrigin.FROM_SOURCE),
 
-    // Receive crypto to crypto
+    // Sign Crypto Transaction
     Sign(ActionOrigin.FROM_SOURCE),
 
     // Receive to a Staking account
-    StakingDeposit(ActionOrigin.FROM_SOURCE);
+    StakingDeposit(ActionOrigin.FROM_SOURCE),
+
+    // Withdraw from a Staking account
+    StakingWithdraw(ActionOrigin.FROM_SOURCE),
+
+    // Receive to an ActiveRewards account
+    ActiveRewardsDeposit(ActionOrigin.FROM_SOURCE),
+
+    // Withdraw from an ActiveRewards account
+    ActiveRewardsWithdraw(ActionOrigin.FROM_SOURCE)
 }
 
-@Parcelize
 data class StateAwareAction(
     val state: ActionState,
-    val action: AssetAction,
-) : java.io.Serializable, Parcelable
+    val action: AssetAction
+) : Serializable
 
-sealed class ActionState : Parcelable {
-    @Parcelize
-    object Available : ActionState()
+sealed class ActionState : Serializable {
+    object Available : ActionState(), Serializable
 
-    @Parcelize
-    object LockedForBalance : ActionState()
+    object LockedForBalance : ActionState(), Serializable
 
-    @Parcelize
-    object LockedForTier : ActionState()
+    object LockedForTier : ActionState(), Serializable
 
-    @Parcelize
-    data class LockedDueToSanctions(val reason: BlockedReason.Sanctions) : ActionState()
+    data class LockedDueToSanctions(val reason: BlockedReason.Sanctions) : ActionState(), Serializable
 
-    @Parcelize
-    object LockedDueToAvailability : ActionState()
+    object LockedDueToAvailability : ActionState(), Serializable
 
-    @Parcelize
-    object Unavailable : ActionState()
+    object Unavailable : ActionState(), Serializable
 }
 
 typealias AvailableActions = Set<AssetAction>
 
 internal inline fun AssetAction.takeEnabledIf(
     baseActions: AvailableActions,
-    predicate: (AssetAction) -> Boolean = { true },
+    predicate: (AssetAction) -> Boolean = { true }
 ): AssetAction? =
     this.takeIf { it in baseActions && predicate(this) }
 
@@ -128,11 +128,12 @@ internal fun FeatureAccess.Blocked.toActionState(): ActionState = when (val reas
     is BlockedReason.NotEligible -> ActionState.Unavailable
     is BlockedReason.TooManyInFlightTransactions -> ActionState.Unavailable
     is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> ActionState.Unavailable
+    is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning -> ActionState.Unavailable
 }
 
 interface Asset {
     val currency: Currency
-    fun defaultAccount(): Single<SingleAccount>
+    fun defaultAccount(filter: AssetFilter): Single<SingleAccount>
     fun accountGroup(filter: AssetFilter = AssetFilter.All): Maybe<AccountGroup>
     fun transactionTargets(account: SingleAccount): Single<SingleAccountList>
     fun parseAddress(address: String, label: String? = null, isDomainAddress: Boolean = false): Maybe<ReceiveAddress>
@@ -148,13 +149,10 @@ interface Asset {
     fun historicRate(epochWhen: Long): Single<ExchangeRate>
 
     // flow
-    fun getPricesWith24hDelta(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
-    ): Flow<DataResource<Prices24HrWithDelta>>
+    fun getPricesWith24hDelta(): Flow<DataResource<Prices24HrWithDelta>>
 
     fun historicRateSeries(
-        period: HistoricalTimeSpan,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        period: HistoricalTimeSpan
     ): Flow<DataResource<HistoricalRateList>>
 }
 
@@ -162,6 +160,7 @@ interface CryptoAsset : Asset {
     override val currency: AssetInfo
     fun interestRate(): Single<Double>
     fun stakingRate(): Single<Double>
+    fun activeRewardsRate(): Single<Double>
 }
 
 interface MultipleWalletsAsset {
@@ -172,7 +171,7 @@ interface MultipleWalletsAsset {
         keyData: String,
         keyFormat: String,
         keyPassword: String? = null, // Required for BIP38 format keys
-        walletSecondPassword: String? = null,
+        walletSecondPassword: String? = null
     ): Single<out SingleAccount>
 }
 

@@ -26,9 +26,9 @@ object MetadataUtil {
 
     @Throws(IOException::class)
     fun message(payload: ByteArray, prevMagicHash: ByteArray?): ByteArray {
-        return if (prevMagicHash == null)
+        return if (prevMagicHash == null) {
             payload
-        else {
+        } else {
             val payloadHash = Sha256Hash.hash(payload)
 
             val outputStream = ByteArrayOutputStream()
@@ -83,7 +83,6 @@ object MetadataUtil {
      */
     @Throws(NoSuchAlgorithmException::class, UnsupportedEncodingException::class)
     private fun getPurpose(sub: String): Int {
-
         val md = MessageDigest.getInstance("SHA-256")
         val text = "info.blockchain.$sub"
         md.update(text.toByteArray(charset("UTF-8")))

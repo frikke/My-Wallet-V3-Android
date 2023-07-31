@@ -6,14 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="@dimen/standard_spacing">
+    android:padding="@dimen/standard_spacing"
+    tools:background="@color/backgroundSecondary">
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <com.blockchain.componentlib.sheets.SheetNubView
         android:id="@+id/backup_sheet_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        app:srcCompat="@drawable/vector_sheet_indicator_small" />
+        android:layout_gravity="center" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/dialog_icon"
@@ -32,6 +32,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/small_spacing"
         android:textAlignment="center"
+        android:textColor="@color/title"
         tools:text="Connect to Exchange" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -42,6 +43,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/small_spacing"
         android:textAlignment="center"
+        android:textColor="@color/body"
         tools:text="Connect to Exchange" />
 
     <com.blockchain.componentlib.tag.TagsRowView
@@ -58,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/small_spacing" />
 
-    <com.blockchain.componentlib.button.MinimalButtonView
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/exchange_secondary_cta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

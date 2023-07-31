@@ -1,7 +1,7 @@
+apply from: rootProject.file('gradle/local/common-feature.gradle')
 apply plugin: 'java-library'
 apply from: 'integrationTest.gradle'
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature.gradle')
 
 group = 'info.blockchain'
 
@@ -10,12 +10,12 @@ tasks.withType(JavaCompile) {
 }
 
 task sourceJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
 
@@ -26,6 +26,8 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':logging:domain')
     implementation project(':blockchainApi')
+    implementation project(":store:caches:persistedjsonsqldelight")
+    implementation project(":store:core")
 
     // Expose Kotlin to all parent modules
     implementation Libraries.kotlin
@@ -61,6 +63,8 @@ dependencies {
     implementation Libraries.protobuf
     implementation Libraries.findbugs
     api Libraries.guava
+
+    implementation Libraries.sunriver
 
     // Injection
     implementation Libraries.koin

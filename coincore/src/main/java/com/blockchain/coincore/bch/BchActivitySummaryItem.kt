@@ -11,14 +11,15 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 
-/*internal*/ class BchActivitySummaryItem internal constructor(
+/*internal*/
+class BchActivitySummaryItem internal constructor(
     private val transactionSummary: TransactionSummary,
     override val exchangeRates: ExchangeRatesDataManager,
     override val account: CryptoAccount,
     private val payloadDataManager: PayloadDataManager
 ) : NonCustodialActivitySummaryItem() {
 
-    override val asset = CryptoCurrency.BCH
+    override val currency = CryptoCurrency.BCH
     override val transactionType: TransactionSummary.TransactionType = transactionSummary.transactionType
     override val timeStampMs: Long = transactionSummary.time * 1000
 

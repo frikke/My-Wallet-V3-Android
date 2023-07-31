@@ -189,8 +189,8 @@
                 android:paddingStart="4dp"
                 android:paddingTop="@dimen/tiny_spacing"
                 android:paddingBottom="@dimen/tiny_spacing"
-                android:tint="@color/black"
-                app:srcCompat="@drawable/ic_qr_scan" />
+                app:srcCompat="@drawable/ic_qr_scan"
+                app:tint="@color/black" />
 
         </LinearLayout>
 
@@ -234,7 +234,7 @@
             android:layout_marginStart="@dimen/tiny_spacing"
             android:layout_marginEnd="@dimen/tiny_spacing"
             android:paddingBottom="@dimen/tiny_spacing"
-            android:textColor="@color/product_red_medium"
+            android:textColor="@color/error"
             android:textSize="16sp"
             tools:text="@string/archive" />
 

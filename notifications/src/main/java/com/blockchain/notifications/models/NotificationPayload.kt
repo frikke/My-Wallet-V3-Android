@@ -26,11 +26,13 @@ class NotificationPayload(map: Map<String, String?>) {
 
     val type: NotificationType?
         get() =
-            if (data != null)
+            if (data != null) {
                 data!!.type
-            else if (payload[TYPE] != null)
+            } else if (payload[TYPE] != null) {
                 NotificationType.fromString(payload[TYPE])
-            else null
+            } else {
+                null
+            }
 
     val mdid: String?
         get() = data?.mdid

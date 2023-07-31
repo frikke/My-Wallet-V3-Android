@@ -1,6 +1,6 @@
 package com.blockchain.domain.paymentmethods.model
 
-import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import kotlinx.serialization.Serializable
 
 data class CardToBeActivated(val partner: Partner, val cardId: String)
@@ -44,24 +44,12 @@ sealed class CardRejectionState : java.io.Serializable {
 
     @Serializable
     data class MaybeRejected(
-        val errorId: String?,
-        val title: String?,
-        val description: String?,
-        val actions: List<ServerErrorAction> = emptyList(),
-        val iconUrl: String?,
-        val statusIconUrl: String?,
-        val analyticsCategories: List<String>
+        val error: ServerSideUxErrorInfo
     ) : CardRejectionState(), java.io.Serializable
 
     @Serializable
     data class AlwaysRejected(
-        val errorId: String?,
-        val title: String?,
-        val description: String?,
-        val actions: List<ServerErrorAction> = emptyList(),
-        val iconUrl: String?,
-        val statusIconUrl: String?,
-        val analyticsCategories: List<String>
+        val error: ServerSideUxErrorInfo?
     ) : CardRejectionState(), java.io.Serializable
 }
 

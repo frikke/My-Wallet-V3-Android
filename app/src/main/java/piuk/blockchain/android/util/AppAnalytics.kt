@@ -2,7 +2,7 @@ package piuk.blockchain.android.util
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 import java.io.Serializable
 
 sealed class AppAnalytics(
@@ -39,7 +39,7 @@ sealed class AppAnalytics(
             INSTALLED_VERSION to installedVersion,
             BUILD to currentVersionName,
             VERSION to currentVersionCode.toString()
-        ).withoutNullValues()
+        ).filterNotNullValues()
     )
 
     object AppBackgrounded : AppAnalytics(AnalyticsNames.APP_BACKGROUNDED.eventName)

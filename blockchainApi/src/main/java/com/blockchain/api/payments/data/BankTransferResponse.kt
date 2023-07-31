@@ -259,7 +259,9 @@ data class BankInfoResponse(
     @SerialName("isBankTransferAccount")
     val isBankTransferAccount: Boolean,
     @SerialName("attributes")
-    val attributes: BankInfoAttributes?
+    val attributes: BankInfoAttributes?,
+    // optional since only ACH will support it initially, if null then we assume all capabilities are enabled
+    val capabilities: BankTransferCapabilitiesResponse?
 ) {
     companion object {
         const val ACTIVE = "ACTIVE"
@@ -267,6 +269,19 @@ data class BankInfoResponse(
         const val BLOCKED = "BLOCKED"
     }
 }
+
+@Serializable
+data class BankTransferCapabilitiesResponse(
+    val deposit: BankTransferCapabilityResponse?,
+    val withdrawal: BankTransferCapabilityResponse?,
+    val brokerage: BankTransferCapabilityResponse?
+)
+
+@Serializable
+data class BankTransferCapabilityResponse(
+    val enabled: Boolean,
+    val ux: NabuUxErrorResponse?
+)
 
 @Serializable
 data class BankTransferChargeResponse(

@@ -9,7 +9,7 @@ sealed class KycProfileIntent : Intent<KycProfileModelState> {
     data class DateOfBirthInputChanged(val value: Calendar) : KycProfileIntent()
     object ContinueClicked : KycProfileIntent() {
         override fun isValidFor(modelState: KycProfileModelState): Boolean =
-            !modelState.isSavingAddressLoading
+            !modelState.isSavingProfileLoading
     }
     object ErrorHandled : KycProfileIntent()
 }

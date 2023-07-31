@@ -8,7 +8,9 @@ import org.spongycastle.crypto.InvalidCipherTextException
 
 object AESUtilWrapper {
     @Throws(
-        UnsupportedEncodingException::class, InvalidCipherTextException::class, DecryptionException::class
+        UnsupportedEncodingException::class,
+        InvalidCipherTextException::class,
+        DecryptionException::class
     )
     fun decrypt(ciphertext: String, password: String, iterations: Int): String {
         return AESUtil.decrypt(ciphertext, password, iterations)

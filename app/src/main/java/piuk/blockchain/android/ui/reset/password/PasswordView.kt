@@ -57,16 +57,20 @@ class PasswordView @JvmOverloads constructor(
             return when {
                 password != confirmedPassword -> {
                     confirmPasswordTextLayout.setErrorState(
-                        context.resources.getString(R.string.password_mismatch_error)
+                        context.resources.getString(com.blockchain.stringResources.R.string.password_mismatch_error)
                     )
                     false
                 }
                 password.length < MIN_LENGTH -> {
-                    passwordTextLayout.setErrorState(context.resources.getString(R.string.invalid_password_too_short))
+                    passwordTextLayout.setErrorState(
+                        context.resources.getString(com.blockchain.stringResources.R.string.invalid_password_too_short)
+                    )
                     false
                 }
                 PasswordUtil.getStrength(password).roundToInt() < minPasswordStrength -> {
-                    passwordTextLayout.setErrorState(context.resources.getString(R.string.weak_password))
+                    passwordTextLayout.setErrorState(
+                        context.resources.getString(com.blockchain.stringResources.R.string.weak_password)
+                    )
                     false
                 }
                 else -> true

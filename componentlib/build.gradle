@@ -18,23 +18,27 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion Versions.compose
+        kotlinCompilerExtensionVersion Versions.composeCompiler
     }
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    namespace 'com.blockchain.componentlib'
 }
 
 dependencies {
+    implementation project(':componentlib-icons')
     implementation project(':string-resources')
     implementation project(':common:interface')
+    implementation project(':analytics:domain')
 
     implementation Libraries.appCompat
     implementation Libraries.design
     implementation Libraries.glide
     implementation Libraries.constraintLayout
+    implementation Libraries.customTabs
 
     implementation Libraries.lifecycleViewModel
     implementation Libraries.lifecycleViewModelExtensions
@@ -50,16 +54,26 @@ dependencies {
     implementation Libraries.exoPlayer
     implementation Libraries.accompanistSystemUi
     implementation Libraries.accompanistDrawablePainter
+    implementation Libraries.accompanistPermissions
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.koin
     implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
     implementation Libraries.lifecycleRuntime
     implementation Libraries.composeMarkdown
     implementation Libraries.accompanistSwipeRefresh
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
+    implementation (Libraries.composeLandScapist) {
+        exclude group: 'androidx.compose.foundation'
+    }
+
+    implementation Libraries.kotlinImmutableCollections
 
     androidTestImplementation Libraries.composeUiTest
     debugImplementation Libraries.composeUiTooling
     debugImplementation Libraries.composeUiPoolingContainer
+
 
     // Unit Tests
     testImplementation Libraries.junit

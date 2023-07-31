@@ -8,12 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
+import com.blockchain.componentlib.alert.CustomEmptyState
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.nabu.BlockedReason
-import com.blockchain.presentation.openUrl
-import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 
@@ -33,10 +35,10 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
             return ComposeView(requireContext()).apply {
                 setContent {
                     CustomEmptyState(
-                        title = R.string.account_restricted,
+                        title = com.blockchain.stringResources.R.string.account_restricted,
                         descriptionText = descriptionText,
-                        icon = R.drawable.ic_wallet_intro_image,
-                        ctaText = R.string.common_learn_more,
+                        icon = Icons.Filled.User,
+                        ctaText = com.blockchain.stringResources.R.string.common_learn_more,
                         ctaAction = {
                             actionUrl?.let {
                                 context.openUrl(it)
@@ -52,7 +54,7 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
     @Composable
     override fun Sheet() {
         BottomSheetTwoButtons(
-            title = getString(R.string.account_restricted),
+            title = getString(com.blockchain.stringResources.R.string.account_restricted),
             showTitleInHeader = true,
             subtitle = descriptionText,
             shouldShowHeaderDivider = false,
@@ -60,16 +62,16 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
             headerImageResource = null,
             button1 = BottomSheetButton(
                 type = ButtonType.MINIMAL,
-                text = stringResource(R.string.common_learn_more),
+                text = stringResource(com.blockchain.stringResources.R.string.common_learn_more),
                 onClick = {
                     actionUrl?.let {
-                        context.openUrl(it)
+                        context?.openUrl(it)
                     }
                 }
             ),
             button2 = BottomSheetButton(
                 type = ButtonType.PRIMARY,
-                text = stringResource(R.string.common_i_understand),
+                text = stringResource(com.blockchain.stringResources.R.string.common_i_understand),
                 onClick = { dismiss() }
             )
         )

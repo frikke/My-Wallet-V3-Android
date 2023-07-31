@@ -1,6 +1,5 @@
 package com.blockchain.bitpay.models.exceptions
 
-import android.annotation.SuppressLint
 import retrofit2.Response
 
 class BitPayApiException private constructor(message: String) : Throwable(message) {
@@ -9,8 +8,6 @@ class BitPayApiException private constructor(message: String) : Throwable(messag
     lateinit var _error: String
 
     companion object {
-
-        @SuppressLint("SyntheticAccessor")
         fun fromResponseBody(response: Response<*>?): BitPayApiException {
             val bitpayErrorResponse = response?.errorBody()!!.string()
             val httpErrorCode = response.code()

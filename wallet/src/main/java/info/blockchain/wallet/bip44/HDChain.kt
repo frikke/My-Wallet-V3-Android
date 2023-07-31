@@ -13,6 +13,7 @@ class HDChain private constructor(
     aKey: DeterministicKey
 ) {
     private val childKey: DeterministicKey
+
     // Return BIP44 path for this chain (m / purpose' / coin_type' / account' / chain).
     val path: String
     val xpub: String

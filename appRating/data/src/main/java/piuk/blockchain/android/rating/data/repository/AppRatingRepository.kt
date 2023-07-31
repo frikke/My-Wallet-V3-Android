@@ -1,20 +1,22 @@
 package piuk.blockchain.android.rating.data.repository
 
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.data.asSingle
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.getOrDefault
+import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.awaitOutcome
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.rating.data.api.AppRatingApi
 import piuk.blockchain.android.rating.data.model.AppRatingApiKeys
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteConfig
@@ -44,7 +46,6 @@ internal class AppRatingRepository(
 
     override fun postRatingData(appRating: AppRating) {
         coroutineScope.launch(dispatcher) {
-
             // get api keys from remote config
             val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().getOrDefault(null)
 
@@ -86,12 +87,14 @@ internal class AppRatingRepository(
         }
     }
 
-    private suspend fun isKycGold(): Boolean = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD)).await()
+    private suspend fun isKycGold(): Boolean =
+        userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD)).awaitOutcome().getOrDefault(false)
 
     private suspend fun hasWithdrawalLocks(): Boolean {
-        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->
-            return fundsLocks.onHoldTotalAmount.isPositive
-        }
+        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).asSingle().awaitOutcome().getOrNull()
+            ?.let { fundsLocks ->
+                return fundsLocks.onHoldTotalAmount.isPositive
+            } ?: return false
     }
 
     /**

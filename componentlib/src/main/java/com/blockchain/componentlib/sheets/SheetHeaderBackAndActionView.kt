@@ -31,7 +31,7 @@ class SheetHeaderBackAndActionView @JvmOverloads constructor(
                     onBackPress = onBackPress,
                     actionType = actionType,
                     onActionPress = onActionPress,
-                    backPressContentDescription = backPressContentDescription,
+                    backPressContentDescription = backPressContentDescription
                 )
             }
         }

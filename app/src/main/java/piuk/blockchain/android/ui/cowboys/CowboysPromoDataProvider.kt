@@ -84,7 +84,7 @@ private data class CowboysData(
     val header: MediaInfo?,
     val icon: UrlInfo?,
     val style: StyleInfo?,
-    val actions: List<ActionData>,
+    val actions: List<ActionData>
 ) {
     fun toDomain(): PromotionStyleInfo =
         PromotionStyleInfo(

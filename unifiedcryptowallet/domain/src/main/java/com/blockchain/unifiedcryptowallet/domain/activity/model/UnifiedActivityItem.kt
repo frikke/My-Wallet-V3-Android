@@ -1,5 +1,6 @@
 package com.blockchain.unifiedcryptowallet.domain.activity.model
 
+import com.blockchain.image.LogoValue
 import java.util.Calendar
 import kotlin.math.sign
 
@@ -22,7 +23,7 @@ sealed interface ActivityDetailGroups {
     data class GroupedItems(
         val title: String,
         val subtitle: String,
-        val icon: ActivityIcon,
+        val icon: LogoValue,
         val detailItems: List<ActivityDetailGroup>,
         val actionItems: List<ActivityDataItem>
     ) : ActivityDetailGroups

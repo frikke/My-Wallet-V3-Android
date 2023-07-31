@@ -5,12 +5,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.auth.SecureChannelBrowserMessage
+import com.blockchain.home.presentation.navigation.AuthNavigationHost
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import com.blockchain.presentation.koin.scopedInject
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.AuthNewLoginSheetBinding
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginBrowserInfo
 import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginIpAddress
@@ -20,12 +21,8 @@ import piuk.blockchain.android.ui.login.LoginAnalytics
 class AuthNewLoginSheet :
     MviBottomSheet<AuthNewLoginModel, AuthNewLoginIntents, AuthNewLoginState, AuthNewLoginSheetBinding>() {
 
-    interface Host : SlidingModalBottomDialog.Host {
-        fun navigateToBottomSheet(bottomSheet: BottomSheetDialogFragment)
-    }
-
-    override val host: Host by lazy {
-        super.host as? Host
+    override val host: AuthNavigationHost by lazy {
+        super.host as? AuthNavigationHost
             ?: throw IllegalStateException("Host fragment is not a AuthNewLoginSheet.Host")
     }
 
@@ -58,10 +55,18 @@ class AuthNewLoginSheet :
                 addItemDecoration(BlockchainListDividerDecor(requireContext()))
                 adapter = listAdapter
             }
-            approveButton.setOnClickListener { onApproveClicked() }
-            denyButton.setOnClickListener {
-                model.process(AuthNewLoginIntents.LoginDenied)
-                host.navigateToBottomSheet(AuthConfirmationSheet(isApproved = false))
+            approveButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.auth_new_login_approve_cta)
+                onClick = {
+                    onApproveClicked()
+                }
+            }
+            denyButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.auth_new_login_deny_cta)
+                onClick = {
+                    model.process(AuthNewLoginIntents.LoginDenied)
+                    host.navigateToBottomSheet(AuthConfirmationSheet(isApproved = false))
+                }
             }
         }
     }
@@ -79,7 +84,6 @@ class AuthNewLoginSheet :
                     pubKeyHash = bundle.pubKeyHash,
                     message = bundle.message,
                     items = items,
-                    forcePin = bundle.getBoolean(FORCE_PIN),
                     originIp = bundle.originIp
                 )
             )
@@ -97,9 +101,10 @@ class AuthNewLoginSheet :
         )
 
     private val Bundle?.message
-        get() = this?.getParcelable<SecureChannelBrowserMessageArg>(MESSAGE) ?: throw IllegalArgumentException(
-            "Message should not be null"
-        )
+        get() = this?.getSerializable(MESSAGE) as? SecureChannelBrowserMessage
+            ?: throw IllegalArgumentException(
+                "Message should not be null"
+            )
 
     private val Bundle?.originIp
         get() = this?.getString(ORIGIN_IP) ?: throw IllegalArgumentException(
@@ -119,16 +124,13 @@ class AuthNewLoginSheet :
     companion object {
         const val PUB_KEY_HASH = "PUB_KEY_HASH"
         const val MESSAGE = "MESSAGE"
-        const val FORCE_PIN = "FORCE_PIN"
         const val ORIGIN_IP = "ORIGIN_IP"
         const val ORIGIN_LOCATION = "ORIGIN_LOCATION"
         const val ORIGIN_BROWSER = "ORIGIN_BROWSER"
 
-        // todo (othman): with new MVI this will be bundled into one ARG class
         fun newInstance(
             pubKeyHash: String?,
-            message: SecureChannelBrowserMessageArg?,
-            forcePin: Boolean?,
+            message: SecureChannelBrowserMessage,
             originIP: String?,
             originLocation: String?,
             originBrowser: String?
@@ -136,8 +138,7 @@ class AuthNewLoginSheet :
             AuthNewLoginSheet().apply {
                 arguments = Bundle().apply {
                     putString(PUB_KEY_HASH, pubKeyHash)
-                    putParcelable(MESSAGE, message)
-                    putBoolean(FORCE_PIN, forcePin ?: false)
+                    putSerializable(MESSAGE, message)
                     putString(ORIGIN_IP, originIP)
                     putString(ORIGIN_LOCATION, originLocation)
                     putString(ORIGIN_BROWSER, originBrowser)

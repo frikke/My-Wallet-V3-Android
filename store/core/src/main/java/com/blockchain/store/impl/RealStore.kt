@@ -2,7 +2,10 @@ package com.blockchain.store.impl
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.internalnotifications.NotificationReceiver
 import com.blockchain.store.Cache
+import com.blockchain.store.CacheConfiguration
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.FetcherResult
@@ -10,10 +13,8 @@ import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
@@ -21,13 +22,24 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class RealStore<K : Any, T : Any>(
     private val scope: CoroutineScope,
     private val fetcher: Fetcher<K, T>,
     private val cache: Cache<K, T>,
-    private val mediator: Mediator<K, T>
+    private val mediator: Mediator<K, T>,
+    private val reset: CacheConfiguration,
+    private val notificationReceiver: NotificationReceiver
 ) : KeyedStore<K, T> {
+
+    init {
+        scope.launch {
+            notificationReceiver.events.collect { event ->
+                if (event in reset.flushEvents)
+                    markStoreAsStale()
+            }
+        }
+    }
+
     override fun stream(request: KeyedFreshnessStrategy<K>): Flow<DataResource<T>> =
         when (request) {
             is KeyedFreshnessStrategy.Cached -> buildCachedFlow(request)
@@ -35,7 +47,7 @@ class RealStore<K : Any, T : Any>(
         }.distinctUntilChanged()
 
     private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow {
-
+        val requestRefreshStrategy = request.refreshStrategy
         val networkLock = CompletableDeferred<Unit>()
         scope.launch {
             networkLock.await()
@@ -45,6 +57,7 @@ class RealStore<K : Any, T : Any>(
                     // we're relying on the cache to emit the new value
                     cache.write(CachedData(request.key, result.value, System.currentTimeMillis()))
                 }
+
                 is FetcherResult.Failure -> send(DataResource.Error(result.error))
             }
         }
@@ -57,7 +70,16 @@ class RealStore<K : Any, T : Any>(
             // calls, in these cases we don't want to check for staleness and always emit.
             // This is done so even if the mediator considers a network response stale we don't skip that emission
             val isStale = isFirstEmission && isStale(cachedData)
-            val shouldFetch = isFirstEmission && (request.forceRefresh || isStale)
+            val isRequestForcingRefresh = when (requestRefreshStrategy) {
+                RefreshStrategy.ForceRefresh -> true
+                RefreshStrategy.RefreshIfStale -> false
+                is RefreshStrategy.RefreshIfOlderThan ->
+                    cachedData == null ||
+                        // The phone clock was changed
+                        System.currentTimeMillis() < cachedData.lastFetched ||
+                        System.currentTimeMillis() > cachedData.lastFetched + requestRefreshStrategy.toMillis()
+            }
+            val shouldFetch = isFirstEmission && (isRequestForcingRefresh || isStale)
             val shouldEmit = cachedData != null && !isStale
 
             if (shouldEmit) send(DataResource.Data(cachedData!!.data))
@@ -79,6 +101,7 @@ class RealStore<K : Any, T : Any>(
                 cache.write(CachedData(request.key, result.value, System.currentTimeMillis()))
                 send(DataResource.Data(result.value))
             }
+
             is FetcherResult.Failure -> send(DataResource.Error(result.error))
         }
 

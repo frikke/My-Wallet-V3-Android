@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemCheckoutComplexInfoBinding
@@ -32,7 +33,9 @@ class ComplexConfirmationCheckoutDelegate(private val mapper: TxConfirmReadOnlyM
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as ComplexConfirmationCheckoutItemItemViewHolder).bind(
-        items[position]
+        items[position],
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -41,8 +44,10 @@ private class ComplexConfirmationCheckoutItemItemViewHolder(
     private val mapper: TxConfirmReadOnlyMapperCheckout
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: TxConfirmationValue) {
+    fun bind(item: TxConfirmationValue, isFirstItemInList: Boolean, isLastItemInList: Boolean) {
         with(binding) {
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
             mapper.map(item).run {
                 complexItemLabel.text = this[ConfirmationPropertyKey.LABEL] as String
                 complexItemTitle.text = this[ConfirmationPropertyKey.TITLE] as String
@@ -74,9 +79,9 @@ private class ComplexConfirmationCheckoutItemItemViewHolder(
 
                 this[ConfirmationPropertyKey.IS_IMPORTANT]?.let { isImportant ->
                     if (isImportant as Boolean) {
-                        complexItemTitle.setTextAppearance(R.style.Text_Semibold_16)
+                        complexItemTitle.setTextAppearance(com.blockchain.common.R.style.Text_Semibold_16)
                     } else {
-                        complexItemTitle.setTextAppearance(R.style.Text_Standard_14)
+                        complexItemTitle.setTextAppearance(com.blockchain.common.R.style.Text_Standard_14)
                     }
                 }
             }
@@ -85,11 +90,11 @@ private class ComplexConfirmationCheckoutItemItemViewHolder(
 
     private fun TextView.highlightNewQuote(isHighlight: Boolean) {
         if (isHighlight) {
-            this.setTextColor(ContextCompat.getColor(this.context, R.color.blue_600))
-            this.setTextColor(ContextCompat.getColor(this.context, R.color.blue_600))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.componentlib.R.color.primary))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.componentlib.R.color.primary))
         } else {
-            this.setTextColor(ContextCompat.getColor(this.context, R.color.grey_800))
-            this.setTextColor(ContextCompat.getColor(this.context, R.color.grey_800))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.componentlib.R.color.body))
+            this.setTextColor(ContextCompat.getColor(this.context, com.blockchain.componentlib.R.color.body))
         }
     }
 }

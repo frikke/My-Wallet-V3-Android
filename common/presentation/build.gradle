@@ -6,8 +6,9 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion Versions.compose
+        kotlinCompilerExtensionVersion Versions.composeCompiler
     }
+    namespace 'com.blockchain.common'
 }
 
 dependencies {
@@ -20,6 +21,7 @@ dependencies {
     implementation project(':commonarch')
     implementation project(':analytics:domain')
     implementation project(':coincore')
+    implementation project(':store:core')
 
     // Compose
     implementation Libraries.composeUi
@@ -32,9 +34,12 @@ dependencies {
     implementation Libraries.composeUiPoolingContainer
     implementation Libraries.accompanistSystemUi
     implementation Libraries.accompanistNavigationMaterial
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
 
     implementation Libraries.rxJava
     implementation Libraries.rxAndroid
     implementation Libraries.koin
     implementation Libraries.rxKotlin
+    implementation Libraries.kotlinImmutableCollections
 }

@@ -31,9 +31,9 @@ data class SimpleBuyEligibilityDto(
 data class SimpleBuyCurrency(val currency: String)
 
 @Serializable
-data class BankAccountResponse(
+data class CustodialAccountResponse(
     val address: String,
-    val agent: BankAgentResponse,
+    val agent: CustodialAccountAgentResponse,
     val currency: String,
     val state: String?,
     val partner: String?
@@ -45,7 +45,51 @@ data class BankAccountResponse(
 }
 
 @Serializable
-data class BankAgentResponse(
+data class WireTransferAccountDetailsResponse(
+    val address: String,
+    val content: WireTransferDetailsResponse,
+    val currency: String,
+    val state: String?,
+    val partner: String?
+)
+
+@Serializable
+data class WireTransferDetailsResponse(
+    val sections: List<WireTransferDetailsSectionResponse>,
+    val footers: List<WireTransferDetailsFooterResponse>
+)
+
+@Serializable
+data class WireTransferDetailsSectionResponse(
+    val name: String,
+    val entries: List<WireTransferDetailsSectionEntryResponse>
+)
+
+@Serializable
+data class WireTransferDetailsSectionEntryResponse(
+    val title: String,
+    val message: String,
+    val isImportant: Boolean?,
+    val help: String?
+)
+
+@Serializable
+data class WireTransferDetailsFooterResponse(
+    val title: String,
+    val message: String,
+    val icon: String?,
+    val isImportant: Boolean?,
+    val actions: List<WireTransferDetailsAction>?
+)
+
+@Serializable
+data class WireTransferDetailsAction(
+    val title: String,
+    val url: String?
+)
+
+@Serializable
+data class CustodialAccountAgentResponse(
     val account: String? = null,
     val address: String? = null,
     val label: String? = null,
@@ -202,10 +246,13 @@ class ProductTransferRequestBody(
 
 @Serializable
 data class PaymentAttributesResponse(
+    val paymentId: String? = null,
     val everypay: EverypayPaymentAttributesResponse? = null,
     val authorisationUrl: String? = null,
     val error: String? = null,
-    val cardProvider: CardProviderPaymentAttributesResponse? = null
+    val cardProvider: CardProviderPaymentAttributesResponse? = null,
+    val needCvv: Boolean? = false,
+    val cardCassy: CardProviderPaymentAttributesResponse? = null
 )
 
 @Serializable
@@ -329,6 +376,7 @@ data class TransactionResponse(
         const val BANK_TRANSFER_PAYMENT_REJECTED = "BANK_TRANSFER_PAYMENT_REJECTED"
         const val BANK_TRANSFER_PAYMENT_EXPIRED = "BANK_TRANSFER_PAYMENT_EXPIRED"
         const val WITHDRAWAL = "WITHDRAWAL"
+        const val DEBIT = "DEBIT"
     }
 }
 
@@ -346,7 +394,7 @@ data class TransactionAttributesResponse(
 @Serializable
 data class TransactionBeneficiaryResponse(
     val accountRef: String? = null,
-    val user: String? = null,
+    val user: String? = null
 )
 
 @Serializable

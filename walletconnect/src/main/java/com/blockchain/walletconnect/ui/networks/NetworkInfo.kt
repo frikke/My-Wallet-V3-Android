@@ -1,6 +1,5 @@
 package com.blockchain.walletconnect.ui.networks
 
-import com.blockchain.core.chains.ethereum.EthDataManager
 import info.blockchain.balance.CryptoCurrency
 import java.io.Serializable
 
@@ -14,8 +13,10 @@ data class NetworkInfo(
         val defaultEvmNetworkInfo = NetworkInfo(
             CryptoCurrency.ETHER.networkTicker,
             CryptoCurrency.ETHER.name,
-            EthDataManager.ethChain.chainId,
+            ETH_CHAIN_ID,
             CryptoCurrency.ETHER.logo
         )
     }
 }
+
+const val ETH_CHAIN_ID = 1

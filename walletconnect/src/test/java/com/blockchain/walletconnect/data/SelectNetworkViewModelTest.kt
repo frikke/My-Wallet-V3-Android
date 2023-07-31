@@ -3,13 +3,14 @@ package com.blockchain.walletconnect.data
 import app.cash.turbine.test
 import com.blockchain.coincore.Asset
 import com.blockchain.coincore.Coincore
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletconnect.ui.networks.SelectNetworkIntents
 import com.blockchain.walletconnect.ui.networks.SelectNetworkViewModel
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.NetworkType
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
@@ -47,18 +48,18 @@ class SelectNetworkViewModelTest {
     fun `load supported networks successfully and selects preselected`() = runTest {
         val ethNetworkInfoNoLogo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
-            name = ethEvmNetwork.networkName,
-            chainId = ethEvmNetwork.chainId,
+            name = ethEvmNetwork.name,
+            chainId = ethEvmNetwork.chainId!!
         )
 
         val ethNetworkInfo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
-            name = ethEvmNetwork.networkName,
-            chainId = ethEvmNetwork.chainId,
+            name = ethEvmNetwork.name,
+            chainId = ethEvmNetwork.chainId!!,
             logo = "logo"
         )
 
-        every { ethDataManager.supportedNetworks } returns Single.just(setOf(ethEvmNetwork))
+        every { ethDataManager.supportedNetworks } returns Single.just(listOf(ethEvmNetwork))
         every { coincore[ethEvmNetwork.networkTicker] } returns asset
 
         subject.viewState.test {
@@ -77,31 +78,30 @@ class SelectNetworkViewModelTest {
 
     @Test
     fun `select specified network`() = runTest {
-
         val ethNetworkInfoNoLogo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
-            name = ethEvmNetwork.networkName,
-            chainId = ethEvmNetwork.chainId,
+            name = ethEvmNetwork.name,
+            chainId = ethEvmNetwork.chainId!!
         )
         val ethNetworkInfo = NetworkInfo(
             networkTicker = ethEvmNetwork.networkTicker,
-            name = ethEvmNetwork.networkName,
-            chainId = ethEvmNetwork.chainId,
+            name = ethEvmNetwork.name,
+            chainId = ethEvmNetwork.chainId!!,
             logo = "logo"
         )
         val otherEvmNetworkInfoNoLogo = NetworkInfo(
             networkTicker = otherEvmNetwork.networkTicker,
-            name = otherEvmNetwork.networkName,
-            chainId = otherEvmNetwork.chainId,
+            name = otherEvmNetwork.name,
+            chainId = otherEvmNetwork.chainId!!
         )
         val otherEvmNetworkInfo = NetworkInfo(
             networkTicker = otherEvmNetwork.networkTicker,
-            name = otherEvmNetwork.networkName,
-            chainId = otherEvmNetwork.chainId,
+            name = otherEvmNetwork.name,
+            chainId = otherEvmNetwork.chainId!!,
             logo = "logo"
         )
 
-        every { ethDataManager.supportedNetworks } returns Single.just(setOf(ethEvmNetwork, otherEvmNetwork))
+        every { ethDataManager.supportedNetworks } returns Single.just(listOf(ethEvmNetwork, otherEvmNetwork))
         every { coincore[ethEvmNetwork.networkTicker] } returns asset
         every { coincore[otherEvmNetwork.networkTicker] } returns asset
 
@@ -126,12 +126,17 @@ class SelectNetworkViewModelTest {
 
     companion object {
         private const val ETH_CHAIN_ID = 1
-        private val ethEvmNetwork = EvmNetwork(
-            "ETH",
-            "Ethereum",
-            ETH_CHAIN_ID,
-            "",
-            ""
+        private val ethEvmNetwork = CoinNetwork(
+            explorerUrl = "https://eth.io/transactions",
+            nativeAssetTicker = "ETH",
+            networkTicker = "ETH",
+            name = "Ethereum",
+            shortName = "Ethereum",
+            isMemoSupported = false,
+            type = NetworkType.EVM,
+            chainId = 1,
+            feeCurrencies = listOf("native"),
+            nodeUrls = listOf("sfasdsa")
         )
         private val evmAsset = CryptoCurrency(
             displayTicker = "EVM",
@@ -141,16 +146,20 @@ class SelectNetworkViewModelTest {
             precisionDp = 1,
             requiredConfirmations = 1,
             colour = "",
-            logo = "logo",
-            isErc20 = true
+            logo = "logo"
         )
         private const val EVM_CHAIN_ID = 2
-        private val otherEvmNetwork = EvmNetwork(
-            "OTHER",
-            "Other",
-            EVM_CHAIN_ID,
-            "",
-            ""
+        private val otherEvmNetwork = CoinNetwork(
+            explorerUrl = "https://eth.io/transactions",
+            nativeAssetTicker = "OTHER",
+            networkTicker = "OTHER",
+            name = "Other",
+            shortName = "Other",
+            isMemoSupported = false,
+            type = NetworkType.EVM,
+            chainId = 2,
+            feeCurrencies = listOf("native"),
+            nodeUrls = listOf("sfasdsa")
         )
     }
 }

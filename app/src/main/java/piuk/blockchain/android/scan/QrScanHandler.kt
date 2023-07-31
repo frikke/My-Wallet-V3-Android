@@ -20,8 +20,10 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.filterByAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.home.presentation.navigation.ScanResult
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
+import com.blockchain.walletconnect.domain.WalletConnectV2UrlValidator
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.util.FormatsUtil
@@ -32,37 +34,10 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.MaybeSubject
 import io.reactivex.rxjava3.subjects.SingleSubject
-import java.security.KeyPair
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrCodeType
-
-sealed class ScanResult(
-    val isDeeplinked: Boolean
-) {
-    class HttpUri(
-        val uri: String,
-        isDeeplinked: Boolean
-    ) : ScanResult(isDeeplinked)
-
-    class TxTarget(
-        val targets: Set<CryptoTarget>,
-        isDeeplinked: Boolean
-    ) : ScanResult(isDeeplinked)
-
-    class ImportedWallet(
-        val keyPair: KeyPair
-    ) : ScanResult(false)
-
-    class SecuredChannelLogin(
-        val handshake: String
-    ) : ScanResult(false)
-
-    class WalletConnectRequest(
-        val data: String
-    ) : ScanResult(false)
-}
 
 class QrScanError(val errorCode: ErrorCode, msg: String) : Exception(msg) {
     enum class ErrorCode {
@@ -75,6 +50,7 @@ class QrScanError(val errorCode: ErrorCode, msg: String) : Exception(msg) {
 class QrScanResultProcessor(
     private val bitPayDataManager: BitPayDataManager,
     private val walletConnectUrlValidator: WalletConnectUrlValidator,
+    private val walletConnectV2UrlValidator: WalletConnectV2UrlValidator,
     private val analytics: Analytics
 ) {
 
@@ -92,7 +68,10 @@ class QrScanResultProcessor(
                     ScanResult.TxTarget(setOf(it), isDeeplinked)
                 }
             scanResult.isJson() -> Single.just(ScanResult.SecuredChannelLogin(scanResult))
-            walletConnectUrlValidator.isUrlValid(scanResult) -> Single.just(ScanResult.WalletConnectRequest(scanResult))
+            walletConnectUrlValidator.isUrlValid(scanResult) ->
+                Single.just(ScanResult.WalletConnectRequest(scanResult))
+            walletConnectV2UrlValidator.validateURI(scanResult) ->
+                Single.just(ScanResult.WalletConnectV2Request(scanResult))
             else -> {
                 val addressParser: AddressFactory = payloadScope.get()
                 addressParser.parse(scanResult)
@@ -139,8 +118,8 @@ class QrScanResultProcessor(
 
         val subject = SingleSubject.create<CryptoTarget>()
 
-        AlertDialog.Builder(activity, R.style.AlertDialogStyle)
-            .setTitle(R.string.confirm_currency)
+        AlertDialog.Builder(activity, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.confirm_currency)
             .setCancelable(true)
             .setSingleChoiceItems(
                 selectList,
@@ -191,7 +170,9 @@ class QrScanResultProcessor(
                         1 -> subject.onSuccess(accounts[0] as CryptoAccount)
                         0 -> subject.onComplete()
                         else -> showAccountSelectionDialog(
-                            activity, subject, Single.just(accounts)
+                            activity,
+                            subject,
+                            Single.just(accounts)
                         )
                     }
                 },
@@ -213,8 +194,9 @@ class QrScanResultProcessor(
             }
 
             override fun onSheetClosed() {
-                if (!subject.hasValue())
+                if (!subject.hasValue()) {
                     subject.onComplete()
+                }
             }
         }
 
@@ -224,7 +206,7 @@ class QrScanResultProcessor(
                 source.map { list ->
                     list.map { it as CryptoAccount }
                 },
-                R.string.select_send_source_title
+                com.blockchain.stringResources.R.string.select_send_source_title
             )
         )
     }
@@ -233,6 +215,7 @@ class QrScanResultProcessor(
 private fun ScanResult.type(): QrCodeType {
     return when (this) {
         is ScanResult.HttpUri -> QrCodeType.DEEPLINK
+        is ScanResult.WalletConnectV2Request,
         is ScanResult.WalletConnectRequest -> QrCodeType.DAPP
         is ScanResult.SecuredChannelLogin -> QrCodeType.LOG_IN
         is ScanResult.TxTarget,

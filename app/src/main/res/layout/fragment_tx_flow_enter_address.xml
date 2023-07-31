@@ -4,45 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/subtitle"
-        style="@style/Text.Standard.16"
+    <com.blockchain.componentlib.control.TabSwitcherView
+        android:id="@+id/account_type_switcher"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_spacing"
-        android:layout_marginTop="@dimen/tiny_spacing"
-        android:layout_marginEnd="@dimen/standard_spacing"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Blurb about screen" />
-
-    <com.blockchain.componentlib.control.PrimarySwitchView
-        android:id="@+id/trading_accounts_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_spacing"
-        android:layout_marginEnd="@dimen/standard_spacing"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/subtitle" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/show_trading_accounts"
-        style="@style/Text.Standard.16"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_spacing"
-        android:layout_marginEnd="@dimen/standard_spacing"
-        android:text="@string/show_trading_accounts"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/trading_accounts_switch"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/trading_accounts_switch"
-        tools:text="Show trading accounts" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -53,39 +24,85 @@
         android:fillViewport="true"
         android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toTopOf="@id/cta_button"
-        app:layout_constraintTop_toBottomOf="@+id/trading_accounts_switch">
+        app:layout_constraintTop_toBottomOf="@id/account_type_switcher">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true">
 
-            <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+            <piuk.blockchain.android.ui.customviews.account.UxErrorsList
+                android:id="@+id/ux_errors_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/small_spacing"
+                android:layout_marginTop="@dimen/small_spacing"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/title_from"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/small_spacing"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/small_spacing"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/ux_errors_list">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/title_from_text"
+                    style="@style/TextAppearance.Blockchain.Caption2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/title"
+                    tools:text="From" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="@dimen/tiny_spacing"
+                    android:background="@color/medium" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <FrameLayout
                 android:id="@+id/from_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/small_spacing"
+                android:layout_marginStart="@dimen/small_spacing"
+                android:layout_marginTop="@dimen/tiny_spacing"
+                android:layout_marginEnd="@dimen/small_spacing"
+                android:background="@drawable/bkgd_white_large_rounding"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/title_from" />
 
-            <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/title_to"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/small_spacing"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/small_spacing"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/from_details" />
+                app:layout_constraintTop_toBottomOf="@id/from_details">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/title_to_text"
+                    style="@style/TextAppearance.Blockchain.Caption2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/title"
+                    tools:text="From" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="@dimen/tiny_spacing"
+                    android:background="@color/medium" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <!-- Visibility is deliberately set to gone here to prevent the bottom sheet from taking up unnecessary space -->
             <ViewSwitcher
@@ -107,13 +124,13 @@
                     android:imeOptions="actionDone"
                     android:inputType="textNoSuggestions"
                     android:paddingStart="@dimen/very_small_spacing"
-                    android:paddingTop="@dimen/very_small_spacing"
+                    android:paddingTop="@dimen/tiny_spacing"
                     android:paddingEnd="@dimen/very_small_spacing"
                     android:paddingBottom="@dimen/very_small_spacing"
                     app:boxStrokeColor="@color/text_input_color_states"
                     app:endIconDrawable="@drawable/ic_qr_scan_inverse"
                     app:endIconMode="custom"
-                    app:endIconTint="@color/grey_400"
+                    app:endIconTint="@color/body"
                     app:expandedHintEnabled="true"
                     app:hintEnabled="false"
                     app:hintTextAppearance="@style/TextAppearance.Blockchain.Body1"
@@ -125,26 +142,22 @@
                         android:id="@+id/field_address"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bkgd_white_large_rounding"
                         android:hint="@string/send_enter_asset_address_or_domain_hint"
                         android:inputType="textNoSuggestions"
                         android:maxLines="1" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/warning_message"
+                        style="@style/TextAppearance.Blockchain.Paragraph1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bkgd_orange_100_rounded"
-                        android:drawableStart="@drawable/ic_information"
-                        android:drawableEnd="@drawable/ic_arrow_right"
-                        android:drawablePadding="@dimen/minuscule_spacing"
-                        android:drawableTint="@color/orange_300"
-                        android:layout_marginStart="@dimen/tiny_spacing"
                         android:layout_marginTop="@dimen/minuscule_spacing"
                         android:padding="@dimen/tiny_spacing"
-                        tools:text="Text"
-                        android:textColor="@color/orange_600"
+                        android:textColor="@color/body"
                         android:visibility="gone"
                         app:layout_constraintTop_toBottomOf="@id/qrImage"
+                        tools:text="Text"
                         tools:visibility="visible" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -165,6 +178,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/minuscule_spacing"
+                        android:tint="@color/background"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:srcCompat="@drawable/ic_close_circle_grey" />
@@ -216,31 +230,48 @@
                 android:id="@+id/domains_alert"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_spacing"
-                android:layout_marginTop="@dimen/medium_spacing"
-                android:layout_marginEnd="@dimen/standard_spacing"
+                android:layout_marginHorizontal="@dimen/small_spacing"
+                android:layout_marginTop="@dimen/tiny_spacing"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/send_network_warning_description" />
 
-            <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/title_pick"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/standard_spacing"
+                android:layout_marginTop="@dimen/small_spacing"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/small_spacing"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/domains_alert" />
+                app:layout_constraintTop_toBottomOf="@id/domains_alert">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/title_pick_text"
+                    style="@style/TextAppearance.Blockchain.Caption2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/body"
+                    tools:text="From" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="@dimen/tiny_spacing"
+                    android:background="@color/medium" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <!-- Visibility is deliberately set to gone here to prevent the bottom sheet from taking up unnecessary space -->
             <piuk.blockchain.android.ui.customviews.account.AccountList
                 android:id="@+id/wallet_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/very_small_spacing"
-                android:layout_marginBottom="@dimen/small_spacing"
+                android:layout_marginTop="@dimen/tiny_spacing"
+                android:clipToPadding="false"
                 android:nestedScrollingEnabled="false"
+                android:paddingBottom="@dimen/small_spacing"
                 app:layout_constrainedHeight="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -264,7 +295,7 @@
         app:layout_constraintBottom_toTopOf="@id/cta_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/show_trading_accounts"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.6"
         tools:visibility="visible" />
 

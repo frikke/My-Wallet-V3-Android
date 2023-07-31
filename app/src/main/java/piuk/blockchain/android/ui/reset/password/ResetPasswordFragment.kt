@@ -83,10 +83,11 @@ class ResetPasswordFragment :
                 binding.progressBar.gone()
                 BlockchainSnackbar.make(
                     binding.root,
-                    getString(R.string.common_error),
+                    getString(com.blockchain.stringResources.R.string.common_error),
                     type = SnackbarType.Error
                 ).show()
             }
+
             ResetPasswordStatus.SHOW_SUCCESS -> {
                 analytics.logEvent(AccountRecoveryAnalytics.PasswordReset(shouldRecoverAccount))
                 binding.progressBar.gone()
@@ -99,28 +100,33 @@ class ResetPasswordFragment :
                     )
                 )
             }
+
             ResetPasswordStatus.CREATE_WALLET,
             ResetPasswordStatus.RECOVER_ACCOUNT,
             ResetPasswordStatus.SET_PASSWORD,
             ResetPasswordStatus.RESET_KYC -> binding.progressBar.visible()
+
             ResetPasswordStatus.SHOW_WALLET_CREATION_FAILED -> {
                 binding.progressBar.gone()
                 showResetPasswordAgainDialog()
             }
+
             ResetPasswordStatus.SHOW_ACCOUNT_RESET_FAILED -> {
                 binding.progressBar.gone()
                 showFundRecoveryFailureUI()
             }
+
             ResetPasswordStatus.SHOW_RESET_KYC_FAILED -> {
                 BlockchainSnackbar.make(
                     binding.root,
-                    getString(R.string.reset_password_kyc_reset_failed_message),
+                    getString(com.blockchain.stringResources.R.string.reset_password_kyc_reset_failed_message),
                     type = SnackbarType.Error
                 ).show()
                 for (i in 0 until parentFragmentManager.backStackEntryCount) {
                     parentFragmentManager.popBackStack()
                 }
             }
+
             else -> {
                 binding.progressBar.gone()
             }
@@ -129,19 +135,26 @@ class ResetPasswordFragment :
 
     private fun showFundRecoveryFailureUI() {
         with(binding) {
-            contactSupportCta.setOnClickListener {
-                requireContext().startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse(CONTACT_SUPPORT_FUNDS_RECOVERY)
+
+            contactSupportCta.apply {
+                text = getString(com.blockchain.stringResources.R.string.contact_support)
+                onClick = {
+                    requireContext().startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(CONTACT_SUPPORT_FUNDS_RECOVERY)
+                        )
                     )
-                )
+                }
             }
 
             fundRecoveryFailedNotice.apply {
                 text = StringUtils.getResolvedStringWithAppendedMappedLearnMore(
-                    getString(R.string.fund_recovery_failed_label), R.string.common_linked_learn_more,
-                    FUNDS_RECOVERY_INFO, requireContext(), R.color.blue_600
+                    getString(com.blockchain.stringResources.R.string.fund_recovery_failed_label),
+                    com.blockchain.stringResources.R.string.common_linked_learn_more,
+                    FUNDS_RECOVERY_INFO,
+                    requireContext(),
+                    com.blockchain.common.R.color.blue_600
                 )
                 movementMethod = LinkMovementMethod.getInstance()
             }
@@ -157,9 +170,9 @@ class ResetPasswordFragment :
 
     private fun showResetPasswordAgainDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle(R.string.reset_password_wallet_failed_title)
-            .setMessage(R.string.reset_password_wallet_failed_message)
-            .setPositiveButton(R.string.common_try_again) { di, _ ->
+            .setTitle(com.blockchain.stringResources.R.string.reset_password_wallet_failed_title)
+            .setMessage(com.blockchain.stringResources.R.string.reset_password_wallet_failed_message)
+            .setPositiveButton(com.blockchain.stringResources.R.string.common_try_again) { di, _ ->
                 initScreen()
                 di.dismiss()
             }
@@ -177,6 +190,7 @@ class ResetPasswordFragment :
                         shouldResetKyc = shouldResetKyc
                     )
                 }
+
                 shouldRecoverAccount ->
                     ResetPasswordIntents.CreateWalletForAccount(
                         email = email,
@@ -186,6 +200,7 @@ class ResetPasswordFragment :
                         walletName = defaultLabels.getDefaultNonCustodialWalletLabel(),
                         shouldResetKyc = shouldResetKyc
                     )
+
                 else -> ResetPasswordIntents.UpdateStatus(ResetPasswordStatus.SHOW_ERROR)
             }
         )
@@ -194,7 +209,7 @@ class ResetPasswordFragment :
     private fun FragmentPasswordResetBinding.initControls() {
         backButton.setOnClickListener { parentFragmentManager.popBackStack() }
 
-        continueButton.setOnClickListener {
+        continueButton.onClick = {
             if (passwordView.isPasswordValid()) {
                 processPassword(passwordView.getEnteredPassword())
             }
@@ -202,7 +217,7 @@ class ResetPasswordFragment :
     }
 
     private fun FragmentPasswordResetBinding.initUI(shouldResetKyc: Boolean) {
-        resetPasswordTitle.text = getString(R.string.common_reset_password)
+        resetPasswordTitle.text = getString(com.blockchain.stringResources.R.string.common_reset_password)
         optionalResetPasswordLabel.visibleIf { !shouldResetKyc }
         val linksMap = mapOf<String, Uri>(
             "terms" to Uri.parse(URL_TOS_POLICY),
@@ -211,20 +226,20 @@ class ResetPasswordFragment :
         privacyNotice.apply {
             text = StringUtils.getStringWithMappedAnnotations(
                 context = requireContext(),
-                stringId = R.string.you_agree_terms_of_service,
+                stringId = com.blockchain.stringResources.R.string.you_agree_terms_of_service,
                 linksMap = linksMap
             )
             movementMethod = LinkMovementMethod.getInstance()
             visibleIf { shouldResetKyc }
         }
         resetKycNotice.apply {
-            text = getString(R.string.reset_kyc_notice_1)
+            text = getString(com.blockchain.stringResources.R.string.reset_kyc_notice_1)
             visibleIf { shouldResetKyc }
         }
         continueButton.text = if (!shouldResetKyc) {
-            getString(R.string.common_continue)
+            getString(com.blockchain.stringResources.R.string.common_continue)
         } else {
-            getString(R.string.common_reset_password)
+            getString(com.blockchain.stringResources.R.string.common_reset_password)
         }
     }
 

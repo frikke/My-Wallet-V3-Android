@@ -4,6 +4,7 @@
     <dimen name="borderRadiiSmallest">4dp</dimen>
     <dimen name="borderRadiiSmall">8dp</dimen>
     <dimen name="borderRadiiMedium">16dp</dimen>
+    <dimen name="borderRadiiStandard">24dp</dimen>
     <dimen name="borderRadiiLarge">100dp</dimen>
 
     <dimen name="epic_spacing">72dp</dimen>

@@ -59,9 +59,12 @@ abstract class MviModel<S : MviState, I : MviIntent<S>>(
                 }
         }
 
+    private val wasPermanentlyDisabled = PublishSubject.create<Unit>()
+
     init {
         disposables +=
             intents.distinctUntilChanged(::distinctIntentFilter)
+                .takeUntil(wasPermanentlyDisabled)
                 .observeOn(Schedulers.io())
                 .scan(initialState) { previousState, intent ->
                     Timber.d("***> Model: ProcessIntent: ${intent.javaClass.simpleName}")
@@ -88,6 +91,10 @@ abstract class MviModel<S : MviState, I : MviIntent<S>>(
 
     fun destroy() {
         disposables.clear()
+    }
+
+    fun disablePermanently() {
+        wasPermanentlyDisabled.onNext(Unit)
     }
 
     protected open fun distinctIntentFilter(previousIntent: I, nextIntent: I): Boolean {

@@ -1,8 +1,9 @@
 package com.blockchain.presentation.sheets
 
-import android.app.Dialog
 import android.os.Bundle
-import android.widget.FrameLayout
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
@@ -10,6 +11,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.common.R
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetOneButton
@@ -17,13 +19,10 @@ import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.presentation.extensions.getAccount
 import com.blockchain.presentation.extensions.putAccount
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
 
-class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
+class NoBalanceActionBottomSheet : ThemedBottomSheetFragment() {
 
     interface Host {
         fun navigateToAction(
@@ -49,26 +48,14 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
 
     private val canBuy by lazy { arguments?.getBoolean(CAN_BUY) ?: false }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = BottomSheetDialog(requireActivity())
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val details = getNoBalanceExplainerDetails(selectedAccount, assetAction, canBuy)
 
-        dialog.setContentView(
-            ComposeView(requireContext()).apply {
-                setContent {
-                    ScreenContent(details)
-                }
+        return ComposeView(requireContext()).apply {
+            setContent {
+                ScreenContent(details)
             }
-        )
-
-        dialog.setOnShowListener {
-            val d = it as BottomSheetDialog
-            val layout =
-                d.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
-            BottomSheetBehavior.from(layout).state = BottomSheetBehavior.STATE_EXPANDED
         }
-        return dialog
     }
 
     @Composable
@@ -133,25 +120,28 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
         var actionName = ""
         when (assetAction) {
             AssetAction.Send -> {
-                actionName = getString(R.string.common_send)
+                actionName = getString(com.blockchain.stringResources.R.string.common_send)
                 icon = R.drawable.ic_tx_sent
             }
             AssetAction.Swap -> {
-                actionName = getString(R.string.common_swap)
+                actionName = getString(com.blockchain.stringResources.R.string.common_swap)
                 icon = R.drawable.ic_tx_swap
             }
             AssetAction.Sell -> {
-                actionName = getString(R.string.common_sell)
+                actionName = getString(com.blockchain.stringResources.R.string.common_sell)
                 icon = R.drawable.ic_tx_sell
             }
             AssetAction.InterestWithdraw,
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.StakingWithdraw,
             AssetAction.FiatWithdraw -> {
-                actionName = getString(R.string.common_withdraw)
+                actionName = getString(com.blockchain.stringResources.R.string.common_withdraw)
                 icon = R.drawable.ic_tx_withdraw
             }
             AssetAction.InterestDeposit,
-            AssetAction.StakingDeposit -> {
-                actionName = getString(R.string.common_transfer)
+            AssetAction.StakingDeposit,
+            AssetAction.ActiveRewardsDeposit -> {
+                actionName = getString(com.blockchain.stringResources.R.string.common_transfer)
                 icon = R.drawable.ic_tx_interest
             }
             AssetAction.ViewActivity,
@@ -164,27 +154,45 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
 
         val sheetTitle = when (assetAction) {
             AssetAction.StakingDeposit,
-            AssetAction.InterestDeposit -> getString(R.string.no_balance_sheet_earn_title, assetTicker)
-            else -> getString(R.string.coinview_no_balance_sheet_title, assetTicker, actionName)
+            AssetAction.InterestDeposit -> getString(
+                com.blockchain.stringResources.R.string.no_balance_sheet_earn_title,
+                assetTicker
+            )
+            else -> getString(
+                com.blockchain.stringResources.R.string.coinview_no_balance_sheet_title,
+                assetTicker,
+                actionName
+            )
         }
         val sheetSubtitle = when (assetAction) {
             AssetAction.StakingDeposit,
-            AssetAction.InterestDeposit -> getString(R.string.no_balance_sheet_earn_subtitle, assetTicker)
-            else -> getString(R.string.coinview_no_balance_sheet_subtitle, assetTicker, accountLabel, actionName)
+            AssetAction.InterestDeposit,
+            AssetAction.ActiveRewardsDeposit -> getString(
+                com.blockchain.stringResources.R.string.no_balance_sheet_earn_subtitle,
+                assetTicker
+            )
+            else -> getString(
+                com.blockchain.stringResources.R.string.coinview_no_balance_sheet_subtitle,
+                assetTicker,
+                accountLabel,
+                actionName
+            )
         }
 
         val sheetIcon = ImageResource.LocalWithBackgroundAndExternalResources(
-            icon, selectedAccount.currency.colour, selectedAccount.currency.colour
+            icon,
+            selectedAccount.currency.colour,
+            selectedAccount.currency.colour
         )
 
         val buyButton = NoBalanceExplainerCta(
-            text = getString(R.string.tx_title_buy, assetTicker),
+            text = getString(com.blockchain.stringResources.R.string.tx_title_buy, assetTicker),
             onClick = {
                 host.navigateToAction(AssetAction.Buy, selectedAccount, selectedAccount.currency)
             }
         )
         val receiveButton = NoBalanceExplainerCta(
-            text = getString(R.string.common_receive_to, assetTicker),
+            text = getString(com.blockchain.stringResources.R.string.common_receive_to, assetTicker),
             onClick = {
                 host.navigateToAction(AssetAction.Receive, selectedAccount, selectedAccount.currency)
             }
@@ -195,7 +203,7 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
             description = sheetSubtitle,
             icon = sheetIcon,
             primaryButton = if (canBuy) buyButton else receiveButton,
-            secondaryButton = if (canBuy) receiveButton else null,
+            secondaryButton = if (canBuy) receiveButton else null
         )
     }
 
@@ -209,7 +217,7 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
 
     private data class NoBalanceExplainerCta(
         val text: String = "",
-        val onClick: () -> Unit = {},
+        val onClick: () -> Unit = {}
     )
 
     private fun NoBalanceExplainerDetails.hasOnlyOneCta() = secondaryButton == null

@@ -6,7 +6,6 @@ import android.os.Bundle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
-import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
@@ -30,18 +29,17 @@ class LandingCtaActivity : BlockchainActivity() {
 
         binding.toolbar.apply {
             startNavigationButton = NavigationBarButton.Icon(
-                drawable = R.drawable.ic_close_circle_v2,
-                contentDescription = R.string.accessibility_close,
-                color = null,
+                drawable = com.blockchain.common.R.drawable.ic_close_circle_v2,
+                contentDescription = com.blockchain.stringResources.R.string.accessibility_close,
                 onIconClick = {
                     onboardingPrefs.isLandingCtaDismissed = true
                     onBackPressedDispatcher.onBackPressed()
                 }
             )
             endNavigationBarButtons = listOf(
-                NavigationBarButton.Text(
-                    text = getString(R.string.landing_cta_login),
-                    color = Blue600,
+                NavigationBarButton.TextWithColorInt(
+                    text = getString(com.blockchain.stringResources.R.string.landing_cta_login),
+                    colorId = com.blockchain.componentlib.R.color.primary,
                     onTextClick = {
                         analytics.logEvent(LandingAnalytics.LogInClicked)
                         onboardingPrefs.isLandingCtaDismissed = true
@@ -52,11 +50,14 @@ class LandingCtaActivity : BlockchainActivity() {
             )
         }
 
-        binding.buttonCta.setOnClickListener {
-            analytics.logEvent(LandingAnalytics.BuyCryptoCtaClicked)
-            onboardingPrefs.isLandingCtaDismissed = true
-            CreateWalletActivity.start(this)
-            finish()
+        binding.buttonCta.apply {
+            text = getString(com.blockchain.stringResources.R.string.common_buy_crypto)
+            onClick = {
+                analytics.logEvent(LandingAnalytics.BuyCryptoCtaClicked)
+                onboardingPrefs.isLandingCtaDismissed = true
+                CreateWalletActivity.start(this@LandingCtaActivity)
+                finish()
+            }
         }
     }
 

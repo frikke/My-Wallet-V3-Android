@@ -76,30 +76,31 @@ fun AchTermsAndConditionsSheet(
             .background(
                 color = AppTheme.colors.light,
                 shape = RoundedCornerShape(
-                    dimensionResource(id = R.dimen.tiny_spacing)
+                    dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                 )
             ),
         horizontalAlignment = Alignment.Start
     ) {
-
         SheetHeader(
-            title = stringResource(id = R.string.terms_and_conditions),
+            title = stringResource(id = com.blockchain.stringResources.R.string.terms_and_conditions),
             onClosePress = onCloseClick,
             shouldShowDivider = false
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         SimpleText(
             modifier = Modifier
                 .padding(horizontal = AppTheme.dimensions.standardSpacing),
             text = stringResource(
                 if (isRecurringBuyEnabled) {
-                    R.string.checkout_terms_and_conditions_recurring
+                    com.blockchain.stringResources.R.string.checkout_terms_and_conditions_recurring
                 } else {
-                    R.string.checkout_terms_and_conditions
+                    com.blockchain.stringResources.R.string.checkout_terms_and_conditions
                 },
-                bankLabel, amount, withdrawalLock
+                bankLabel,
+                amount,
+                withdrawalLock
             ),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
@@ -113,7 +114,7 @@ fun AchTermsAndConditionsSheet(
                     horizontal = AppTheme.dimensions.standardSpacing,
                     vertical = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(R.string.common_ok),
+            text = stringResource(com.blockchain.stringResources.R.string.common_ok),
             onClick = onCloseClick
         )
     }

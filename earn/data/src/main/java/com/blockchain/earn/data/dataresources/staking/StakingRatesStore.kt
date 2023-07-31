@@ -1,7 +1,7 @@
 package com.blockchain.earn.data.dataresources.staking
 
-import com.blockchain.api.staking.StakingApiService
-import com.blockchain.api.staking.data.StakingRatesDto
+import com.blockchain.api.earn.staking.StakingApiService
+import com.blockchain.api.earn.staking.data.StakingRatesDto
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
@@ -10,7 +10,7 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 
 class StakingRatesStore(
-    private val stakingApiService: StakingApiService,
+    private val stakingApiService: StakingApiService
 ) : Store<StakingRatesDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

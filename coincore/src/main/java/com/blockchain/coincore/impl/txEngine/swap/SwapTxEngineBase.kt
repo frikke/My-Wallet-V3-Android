@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.swap
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.NullAddress
@@ -18,11 +17,12 @@ import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.domain.trade.model.QuotePrice
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
@@ -33,7 +33,6 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 const val RECEIVE_AMOUNT = "RECEIVE_AMOUNT"
 const val OUTGOING_FEE = "OUTGOING_FEE"
 const val LATEST_QUOTE_ID = "LATEST_QUOTE_ID"
@@ -45,7 +44,7 @@ abstract class SwapTxEngineBase(
     userIdentity: UserIdentity,
     private val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
-    private val swapTransactionsStore: SwapTransactionsStore,
+    private val swapTransactionsStore: SwapTransactionsStore
 ) : QuotedEngine(quotesEngine, userIdentity, walletManager, limitsDataManager, Product.TRADE) {
 
     private lateinit var minApiLimit: Money
@@ -54,24 +53,21 @@ abstract class SwapTxEngineBase(
         get() = txTarget as CryptoAccount
 
     override fun targetExchangeRate(): Observable<ExchangeRate> =
-        quotesEngine.getPricedQuote().map {
-            ExchangeRate(
-                from = sourceAsset,
-                to = target.currency,
-                rate = it.price.toBigDecimal()
-            )
-        }
+        quotesEngine.getPriceExchangeRate()
+
+    override fun confirmationExchangeRate(): Observable<ExchangeRate> =
+        quotesEngine.getQuoteExchangeRate()
 
     override fun onLimitsForTierFetched(
         limits: TxLimits,
         pendingTx: PendingTx,
-        pricedQuote: PricedQuote,
+        quotePrice: QuotePrice
     ): PendingTx {
         minApiLimit = limits.min.amount
 
         return pendingTx.copy(
             limits = limits.copy(
-                min = TxLimit.Limited(minLimit(pricedQuote.price))
+                min = TxLimit.Limited(minLimit(quotePrice.rawPrice))
             )
         )
     }
@@ -109,26 +105,28 @@ abstract class SwapTxEngineBase(
             txConfirmations = listOfNotNull(
                 TxConfirmationValue.SwapExchange(
                     unitCryptoCurrency = Money.fromMajor(sourceAsset, BigDecimal.ONE),
-                    price = Money.fromMajor(target.currency, pricedQuote.price.toBigDecimal()),
+                    price = Money.fromMajor(target.currency, pricedQuote.transferQuote.rawPrice.toBigDecimal()),
                     isNewQuote = false
                 ),
                 TxConfirmationValue.CompoundNetworkFee(
                     if (pendingTx.feeAmount.isZero) {
                         null
-                    } else
+                    } else {
                         FeeInfo(
                             pendingTx.feeAmount,
                             pendingTx.feeAmount.toUserFiat(exchangeRates),
                             sourceAsset
-                        ),
+                        )
+                    },
                     if (pricedQuote.transferQuote.networkFee.isZero) {
                         null
-                    } else
+                    } else {
                         FeeInfo(
                             pricedQuote.transferQuote.networkFee,
                             pricedQuote.transferQuote.networkFee.toUserFiat(exchangeRates),
                             target.currency
                         )
+                    }
                 ),
                 TxConfirmationValue.QuoteCountDown(
                     pricedQuote = pricedQuote
@@ -136,24 +134,24 @@ abstract class SwapTxEngineBase(
             ),
             engineState = pendingTx.engineState
                 .copyAndPut(LATEST_QUOTE_ID, pricedQuote.transferQuote.id)
-                .copyAndPut(RECEIVE_AMOUNT, pricedQuote.price.toBigDecimal())
+                .copyAndPut(RECEIVE_AMOUNT, pricedQuote.transferQuote.sourceToDestinationRate.price.toBigDecimal())
                 .copyAndPut(OUTGOING_FEE, pricedQuote.transferQuote.networkFee)
         )
     }
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        quotesEngine.getPricedQuote()
+        quotesEngine.getQuote()
             .firstOrError()
             .map { pricedQuote ->
                 buildConfirmations(pendingTx, pricedQuote)
             }
 
     private fun minLimit(price: Money): Money {
-        val minAmountToPayFees = minAmountToPayNetworkFees(
+        val convertedNetworkFee = convertNetworkFeeIntoSourceCurrency(
             price,
-            quotesEngine.getLatestQuote().transferQuote.networkFee
+            quotesEngine.getLatestPrice().networkFee ?: Money.zero(target.currency)
         )
-        return minApiLimit.plus(minAmountToPayFees).withUserDpRounding(RoundingMode.CEILING)
+        return minApiLimit.plus(convertedNetworkFee).withUserDpRounding(RoundingMode.CEILING)
     }
 
     private fun addOrReplaceConfirmations(
@@ -162,31 +160,33 @@ abstract class SwapTxEngineBase(
         isNewQuote: Boolean
     ): PendingTx {
         return pendingTx.copy(
-            limits = pendingTx.limits?.copy(min = TxLimit.Limited(minLimit(pricedQuote.price)))
+            limits = pendingTx.limits?.copy(min = TxLimit.Limited(minLimit(pricedQuote.transferQuote.rawPrice)))
         ).addOrReplaceOption(
             TxConfirmationValue.SwapExchange(
                 Money.fromMajor(sourceAsset, BigDecimal.ONE),
-                Money.fromMajor(target.currency, pricedQuote.price.toBigDecimal()),
+                Money.fromMajor(target.currency, pricedQuote.transferQuote.rawPrice.toBigDecimal()),
                 isNewQuote
             )
         ).addOrReplaceOption(
             TxConfirmationValue.CompoundNetworkFee(
                 if (pendingTx.feeAmount.isZero) {
                     null
-                } else
+                } else {
                     FeeInfo(
                         pendingTx.feeAmount,
                         pendingTx.feeAmount.toUserFiat(exchangeRates),
                         sourceAsset
-                    ),
+                    )
+                },
                 if (pricedQuote.transferQuote.networkFee.isZero) {
                     null
-                } else
+                } else {
                     FeeInfo(
                         pricedQuote.transferQuote.networkFee,
                         pricedQuote.transferQuote.networkFee.toUserFiat(exchangeRates),
                         target.currency
                     )
+                }
             )
         ).addOrReplaceOption(
             TxConfirmationValue.QuoteCountDown(
@@ -201,7 +201,8 @@ abstract class SwapTxEngineBase(
         val ptx = if (isNewQuote) {
             pendingTx.copy(
                 engineState = pendingTx.engineState.copyAndPut(
-                    LATEST_QUOTE_ID, quote.transferQuote.id
+                    LATEST_QUOTE_ID,
+                    quote.transferQuote.id
                 )
             )
         } else {
@@ -236,7 +237,7 @@ abstract class SwapTxEngineBase(
         }
     }
 
-    private fun minAmountToPayNetworkFees(price: Money, networkFee: Money): Money =
+    private fun convertNetworkFeeIntoSourceCurrency(price: Money, networkFee: Money): Money =
         Money.fromMajor(
             sourceAsset,
             networkFee.toBigDecimal()

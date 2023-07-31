@@ -81,8 +81,11 @@ class RecurringBuyOnBoardingFragment : Fragment() {
         sb.append(title1)
             .append(title2)
             .setSpan(
-                ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.grey_800)),
-                0, title1.length,
+                ForegroundColorSpan(
+                    ContextCompat.getColor(requireContext(), com.blockchain.componentlib.R.color.body)
+                ),
+                0,
+                title1.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         return sb

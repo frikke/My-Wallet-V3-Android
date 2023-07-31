@@ -48,7 +48,8 @@ class LoginModelTest {
             remoteLogger = mock(),
             interactor = interactor,
             getAppMaintenanceConfigUseCase,
-            analytics = mock()
+            analytics = mock(),
+            authPrefs = mock()
         )
     }
 
@@ -207,11 +208,15 @@ class LoginModelTest {
                 LoginState(),
                 LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
-                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email,
+                    captcha = captcha,
+                    currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
-                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email,
+                    captcha = captcha,
+                    currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 )
             )
@@ -239,15 +244,20 @@ class LoginModelTest {
                 LoginState(),
                 LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
-                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email,
+                    captcha = captcha,
+                    currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
-                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email,
+                    captcha = captcha,
+                    currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 ),
                 LoginState(
-                    email = email, captcha = captcha,
+                    email = email,
+                    captcha = captcha,
                     currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
                     pollingState = AuthPollingState.TIMEOUT
                 )
@@ -329,15 +339,20 @@ class LoginModelTest {
                 LoginState(),
                 LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
-                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email,
+                    captcha = captcha,
+                    currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
-                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email,
+                    captcha = captcha,
+                    currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 ),
                 LoginState(
-                    email = email, captcha = captcha,
+                    email = email,
+                    captcha = captcha,
                     currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
                     pollingState = AuthPollingState.DENIED
                 )
@@ -367,15 +382,20 @@ class LoginModelTest {
                 LoginState(),
                 LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
-                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email,
+                    captcha = captcha,
+                    currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
-                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email,
+                    captcha = captcha,
+                    currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 ),
                 LoginState(
-                    email = email, captcha = captcha,
+                    email = email,
+                    captcha = captcha,
                     currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
                     pollingState = AuthPollingState.ERROR
                 )
@@ -404,15 +424,20 @@ class LoginModelTest {
                 LoginState(),
                 LoginState(email = email, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
-                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email,
+                    captcha = captcha,
+                    currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.NOT_STARTED
                 ),
                 LoginState(
-                    email = email, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE,
+                    email = email,
+                    captcha = captcha,
+                    currentStep = LoginStep.VERIFY_DEVICE,
                     pollingState = AuthPollingState.POLLING
                 ),
                 LoginState(
-                    email = email, captcha = captcha,
+                    email = email,
+                    captcha = captcha,
                     currentStep = LoginStep.POLLING_PAYLOAD_ERROR,
                     pollingState = AuthPollingState.ERROR
                 )

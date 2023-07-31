@@ -11,6 +11,7 @@ test {
 dependencies {
     implementation project(':balance')
     implementation project(':metadata')
+    implementation project(':wallet')
     implementation project(':common:interface')
     implementation project(':common:network')
     implementation project(':logging:domain')

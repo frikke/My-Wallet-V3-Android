@@ -27,6 +27,23 @@ class EthereumSignMessageTarget(
     override val isDomain: Boolean = false
 }
 
+class WalletConnectV2SignMessageTarget(
+    val dAppAddress: String,
+    private val dAppName: String,
+    val dAppLogoUrl: String,
+    val currency: Currency,
+    val message: EthSignMessage,
+    override val asset: AssetInfo,
+    override val onTxCompleted: (TxResult) -> Completable,
+    override val onTxCancelled: () -> Completable
+) : WalletConnectTarget {
+    override val label: String
+        get() = dAppName
+    override val address: String
+        get() = message.address
+    override val isDomain: Boolean = false
+}
+
 interface WalletConnectTarget : TransactionTarget, CryptoAddress {
     val onTxCancelled: () -> Completable
 }

@@ -7,39 +7,31 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.charts.SparkLineHistoricalRate
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey100
 import kotlin.random.Random
 
 @Composable
 fun LoadingChart(
-    historicalRates: List<SparkLineHistoricalRate>,
-    loadingText: String,
+    modifier: Modifier = Modifier,
+    historicalRates: List<SparkLineHistoricalRate>
 ) {
     if (historicalRates.isEmpty()) {
         return
@@ -56,38 +48,21 @@ fun LoadingChart(
     )
 
     val brush = Brush.linearGradient(
-        colors = listOf(Grey100, Color.White, Grey100),
+        colors = listOf(AppTheme.colors.light, AppTheme.colors.backgroundSecondary, AppTheme.colors.light),
         start = Offset(10f, 10f),
         end = Offset(translateAnim, translateAnim)
     )
 
     Column(
-        Modifier
+        modifier
             .fillMaxWidth()
             .height(240.dp)
-            .background(AppTheme.colors.background)
     ) {
-        Image(
-            imageResource = ImageResource.Local(R.drawable.ic_blockchain),
-            modifier = Modifier
-                .wrapContentSize()
-                .align(Alignment.CenterHorizontally)
-                .padding(top = dimensionResource(R.dimen.medium_spacing))
-        )
-        Text(
-            text = loadingText,
-            style = AppTheme.typography.micro1,
-            modifier = Modifier
-                .wrapContentSize()
-                .align(Alignment.CenterHorizontally)
-                .padding(top = dimensionResource(R.dimen.smallest_spacing)),
-            color = AppTheme.colors.body
-        )
         Canvas(
             Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(top = dimensionResource(R.dimen.medium_spacing))
+                .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
         ) {
             val width = this.size.width
             val interval = width / historicalRates.size
@@ -130,7 +105,6 @@ private fun LineLoadingPreview() {
     AppTheme {
         AppSurface {
             LoadingChart(
-                loadingText = "Loading chart",
                 historicalRates = data
             )
         }

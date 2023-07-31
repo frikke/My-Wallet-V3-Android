@@ -8,7 +8,7 @@ data class QuestionnaireState(
     val isContinueEnabled: Boolean = true,
     val isUploadingNodes: Boolean = false,
     val invalidNodesShown: List<NodeId> = emptyList(),
-    val error: QuestionnaireError? = null,
+    val error: QuestionnaireError? = null
 ) : ViewState
 
 sealed class QuestionnaireError {

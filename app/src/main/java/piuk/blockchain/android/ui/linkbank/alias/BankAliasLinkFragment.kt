@@ -129,12 +129,24 @@ class BankAliasLinkFragment : MVIFragment<BankAliasLinkViewState>(), AndroidScop
 
 fun AliasInfo.toDisplayItems(resources: Resources): List<Pair<String, String>> {
     val displayItems = mutableListOf<Pair<String, String>>()
-    bankName?.let { displayItems.add(Pair(resources.getString(R.string.bank_name), it)) }
-    alias?.let { displayItems.add(Pair(resources.getString(R.string.alias), it)) }
-    accountHolder?.let { displayItems.add(Pair(resources.getString(R.string.account_holder), it)) }
-    accountType?.let { displayItems.add(Pair(resources.getString(R.string.account_type), it)) }
-    cbu?.let { displayItems.add(Pair(resources.getString(R.string.bank_alias_cbu), it)) }
-    cuil?.let { displayItems.add(Pair(resources.getString(R.string.bank_alias_cuil), it)) }
+    bankName?.let { displayItems.add(Pair(resources.getString(com.blockchain.stringResources.R.string.bank_name), it)) }
+    alias?.let { displayItems.add(Pair(resources.getString(com.blockchain.stringResources.R.string.alias), it)) }
+    accountHolder?.let {
+        displayItems.add(
+            Pair(resources.getString(com.blockchain.stringResources.R.string.account_holder), it)
+        )
+    }
+    accountType?.let {
+        displayItems.add(
+            Pair(resources.getString(com.blockchain.stringResources.R.string.account_type), it)
+        )
+    }
+    cbu?.let { displayItems.add(Pair(resources.getString(com.blockchain.stringResources.R.string.bank_alias_cbu), it)) }
+    cuil?.let {
+        displayItems.add(
+            Pair(resources.getString(com.blockchain.stringResources.R.string.bank_alias_cuil), it)
+        )
+    }
 
     return displayItems
 }
@@ -147,7 +159,9 @@ fun LinkWithAliasScreen(
     continueClicked: (String) -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.standard_spacing))
+        modifier = Modifier.padding(
+            horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+        )
     ) {
         Header(
             alias = viewState.alias,
@@ -159,13 +173,15 @@ fun LinkWithAliasScreen(
             when {
                 screen.showAliasInput -> AliasInputScreen(
                     buttonState = screen.ctaState,
-                    searchAccountClicked = searchAccountClicked,
+                    searchAccountClicked = searchAccountClicked
                 )
+
                 screen.error is AliasError.ServerSideUxError -> AliasErrorScreen(
                     errorDescription = screen.error.serverSideUxErrorInfo.description,
                     buttonState = screen.ctaState,
-                    searchAccountClicked = searchAccountClicked,
+                    searchAccountClicked = searchAccountClicked
                 )
+
                 screen.aliasInfo != null -> AliasInfoScreen(
                     bankInfoItems = screen.aliasInfo.toDisplayItems(LocalContext.current.resources),
                     buttonState = screen.ctaState,
@@ -180,11 +196,11 @@ fun LinkWithAliasScreen(
 fun AliasInputScreen(
     buttonState: ButtonState,
     searchAccountClicked: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier) {
         SimpleText(
-            text = stringResource(id = R.string.bank_alias_info),
+            text = stringResource(id = com.blockchain.stringResources.R.string.bank_alias_info),
             modifier = Modifier.fillMaxWidth(),
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Body,
@@ -194,7 +210,7 @@ fun AliasInputScreen(
         Spacer(modifier = modifier.weight(1f))
 
         Footer(
-            buttonText = stringResource(id = R.string.bank_alias_search_account),
+            buttonText = stringResource(id = com.blockchain.stringResources.R.string.bank_alias_search_account),
             buttonState = buttonState,
             onButtonClick = searchAccountClicked
         )
@@ -206,7 +222,7 @@ fun AliasErrorScreen(
     errorDescription: String,
     buttonState: ButtonState,
     searchAccountClicked: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier) {
         SimpleText(
@@ -221,7 +237,7 @@ fun AliasErrorScreen(
 
         Footer(
             showBankTransferInfo = false,
-            buttonText = stringResource(id = R.string.bank_alias_search_account),
+            buttonText = stringResource(id = com.blockchain.stringResources.R.string.bank_alias_search_account),
             buttonState = buttonState,
             onButtonClick = searchAccountClicked
         )
@@ -233,7 +249,7 @@ fun AliasInfoScreen(
     bankInfoItems: List<Pair<String, String>>,
     buttonState: ButtonState,
     continueClicked: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier) {
         Column(
@@ -252,7 +268,7 @@ fun AliasInfoScreen(
         }
 
         Footer(
-            buttonText = stringResource(id = R.string.common_continue),
+            buttonText = stringResource(id = com.blockchain.stringResources.R.string.common_continue),
             buttonState = buttonState,
             onButtonClick = continueClicked
         )
@@ -267,10 +283,10 @@ fun Header(
 ) {
     Column {
         SimpleText(
-            text = stringResource(id = R.string.bank_alias_types),
+            text = stringResource(id = com.blockchain.stringResources.R.string.bank_alias_types),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = dimensionResource(id = R.dimen.smallest_spacing)),
+                .padding(vertical = dimensionResource(id = com.blockchain.componentlib.R.dimen.smallest_spacing)),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Start
@@ -305,7 +321,7 @@ fun Footer(
                 )
 
                 SimpleText(
-                    text = stringResource(id = R.string.bank_transfer_only),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.bank_transfer_only),
                     style = ComposeTypographies.Caption2,
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Start,
@@ -315,12 +331,12 @@ fun Footer(
                             start.linkTo(image.end)
                             end.linkTo(parent.end)
                         }
-                        .padding(start = dimensionResource(id = R.dimen.medium_spacing))
+                        .padding(start = dimensionResource(id = com.blockchain.componentlib.R.dimen.medium_spacing))
                         .fillMaxWidth()
                 )
 
                 SimpleText(
-                    text = stringResource(id = R.string.bank_transfer_only_subtitle),
+                    text = stringResource(id = com.blockchain.stringResources.R.string.bank_transfer_only_subtitle),
                     style = ComposeTypographies.Caption1,
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Start,
@@ -330,7 +346,7 @@ fun Footer(
                             start.linkTo(image.end)
                             end.linkTo(parent.end)
                         }
-                        .padding(start = dimensionResource(id = R.dimen.medium_spacing))
+                        .padding(start = dimensionResource(id = com.blockchain.componentlib.R.dimen.medium_spacing))
                         .fillMaxWidth()
                 )
             }
@@ -343,8 +359,8 @@ fun Footer(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    top = dimensionResource(id = R.dimen.large_spacing),
-                    bottom = dimensionResource(id = R.dimen.tiny_spacing)
+                    top = dimensionResource(id = com.blockchain.componentlib.R.dimen.large_spacing),
+                    bottom = dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                 )
         )
     }
@@ -383,7 +399,7 @@ fun BankInfoItem(
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
                 }
-                .padding(vertical = dimensionResource(id = R.dimen.small_spacing))
+                .padding(vertical = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing))
         )
 
         Text(
@@ -401,9 +417,9 @@ fun BankInfoItem(
                     width = Dimension.fillToConstraints
                 }
                 .padding(
-                    start = dimensionResource(id = R.dimen.small_spacing),
-                    top = dimensionResource(id = R.dimen.small_spacing),
-                    bottom = dimensionResource(id = R.dimen.small_spacing)
+                    start = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing),
+                    top = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing),
+                    bottom = dimensionResource(id = com.blockchain.componentlib.R.dimen.small_spacing)
                 )
         )
 

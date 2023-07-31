@@ -4,21 +4,21 @@ import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.models.BuyOrderAndQuote
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull
 import com.blockchain.utils.thenSingle
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -28,7 +28,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
-import java.lang.IllegalStateException
 import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import timber.log.Timber
@@ -38,7 +37,7 @@ class CreateBuyOrderUseCase(
     private val brokerageDataManager: BrokerageDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val _activityIndicator: Lazy<ActivityIndicator?>,
-    buyQuoteRefreshFF: FeatureFlag,
+    buyQuoteRefreshFF: FeatureFlag
 ) {
     private var latestPendingOrder: BuyOrderAndQuote? = null
     private val stop = PublishSubject.create<Unit>()
@@ -63,7 +62,7 @@ class CreateBuyOrderUseCase(
         selectedCryptoAsset: AssetInfo?,
         selectedPaymentMethod: SelectedPaymentMethod?,
         order: SimpleBuyOrder,
-        recurringBuyFrequency: RecurringBuyFrequency,
+        recurringBuyFrequency: RecurringBuyFrequency
     ) {
         compositeDisposable.clear()
 
@@ -111,14 +110,13 @@ class CreateBuyOrderUseCase(
         amount: Money,
         paymentMethodId: String? = null,
         paymentMethod: PaymentMethodType,
-        recurringBuyFrequency: RecurringBuyFrequency?,
+        recurringBuyFrequency: RecurringBuyFrequency?
     ): Single<BuyOrderAndQuote> =
-        brokerageDataManager.quoteForTransaction(
+        brokerageDataManager.getBuyQuote(
             pair = CurrencyPair(amount.currency, cryptoAsset),
             amount = amount,
             paymentMethodType = getPaymentMethodType(paymentMethod),
-            paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
-            product = Product.BUY
+            paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod)
         ).flatMap { quote ->
             custodialWalletManager.createOrder(
                 custodialWalletOrder = CustodialWalletOrder(
@@ -126,10 +124,12 @@ class CreateBuyOrderUseCase(
                     pair = "${cryptoAsset.networkTicker}-${amount.currencyCode}",
                     action = Product.BUY.name,
                     input = OrderInput(
-                        amount.currencyCode, amount.toBigInteger().toString()
+                        amount.currencyCode,
+                        amount.toBigInteger().toString()
                     ),
                     output = OrderOutput(
-                        cryptoAsset.networkTicker, null
+                        cryptoAsset.networkTicker,
+                        null
                     ),
                     paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
                     paymentType = getPaymentMethodType(paymentMethod).name,
@@ -146,7 +146,7 @@ class CreateBuyOrderUseCase(
         selectedCryptoAsset: AssetInfo?,
         selectedPaymentMethod: SelectedPaymentMethod?,
         order: SimpleBuyOrder,
-        recurringBuyFrequency: RecurringBuyFrequency,
+        recurringBuyFrequency: RecurringBuyFrequency
     ): Single<BuyOrderAndQuote> {
         return (
             oldId?.let {
@@ -157,7 +157,7 @@ class CreateBuyOrderUseCase(
                 selectedCryptoAsset = selectedCryptoAsset,
                 selectedPaymentMethod = selectedPaymentMethod,
                 order = order,
-                recurringBuyFrequency = recurringBuyFrequency.takeIf { it != RecurringBuyFrequency.ONE_TIME },
+                recurringBuyFrequency = recurringBuyFrequency.takeIf { it != RecurringBuyFrequency.ONE_TIME }
             )
         }
     }
@@ -166,7 +166,7 @@ class CreateBuyOrderUseCase(
         selectedCryptoAsset: AssetInfo?,
         selectedPaymentMethod: SelectedPaymentMethod?,
         order: SimpleBuyOrder,
-        recurringBuyFrequency: RecurringBuyFrequency?,
+        recurringBuyFrequency: RecurringBuyFrequency?
     ): Single<BuyOrderAndQuote> {
         require(selectedCryptoAsset != null) { "Missing Cryptocurrency" }
         require(order.amount != null) { "Missing amount" }
@@ -176,7 +176,7 @@ class CreateBuyOrderUseCase(
             amount = order.amount,
             paymentMethodId = selectedPaymentMethod.concreteId(),
             paymentMethod = selectedPaymentMethod.paymentMethodType,
-            recurringBuyFrequency = recurringBuyFrequency,
+            recurringBuyFrequency = recurringBuyFrequency
         )
     }
 
@@ -198,7 +198,9 @@ class CreateBuyOrderUseCase(
 
     private fun getPaymentMethodId(paymentMethodId: String? = null, paymentMethod: PaymentMethodType) =
         // The API cannot handle GOOGLE_PAY as a payment method, so we're sending a null paymentMethodId
-        if (paymentMethod == PaymentMethodType.GOOGLE_PAY || paymentMethodId == PaymentMethod.GOOGLE_PAY_PAYMENT_ID)
+        if (paymentMethod == PaymentMethodType.GOOGLE_PAY || paymentMethodId == PaymentMethod.GOOGLE_PAY_PAYMENT_ID) {
             null
-        else paymentMethodId
+        } else {
+            paymentMethodId
+        }
 }

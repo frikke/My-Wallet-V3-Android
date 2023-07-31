@@ -1,6 +1,5 @@
 package info.blockchain.balance
 
-import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
 
 enum class AssetCategory {
@@ -12,8 +11,7 @@ enum class AssetCategory {
 interface AssetInfo : Currency, Serializable {
     val requiredConfirmations: Int
 
-    // If non-null, then this is an l2 asset, and this contains the ticker of the chain on which this is implemented?
-    val l1chainTicker: String?
+    val coinNetwork: CoinNetwork?
 
     // If non-null, then this an l2 asset and this is the id on the l1 chain. Ie contract address for erc20 assets
     val l2identifier: String?
@@ -23,12 +21,10 @@ interface AssetInfo : Currency, Serializable {
 
     override val type: CurrencyType
         get() = CurrencyType.CRYPTO
-
-    val isErc20: Boolean
 }
 
 val Currency.isCustodialOnly: Boolean
-    get() = categories.size == 1 && categories.contains(AssetCategory.CUSTODIAL)
+    get() = categories == setOf(AssetCategory.CUSTODIAL)
 
 val AssetInfo.isNonCustodialOnly: Boolean
     get() = categories.size == 1 && categories.contains(AssetCategory.NON_CUSTODIAL)
@@ -39,10 +35,11 @@ val AssetInfo.isDelegatedNonCustodial: Boolean
 val AssetInfo.isNonCustodial: Boolean
     get() = categories.contains(AssetCategory.NON_CUSTODIAL) || isDelegatedNonCustodial
 
-fun AssetInfo.l1chain(assetCatalogue: AssetCatalogue): AssetInfo? =
-    l1chainTicker?.let { ticker ->
-        assetCatalogue.fromNetworkTicker(ticker) as AssetInfo
-    }
+val Currency.isLayer2Token: Boolean
+    get() = (this as? AssetInfo)?.l2identifier != null && (this as? AssetInfo)?.coinNetwork != null
+
+fun Currency.isNetworkNativeAsset(): Boolean =
+    (this as? AssetInfo)?.coinNetwork?.nativeAssetTicker == networkTicker
 
 interface AssetCatalogue {
     val supportedFiatAssets: List<FiatCurrency>
@@ -54,8 +51,6 @@ interface AssetCatalogue {
     fun assetInfoFromNetworkTicker(symbol: String): AssetInfo?
     fun assetFromL1ChainByContractAddress(l1chain: String, contractAddress: String): AssetInfo?
     fun supportedL2Assets(chain: AssetInfo): List<AssetInfo>
-    fun availableL1Assets(): Single<List<AssetInfo>>
-    fun otherEvmAssets(): Single<List<AssetInfo>>
 }
 
 open class CryptoCurrency(
@@ -66,12 +61,11 @@ open class CryptoCurrency(
     override val precisionDp: Int,
     override val startDate: Long? = null, // token price start times in epoch-seconds. null if charting not supported
     override val requiredConfirmations: Int,
-    override val l1chainTicker: String? = null,
     override val l2identifier: String? = null,
     override val colour: String,
     override val logo: String = "",
     override val txExplorerUrlBase: String? = null,
-    override val isErc20: Boolean = false
+    override val coinNetwork: CoinNetwork? = null
 ) : AssetInfo {
 
     override val symbol: String
@@ -82,14 +76,12 @@ open class CryptoCurrency(
             other === this -> true
             other !is AssetInfo -> false
             other.networkTicker == networkTicker &&
-                other.l1chainTicker == l1chainTicker &&
                 other.l2identifier == l2identifier -> true
             else -> false
         }
 
     override fun hashCode(): Int {
         var result = networkTicker.hashCode()
-        result = 31 * result + (l1chainTicker?.hashCode() ?: 0)
         result = 31 * result + (l2identifier?.hashCode() ?: 0)
         return result
     }
@@ -103,6 +95,18 @@ open class CryptoCurrency(
         requiredConfirmations = 3,
         startDate = 1282089600L, // 2010-08-18 00:00:00 UTC
         colour = "#FF9B22",
+        coinNetwork = CoinNetwork(
+            explorerUrl = "https://www.blockchain.com/btc/tx",
+            nativeAssetTicker = "BTC",
+            networkTicker = "BTC",
+            name = "Bitcoin",
+            shortName = "Bitcoin",
+            isMemoSupported = false,
+            feeCurrencies = listOf("native"),
+            type = NetworkType.BTC,
+            chainId = null,
+            nodeUrls = listOf()
+        ),
         logo = "file:///android_asset/logo/bitcoin/logo.png",
         txExplorerUrlBase = "https://www.blockchain.com/btc/tx/"
     ) {
@@ -116,6 +120,18 @@ open class CryptoCurrency(
         name = "Ethereum",
         categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
         precisionDp = 18,
+        coinNetwork = CoinNetwork(
+            explorerUrl = "https://www.blockchain.com/eth/tx",
+            nativeAssetTicker = "ETH",
+            networkTicker = "ETH",
+            name = "Ethereum",
+            shortName = "Ethereum",
+            isMemoSupported = false,
+            type = NetworkType.EVM,
+            chainId = 1,
+            feeCurrencies = listOf("native"),
+            nodeUrls = listOf("https://api.blockchain.info/eth/nodes/rpc")
+        ),
         requiredConfirmations = 12,
         startDate = 1438992000L, // 2015-08-08 00:00:00 UTC
         colour = "#473BCB",
@@ -133,6 +149,18 @@ open class CryptoCurrency(
         categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
         precisionDp = 8,
         requiredConfirmations = 3,
+        coinNetwork = CoinNetwork(
+            explorerUrl = "https://www.blockchain.com/bch/tx",
+            nativeAssetTicker = "BCH",
+            networkTicker = "BCH",
+            name = "Bitcoin Cash",
+            shortName = "Bitcoin Cash",
+            isMemoSupported = false,
+            feeCurrencies = listOf("native"),
+            type = NetworkType.BCH,
+            chainId = null,
+            nodeUrls = listOf()
+        ),
         startDate = 1500854400L, // 2017-07-24 00:00:00 UTC
         colour = "#8DC351",
         logo = "file:///android_asset/logo/bitcoin_cash/logo.png",
@@ -149,6 +177,18 @@ open class CryptoCurrency(
         categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
         precisionDp = 7,
         requiredConfirmations = 1,
+        coinNetwork = CoinNetwork(
+            explorerUrl = "https://stellarchain.io/transactions",
+            nativeAssetTicker = "XLM",
+            networkTicker = "XLM",
+            name = "Stellar",
+            shortName = "Stellar",
+            isMemoSupported = true,
+            type = NetworkType.XLM,
+            chainId = null,
+            feeCurrencies = listOf("native"),
+            nodeUrls = listOf("https://api.blockchain.info/stellar")
+        ),
         startDate = 1409875200L, // 2014-09-04 00:00:00 UTC
         colour = "#000000",
         logo = "file:///android_asset/logo/stellar/logo.png",
@@ -157,12 +197,9 @@ open class CryptoCurrency(
         override val index: Int
             get() = XLM_ORDER_INDEX
     }
+
     companion object {
-        // TODO(dtverdota): remove these once the coin networks feature flag is removed(enabled forever)
         const val AVAX = "AVAX"
-        const val MATIC = "MATIC"
-        const val BNB = "BNB"
-        const val MATIC_ON_POLYGON = "MATIC.MATIC"
     }
 }
 

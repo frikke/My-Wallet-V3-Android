@@ -1,13 +1,18 @@
 package com.blockchain.componentlib.tag
 
+import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark600
-import com.blockchain.componentlib.theme.Grey700
+
+private val bgColorLight = Color(0XFFF0F2F7)
+private val bgColorDark = Color(0XFF3B3E46)
+private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark else bgColorLight
+
+private val textColorLight = Color(0XFF121D33)
+private val textColorDark = Color(0XFFFFFFFF)
+private val textColor @Composable get() = if (isSystemInDarkTheme()) textColorDark else textColorLight
 
 @Composable
 fun DefaultTag(
@@ -15,55 +20,35 @@ fun DefaultTag(
     size: TagSize = TagSize.Primary,
     onClick: (() -> Unit)? = null
 ) {
-
-    val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
-        Color.White
-    } else {
-        Dark600
-    }
-
-    val defaultTextColor = if (!isSystemInDarkTheme()) {
-        Grey700
-    } else {
-        Color.White
-    }
-
     Tag(
         text = text,
         size = size,
-        defaultBackgroundColor = defaultBackgroundColor,
-        defaultTextColor = defaultTextColor,
-        borders = true,
+        backgroundColor = bgColor,
+        textColor = textColor,
         onClick = onClick
     )
 }
 
 @Preview
 @Composable
-fun DefaultTag_Basic() {
-    AppTheme {
-        AppSurface {
-            DefaultTag(text = "Default", onClick = null)
-        }
-    }
+private fun DefaultTag_Basic() {
+    DefaultTag(text = "Default", onClick = null)
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun DefaultTag_Dark() {
+    DefaultTag_Basic()
 }
 
 @Preview
 @Composable
-fun DefaultTag_Dark() {
-    AppTheme(darkTheme = true) {
-        AppSurface {
-            DefaultTag(text = "Default", onClick = null)
-        }
-    }
+private fun DefaultTag_clickable() {
+    DefaultTag(text = "Click me", onClick = {})
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun DefaultTag_clickable() {
-    AppTheme(darkTheme = true) {
-        AppSurface {
-            DefaultTag(text = "Click me", onClick = {})
-        }
-    }
+private fun DefaultTag_clickableDark() {
+    DefaultTag_clickable()
 }

@@ -1,20 +1,12 @@
 package piuk.blockchain.android.ui.settings.security.pin
 
-import androidx.annotation.StringRes
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.analytics.events.WalletUpgradeEvent
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.MomentEvent
-import com.blockchain.logging.MomentLogger
 import com.blockchain.logging.RemoteLogger
-import com.google.android.play.core.appupdate.AppUpdateInfo
-import com.google.android.play.core.appupdate.AppUpdateManager
-import com.google.android.play.core.install.model.AppUpdateType
-import com.google.android.play.core.install.model.UpdateAvailability
-import com.google.android.play.core.tasks.Task
-import info.blockchain.wallet.api.data.UpdateType
+import com.blockchain.utils.thenSingle
 import info.blockchain.wallet.exceptions.AccountLockedException
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -28,7 +20,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.net.SocketTimeoutException
 import org.spongycastle.crypto.InvalidCipherTextException
-import piuk.blockchain.android.R
 import timber.log.Timber
 
 class PinModel(
@@ -39,7 +30,6 @@ class PinModel(
     environmentConfig: EnvironmentConfig,
     private val remoteLogger: RemoteLogger,
     private val analytics: Analytics,
-    private val momentLogger: MomentLogger
 ) : MviModel<PinState, PinIntent>(
     initialState,
     mainScheduler,
@@ -64,6 +54,7 @@ class PinModel(
                         Timber.e("Error getting intercom status")
                     }
                 )
+
             is PinIntent.GetAction -> {
                 when {
                     interactor.isCreatingNewPin() -> process(PinIntent.UpdateAction(PinScreenView.CreateNewPin))
@@ -72,14 +63,25 @@ class PinModel(
                 }
                 null
             }
+
             is PinIntent.CreatePIN -> {
                 interactor.getTempPassword()?.let { tempPassword ->
-                    interactor.createPin(tempPassword, intent.pin)
-                        .handleProgress(R.string.creating_pin)
+                    interactor.createPin(tempPassword, intent.pin).thenSingle {
+                        interactor.updatePayload(tempPassword).toSingle {
+                            listOf(
+                                handlePayloadUpdateComplete(true),
+                                PinIntent.SetCanShowFingerprint(true)
+                            )
+                        }.onErrorResumeNext {
+                            Single.just(listOf(handlePayloadUpdateError(it)))
+                        }
+                    }
+                        .handleProgress()
                         .subscribeBy(
-                            onComplete = {
-                                process(PinIntent.CreatePINSucceeded)
-                                process(PinIntent.UpdatePayload(tempPassword, true))
+                            onSuccess = { intents ->
+                                intents.forEach {
+                                    process(it)
+                                }
                                 interactor.resetPinFailureCount()
                             },
                             onError = {
@@ -96,17 +98,28 @@ class PinModel(
                     null
                 }
             }
-            is PinIntent.ValidatePIN -> {
-                momentLogger.startEvent(MomentEvent.PIN_TO_DASHBOARD)
 
+            is PinIntent.ValidatePIN -> {
                 interactor.validatePIN(intent.pin, intent.isForValidatingPinForResult, previousState.isIntercomEnabled)
-                    .handleProgress(R.string.validating_pin)
+                    .flatMap { passw ->
+                        if (intent.isForValidatingPinForResult || intent.isChangingPin) {
+                            Single.just(listOf(PinIntent.ValidatePINSucceeded))
+                        } else {
+                            interactor.updatePayload(passw).toSingle {
+                                listOf(
+                                    PinIntent.SetCanShowFingerprint(true),
+                                    handlePayloadUpdateComplete(false)
+                                )
+                            }.onErrorResumeNext {
+                                Single.just(listOf(handlePayloadUpdateError(it)))
+                            }
+                        }
+                    }
+                    .handleProgress()
                     .subscribeBy(
-                        onSuccess = { password ->
-                            if (intent.isForValidatingPinForResult || intent.isChangingPin) {
-                                process(PinIntent.ValidatePINSucceeded)
-                            } else {
-                                process(PinIntent.UpdatePayload(password, false))
+                        onSuccess = { intents ->
+                            intents.forEach {
+                                process(it)
                             }
                             interactor.resetPinFailureCount()
                         },
@@ -122,19 +135,22 @@ class PinModel(
                         }
                     )
             }
+
             is PinIntent.GetCurrentPin -> {
                 process(PinIntent.SetCurrentPin(interactor.getCurrentPin()))
                 null
             }
+
             is PinIntent.CheckNumPinAttempts -> {
                 if (interactor.hasExceededPinAttempts()) {
                     process(PinIntent.UpdatePinErrorState(PinError.NUM_ATTEMPTS_EXCEEDED))
                 }
                 null
             }
+
             is PinIntent.ValidatePassword -> {
                 interactor.validatePassword(intent.password)
-                    .handleProgress(R.string.validating_password)
+                    .handleProgress()
                     .subscribeBy(
                         onComplete = {
                             process(PinIntent.UpdatePasswordErrorState(true))
@@ -144,16 +160,19 @@ class PinModel(
                         onError = { throwable -> handlePasswordValidatedError(throwable) }
                     )
             }
+
             is PinIntent.CheckApiStatus ->
                 interactor.checkApiStatus()
                     .subscribeBy(
                         onSuccess = { isHealthy -> process(PinIntent.UpdateApiStatus(isHealthy)) },
                         onError = { Timber.e(it) }
                     )
+
             is PinIntent.CheckFingerprint -> {
                 process(PinIntent.SetShowFingerprint(interactor.shouldShowFingerprintLogin()))
                 null
             }
+
             is PinIntent.FetchRemoteMobileNotice -> {
                 interactor.fetchInfoMessage()
                     .subscribeBy(
@@ -169,31 +188,10 @@ class PinModel(
                         }
                     )
             }
-            is PinIntent.CheckAppUpgradeStatus -> {
-                interactor.checkForceUpgradeStatus(intent.versionName)
-                    .subscribeBy(
-                        onNext = { updateType ->
-                            upgradeApp(updateType, intent.appUpdateManager)
-                        },
-                        onError = { Timber.e(it) }
-                    )
-            }
-            is PinIntent.UpdatePayload -> {
-                interactor.updatePayload(intent.password)
-                    .handleProgress(R.string.decrypting_wallet)
-                    .subscribeBy(
-                        onComplete = {
-                            process(PinIntent.SetCanShowFingerprint(true))
-                            handlePayloadUpdateComplete(intent.isFromPinCreation)
-                        },
-                        onError = {
-                            handlePayloadUpdateError(it)
-                        }
-                    )
-            }
+
             is PinIntent.UpgradeWallet -> {
                 interactor.doUpgradeWallet(intent.secondPassword)
-                    .handleProgress(R.string.upgrading)
+                    .handleProgress()
                     .subscribeBy(
                         onComplete = {
                             process(PinIntent.UpgradeWalletResponse(true))
@@ -206,14 +204,17 @@ class PinModel(
                         }
                     )
             }
+
             is PinIntent.PinLogout -> {
                 interactor.resetApp()
                 null
             }
+
             is PinIntent.DisableBiometrics -> {
                 interactor.disableBiometrics()
                 null
             }
+
             is PinIntent.UpdateApiStatus,
             is PinIntent.ClearStateAlreadyHandled,
             is PinIntent.UpdatePinErrorState,
@@ -228,137 +229,90 @@ class PinModel(
             is PinIntent.UpdatePasswordErrorState,
             is PinIntent.UpdatePayloadErrorState,
             is PinIntent.UpgradeRequired,
-            is PinIntent.HandleProgressDialog,
             is PinIntent.UpgradeWalletResponse,
-            is PinIntent.CreatePINSucceeded,
             is PinIntent.SetShowFingerprint,
             PinIntent.DialogShown,
+            PinIntent.CreatePINSucceeded,
+            is PinIntent.UpdateLoading,
             is PinIntent.UpdateIntercomStatus -> null
         }
-
-    private fun canTriggerAnUpdateOfType(
-        updateAvailabilityType: Int,
-        appUpdateInfoTask: Task<AppUpdateInfo>
-    ): Boolean {
-        return (
-            appUpdateInfoTask.result.updateAvailability() ==
-                UpdateAvailability.UPDATE_AVAILABLE ||
-                appUpdateInfoTask.result.updateAvailability() ==
-                UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
-            ) &&
-            appUpdateInfoTask.result.isUpdateTypeAllowed(updateAvailabilityType)
-    }
-
-    private fun upgradeApp(updateType: UpdateType, appUpdateManager: AppUpdateManager) {
-        when (updateType) {
-            UpdateType.FORCE -> {
-                interactor.updateInfo(appUpdateManager).subscribeBy(onNext = { appUpdateInfoTask ->
-                    if (canTriggerAnUpdateOfType(AppUpdateType.IMMEDIATE, appUpdateInfoTask)) {
-                        process(
-                            PinIntent.AppNeedsUpgrade(
-                                AppUpgradeStatus(
-                                    UpgradeAppMethod.FORCED_NATIVELY,
-                                    appUpdateInfoTask.result
-                                )
-                            )
-                        )
-                    } else {
-                        process(PinIntent.AppNeedsUpgrade(AppUpgradeStatus(UpgradeAppMethod.FORCED_STORE)))
-                    }
-                }, onError = {
-                    Timber.e(it)
-                })
-            }
-            UpdateType.RECOMMENDED -> {
-                interactor.updateInfo(appUpdateManager).subscribeBy(onNext = { appUpdateInfoTask ->
-                    if (canTriggerAnUpdateOfType(AppUpdateType.FLEXIBLE, appUpdateInfoTask)) {
-                        process(
-                            PinIntent.AppNeedsUpgrade(
-                                AppUpgradeStatus(
-                                    UpgradeAppMethod.FLEXIBLE,
-                                    appUpdateInfoTask.result
-                                )
-                            )
-                        )
-                    }
-                }, onError = {
-                    Timber.e(it)
-                })
-            }
-            else -> {
-            }
-        }
-    }
 
     private fun handlePasswordValidatedError(throwable: Throwable) {
         remoteLogger.logException(throwable, "Pin Model")
         when (throwable) {
             is ServerConnectionException ->
                 process(PinIntent.UpdatePasswordErrorState(errorState = PasswordError.SERVER_CONNECTION_EXCEPTION))
+
             is SocketTimeoutException ->
                 process(PinIntent.UpdatePasswordErrorState(errorState = PasswordError.SERVER_TIMEOUT))
 
             is HDWalletException -> {
                 process(PinIntent.UpdatePasswordErrorState(errorState = PasswordError.HD_WALLET_EXCEPTION))
             }
+
             is AccountLockedException ->
                 process(PinIntent.UpdatePasswordErrorState(errorState = PasswordError.ACCOUNT_LOCKED))
+
             else -> {
                 process(PinIntent.UpdatePasswordErrorState(errorState = PasswordError.UNKNOWN))
             }
         }
     }
 
-    private fun handlePayloadUpdateComplete(isFromPinCreation: Boolean = false) {
+    private fun handlePayloadUpdateComplete(isFromPinCreation: Boolean = false): PinIntent {
         interactor.updateShareKeyInPrefs()
         specificAnalytics.logLogin(true)
 
-        if (interactor.isWalletUpgradeRequired()) {
-            process(PinIntent.UpgradeRequired(true, isFromPinCreation, SECOND_PASSWORD_ATTEMPTS))
+        return if (interactor.isWalletUpgradeRequired()) {
+            PinIntent.UpgradeRequired(true, isFromPinCreation, SECOND_PASSWORD_ATTEMPTS)
         } else {
-            process(PinIntent.PayloadSucceeded(isFromPinCreation))
+            PinIntent.PayloadSucceeded(isFromPinCreation)
         }
     }
 
-    private fun handlePayloadUpdateError(throwable: Throwable) {
+    private fun handlePayloadUpdateError(throwable: Throwable): PinIntent {
         specificAnalytics.logLogin(false)
         remoteLogger.logException(throwable, "Pin Model")
-        when (throwable) {
+        return when (throwable) {
             is InvalidCredentialsException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.CREDENTIALS_INVALID))
+                PinIntent.UpdatePayloadErrorState(PayloadError.CREDENTIALS_INVALID)
+
             is ServerConnectionException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_CONNECTION_EXCEPTION))
+                PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_CONNECTION_EXCEPTION)
+
             is SocketTimeoutException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_TIMEOUT))
+                PinIntent.UpdatePayloadErrorState(PayloadError.SERVER_TIMEOUT)
+
             is UnsupportedVersionException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.UNSUPPORTED_VERSION_EXCEPTION))
+                PinIntent.UpdatePayloadErrorState(PayloadError.UNSUPPORTED_VERSION_EXCEPTION)
+
             is DecryptionException ->
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.DECRYPTION_EXCEPTION))
+                PinIntent.UpdatePayloadErrorState(PayloadError.DECRYPTION_EXCEPTION)
+
             is HDWalletException -> {
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.HD_WALLET_EXCEPTION))
+                PinIntent.UpdatePayloadErrorState(PayloadError.HD_WALLET_EXCEPTION)
             }
+
             is InvalidCipherTextException -> {
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.INVALID_CIPHER_TEXT))
-                interactor.clearPin()
+                PinIntent.UpdatePayloadErrorState(PayloadError.INVALID_CIPHER_TEXT).also {
+                    interactor.clearPin()
+                }
             }
-            is AccountLockedException -> process(PinIntent.UpdatePayloadErrorState(PayloadError.ACCOUNT_LOCKED))
+
+            is AccountLockedException -> PinIntent.UpdatePayloadErrorState(PayloadError.ACCOUNT_LOCKED)
             else -> {
-                process(PinIntent.UpdatePayloadErrorState(PayloadError.UNKNOWN))
+                PinIntent.UpdatePayloadErrorState(PayloadError.UNKNOWN)
             }
         }
     }
 
-    private fun Completable.handleProgress(@StringRes msg: Int) =
-        this.doOnSubscribe {
-            process(PinIntent.HandleProgressDialog(true, msg))
-        }.doFinally {
-            // This is what causes the render being call again and trigge biometrics bottomSheet second time.
-            process(PinIntent.HandleProgressDialog(false))
-        }
+    private fun Completable.handleProgress() =
+        this.doOnSubscribe { process(PinIntent.UpdateLoading(true)) }
+            .doFinally { process(PinIntent.UpdateLoading(false)) }
 
-    private fun <T> Single<T>.handleProgress(@StringRes msg: Int) =
-        this.doOnSubscribe { process(PinIntent.HandleProgressDialog(true, msg)) }
-            .doFinally { process(PinIntent.HandleProgressDialog(false)) }
+    private fun <T : Any> Single<T>.handleProgress() =
+        this.doOnSubscribe { process(PinIntent.UpdateLoading(true)) }
+            .doFinally { process(PinIntent.UpdateLoading(false)) }
 
     companion object {
         const val SECOND_PASSWORD_ATTEMPTS = 5

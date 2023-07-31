@@ -36,7 +36,7 @@ sealed class WalletConnectAnalytics(
     class ConnectedDappsListClicked(
         override val origin: LaunchOrigin
     ) : WalletConnectAnalytics(
-        event = AnalyticsNames.CONNECTED_DAPPS_LIST_CLICKED.eventName,
+        event = AnalyticsNames.CONNECTED_DAPPS_LIST_CLICKED.eventName
     )
 
     object DappConnectionConfirmed : WalletConnectAnalytics(
@@ -62,6 +62,14 @@ sealed class WalletConnectAnalytics(
             METHOD to method.name,
             ACTION to action.name
         )
+    )
+
+    object HomeCTAClicked : WalletConnectAnalytics(
+        event = AnalyticsNames.WALLETCONNECT_HOME_CTA_CLICKED.eventName
+    )
+
+    class HomeDappClicked(network: String) : WalletConnectAnalytics(
+        event = AnalyticsNames.WALLETCONNECT_HOME_CONNECTED_APP_CLICKED.eventName
     )
 
     enum class DappConnectionAction {

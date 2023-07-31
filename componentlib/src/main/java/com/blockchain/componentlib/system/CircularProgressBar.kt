@@ -16,19 +16,18 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey600
 
 @Composable
 fun CircularProgressBar(
     modifier: Modifier = Modifier,
     text: String? = null,
-    progress: Float? = null,
+    progress: Float? = null
 ) {
     val color = AppTheme.colors.primary
-    val backgroundColor = Grey000
+    val backgroundColor = AppColors.medium
     val fontStyle = AppTheme.typography.body1
 
     val textHeight = with(LocalDensity.current) {
@@ -70,7 +69,65 @@ fun CircularProgressBar(
                     }
                 },
                 style = fontStyle,
-                color = Grey600
+                color = AppColors.body
+            )
+        }
+    }
+}
+
+@Composable
+fun CircularProgressBarWithSmallText(
+    modifier: Modifier = Modifier,
+    text: String? = null,
+    progress: Float? = null
+) {
+    val color = AppTheme.colors.primary
+    val backgroundColor = AppColors.medium
+    val fontStyle = AppTheme.typography.micro1
+
+    val textHeight = with(LocalDensity.current) {
+        fontStyle.lineHeight.toDp()
+    }
+
+    val boxModifier = if (text != null) {
+        Modifier.size(textHeight)
+    } else {
+        Modifier
+    }
+
+    Row(modifier = modifier, horizontalArrangement = Arrangement.Center) {
+        Box(boxModifier) {
+            CircularProgressIndicator(
+                color = backgroundColor,
+                progress = 1f,
+                strokeWidth = 2.dp
+            )
+            if (progress != null) {
+                CircularProgressIndicator(
+                    color = color,
+                    progress = progress,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                CircularProgressIndicator(
+                    color = color,
+                    strokeWidth = 2.dp
+                )
+            }
+        }
+
+        if (text != null) {
+            Text(
+                modifier = Modifier
+                    .padding(start = 25.dp)
+                    .align(Alignment.Bottom),
+                text = buildAnnotatedString {
+                    withStyle(SpanStyle(fontFeatureSettings = "tnum")) {
+                        append(text)
+                    }
+                },
+                style = fontStyle,
+                color = AppColors.body
             )
         }
     }

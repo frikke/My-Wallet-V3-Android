@@ -5,32 +5,35 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import androidx.activity.addCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.blockchain.analytics.Analytics
-import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.chrome.navigation.AssetActionsNavigation
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.invisibleIf
+import com.blockchain.home.presentation.recurringbuy.RecurringBuysAnalyticsEvents
+import com.blockchain.koin.payloadScope
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecurringBuyOnBoardingBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 
-class RecurringBuyOnboardingActivity : AppCompatActivity() {
+class RecurringBuyOnboardingActivity : BlockchainActivity() {
+
+    override val alwaysDisableScreenshots: Boolean = false
 
     private val binding: ActivityRecurringBuyOnBoardingBinding by lazy {
         ActivityRecurringBuyOnBoardingBinding.inflate(layoutInflater)
     }
 
-    private val analytics: Analytics by inject()
-    private val assetCatalogue: AssetCatalogue by inject()
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
-    private val fromCoinView: Boolean by unsafeLazy {
-        intent?.getBooleanExtra(ORIGIN_ON_BOARDING_RBS, true) ?: true
-    }
+    private val assetCatalogue: AssetCatalogue by inject()
 
     private val asset: AssetInfo? by unsafeLazy {
         intent?.getStringExtra(ASSET)?.let {
@@ -38,12 +41,22 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
         }
     }
 
+    private val assetActionsNavigation: AssetActionsNavigation = payloadScope.get {
+        parametersOf(
+            this
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         showFullScreen()
         setContentView(binding.root)
 
-        setupBackPress()
+        updateToolbarBackAction {
+            onBackPressedDispatcher.onBackPressed()
+        }
+        updateToolbarTitle(getString(com.blockchain.stringResources.R.string.recurring_buy_toolbar))
+        updateToolbarBackground()
 
         val recurringBuyOnBoardingPagerAdapter =
             RecurringBuyOnBoardingPagerAdapter(this, createListOfRecurringBuyInfo())
@@ -52,15 +65,16 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
             viewpager.adapter = recurringBuyOnBoardingPagerAdapter
             indicator.setViewPager(viewpager)
             recurringBuyCta.apply {
-                visibleIf { fromCoinView }
-                recurringBuyCta.setOnClickListener {
+                text = getString(com.blockchain.stringResources.R.string.recurring_buy_cta_1)
+                onClick = {
                     goToRecurringSetUpScreen()
                     finish()
                 }
             }
-            closeBtn.setOnClickListener { finish() }
         }
         setupViewPagerListener()
+
+        analytics.logEvent(RecurringBuysAnalyticsEvents.OnboardingViewed)
     }
 
     private fun showFullScreen() {
@@ -73,7 +87,7 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
 
     private fun showHeader(isShown: Boolean) {
         binding.apply {
-            headerText.visibleIf { isShown }
+            headerText.invisibleIf { !isShown }
         }
     }
 
@@ -99,73 +113,49 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
     }
 
     private fun goToRecurringSetUpScreen() {
-        startActivity(
-            SimpleBuyActivity.newIntent(
-                context = this,
-                asset = asset
+        asset?.let {
+            startActivity(
+                SimpleBuyActivity.newIntent(
+                    context = this,
+                    asset = asset,
+                    fromRecurringBuy = true
+                )
             )
-        )
+        } ?: assetActionsNavigation.buyCryptoWithRecurringBuy()
     }
 
     private fun createListOfRecurringBuyInfo(): List<RecurringBuyInfo> = listOf(
         RecurringBuyInfo(
-            title1 = getString(R.string.recurring_buy_title_1_1),
-            title2 = getString(R.string.recurring_buy_title_1_2)
+            title1 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_1_1),
+            title2 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_1_2)
         ),
         RecurringBuyInfo(
-            title1 = getString(R.string.recurring_buy_title_2_1),
-            title2 = getString(R.string.recurring_buy_title_2_2)
+            title1 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_2_1),
+            title2 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_2_2)
         ),
         RecurringBuyInfo(
-            title1 = getString(R.string.recurring_buy_title_3_1),
-            title2 = getString(R.string.recurring_buy_title_3_2)
+            title1 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_3_1),
+            title2 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_3_2)
         ),
         RecurringBuyInfo(
-            title1 = getString(R.string.recurring_buy_title_4_1),
-            title2 = getString(R.string.recurring_buy_title_4_2)
+            title1 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_4_1),
+            title2 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_4_2)
         ),
         RecurringBuyInfo(
-            title1 = getString(R.string.recurring_buy_title_5_1),
-            title2 = getString(R.string.recurring_buy_title_5_2),
-            noteLink = R.string.recurring_buy_note
+            title1 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_5_1),
+            title2 = getString(com.blockchain.stringResources.R.string.recurring_buy_title_5_2),
+            noteLink = com.blockchain.stringResources.R.string.recurring_buy_note
         )
     )
 
-    private fun setupBackPress() {
-        val backPressCallback = onBackPressedDispatcher.addCallback {
-            binding.viewpager.currentItem = binding.viewpager.currentItem - 1
-        }
-
-        binding.viewpager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-
-                // when viewpager is not on the first page
-                // enable custom backpress handling to return to previous page
-                backPressCallback.isEnabled = position > 0
-            }
-        })
-    }
-
     companion object {
         private const val FRAMES_PER_SCREEN = 60
-        private const val ORIGIN_ON_BOARDING_RBS = "FROM_COINVIEW"
         private const val ASSET = "ASSET"
-        fun newInstance(
-            context: Context,
-            fromCoinView: Boolean,
-            asset: AssetInfo? = null
-        ): Intent = Intent(context, RecurringBuyOnboardingActivity::class.java).apply {
-            putExtra(ORIGIN_ON_BOARDING_RBS, fromCoinView)
-            putExtra(ASSET, asset?.networkTicker)
-        }
 
         fun newIntent(
             context: Context,
-            fromCoinView: Boolean,
-            assetTicker: String
+            assetTicker: String?
         ): Intent = Intent(context, RecurringBuyOnboardingActivity::class.java).apply {
-            putExtra(ORIGIN_ON_BOARDING_RBS, fromCoinView)
             putExtra(ASSET, assetTicker)
         }
     }

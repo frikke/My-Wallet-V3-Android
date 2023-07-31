@@ -2,6 +2,7 @@ package piuk.blockchain.android.kyc
 
 import android.content.Intent
 import android.net.Uri
+import com.blockchain.deeplinking.processor.KycLinkState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.notifications.links.PendingLink
 import io.reactivex.rxjava3.core.Maybe
@@ -44,26 +45,4 @@ class KycDeepLinkHelper(
     companion object {
         const val KYC_CONTEXT = "kyc"
     }
-}
-
-sealed class KycLinkState {
-    /**
-     * Deep link into the email confirmation part of KYC
-     */
-    object EmailVerified : KycLinkState()
-
-    /**
-     * General deep link into KYC
-     */
-    data class General(val campaignData: CampaignData?) : KycLinkState()
-
-    /**
-     * Not a valid KYC deep link URI
-     */
-    object NoUri : KycLinkState()
-
-    /**
-     * Deep link into identity verification part of KYC
-     */
-    object Resubmit : KycLinkState()
 }

@@ -13,11 +13,10 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
-import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.domain.models.interest.InterestLimits
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.storedatasource.FlushableDataSource
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -42,7 +41,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
     }
 
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val interestBalanceStore: InterestBalancesStore = mock()
+    private val interestBalanceStore: FlushableDataSource = mock()
     private val interestService: InterestService = mock()
     private val tradingStore: TradingStore = mock()
 
@@ -139,9 +138,6 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
         }
 
         whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(Single.just(limits))
-        whenever(custodialWalletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)).thenReturn(
-            Single.just(fees)
-        )
 
         // Act
         subject.doInitialiseTx()
@@ -154,7 +150,8 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(
-                    CryptoValue.fromMinor(ASSET, fees.minLimit), MAX_WITHDRAW_AMOUNT_CRYPTO
+                    CryptoValue.fromMinor(ASSET, BigInteger.ONE),
+                    MAX_WITHDRAW_AMOUNT_CRYPTO
                 ) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
@@ -165,9 +162,8 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount, atLeastOnce()).currency
 
         verify(interestService).getLimitsForAsset(ASSET)
-        verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
         verify(currencyPrefs).selectedFiatCurrency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -188,10 +184,6 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
         whenever(interestService.getLimitsForAsset(ASSET))
             .thenReturn(Single.error(NoSuchElementException()))
 
-        whenever(custodialWalletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)).thenReturn(
-            Single.just(mock())
-        )
-
         // Act
         subject.doInitialiseTx()
             .test()
@@ -200,47 +192,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount, atLeastOnce()).currency
 
         verify(interestService).getLimitsForAsset(ASSET)
-        verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
-        verify(sourceAccount).balanceRx
-
-        noMoreInteractions(sourceAccount, txTarget)
-    }
-
-    @Test
-    fun `when initialising, if fetchCryptoWithdrawFeeAndMinLimit() returns error, then initialisation fails`() {
-        // Arrange
-        val sourceAccount = mockSourceAccount()
-        val txTarget = mockTransactionTarget()
-
-        subject.start(
-            sourceAccount,
-            txTarget,
-            exchangeRates
-        )
-
-        whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(
-            Single.just(mock())
-        )
-        whenever(
-            custodialWalletManager.fetchCryptoWithdrawFeeAndMinLimit(
-                ASSET, Product.SAVINGS
-            )
-        ).thenReturn(
-            Single.error(Exception())
-        )
-
-        // Act
-        subject.doInitialiseTx()
-            .test()
-            .assertError(Exception::class.java)
-
-        verify(sourceAccount, atLeastOnce()).currency
-
-        verify(interestService).getLimitsForAsset(ASSET)
-        verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(
-            ASSET, Product.SAVINGS
-        )
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -292,14 +244,13 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        availableBalance: Money = CryptoValue.zero(ASSET),
+        availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<CustodialInterestAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balanceRx }.thenReturn(
+        on { balanceRx() }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
-                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

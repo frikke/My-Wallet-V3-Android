@@ -3,6 +3,7 @@ package com.blockchain.store
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.internalnotifications.NotificationEvent
 import kotlinx.coroutines.flow.Flow
 
 internal typealias Millis = Long
@@ -79,4 +80,30 @@ interface KeyedStore<K : Any, T : Any> {
     fun stream(request: KeyedFreshnessStrategy<K>): Flow<DataResource<T>>
     fun markAsStale(key: K)
     fun markStoreAsStale()
+}
+
+data class CacheConfiguration internal constructor(val flushEvents: List<NotificationEvent>) {
+    companion object {
+        fun default() = CacheConfiguration(emptyList())
+        fun onLogout(): CacheConfiguration = CacheConfiguration(flushEvents = listOf(NotificationEvent.Logout))
+        fun onLogin(): CacheConfiguration = CacheConfiguration(flushEvents = listOf(NotificationEvent.Login))
+        fun onAnyTransaction(): CacheConfiguration =
+            CacheConfiguration(
+                flushEvents = listOf(
+                    NotificationEvent.NonCustodialTransaction,
+                    NotificationEvent.RewardsTransaction,
+                    NotificationEvent.StakingTransaction,
+                    NotificationEvent.TradingTransaction,
+                )
+            )
+
+        fun onKycStatusChanged(): CacheConfiguration =
+            CacheConfiguration(flushEvents = listOf(NotificationEvent.KycStatusChanged))
+
+        fun on(events: List<NotificationEvent>): CacheConfiguration =
+            CacheConfiguration(flushEvents = events)
+    }
+
+    operator fun plus(other: CacheConfiguration) =
+        CacheConfiguration(other.flushEvents + flushEvents)
 }

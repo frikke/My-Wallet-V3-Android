@@ -5,17 +5,15 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.domain.eligibility.model.Region
 
 data class CreateWalletViewState(
-    val step: CreateWalletStep,
+    val screen: CreateWalletScreen,
 
     val emailInput: String,
     val isShowingInvalidEmailError: Boolean,
     val passwordInput: String,
-    val passwordInputError: CreateWalletPasswordError?,
+    val passwordInputErrors: List<CreateWalletPasswordError>,
 
     val countryInputState: CountryInputState,
     val stateInputState: StateInputState,
-
-    val areTermsOfServiceChecked: Boolean,
 
     val referralCodeInput: String,
     val isInvalidReferralErrorShowing: Boolean,
@@ -23,7 +21,7 @@ data class CreateWalletViewState(
     val isCreateWalletLoading: Boolean,
     val nextButtonState: ButtonState,
 
-    val error: CreateWalletError? = null,
+    val error: CreateWalletError? = null
 ) : ViewState
 
 sealed class CountryInputState {
@@ -31,7 +29,7 @@ sealed class CountryInputState {
     data class Loaded(
         val countries: List<Region.Country>,
         val selected: Region.Country?,
-        val suggested: Region.Country?,
+        val suggested: Region.Country?
     ) : CountryInputState()
 }
 

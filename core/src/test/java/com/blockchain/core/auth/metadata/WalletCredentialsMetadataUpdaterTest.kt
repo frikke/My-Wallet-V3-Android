@@ -59,7 +59,7 @@ class WalletCredentialsMetadataUpdaterTest {
                 WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
                 WalletCredentialsMetadata::class.java,
                 WalletCredentialsMetadata::class.serializer(),
-                MetadataEntry.WALLET_CREDENTIALS,
+                MetadataEntry.WALLET_CREDENTIALS
             )
         ).thenReturn(updateResult)
 
@@ -79,7 +79,7 @@ class WalletCredentialsMetadataUpdaterTest {
             WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
             WalletCredentialsMetadata::class.java,
             WalletCredentialsMetadata::class.serializer(),
-            MetadataEntry.WALLET_CREDENTIALS,
+            MetadataEntry.WALLET_CREDENTIALS
         )
 
         assert(subFlag)
@@ -125,7 +125,7 @@ class WalletCredentialsMetadataUpdaterTest {
             WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
             WalletCredentialsMetadata::class.java,
             WalletCredentialsMetadata::class.serializer(),
-            MetadataEntry.WALLET_CREDENTIALS,
+            MetadataEntry.WALLET_CREDENTIALS
         )
         verifyNoMoreInteractions(metadataRepository)
         verifyNoMoreInteractions(payloadDataManager)

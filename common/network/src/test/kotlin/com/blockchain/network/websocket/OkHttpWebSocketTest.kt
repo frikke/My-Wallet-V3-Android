@@ -34,7 +34,6 @@ class OkHttpWebSocketTest {
 
     @Test
     fun `can close`() {
-
         whenever(client.newWebSocket(any(), any())).thenReturn(socket)
 
         subject.apply {

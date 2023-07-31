@@ -11,7 +11,7 @@
 
         <activity
             tools:node="replace"
-            android:name="piuk.blockchain.android.ui.launcher.LauncherActivityV2"
+            android:name="piuk.blockchain.android.ui.launcher.LauncherActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
             android:launchMode="singleTask">
@@ -50,6 +50,15 @@
                 <data
                     android:host="${DYNAMIC_LINK_HOST_2}"
                     android:scheme="https" />
+            </intent-filter>
+            <intent-filter>
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="wc" />
             </intent-filter>
         </activity>
     </application>

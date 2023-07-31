@@ -13,10 +13,11 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.stringResources.R
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityActionBinding
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.ui.base.showFragment
@@ -24,14 +25,13 @@ import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.swap.SwapFragment
 import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
-import piuk.blockchain.android.ui.upsell.UpsellHost
 
 class ActionActivity :
     BlockchainActivity(),
     SlidingModalBottomDialog.Host,
-    UpsellHost,
     SwapFragment.Host,
-    BuyPendingOrdersBottomSheet.Host {
+    BuyPendingOrdersBottomSheet.Host,
+    KycUpgradeNowSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -56,6 +56,8 @@ class ActionActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        updateToolbarBackground(mutedBackground = true)
 
         updateToolbarBackAction {
             onBackPressedDispatcher.onBackPressed()
@@ -83,14 +85,19 @@ class ActionActivity :
             }
             AssetAction.Sell,
             AssetAction.Buy -> {
-                updateToolbarTitle(getString(R.string.buy_and_sell))
                 BuySellFragment.newInstance(
-                    viewType = if (action == AssetAction.Sell) {
-                        BuySellViewType.TYPE_SELL
-                    } else {
-                        BuySellViewType.TYPE_BUY
+                    viewType = when (action) {
+                        AssetAction.Sell -> {
+                            updateToolbarTitle(getString(R.string.common_sell))
+                            BuySellViewType.TYPE_SELL
+                        }
+                        else -> {
+                            updateToolbarTitle(getString(R.string.common_buy))
+                            BuySellViewType.TYPE_BUY
+                        }
                     },
-                    asset = cryptoTicker?.let { assetCatalogue.fromNetworkTicker(it) as? AssetInfo }
+                    asset = cryptoTicker?.let { assetCatalogue.fromNetworkTicker(it) as? AssetInfo },
+                    fromRecurringBuy = intent.getBooleanExtra(ARG_FROM_RECURRING_BUY, false)
                 )
             }
             else -> {
@@ -100,17 +107,18 @@ class ActionActivity :
     }
 
     override fun showLoading() {
-        binding.progress.visible()
-        binding.progress.playAnimation()
+        with(binding.progress) {
+            bringToFront()
+            visible()
+            playAnimation()
+        }
     }
 
     override fun hideLoading() {
-        binding.progress.gone()
-        binding.progress.pauseAnimation()
-    }
-
-    override fun startUpsellKyc() {
-        finishWithResult(ActivityResult.StartKyc)
+        with(binding.progress) {
+            gone()
+            pauseAnimation()
+        }
     }
 
     override fun navigateBack() {
@@ -123,6 +131,10 @@ class ActionActivity :
 
     override fun navigateToBuy() {
         finishWithResult(ActivityResult.StartBuyIntro)
+    }
+
+    override fun startKycClicked() {
+        finishWithResult(ActivityResult.StartKyc)
     }
 
     override fun onSheetClosed() {
@@ -155,17 +167,28 @@ class ActionActivity :
         private const val RESULT_START_BUY_INTRO = "RESULT_START_BUY_INTRO"
         private const val RESULT_VIEW_ACTIVITY = "RESULT_VIEW_ACTIVITY"
         private const val CRYPTO_TICKER = "CRYPTO_TICKER"
+        private const val ARG_FROM_RECURRING_BUY = "ARG_FROM_RECURRING_BUY"
 
-        private fun newIntent(context: Context, action: AssetAction, cryptoTicker: String? = null): Intent =
+        private fun newIntent(
+            context: Context,
+            action: AssetAction,
+            cryptoTicker: String? = null,
+            fromRecurringBuy: Boolean = false
+        ): Intent =
             Intent(context, ActionActivity::class.java).apply {
                 putExtra(ACTION, action)
                 cryptoTicker?.let {
                     putExtra(CRYPTO_TICKER, it)
                 }
+                putExtra(ARG_FROM_RECURRING_BUY, fromRecurringBuy)
             }
     }
 
-    data class ActivityArgs(val action: AssetAction, val cryptoTicker: String? = null)
+    data class ActivityArgs(
+        val action: AssetAction,
+        val cryptoTicker: String? = null,
+        val fromRecurringBuy: Boolean = false
+    )
 
     sealed class ActivityResult {
         object StartKyc : ActivityResult()
@@ -176,7 +199,7 @@ class ActionActivity :
 
     class BlockchainActivityResultContract : ActivityResultContract<ActivityArgs, ActivityResult?>() {
         override fun createIntent(context: Context, input: ActivityArgs): Intent =
-            newIntent(context, input.action, input.cryptoTicker)
+            newIntent(context, input.action, input.cryptoTicker, input.fromRecurringBuy)
 
         override fun parseResult(resultCode: Int, intent: Intent?): ActivityResult? {
             val startKyc = intent?.getBooleanExtra(RESULT_START_KYC, false) ?: false

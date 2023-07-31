@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.airdrops
 
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.AirdropStatus
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.CampaignState
 import com.blockchain.nabu.models.responses.nabu.CampaignTransactionState
 import com.blockchain.nabu.models.responses.nabu.UserCampaignState
+import com.blockchain.nabu.models.responses.nabu.sunriverCampaignName
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -18,7 +18,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.lang.IllegalStateException
 import java.util.Date
-import piuk.blockchain.android.campaign.sunriverCampaignName
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import timber.log.Timber
@@ -29,7 +28,6 @@ interface AirdropCentreView : MvpView {
 }
 
 class AirdropCentrePresenter(
-    private val nabuToken: NabuToken,
     private val nabu: NabuDataManager,
     private val assetCatalogue: AssetCatalogue,
     private val remoteLogger: RemoteLogger
@@ -84,7 +82,6 @@ class AirdropCentrePresenter(
     }
 
     private fun parseAmount(item: AirdropStatus): Pair<Money?, Money?> {
-
         val tx = item.txResponseList
             .firstOrNull {
                 it.transactionState == CampaignTransactionState.FinishedWithdrawal

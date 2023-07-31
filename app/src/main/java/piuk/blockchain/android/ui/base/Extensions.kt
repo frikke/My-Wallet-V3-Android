@@ -6,7 +6,8 @@ import piuk.blockchain.android.R
 
 fun FragmentManager.showFragment(
     fragment: Fragment,
-    reloadFragment: Boolean = false
+    reloadFragment: Boolean = false,
+    containerId: Int = R.id.content_frame
 ) {
     val transaction = this.beginTransaction()
     val primaryFragment = this.primaryNavigationFragment
@@ -23,7 +24,7 @@ fun FragmentManager.showFragment(
 
     if (tempFragment == null) {
         tempFragment = fragment
-        transaction.add(R.id.content_frame, tempFragment, tag)
+        transaction.add(containerId, tempFragment, tag)
     } else {
         transaction.show(tempFragment)
     }

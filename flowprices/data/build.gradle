@@ -1,0 +1,16 @@
+apply plugin: 'kotlinx-serialization'
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
+
+
+dependencies {
+    implementation project(':common:interface')
+    implementation project(':flowprices:domain')
+    implementation project(':store:core')
+    implementation project(':coincore')
+    implementation project(':core')
+    implementation project(':analytics:domain')
+
+    // rx
+    implementation Libraries.rxKotlin
+    implementation Libraries.rxjava3Coroutines
+}

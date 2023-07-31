@@ -7,27 +7,22 @@ import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.store.mapData
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.mapData
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.flow.Flow
 
 class AssetRepository(
     private val assetInformationStore: AssetInformationStore
 ) : AssetService {
-    override fun getAvailableFiatAssets(
-        freshnessStrategy: FreshnessStrategy
-    ): Flow<DataResource<List<FiatCurrency>>> {
-        TODO("Not yet implemented")
-    }
 
     override fun getAssetInformation(
-        asset: AssetInfo,
-        freshnessStrategy: FreshnessStrategy
+        asset: AssetInfo
     ): Flow<DataResource<DetailedAssetInformation>> {
         return assetInformationStore
             .stream(
-                freshnessStrategy.withKey(AssetInformationStore.Key(asset.networkTicker))
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    .withKey(AssetInformationStore.Key(asset.networkTicker))
             )
             .mapData {
                 it.toAssetInfo()

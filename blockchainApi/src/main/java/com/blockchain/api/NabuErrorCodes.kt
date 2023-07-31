@@ -80,6 +80,7 @@ enum class NabuErrorCodes(val code: Int) {
     KycAlreadyCompleted(24),
     MaxKycAttempts(25),
     InvalidCountryCode(29),
+    InvalidName(180),
 
     // user-onboarding errors
     InvalidJwtToken(30),
@@ -132,6 +133,9 @@ enum class NabuErrorCodes(val code: Int) {
     IneligibleForSwap(156),
     InvalidDestinationAmount(157),
     InvalidPostcode(158),
+
+    ProvePossessionFailed(300), // TODO(aromano): PROVE code
+    ProveVerificationFailed(301), // TODO(aromano): PROVE code
 
     InsufficientCardFunds(10000),
     CardBankDeclined(10001),

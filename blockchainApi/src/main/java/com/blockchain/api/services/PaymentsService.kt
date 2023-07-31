@@ -2,6 +2,7 @@ package com.blockchain.api.services
 
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.payments.PaymentsApi
+import com.blockchain.api.payments.data.CardTokenIdResponse
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.WithdrawalLocksResponse
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
@@ -16,6 +17,8 @@ class PaymentsService internal constructor(
         paymentId: String
     ): Outcome<Exception, PaymentMethodDetailsResponse> =
         api.getPaymentMethodDetailsForId(paymentId)
+
+    suspend fun getCardTokenId(): Outcome<Exception, CardTokenIdResponse> = api.getCardTokenId()
 
     fun getWithdrawalLocks(
         localCurrency: String
@@ -34,7 +37,7 @@ private fun WithdrawalLocksResponse.toWithdrawalLocks() =
                 value = lockPeriod.localCurrencyAmount.amount,
                 date = lockPeriod.expiresAt,
                 buyCurrency = lockPeriod.bought?.currency,
-                buyValue = lockPeriod.bought?.amount,
+                buyValue = lockPeriod.bought?.amount
             )
         }
     )
@@ -53,7 +56,7 @@ data class CollateralLock(
     val date: String,
     // Used for locks on purchases
     val buyCurrency: String?,
-    val buyValue: String?,
+    val buyValue: String?
 )
 
 fun String.toMobilePaymentType(): MobilePaymentType =

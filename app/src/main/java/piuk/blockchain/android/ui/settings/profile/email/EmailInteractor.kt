@@ -31,7 +31,7 @@ class EmailInteractor internal constructor(
     /*
        BE eventually will sync and update notifications when user updates email and phone number
        keep an eye: https://blockchain.atlassian.net/browse/WS-171
-    */
+     */
     fun saveEmail(email: String): Single<Email> =
         emailUpdater.updateEmailAndSync(email)
             .doOnSuccess {

@@ -17,10 +17,10 @@ class PasswordStrengthView(context: Context, attrs: AttributeSet?) : ConstraintL
         ViewPasswordStrengthBinding.inflate(LayoutInflater.from(context), this, true)
 
     private val strengthVerdicts = intArrayOf(
-        R.string.strength_weak,
-        R.string.strength_medium,
-        R.string.strength_normal,
-        R.string.strength_strong
+        com.blockchain.stringResources.R.string.strength_weak,
+        com.blockchain.stringResources.R.string.strength_medium,
+        com.blockchain.stringResources.R.string.strength_normal,
+        com.blockchain.stringResources.R.string.strength_strong
     )
 
     private val strengthProgressDrawables = intArrayOf(
@@ -31,10 +31,10 @@ class PasswordStrengthView(context: Context, attrs: AttributeSet?) : ConstraintL
     )
 
     private val strengthColors = intArrayOf(
-        R.color.product_red_medium,
-        R.color.product_orange_medium,
-        R.color.primary_blue_medium,
-        R.color.product_green_medium
+        com.blockchain.componentlib.R.color.error,
+        com.blockchain.componentlib.R.color.warning,
+        com.blockchain.componentlib.R.color.primary,
+        com.blockchain.componentlib.R.color.success
     )
 
     init {

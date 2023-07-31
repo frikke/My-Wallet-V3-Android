@@ -4,21 +4,22 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.toUserFiat
-import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
-import com.blockchain.presentation.koin.scopedInject
-import info.blockchain.balance.Money
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.CoinNetwork
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -40,60 +41,74 @@ class AccountInfoCrypto @JvmOverloads constructor(
 
     private val exchangeRates: ExchangeRates by scopedInject()
     private val coincore: Coincore by scopedInject()
+    private val assetCatalogue: AssetCatalogue by scopedInject()
     private val compositeDisposable = CompositeDisposable()
-    private var accountBalance: Money? = null
     private var isEnabled: Boolean? = null
-    private var interestRate: Double? = null
-    private var displayedAccount: CryptoAccount = NullCryptoAccount()
 
     val binding: ViewAccountCryptoOverviewBinding =
         ViewAccountCryptoOverviewBinding.inflate(LayoutInflater.from(context), this, true)
 
+    fun updateBackground(
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean,
+        isSelected: Boolean
+    ) {
+        with(binding.tableRow) {
+            roundedTop = isFirstItemInList
+            roundedBottom = isLastItemInList
+            withBorder = isSelected
+        }
+    }
+
     fun updateItem(
-        item: AccountListViewItem.Crypto,
-        onAccountClicked: (CryptoAccount) -> Unit = {},
-        cellDecorator: CellDecorator = DefaultCellDecorator(),
+        item: AccountListViewItem,
+        onAccountClicked: (SingleAccount) -> Unit = {},
+        cellDecorator: CellDecorator = DefaultCellDecorator()
     ) {
         compositeDisposable.clear()
         updateView(item, onAccountClicked, cellDecorator)
     }
 
     private fun updateView(
-        item: AccountListViewItem.Crypto,
-        onAccountClicked: (CryptoAccount) -> Unit,
-        cellDecorator: CellDecorator,
+        item: AccountListViewItem,
+        onAccountClicked: (SingleAccount) -> Unit,
+        cellDecorator: CellDecorator
     ) {
-        val accountsAreTheSame = displayedAccount.isTheSameWith(item.account)
-        updateAccountDetails(item, accountsAreTheSame, onAccountClicked, cellDecorator)
+        updateAccountDetails(item, onAccountClicked, cellDecorator)
 
-        if (item.showRewardsUpsell) setInterestAccountDetails(item.account, accountsAreTheSame)
+        if (item.showRewardsUpsell) setInterestAccountDetails(item.account)
 
-        with(binding.assetWithAccount) {
-            updateIcon(item.account)
-            visible()
-        }
-        displayedAccount = item.account
+        val mainLogo = ImageResource.Remote(item.account.currency.logo)
+        val tagLogo = item.l2Network?.nativeAssetTicker
+            ?.let { assetCatalogue.fromNetworkTicker(it)?.logo }
+            ?.let { ImageResource.Remote(it) }
+        binding.tableRow.icon = tagLogo?.let {
+            StackedIcon.SmallTag(
+                main = mainLogo,
+                tag = tagLogo
+            )
+        } ?: StackedIcon.SingleIcon(mainLogo)
+
+        binding.tableRow.tag = item.l2Network?.shortName ?: ""
     }
 
     private fun setInterestAccountDetails(
-        account: CryptoAccount,
-        accountsAreTheSame: Boolean
+        account: SingleAccount
     ) {
-        with(binding) {
+        with(binding.tableRow) {
             compositeDisposable += (coincore[account.currency] as CryptoAsset)
                 .interestRate()
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe { assetSubtitle.text = resources.getString(R.string.empty) }
-                .doOnSuccess {
-                    interestRate = it
-                }.startWithValueIfCondition(value = interestRate, condition = accountsAreTheSame)
                 .subscribeBy(
-                    onNext = {
-                        assetSubtitle.text = resources.getString(R.string.dashboard_asset_balance_rewards, it)
+                    onSuccess = {
+                        subtitle = resources.getString(
+                            com.blockchain.stringResources.R.string.dashboard_asset_balance_rewards,
+                            it
+                        )
                     },
                     onError = {
-                        assetSubtitle.text = resources.getString(
-                            R.string.dashboard_asset_actions_rewards_dsc_failed
+                        subtitle = resources.getString(
+                            com.blockchain.stringResources.R.string.dashboard_asset_actions_rewards_dsc_failed
                         )
                         Timber.e("AssetActions error loading Interest rate: $it")
                     }
@@ -102,85 +117,67 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 
     private fun updateAccountDetails(
-        item: AccountListViewItem.Crypto,
-        accountsAreTheSame: Boolean,
-        onAccountClicked: (CryptoAccount) -> Unit,
-        cellDecorator: CellDecorator,
+        item: AccountListViewItem,
+        onAccountClicked: (SingleAccount) -> Unit,
+        cellDecorator: CellDecorator
     ) {
-
-        with(binding) {
+        with(binding.tableRow) {
             val account = item.account
+            contentDescription = "${item.title} ${item.subTitle}"
+            title = item.title
+            subtitle = if (item.account !is CustodialTradingAccount) {
+                item.subTitle
+            } else {
+                ""
+            }
 
-            root.contentDescription = "${item.title} ${item.subTitle}"
-
-            assetTitle.text = item.title
-            assetSubtitle.text = item.subTitle
-
-            compositeDisposable += account.balanceRx.firstOrError().map { it.total }
-                .doOnSuccess {
-                    accountBalance = it
-                }.startWithValueIfCondition(
-                    value = accountBalance,
-                    alternativeValue = Money.zero(account.currency),
-                    condition = accountsAreTheSame
-                )
+            compositeDisposable += account.balanceRx().map { it.total }
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    walletBalanceCrypto.text = ""
-                    walletBalanceFiat.text = ""
-                }
                 .subscribeBy(
                     onNext = { accountBalance ->
-                        walletBalanceCrypto.text = accountBalance.toStringWithSymbol()
-                        walletBalanceFiat.text =
-                            accountBalance.toUserFiat(exchangeRates).toStringWithSymbol()
-
-                        root.contentDescription = "${item.title} ${item.subTitle}: " +
-                            "${context.getString(R.string.accessibility_balance)} " +
-                            "${walletBalanceFiat.text} ${walletBalanceCrypto.text}"
+                        valueCrypto = accountBalance.toStringWithSymbol()
+                        valueFiat = accountBalance.toUserFiat(exchangeRates).toStringWithSymbol()
+                        contentDescription = "${item.title} ${item.subTitle}: " +
+                            "${context.getString(com.blockchain.stringResources.R.string.accessibility_balance)} " +
+                            "$valueFiat $valueCrypto"
                     },
                     onError = {
                         Timber.e("Cannot get balance for ${account.label}")
                     }
                 )
-            compositeDisposable += cellDecorator.view(container.context)
+
+            compositeDisposable += cellDecorator.view(context)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = {
-                        container.addViewToBottomWithConstraints(
-                            view = it,
-                            bottomOfView = assetSubtitle,
-                            startOfView = assetSubtitle,
-                            endOfView = walletBalanceCrypto
-                        )
+                        subView = it
                     },
                     onComplete = {
-                        container.removePossibleBottomView()
+                        subView = null
                     },
                     onError = {
-                        container.removePossibleBottomView()
+                        subView = null
                     }
                 )
 
-            container.alpha = 1f
+            alpha = 1f
+
             compositeDisposable += cellDecorator.isEnabled()
                 .doOnSuccess {
                     isEnabled = it
-                }.startWithValueIfCondition(value = isEnabled, condition = accountsAreTheSame)
+                }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe {
                     setOnClickListener {
                     }
                 }
                 .subscribeBy(
-                    onNext = { isEnabled ->
+                    onSuccess = { isEnabled ->
                         if (isEnabled) {
-                            setOnClickListener {
-                                onAccountClicked(account)
-                            }
-                            container.alpha = 1f
+                            onClick = { onAccountClicked(account) }
+                            alpha = 1f
                         } else {
-                            container.alpha = .6f
+                            alpha = .6f
                         }
                     }
                 )
@@ -201,7 +198,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
 
     override fun update(state: TransactionState) {
         updateItem(
-            item = AccountListViewItem.Crypto(state.sendingAccount as CryptoAccount),
+            item = AccountListViewItem(state.sendingAccount),
             onAccountClicked = { }
         )
     }
@@ -211,43 +208,31 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 }
 
-private fun <T> Single<T>.startWithValueIfCondition(
-    value: T?,
-    alternativeValue: T? = null,
-    condition: Boolean
-): Observable<T> =
-    if (!condition)
-        this.toObservable()
-    else {
-        when {
-            value != null -> this.toObservable().startWithItem(value)
-            alternativeValue != null -> this.toObservable().startWithItem(alternativeValue)
-            else -> this.toObservable()
-        }
-    }
+class AccountListViewItem(
+    val account: SingleAccount,
+    private val emphasiseNameOverCurrency: Boolean = false,
+    val showRewardsUpsell: Boolean = false
+) {
+    val type: AccountsListViewItemType
+        get() = if (account is CryptoAccount) AccountsListViewItemType.Crypto else AccountsListViewItemType.Blockchain
 
-sealed class AccountListViewItem(open val account: BlockchainAccount) {
-    class Blockchain(override val account: BlockchainAccount) : AccountListViewItem(account)
+    private val accountLabel = if (account is CustodialTradingAccount) {
+        account.label.replaceAfter("Blockchain.com", "")
+            .replaceBefore("Blockchain.com", "")
+    } else account.label
 
-    class Crypto(
-        val title: String,
-        val subTitle: String,
-        val showRewardsUpsell: Boolean,
-        override val account: CryptoAccount,
-    ) : AccountListViewItem(account) {
-        constructor(account: CryptoAccount) : this(
-            title = account.currency.name,
-            subTitle = account.label,
-            showRewardsUpsell = false,
-            account = account
-        )
-    }
+    val title: String
+        get() = if (emphasiseNameOverCurrency) accountLabel else account.currency.name
 
-    companion object {
-        fun create(account: BlockchainAccount) = if (account is CryptoAccount) {
-            Crypto(account)
-        } else {
-            Blockchain(account)
-        }
-    }
+    val subTitle: String
+        get() = if (emphasiseNameOverCurrency) account.currency.displayTicker else accountLabel
+
+    val l2Network: CoinNetwork?
+        get() = (account as? CryptoNonCustodialAccount)?.currency
+            ?.takeIf { it.isLayer2Token }
+            ?.coinNetwork
+}
+
+enum class AccountsListViewItemType {
+    Crypto, Blockchain
 }

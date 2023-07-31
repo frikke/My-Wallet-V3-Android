@@ -49,6 +49,10 @@ class SupportCentreActivity :
         intent.getStringExtra(SUBJECT).orEmpty()
     }
 
+    private val launchChat: Boolean by lazy {
+        intent.getBooleanExtra(LAUNCH_CHAT, false)
+    }
+
     override fun initBinding(): ActivitySupportCentreBinding =
         ActivitySupportCentreBinding.inflate(layoutInflater)
 
@@ -73,7 +77,11 @@ class SupportCentreActivity :
                                     .build()
                                 Intercom.client().updateUser(userAttributes)
                                 // start intercom right away but leave the old functionality behind it
-                                Intercom.client().displayMessenger()
+                                if (launchChat) {
+                                    Intercom.client().displayMessageComposer()
+                                } else {
+                                    Intercom.client().displayMessenger()
+                                }
                             } else {
                                 setChatVisitorInfo()
                             }
@@ -91,10 +99,14 @@ class SupportCentreActivity :
                     ) {
                         showBottomSheet(
                             BottomSheetInformation.newInstance(
-                                title = getString(R.string.customer_support_error_title),
-                                description = getString(R.string.customer_support_error_description),
-                                primaryCtaText = getString(R.string.customer_support_error_cta),
-                                secondaryCtaText = getString(R.string.common_close)
+                                title = getString(com.blockchain.stringResources.R.string.customer_support_error_title),
+                                description = getString(
+                                    com.blockchain.stringResources.R.string.customer_support_error_description
+                                ),
+                                primaryCtaText = getString(
+                                    com.blockchain.stringResources.R.string.customer_support_error_cta
+                                ),
+                                secondaryCtaText = getString(com.blockchain.stringResources.R.string.common_close)
                             )
                         )
                     } else {
@@ -113,7 +125,9 @@ class SupportCentreActivity :
                         supportCentreWebview.loadUrl(URL_CONTACT_SUPPORT)
                         progress.gone()
                         BlockchainSnackbar.make(
-                            root, getString(R.string.settings_contact_support_error), type = SnackbarType.Error
+                            root,
+                            getString(com.blockchain.stringResources.R.string.settings_contact_support_error),
+                            type = SnackbarType.Error
                         ).show()
                     }
                 }
@@ -131,9 +145,8 @@ class SupportCentreActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
         updateToolbar(
-            toolbarTitle = getString(R.string.contact_support),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.contact_support),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
 
@@ -162,7 +175,7 @@ class SupportCentreActivity :
         model.process(SupportIntent.LoadUserInfo)
 
         binding.openChatCta.apply {
-            text = getString(R.string.contact_support)
+            text = getString(com.blockchain.stringResources.R.string.contact_support)
             onClick = {
                 if (subject.isEmpty()) {
                     showBottomSheet(SupportCentreTopicSheet.newInstance())
@@ -208,8 +221,8 @@ class SupportCentreActivity :
             .withMultilineResponseOptionsEnabled(true)
             .withEngines(ChatEngine.engine())
             .withBotAvatarDrawable(R.drawable.ic_framed_app_icon)
-            .withBotLabelString(getString(R.string.zendesk_bot_name))
-            .withToolbarTitle(getString(R.string.zendesk_window_title))
+            .withBotLabelString(getString(com.blockchain.stringResources.R.string.zendesk_bot_name))
+            .withToolbarTitle(getString(com.blockchain.stringResources.R.string.zendesk_window_title))
             .show(this, getChatConfiguration())
     }
 
@@ -255,10 +268,12 @@ class SupportCentreActivity :
         private const val URL_BLOCKCHAIN_SUPPORT_PORTAL = "https://support.blockchain.com/"
         private const val URL_CONTACT_SUPPORT = "https://support.blockchain.com/hc/requests/new"
         private const val MAX_SETUP_RETRIES = 3
+        private const val LAUNCH_CHAT = "LAUNCH_CHAT"
 
-        fun newIntent(context: Context, subject: String = ""): Intent =
+        fun newIntent(context: Context, subject: String = "", launchChat: Boolean = false): Intent =
             Intent(context, SupportCentreActivity::class.java).apply {
                 putExtra(SUBJECT, subject)
+                putExtra(LAUNCH_CHAT, launchChat)
             }
     }
 }

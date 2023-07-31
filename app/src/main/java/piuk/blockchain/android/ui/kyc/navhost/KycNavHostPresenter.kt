@@ -15,8 +15,8 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.base.BasePresenter
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
@@ -29,7 +29,7 @@ class KycNavHostPresenter(
     private val kycTiersStore: KycTiersStore,
     private val productEligibilityStore: ProductsEligibilityStore,
     private val getUserStore: GetUserStore,
-    private val analytics: Analytics,
+    private val analytics: Analytics
 ) : BasePresenter<KycNavHostView>() {
 
     override fun onViewReady() {
@@ -53,7 +53,7 @@ class KycNavHostPresenter(
                             // No user, hide loading and start full KYC flow
                             view.displayLoading(false)
                         } else {
-                            view.showErrorSnackbarAndFinish(R.string.kyc_status_error)
+                            view.showErrorSnackbarAndFinish(com.blockchain.stringResources.R.string.kyc_status_error)
                         }
                     }
                 )
@@ -67,14 +67,15 @@ class KycNavHostPresenter(
 
     private fun redirectUserFlow(user: NabuUser) {
         when {
-            view.campaignType == CampaignType.Resubmission || user.isMarkedForResubmission -> {
+            view.entryPoint == KycEntryPoint.Resubmission || user.isMarkedForResubmission -> {
                 view.navigateToResubmissionSplash()
             }
-            view.campaignType == CampaignType.SimpleBuy ||
-                view.campaignType == CampaignType.Interest ||
-                view.campaignType == CampaignType.FiatFunds ||
-                view.campaignType == CampaignType.None ||
-                view.campaignType == CampaignType.Swap -> {
+
+            view.entryPoint == KycEntryPoint.Buy ||
+                view.entryPoint == KycEntryPoint.Interest ||
+                view.entryPoint == KycEntryPoint.FiatFunds ||
+                view.entryPoint == KycEntryPoint.Other ||
+                view.entryPoint == KycEntryPoint.Swap -> {
                 compositeDisposable += kycNavigator.findNextStep()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(
@@ -82,6 +83,7 @@ class KycNavHostPresenter(
                         onSuccess = { view.navigate(it) }
                     )
             }
+
             user.state != UserState.None && user.kycState == KycState.None -> {
                 val current = user.tiers?.current
                 if (current == null || current == 0) {
@@ -94,7 +96,9 @@ class KycNavHostPresenter(
                             },
                             onError = {
                                 Timber.e(it)
-                                view.showErrorSnackbarAndFinish(R.string.kyc_status_error)
+                                view.showErrorSnackbarAndFinish(
+                                    com.blockchain.stringResources.R.string.kyc_status_error
+                                )
                             }
                         )
                 }

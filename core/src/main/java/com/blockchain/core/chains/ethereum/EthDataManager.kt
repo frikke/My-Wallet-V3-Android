@@ -1,26 +1,28 @@
 package com.blockchain.core.chains.ethereum
 
-import com.blockchain.api.ethereum.evm.FeeLevel
+import com.blockchain.api.selfcustody.SignatureAlgorithm
 import com.blockchain.api.services.NonCustodialEvmService
-import com.blockchain.core.chains.EvmNetwork
-import com.blockchain.core.chains.EvmNetworksService
-import com.blockchain.core.chains.erc20.isErc20
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.PreImage
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.chains.ethereum.models.CombinedEthModel
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.utils.schedulers.applySchedulers
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
-import com.blockchain.store.asSingle
 import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CoinNetwork
+import info.blockchain.balance.isLayer2Token
 import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
 import info.blockchain.wallet.ethereum.Erc20TokenData
@@ -40,7 +42,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.HashMap
 import org.web3j.crypto.RawTransaction
@@ -56,7 +57,7 @@ class EthDataManager(
     private val lastTxUpdater: LastTxUpdater,
     private val evmNetworksService: EvmNetworksService,
     private val nonCustodialEvmService: NonCustodialEvmService
-) : EthMessageSigner {
+) : EthMessageSigner, EvmNetworkPreImageSigner {
 
     val ehtAccount: EthereumAccount
         get() = ethDataStore.ethWallet?.account ?: throw IllegalStateException("Eth account is not initialised yet")
@@ -67,11 +68,8 @@ class EthDataManager(
     val accountAddress: String
         get() = internalAccountAddress ?: throw Exception("No ETH address found")
 
-    val supportedNetworks: Single<Set<EvmNetwork>>
-        get() = evmNetworksService.getSupportedNetworks().map {
-            it.plus(ethChain).toSet()
-        }
-            .onErrorReturn { setOf(ethChain) }
+    val supportedNetworks: Single<List<CoinNetwork>>
+        get() = evmNetworksService.allEvmNetworks()
 
     /**
      * Clears the currently stored ETH account from memory.
@@ -108,8 +106,12 @@ class EthDataManager(
 
     fun updateAccountLabel(label: String): Completable {
         require(label.isNotEmpty())
-        check(ethDataStore.ethWallet != null)
-        return save(ethDataStore.ethWallet!!.renameAccount(label))
+        val wallet = ethDataStore.ethWallet
+        return if (wallet != null) {
+            save(wallet.renameAccount(label))
+        } else {
+            Completable.complete()
+        }
     }
 
     /**
@@ -141,11 +143,12 @@ class EthDataManager(
      */
     fun isLastTxPending(): Single<Boolean> =
         internalAccountAddress?.let {
-            ethLastTxCache.stream(FreshnessStrategy.Cached(false).withKey(it)).asSingle().map { tx ->
-                tx.state.toLocalState() == TransactionState.PENDING
-            }.onErrorReturn {
-                false
-            }
+            ethLastTxCache.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(it))
+                .asSingle().map { tx ->
+                    tx.state.toLocalState() == TransactionState.PENDING
+                }.onErrorReturn {
+                    false
+                }
         } ?: Single.just(false)
 
     /**
@@ -203,12 +206,12 @@ class EthDataManager(
         }.applySchedulers()
     }
 
-    internal fun updateErc20TransactionNotes(
+    fun updateErc20TransactionNotes(
         asset: AssetInfo,
         hash: String,
         note: String
     ): Completable {
-        require(asset.isErc20())
+        require(asset.isLayer2Token)
 
         return Completable.defer {
             getErc20TokenData(asset)?.let {
@@ -308,6 +311,25 @@ class EthDataManager(
         }
     }
 
+    override fun signPreImage(preImage: PreImage): TransactionSignature {
+        val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
+        if (preImage.signatureAlgorithm != SignatureAlgorithm.SECP256K1) {
+            throw java.lang.IllegalArgumentException(
+                "Algorithm not supported"
+            )
+        }
+        val signature = account.signRawPreImage(
+            rawPreImage = preImage.rawPreImage,
+            masterKey = payloadDataManager.masterKey
+        )
+        return TransactionSignature(
+            preImage = preImage.rawPreImage,
+            signingKey = preImage.signingKey,
+            signatureAlgorithm = preImage.signatureAlgorithm,
+            signature = signature
+        )
+    }
+
     private fun String.decodeHex(): ByteArray {
         check(length % 2 == 0) { "Must have an even length" }
         return removePrefix(EthUtils.PREFIX)
@@ -327,15 +349,22 @@ class EthDataManager(
 
     fun getFeesForEvmTx(l1Chain: String) = rxSingleOutcome {
         val defaultFeeForEvm = FeeOptions.defaultForEvm(l1Chain)
-        nonCustodialEvmService.getFeeLevels(l1Chain).map { feeLevels ->
+        nonCustodialEvmService.getFeeLevels(l1Chain).map { feesResponse ->
+            val feeLevels = mapOf(
+                FeeLevel.LOW to feesResponse.LOW?.toBigInteger(),
+                FeeLevel.NORMAL to feesResponse.NORMAL?.toBigInteger(),
+                FeeLevel.HIGH to feesResponse.HIGH?.toBigInteger()
+            )
+            val gasLimit = feesResponse.gasLimit?.toBigInteger() ?: BigInteger.ZERO
+            val gasLimitContract = feesResponse.gasLimitContract?.toBigInteger() ?: BigInteger.ZERO
             FeeOptions(
-                gasLimit = defaultFeeForEvm.gasLimit,
+                gasLimit = gasLimit.toLong(),
                 regularFee = getFeeForLevel(
                     feeLevels = feeLevels,
                     feeLevel = FeeLevel.NORMAL,
                     defaultFeeForLevel = defaultFeeForEvm.regularFee
                 ),
-                gasLimitContract = defaultFeeForEvm.gasLimitContract,
+                gasLimitContract = gasLimitContract.toLong(),
                 priorityFee = getFeeForLevel(
                     feeLevels = feeLevels,
                     feeLevel = FeeLevel.HIGH,
@@ -358,8 +387,13 @@ class EthDataManager(
     }
         .applySchedulers()
 
-    private fun getFeeForLevel(feeLevels: Map<FeeLevel, BigDecimal>, feeLevel: FeeLevel, defaultFeeForLevel: Long) =
-        feeLevels[feeLevel]?.let { Convert.fromWei(it, Convert.Unit.GWEI).toLong() } ?: defaultFeeForLevel
+    private fun getFeeForLevel(feeLevels: Map<FeeLevel, BigInteger?>, feeLevel: FeeLevel, defaultFeeForLevel: Long) =
+        feeLevels[feeLevel]?.let {
+            Convert.fromWei(
+                it.toBigDecimal(),
+                Convert.Unit.GWEI
+            ).toLong()
+        } ?: defaultFeeForLevel
 
     fun pushEvmTx(signedTxBytes: ByteArray, l1Chain: String): Single<String> =
         rxSingleOutcome {
@@ -412,7 +446,6 @@ class EthDataManager(
         }
 
     fun getErc20TokenData(asset: AssetInfo): Erc20TokenData? {
-        require(asset.isErc20())
         require(asset.l2identifier != null)
         val name = asset.networkTicker.lowercase()
 
@@ -431,12 +464,5 @@ class EthDataManager(
         const val ETH_CHAIN_ID: Int = 1
         private const val DEFAULT_MIN_FEE = 23L
         private const val DEFAULT_MAX_FEE = 26L
-        val ethChain: EvmNetwork = EvmNetwork(
-            networkTicker = CryptoCurrency.ETHER.networkTicker,
-            networkName = CryptoCurrency.ETHER.name,
-            chainId = ETH_CHAIN_ID,
-            nodeUrl = EthUrls.ETH_NODES,
-            explorerUrl = CryptoCurrency.ETHER.txExplorerUrlBase ?: ""
-        )
     }
 }

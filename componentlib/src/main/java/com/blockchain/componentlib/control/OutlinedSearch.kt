@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.control
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,25 +23,27 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Search
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun OutlinedSearch(
+    modifier: Modifier = Modifier,
     prePopulatedText: String = "",
     placeholder: String = "",
     readOnly: Boolean = false,
     showCloseButton: Boolean = false,
-    onValueChange: (String) -> Unit = {},
+    onValueChange: (String) -> Unit = {}
 ) {
-
     val focusManager = LocalFocusManager.current
     var isFocused by remember { mutableStateOf(false) }
     var value by remember { mutableStateOf(prePopulatedText) }
 
-    val searchIcon = ImageResource.Local(R.drawable.ic_search, null)
+    val searchIcon = Icons.Search.withTint(AppColors.body)
     val closeIcon = if (isSystemInDarkTheme()) {
         ImageResource.Local(R.drawable.ic_close_circle_dark, null)
     } else {
@@ -54,7 +55,10 @@ private fun OutlinedSearch(
         value = ""
     }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         OutlinedTextInput(
             modifier = Modifier.weight(1F),
             shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium),
@@ -91,10 +95,10 @@ private fun OutlinedSearch(
                             clearText()
                             focusManager.clearFocus(true)
                         },
-                    text = stringResource(R.string.common_cancel),
+                    text = stringResource(com.blockchain.stringResources.R.string.common_cancel),
                     style = AppTheme.typography.body1,
                     textAlign = TextAlign.Center,
-                    color = AppTheme.colors.primary,
+                    color = AppTheme.colors.primary
                 )
             }
         }
@@ -102,13 +106,15 @@ private fun OutlinedSearch(
 }
 
 @Composable
-fun OutlinedSearch(
+fun NonCancelableOutlinedSearch(
+    modifier: Modifier = Modifier,
     prePopulatedText: String = "",
     placeholder: String = "",
     readOnly: Boolean = false,
-    onValueChange: (String) -> Unit = {},
+    onValueChange: (String) -> Unit = {}
 ) {
     OutlinedSearch(
+        modifier = modifier,
         prePopulatedText = prePopulatedText,
         placeholder = placeholder,
         readOnly = readOnly,
@@ -119,12 +125,14 @@ fun OutlinedSearch(
 
 @Composable
 fun CancelableOutlinedSearch(
+    modifier: Modifier = Modifier,
     prePopulatedText: String = "",
     placeholder: String = "",
     readOnly: Boolean = false,
-    onValueChange: (String) -> Unit = {},
+    onValueChange: (String) -> Unit = {}
 ) {
     OutlinedSearch(
+        modifier = modifier,
         prePopulatedText = prePopulatedText,
         placeholder = placeholder,
         readOnly = readOnly,

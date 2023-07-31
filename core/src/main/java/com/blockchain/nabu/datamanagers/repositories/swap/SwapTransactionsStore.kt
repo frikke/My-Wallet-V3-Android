@@ -4,8 +4,7 @@ import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
-import com.blockchain.store.impl.Freshness
-import com.blockchain.store.impl.FreshnessMediator
+import com.blockchain.store.impl.IsCachedMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.awaitOutcome
@@ -22,7 +21,7 @@ class SwapTransactionsStore(
             }
         ),
         dataSerializer = ListSerializer(CustodialOrderResponse.serializer()),
-        mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
+        mediator = IsCachedMediator()
     ),
     FlushableDataSource {
 

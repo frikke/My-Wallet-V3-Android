@@ -1,37 +1,28 @@
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply plugin: 'kotlinx-serialization'
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 
-android {
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {}
-    }
-
-    lintOptions {
-        warningsAsErrors true
-        abortOnError true
-    }
-}
 
 dependencies {
     // android
     implementation project(':common:interface')
+    implementation project(':common:network')
     implementation project(':coincore')
+    implementation project(':unifiedcryptowallet:domain')
     implementation project(':flowhome:domain')
     implementation project(':store:core')
+    implementation project(':core')
     implementation project(':store:caches:inmemory')
-
-    // coroutines
-    implementation Libraries.androidCoroutines
-    implementation Libraries.lifecycleViewModelExtensions
+    implementation project(':store:caches:persistedjsonsqldelight')
+    implementation project(':blockchainApi')
+    implementation project(':earn:domain')
 
     // koin
-    implementation Libraries.koinAndroid
     implementation Libraries.koin
-    implementation Libraries.koinCompose
+    implementation Libraries.rxjava3Coroutines
 
     // rx
     implementation Libraries.rxKotlin
+
+    // ktx json
+    implementation Libraries.kotlinJson
 }

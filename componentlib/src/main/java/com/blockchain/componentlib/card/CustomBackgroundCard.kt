@@ -2,7 +2,6 @@ package com.blockchain.componentlib.card
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,14 +25,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.media.AsyncMediaItem
-import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark800
-import com.blockchain.componentlib.theme.Grey800
-import com.blockchain.componentlib.theme.Grey900
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
@@ -46,15 +43,8 @@ fun CustomBackgroundCard(
     isCloseable: Boolean = true,
     onClose: () -> Unit = {},
     onClick: () -> Unit = {},
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
-    textColor: Color = Color.White
+    textColor: Color = AppColors.title
 ) {
-
-    val backgroundColor = if (!isDarkTheme) {
-        Grey900
-    } else {
-        Dark800
-    }
 
     Box(
         modifier = Modifier
@@ -63,7 +53,7 @@ fun CustomBackgroundCard(
             .wrapContentHeight()
             .clickable(onClick = onClick)
             .defaultMinSize(minWidth = 340.dp)
-            .background(color = backgroundColor, shape = AppTheme.shapes.medium)
+            .background(color = AppColors.backgroundSecondary, shape = AppTheme.shapes.medium)
     ) {
         if (backgroundResource is ImageResource.Remote) {
             AsyncMediaItem(
@@ -108,18 +98,24 @@ fun CustomBackgroundCard(
                 when (iconResource) {
                     is ImageResource.Remote -> {
                         AsyncMediaItem(
-                            modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)),
+                            modifier = Modifier.size(
+                                dimensionResource(R.dimen.large_spacing)
+                            ),
                             url = iconResource.url,
                             contentDescription = "",
-                            contentScale = ContentScale.Inside,
+                            contentScale = ContentScale.Inside
                         )
                     }
+
                     is ImageResource.None -> {
                         // do nothing
                     }
+
                     else -> {
                         Image(
-                            modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)),
+                            modifier = Modifier.size(
+                                dimensionResource(R.dimen.large_spacing)
+                            ),
                             contentScale = ContentScale.Inside,
                             imageResource = iconResource
                         )
@@ -137,7 +133,6 @@ fun CustomBackgroundCard(
                         )
                         .align(Alignment.Top)
                 ) {
-
                     Text(
                         text = title,
                         style = AppTheme.typography.caption1,
@@ -152,9 +147,8 @@ fun CustomBackgroundCard(
                 }
 
                 if (isCloseable) {
-                    CardCloseButton(
+                    CloseIcon(
                         modifier = Modifier.align(Alignment.Top),
-                        backgroundColor = Grey800,
                         onClick = onClose
                     )
                 }
@@ -166,68 +160,43 @@ fun CustomBackgroundCard(
 @Preview
 @Composable
 fun CustomBackgroundCard_Non_Closeable() {
-    AppTheme {
-        AppSurface {
-            CustomBackgroundCard(
-                title = "Title",
-                subtitle = "Subtitle",
-                iconResource = ImageResource.Local(R.drawable.ic_star),
-                backgroundResource = ImageResource.Local(R.drawable.ic_blockchain_logo_with_text),
-                isCloseable = false
-            )
-        }
-    }
+    CustomBackgroundCard(
+        title = "Title",
+        subtitle = "Subtitle",
+        iconResource = ImageResource.Local(R.drawable.ic_star),
+        isCloseable = false
+    )
 }
 
 @Preview
 @Composable
 fun CustomBackgroundCard_Closeable() {
-    AppTheme {
-        AppSurface {
-            CustomBackgroundCard(
-                title = "Title",
-                subtitle = "Subtitle",
-                iconResource = ImageResource.Local(R.drawable.ic_star),
-                backgroundResource = ImageResource.Local(R.drawable.ic_blockchain_logo_with_text),
-                isCloseable = true
-            )
-        }
-    }
+    CustomBackgroundCard(
+        title = "Title",
+        subtitle = "Subtitle",
+        iconResource = ImageResource.Local(R.drawable.ic_star),
+        isCloseable = true
+    )
 }
 
 @Preview
 @Composable
 fun CustomBackgroundCard_Remote() {
-    AppTheme {
-        AppSurface {
-            CustomBackgroundCard(
-                title = "Title",
-                subtitle = "Subtitle",
-                iconResource = ImageResource.Remote(
-                    "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com/o/announcement.png"
-                ),
-                backgroundResource = ImageResource.Remote(
-                    "https://firebasestorage.googleapis.com/v0/b/" +
-                        "fir-staging-92d79.appspot.com/o/icon-cowboys-circle.svg?"
-                ),
-                isCloseable = true
-            )
-        }
-    }
+    CustomBackgroundCard(
+        title = "Title",
+        subtitle = "Subtitle",
+        iconResource = ImageResource.Local(R.drawable.ic_star),
+        isCloseable = true
+    )
 }
 
 @Preview
 @Composable
 fun CustomBackgroundCard_NoIcon() {
-    AppTheme {
-        AppSurface {
-            CustomBackgroundCard(
-                title = "Title",
-                subtitle = "Subtitle",
-                iconResource = ImageResource.None,
-                backgroundResource = ImageResource.Local(R.drawable.ic_blockchain_logo_with_text),
-                isCloseable = false
-            )
-        }
-    }
+    CustomBackgroundCard(
+        title = "Title",
+        subtitle = "Subtitle",
+        iconResource = ImageResource.None,
+        isCloseable = false
+    )
 }

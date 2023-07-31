@@ -17,15 +17,18 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
@@ -85,7 +88,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
 
         factory {
             mock<WalletModeService> {
-                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+                on { walletModeSingle }.thenReturn(Single.just(WalletMode.CUSTODIAL))
             }
         }
         factory {
@@ -657,7 +660,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             identity = userIdentity,
             kycService = kycService,
             walletModeService = mock {
-                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+                on { walletModeSingle }.thenReturn(Single.just(WalletMode.CUSTODIAL))
             }
         )
 
@@ -675,7 +678,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         stakingDepositSupported: Boolean = true,
         stakingEnabled: Boolean = true,
         swapSupported: Boolean,
-        userTier: KycTier,
+        userTier: KycTier
     ) {
         mockActionsFeatureAccess { original ->
             var updated = original
@@ -728,9 +731,9 @@ class CustodialTradingAccountActionsTest : KoinTest {
         whenever(custodialManager.isCurrencyAvailableForTradingLegacy(TEST_ASSET)).thenReturn(Single.just(buySupported))
 
         val interestFeature = Feature.Interest(TEST_ASSET)
-        whenever(userIdentity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
+        whenever(userIdentity.isEligibleFor(eq(interestFeature), any())).thenReturn(Single.just(interest))
 
-        whenever(userIdentity.userAccessForFeature(Feature.DepositStaking)).thenReturn(
+        whenever(userIdentity.userAccessForFeature(eq(Feature.DepositStaking), any())).thenReturn(
             Single.just(
                 if (stakingEnabled) FeatureAccess.Granted() else FeatureAccess.Blocked(BlockedReason.NotEligible(""))
             )
@@ -738,18 +741,22 @@ class CustodialTradingAccountActionsTest : KoinTest {
 
         val balance = TradingAccountBalance(
             total = accountBalance,
-            dashboardDisplay = accountBalance,
             withdrawable = actionableBalance,
             pending = pendingBalance,
             hasTransactions = true
         )
-        whenever(tradingService.getBalanceFor(TEST_ASSET))
+        whenever(tradingService.getBalanceFor(any(), any()))
             .thenReturn(Observable.just(balance))
 
-        whenever(custodialManager.getSupportedFundsFiats())
+        whenever(
+            custodialManager.getSupportedFundsFiats(
+                fiatCurrency = anyOrNull(),
+                freshnessStrategy = any()
+            )
+        )
             .thenReturn(flowOf(supportedFiat))
 
-        whenever(custodialManager.isAssetSupportedForSwapLegacy(TEST_ASSET))
+        whenever(custodialManager.isAssetSupportedForSwap(TEST_ASSET))
             .thenReturn(Single.just(swapSupported))
 
         whenever(custodialManager.getSupportedBuySellCryptoCurrencies())
@@ -769,7 +776,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
     }
 
     private fun mockActionsFeatureAccess(
-        block: (original: Map<Feature, FeatureAccess>) -> Map<Feature, FeatureAccess>,
+        block: (original: Map<Feature, FeatureAccess>) -> Map<Feature, FeatureAccess>
     ) {
         val features = listOf(
             Feature.Buy,
@@ -782,7 +789,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
 
         val updatedAccess = block(access)
         features.forEach {
-            whenever(userIdentity.userAccessForFeature(it))
+            whenever(userIdentity.userAccessForFeature(eq(it), any()))
                 .thenReturn(Single.just(updatedAccess[it]!!))
         }
     }

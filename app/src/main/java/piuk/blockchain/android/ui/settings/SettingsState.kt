@@ -7,6 +7,8 @@ import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
+import com.blockchain.theme.Theme
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 
 data class SettingsState(
@@ -18,13 +20,14 @@ data class SettingsState(
     val error: SettingsError = SettingsError.None,
     val referralInfo: ReferralInfo = ReferralInfo.NotAvailable,
     val canPayWithBind: Boolean = false,
-    val featureFlagsSet: FeatureFlagsSet = FeatureFlagsSet()
+    val theme: Theme? = null
 ) : MviState
 
 sealed class ViewToLaunch {
     object None : ViewToLaunch()
     object Profile : ViewToLaunch()
     class BankTransfer(val linkBankTransfer: LinkBankTransfer) : ViewToLaunch()
+    class WireTransfer(val currency: FiatCurrency) : ViewToLaunch()
 }
 
 sealed class SettingsError {
@@ -46,9 +49,4 @@ data class UserDetails(
     val kycTier: KycTier,
     val userInfo: BasicProfileInfo,
     val referralInfo: ReferralInfo
-)
-
-@kotlinx.serialization.Serializable
-data class FeatureFlagsSet(
-    val dustBalancesFF: Boolean = false
 )

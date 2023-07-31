@@ -12,7 +12,7 @@ import piuk.blockchain.android.databinding.CurrencySelectionItemBinding
 class CurrenciesAdapter(
     private val showSectionDivider: Boolean = false,
     private val items: List<FiatCurrency>,
-    private val onChecked: (FiatCurrency) -> Unit,
+    private val onChecked: (FiatCurrency) -> Unit
 ) : RecyclerView.Adapter<CurrenciesAdapter.CurrenciesViewHolder>() {
 
     class CurrenciesViewHolder(binding: CurrencySelectionItemBinding) : RecyclerView.ViewHolder(binding.root) {

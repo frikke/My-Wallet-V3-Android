@@ -7,10 +7,13 @@ import kotlinx.serialization.Serializable
 enum class Coin {
     @SerialName("eth")
     ETH,
+
     @SerialName("btc")
     BTC,
+
     @SerialName("bch")
     BCH,
+
     @SerialName("none")
     None
 }

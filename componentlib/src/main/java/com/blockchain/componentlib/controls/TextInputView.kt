@@ -36,7 +36,10 @@ class TextInputView @JvmOverloads constructor(
             AppSurface {
                 TextInput(
                     value = value,
-                    onValueChange = onValueChange,
+                    onValueChange = {
+                        value = it
+                        onValueChange(it)
+                    },
                     state = state,
                     placeholder = placeholderText,
                     label = labelText,

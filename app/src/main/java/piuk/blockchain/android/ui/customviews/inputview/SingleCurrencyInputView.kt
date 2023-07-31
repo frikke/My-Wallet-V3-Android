@@ -6,7 +6,6 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
@@ -70,8 +69,9 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
             Long.MAX_VALUE.toBigInteger()
         )
     ) { _, oldValue, newValue ->
-        if (newValue != oldValue)
+        if (newValue != oldValue) {
             updateFilters(binding.enterAmount.configuration.prefixOrSuffix)
+        }
     }
 
     private fun updateFilters(prefixOrSuffix: String) {
@@ -94,7 +94,8 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
                         isPrefix = newValue.currency.type == CurrencyType.FIAT,
                         initialText = newValue.predefinedAmount.toStringWithoutSymbol()
                             .replace(
-                                DecimalFormatSymbols(java.util.Locale.getDefault()).groupingSeparator.toString(), ""
+                                DecimalFormatSymbols(java.util.Locale.getDefault()).groupingSeparator.toString(),
+                                ""
                             )
                             .removeSuffix("${DecimalFormatSymbols(Locale.getDefault()).decimalSeparator}00")
                     )
@@ -120,18 +121,6 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
                     prefixOrSuffix = prefixOrSuffix
                 )
             )
-    }
-
-    fun showError(errorMessage: String) {
-        with(binding) {
-            error.text = errorMessage
-            error.visible()
-            exchangeAmount.gone()
-            currencySwap.let {
-                it.isEnabled = false
-                it.alpha = .6f
-            }
-        }
     }
 }
 

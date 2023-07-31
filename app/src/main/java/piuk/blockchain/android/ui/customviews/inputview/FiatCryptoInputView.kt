@@ -6,6 +6,8 @@ import android.text.method.DigitsKeyListener
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.afterMeasured
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
@@ -13,6 +15,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.stringResources.R
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
@@ -30,7 +33,6 @@ import java.util.Locale
 import kotlin.properties.Delegates
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
@@ -185,7 +187,9 @@ class FiatCryptoInputView(
     }
 
     private fun setInputTypeToView() {
-        binding.enterAmount.inputType = inputAmountKeyboard.inputTypeForAmount()
+        inputAmountKeyboard.specialInputForAmounts()?.let {
+            binding.enterAmount.inputType = it
+        }
     }
 
     private fun placeFakeHint(textSize: Int, hasPrefix: Boolean) {
@@ -193,10 +197,12 @@ class FiatCryptoInputView(
             fakeHint.visible()
             fakeHint.afterMeasured {
                 it.translationX =
-                    if (hasPrefix) (enterAmount.width / 2f + textSize / 2f) +
-                        resources.getDimensionPixelOffset(R.dimen.smallest_spacing) else
+                    if (hasPrefix) {
+                        (enterAmount.width / 2f + textSize / 2f) +
+                            resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.smallest_spacing)
+                    } else
                         enterAmount.width / 2f - textSize / 2f - it.width -
-                            resources.getDimensionPixelOffset(R.dimen.smallest_spacing)
+                            resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.smallest_spacing)
             }
         }
     }
@@ -212,31 +218,21 @@ class FiatCryptoInputView(
             Money.fromMajor(configuration.inputCurrency, enterAmount)
         } ?: Money.zero(configuration.inputCurrency)
 
-    @Deprecated("Error messages arent part of the input")
-    fun showError(errorMessage: String, shouldDisableInput: Boolean = false) {
-        with(binding) {
-            error.text = errorMessage
-            error.visible()
-            info.gone()
-            hideExchangeAmount()
-            exchangeAmount.isEnabled = !shouldDisableInput
-        }
-    }
-
     fun onAmountValidationUpdated(isValid: Boolean) {
-        val colour = if (isValid) R.color.grey_800 else R.color.red_400
+        val colour = if (isValid) com.blockchain.componentlib.R.color.title else
+            com.blockchain.componentlib.R.color.error
         binding.enterAmount.setTextColor(resources.getColor(colour, null))
         binding.exchangeAmount.setTextColor(resources.getColor(colour, null))
     }
 
     fun showInfo(infoMessage: String, onClick: () -> Unit) {
         with(binding) {
-            info.text = infoMessage
-            error.gone()
+            info.tag = TagViewState(
+                value = infoMessage,
+                type = TagType.InfoAlt(),
+                onClick = onClick
+            )
             info.visible()
-            info.setOnClickListener {
-                onClick()
-            }
             hideExchangeAmount()
         }
     }
@@ -315,6 +311,7 @@ class FiatCryptoInputView(
                 exchangeCurrency = configuration.inputCurrency,
                 outputCurrency = amount.currency
             )
+            inputToggleSubject.onNext(amount.currency)
         }
         showValue(amount)
     }

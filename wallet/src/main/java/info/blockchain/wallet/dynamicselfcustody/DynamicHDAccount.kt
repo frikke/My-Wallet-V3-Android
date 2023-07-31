@@ -8,8 +8,10 @@ import org.bitcoinj.core.NetworkParameters
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
+import org.stellar.sdk.KeyPair
 
 class DynamicHDAccount(
+    hdSeed: ByteArray,
     params: NetworkParameters,
     wKey: DeterministicKey,
     coinType: CoinType
@@ -27,8 +29,14 @@ class DynamicHDAccount(
     val bitcoinSerializedBase58Address: String
         get() = address.formattedAddress
 
+    private val bip39Key: KeyPair = KeyPair.fromBip39Seed(hdSeed, 0)
+
+    val bip39PubKey: ByteArray = bip39Key.publicKey
+
     val signingKey: SigningKey = PrivateKeyFactory().getSigningKey(
         PrivateKeyFactory.WIF_COMPRESSED,
         address.privateKeyString
     )
+
+    fun signWithBip39Key(data: ByteArray): ByteArray = bip39Key.sign(data)
 }

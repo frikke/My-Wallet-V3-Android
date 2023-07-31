@@ -27,17 +27,20 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             singleSelection(
-                id = "ss1", isDropdown = true,
+                id = "ss1",
+                isDropdown = true,
                 selection(id = "ss1-s1"),
                 selection(id = "ss1-s2")
             ),
             singleSelection(
-                id = "ss2", isDropdown = false,
+                id = "ss2",
+                isDropdown = false,
                 selection(id = "ss2-s1"),
                 selection(id = "ss2-s2")
             ),
             multipleSelection(
-                id = "ms1", isDropdown = false,
+                id = "ms1",
+                isDropdown = false,
                 selection(id = "ms1-s1"),
                 selection(id = "ms1-s2")
             ),
@@ -70,12 +73,14 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             singleSelection(
-                id = "ss1", isDropdown = true,
+                id = "ss1",
+                isDropdown = true,
                 selection(id = "ss1-s1"),
                 selection(id = "ss1-s2")
             ),
             multipleSelection(
-                id = "ss2", isDropdown = true,
+                id = "ss2",
+                isDropdown = true,
                 selection(id = "ss2-s1"),
                 selection(id = "ss2-s2")
             )
@@ -108,22 +113,27 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             singleSelection(
-                id = "ss1", isDropdown = true,
+                id = "ss1",
+                isDropdown = true,
                 selection(id = "ss1-s1"),
                 selection(
-                    id = "ss1-s2", isChecked = false,
+                    id = "ss1-s2",
+                    isChecked = false,
                     openEnded(id = "hidden"),
                     openEnded(id = "hidden")
                 )
             ),
             multipleSelection(
-                id = "ms1", isDropdown = true,
+                id = "ms1",
+                isDropdown = true,
                 selection(id = "ms1-s1"),
                 selection(
-                    id = "ms1-s2", isChecked = false,
+                    id = "ms1-s2",
+                    isChecked = false,
                     selection(id = "hidden"),
                     selection(
-                        id = "hidden", isChecked = true,
+                        id = "hidden",
+                        isChecked = true,
                         openEnded(id = "hidden"),
                         openEnded(id = "hidden")
                     )
@@ -142,12 +152,17 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             singleSelection(
-                id = "ss1", isDropdown = true,
+                id = "ss1",
+                isDropdown = true,
                 selection(id = "ss1-s1"),
                 selection(
-                    id = "ss1-s2", isChecked = true,
+                    id = "ss1-s2",
+                    isChecked = true,
                     openEnded(
-                        id = "ss1-s2-oe1", input = "", hint = "hint", regex = null,
+                        id = "ss1-s2-oe1",
+                        input = "",
+                        hint = "hint",
+                        regex = null,
                         selection(id = "hidden"),
                         selection(id = "hidden")
                     )
@@ -165,7 +180,8 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             singleSelection(
-                id = "ss1", isDropdown = true,
+                id = "ss1",
+                isDropdown = true,
                 selection(id = "ss1-s1", isChecked = false),
                 selection(id = "ss1-s2", isChecked = false)
             )
@@ -181,7 +197,8 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             singleSelection(
-                id = "ss1", isDropdown = true,
+                id = "ss1",
+                isDropdown = true,
                 selection(id = "ss1-s1", isChecked = true),
                 selection(id = "ss1-s2", isChecked = false)
             )
@@ -197,7 +214,8 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             multipleSelection(
-                id = "ss1", isDropdown = false,
+                id = "ss1",
+                isDropdown = false,
                 selection(id = "ss1-s1", isChecked = true),
                 selection(id = "ss1-s2", isChecked = true)
             )
@@ -213,7 +231,8 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             multipleSelection(
-                id = "ss1", isDropdown = false,
+                id = "ss1",
+                isDropdown = false,
                 selection(id = "ss1-s1", isChecked = false),
                 selection(id = "ss1-s2", isChecked = false)
             )
@@ -229,11 +248,13 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             singleSelection(
-                id = "ss1", isDropdown = true,
+                id = "ss1",
+                isDropdown = true,
                 selection(id = "ss1-s1"),
                 selection(
-                    id = "ss1-s2", isChecked = true,
-                    openEnded(id = "oe1", input = ""),
+                    id = "ss1-s2",
+                    isChecked = true,
+                    openEnded(id = "oe1", input = "")
                 )
             )
         )
@@ -248,11 +269,13 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             singleSelection(
-                id = "ss1", isDropdown = true,
+                id = "ss1",
+                isDropdown = true,
                 selection(id = "ss1-s1", isChecked = true),
                 selection(
-                    id = "ss1-s2", isChecked = false,
-                    openEnded(id = "oe1"),
+                    id = "ss1-s2",
+                    isChecked = false,
+                    openEnded(id = "oe1")
                 )
             )
         )
@@ -267,22 +290,27 @@ class QuestionnaireStateMachineTest {
         val state = subject.stateAsObservable()
         val root = root(
             singleSelection(
-                id = "ss1", isDropdown = true,
+                id = "ss1",
+                isDropdown = true,
                 selection(id = "ss1-s1"),
                 selection(
-                    id = "ss1-s2", isChecked = false,
+                    id = "ss1-s2",
+                    isChecked = false,
                     openEnded(id = "hidden"),
                     openEnded(id = "hidden")
                 )
             ),
             multipleSelection(
-                id = "ms1", isDropdown = true,
+                id = "ms1",
+                isDropdown = true,
                 selection(id = "ms1-s1"),
                 selection(
-                    id = "ms1-s2", isChecked = false,
+                    id = "ms1-s2",
+                    isChecked = false,
                     selection(id = "hidden"),
                     selection(
-                        id = "hidden", isChecked = true,
+                        id = "hidden",
+                        isChecked = true,
                         openEnded(id = "hidden"),
                         openEnded(id = "hidden")
                     )

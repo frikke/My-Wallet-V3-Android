@@ -23,16 +23,6 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Success Switch"
-            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
-
-        <com.blockchain.componentlib.control.SuccessSwitchView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="Radio"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 

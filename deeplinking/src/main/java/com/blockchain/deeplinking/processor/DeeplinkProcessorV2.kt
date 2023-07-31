@@ -9,7 +9,6 @@ import timber.log.Timber
 class DeeplinkProcessorV2 {
 
     fun process(deeplinkUri: Uri, payload: NotificationPayload? = null): Single<DeepLinkResult> {
-
         Timber.d("deeplink uri: %s", deeplinkUri.path)
 
         return when (deeplinkUri.path) {
@@ -39,7 +38,9 @@ class DeeplinkProcessorV2 {
                     val amount = getAmount(deeplinkUri)
                     val fiatTicker = getFiatTicker(deeplinkUri)
                     val destination = Destination.AssetBuyDestination(
-                        networkTicker = cryptoTicker, amount = amount, fiatTicker = fiatTicker
+                        networkTicker = cryptoTicker,
+                        amount = amount,
+                        fiatTicker = fiatTicker
                     )
 
                     Single.just(

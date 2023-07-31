@@ -28,6 +28,10 @@ class AppDimensions {
         @Composable
         get() = dimensionResource(R.dimen.smallest_spacing)
 
+    val minusculeSpacing: Dp
+        @Composable
+        get() = dimensionResource(R.dimen.minuscule_spacing)
+
     val tinySpacing: Dp
         @Composable
         get() = dimensionResource(R.dimen.tiny_spacing)
@@ -70,19 +74,23 @@ class AppDimensions {
 
     val borderRadiiSmallest: Dp
         @Composable
-        get() = dimensionResource(R.dimen.borderRadiiSmallest)
+        get() = dimensionResource(com.blockchain.componentlib.R.dimen.borderRadiiSmallest)
 
     val borderRadiiSmall: Dp
         @Composable
-        get() = dimensionResource(R.dimen.borderRadiiSmall)
+        get() = dimensionResource(com.blockchain.componentlib.R.dimen.borderRadiiSmall)
 
     val borderRadiiMedium: Dp
         @Composable
-        get() = dimensionResource(R.dimen.borderRadiiMedium)
+        get() = dimensionResource(com.blockchain.componentlib.R.dimen.borderRadiiMedium)
+
+    val borderRadiiStandard: Dp
+        @Composable
+        get() = dimensionResource(com.blockchain.componentlib.R.dimen.borderRadiiStandard)
 
     val borderRadiiLarge: Dp
         @Composable
-        get() = dimensionResource(R.dimen.borderRadiiLarge)
+        get() = dimensionResource(com.blockchain.componentlib.R.dimen.borderRadiiLarge)
 
     val smallElevation: Dp
         @Composable

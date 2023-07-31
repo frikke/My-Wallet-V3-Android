@@ -15,8 +15,13 @@ val nftPresentationModule = module {
             )
         }
 
-        viewModel {
-            NftDetailViewModel(nftService = get())
+        viewModel { (nftId: String, address: String, pageKey: String?) ->
+            NftDetailViewModel(
+                nftId = nftId,
+                address = address,
+                pageKey = pageKey,
+                nftService = get()
+            )
         }
     }
 }

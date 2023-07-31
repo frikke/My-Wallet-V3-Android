@@ -4,30 +4,32 @@ import android.content.Intent
 import android.net.Uri
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.NabuApiException
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviModel
-import com.blockchain.componentlib.navigation.NavigationItem
+import com.blockchain.deeplinking.processor.BlockchainLinkState
 import com.blockchain.deeplinking.processor.DeepLinkResult
-import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.deeplinking.processor.KycLinkState
+import com.blockchain.deeplinking.processor.LinkState
+import com.blockchain.deeplinking.processor.OpenBankingLinkType
+import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
+import com.blockchain.domain.paymentmethods.model.BankAuthFlowState
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.extensions.exhaustive
+import com.blockchain.home.presentation.navigation.ScanResult
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.network.PollResult
-import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
-import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -35,17 +37,9 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.serialization.SerializationException
-import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.deeplink.BlockchainLinkState
-import piuk.blockchain.android.deeplink.LinkState
-import piuk.blockchain.android.deeplink.OpenBankingLinkType
-import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.scan.QrScanError
-import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
-import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
-import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
-import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import timber.log.Timber
 
 class MainModel(
@@ -59,7 +53,7 @@ class MainModel(
     initialState,
     mainScheduler,
     environmentConfig,
-    remoteLogger,
+    remoteLogger
 ) {
 
     private val compositeDisposable = CompositeDisposable()
@@ -86,50 +80,8 @@ class MainModel(
         }
     }
 
-    private fun updateTabs(
-        walletMode: WalletMode,
-        currentTab: NavigationItem,
-        earnOnNavBarEnabled: Boolean
-    ): MainIntent {
-        val tabs = when (walletMode) {
-            WalletMode.UNIVERSAL,
-            WalletMode.CUSTODIAL_ONLY ->
-                listOf(
-                    NavigationItem.Home,
-                    NavigationItem.Prices,
-                    if (earnOnNavBarEnabled) {
-                        NavigationItem.Earn
-                    } else {
-                        NavigationItem.BuyAndSell
-                    },
-                    NavigationItem.Activity
-                )
-            WalletMode.NON_CUSTODIAL_ONLY -> {
-                listOf(
-                    NavigationItem.Home,
-                    NavigationItem.Prices,
-                    NavigationItem.Nfts,
-                    NavigationItem.Activity
-                )
-            }
-        }
-        return MainIntent.UpdateTabs(
-            tabs = tabs,
-            selectedTab = if (tabs.contains(currentTab)) currentTab else NavigationItem.Home
-        )
-    }
-
     override fun performAction(previousState: MainState, intent: MainIntent): Disposable? =
         when (intent) {
-            MainIntent.RefreshTabs -> interactor.getEnabledWalletMode()
-                .subscribeBy { walletMode ->
-                    process(MainIntent.UpdateNavigationTabs(walletMode))
-                }
-
-            is MainIntent.UpdateNavigationTabs -> {
-                process(updateTabs(intent.walletMode, previousState.currentTab, previousState.isEarnOnNavEnabled))
-                null
-            }
             is MainIntent.PerformInitialChecks -> {
                 interactor.checkForUserWalletErrors().subscribeBy(
                     onComplete = {
@@ -187,6 +139,9 @@ class MainModel(
                                 dispatchDeepLink(linkState)
                             }
                         },
+                        onComplete = {
+                            // do nothing
+                        },
                         onError = {
                             Timber.e(it)
                         }
@@ -195,28 +150,6 @@ class MainModel(
             is MainIntent.ClearDeepLinkResult -> interactor.clearDeepLink()
                 .onErrorComplete()
                 .subscribe()
-            is MainIntent.ValidateAccountAction ->
-                interactor.checkIfShouldUpsell(intent.action, intent.account)
-                    .subscribeBy(
-                        onSuccess = { upsell ->
-                            if (upsell != KycUpgradePromptManager.Type.NONE) {
-                                process(
-                                    MainIntent.UpdateViewToLaunch(
-                                        ViewToLaunch.LaunchUpsellAssetAction(upsell)
-                                    )
-                                )
-                            } else {
-                                process(
-                                    MainIntent.UpdateViewToLaunch(
-                                        ViewToLaunch.LaunchAssetAction(intent.action, intent.account)
-                                    )
-                                )
-                            }
-                        },
-                        onError = {
-                            Timber.e("Upsell manager failure")
-                        }
-                    )
             is MainIntent.UnpairWallet -> interactor.unpairWallet()
                 .onErrorComplete()
                 .subscribe()
@@ -234,6 +167,7 @@ class MainModel(
                             }
                             is ScanResult.WalletConnectRequest -> walletConnectServiceAPI.attemptToConnect(it.data)
                                 .emptySubscribe()
+                            is ScanResult.WalletConnectV2Request,
                             is ScanResult.ImportedWallet -> {
                                 // TODO: as part of Auth
                             }
@@ -252,20 +186,16 @@ class MainModel(
                     }
                 )
             is MainIntent.ApproveWCSession -> walletConnectServiceAPI.acceptConnection(intent.session).emptySubscribe()
-            is MainIntent.SwitchWalletMode -> interactor.updateWalletMode(intent.walletMode).emptySubscribe()
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
             is MainIntent.StartWCSession -> walletConnectServiceAPI.attemptToConnect(intent.url).emptySubscribe()
             is MainIntent.GetNetworkInfoForWCSession -> getNetworkInfoForWCSession(intent.session)
             is MainIntent.LoadFeatureFlags ->
-                Singles.zip(
-                    interactor.isStakingEnabled(),
-                    interactor.isEarnOnNavBarEnabled()
-                ).subscribeBy(
-                    onSuccess = { (stakingEnabled, earnEnabled) ->
-                        process(MainIntent.UpdateFlags(stakingEnabled, earnEnabled))
+                interactor.isEarnOnNavBarEnabled().subscribeBy(
+                    onSuccess = { earnEnabled ->
+                        process(MainIntent.UpdateFlags(earnEnabled))
                     },
                     onError = {
-                        process(MainIntent.UpdateFlags(isStakingEnabled = false, isEarnEnabled = false))
+                        process(MainIntent.UpdateFlags(isEarnEnabled = false))
                     }
                 )
             is MainIntent.LaunchTransactionFlowFromDeepLink ->
@@ -302,7 +232,8 @@ class MainModel(
                             process(
                                 MainIntent.UpdateViewToLaunch(
                                     ViewToLaunch.LaunchTxFlowWithAccountForAction(
-                                        LaunchFlowForAccount.NoAccount, intent.action
+                                        LaunchFlowForAccount.NoAccount,
+                                        intent.action
                                     )
                                 )
                             )
@@ -330,43 +261,7 @@ class MainModel(
                             )
                         }
                     )
-            is MainIntent.SelectStakingAccountForAction -> interactor.selectStakingAccountForCurrency(intent.currency)
-                .subscribeBy(
-                    onSuccess = { account ->
-                        when (val action = intent.assetAction) {
-                            AssetAction.StakingDeposit -> process(
-                                MainIntent.UpdateViewToLaunch(
-                                    ViewToLaunch.LaunchTxFlowWithAccountForAction(
-                                        LaunchFlowForAccount.TargetAccount(account as TransactionTarget), action
-                                    )
-                                )
-                            )
-                            AssetAction.ViewActivity ->
-                                process(
-                                    MainIntent.UpdateViewToLaunch(ViewToLaunch.GoToActivityForAccount(account))
-                                )
-
-                            else -> {
-                                // do nothing
-                            }
-                        }
-                    },
-                    onError = {
-                        Timber.e("Error getting default account for Staking ${it.message}")
-                    }
-                )
-            is MainIntent.UpdateFlags -> {
-                process(MainIntent.RefreshTabs)
-                null
-            }
-            MainIntent.ResetViewState,
-            is MainIntent.SelectNetworkForWCSession,
-            is MainIntent.UpdateViewToLaunch,
-            is MainIntent.UpdateDeepLinkResult,
-            is MainIntent.ReferralCodeIntent,
-            is MainIntent.ShowReferralWhenAvailable,
-            is MainIntent.UpdateCurrentTab,
-            is MainIntent.UpdateTabs -> null
+            else -> null
         }
 
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {
@@ -396,7 +291,6 @@ class MainModel(
     private fun handleBlockchainDeepLink(linkState: LinkState.BlockchainLink) {
         when (val link = linkState.link) {
             BlockchainLinkState.NoUri -> Timber.e("Invalid deep link")
-            BlockchainLinkState.Swap -> process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchSwap))
             BlockchainLinkState.TwoFa -> process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchTwoFaSetup))
             BlockchainLinkState.VerifyEmail -> process(
                 MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchVerifyEmail)
@@ -407,27 +301,6 @@ class MainModel(
             BlockchainLinkState.Interest -> process(
                 MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchInterestDashboard(LaunchOrigin.DEEPLINK))
             )
-            BlockchainLinkState.Receive -> process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchReceive))
-            BlockchainLinkState.Send -> process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchSend))
-            is BlockchainLinkState.Sell -> process(
-                MainIntent.UpdateViewToLaunch(
-                    ViewToLaunch.LaunchBuySell(
-                        BuySellViewType.TYPE_SELL,
-                        interactor.getAssetFromTicker(link.ticker)
-                    )
-                )
-            )
-            is BlockchainLinkState.Activities -> process(
-                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchAssetAction(AssetAction.ViewActivity, null))
-            )
-            is BlockchainLinkState.Buy -> process(
-                MainIntent.UpdateViewToLaunch(
-                    ViewToLaunch.LaunchBuySell(
-                        BuySellViewType.TYPE_BUY,
-                        interactor.getAssetFromTicker(link.ticker)
-                    )
-                )
-            )
             is BlockchainLinkState.SimpleBuy -> process(
                 MainIntent.UpdateViewToLaunch(
                     ViewToLaunch.LaunchSimpleBuy(
@@ -437,34 +310,33 @@ class MainModel(
                     )
                 )
             )
-            is BlockchainLinkState.KycCampaign ->
-                process(
-                    MainIntent.UpdateViewToLaunch(
-                        ViewToLaunch.LaunchKyc(
-                            enumValueOfOrNull<CampaignType>(
-                                link.campaignType.capitalizeFirstChar()
-                            ) ?: CampaignType.None
-                        )
-                    )
-                )
+            is BlockchainLinkState.KycCampaign -> {
+                val entryPoint = when {
+                    link.campaignType.equals("SimpleBuy", ignoreCase = true) -> KycEntryPoint.Buy
+                    else -> KycEntryPoint.Other
+                }
+                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(entryPoint)))
+            }
+            else -> {
+            }
         }
     }
 
     private fun handleKycDeepLink(linkState: LinkState.KycDeepLink) {
         when (linkState.link) {
             is KycLinkState.Resubmit -> process(
-                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.Resubmission))
+                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(KycEntryPoint.Resubmission))
             )
             is KycLinkState.EmailVerified -> process(
-                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.None))
+                MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(KycEntryPoint.Other))
             )
             is KycLinkState.General -> {
-                val data = linkState.link.campaignData
+                val data = (linkState.link as KycLinkState.General).campaignData
                 if (data != null) {
                     registerForCampaign(data)
                 } else {
                     process(
-                        MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(CampaignType.None))
+                        MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchKyc(KycEntryPoint.Other))
                     )
                 }
             }
@@ -650,7 +522,8 @@ class MainModel(
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingApprovalDepositComplete(
-                            it.amount, interactor.getEstimatedDepositCompletionTime()
+                            it.amount,
+                            interactor.getEstimatedDepositCompletionTime()
                         )
                     )
                 )
@@ -684,11 +557,12 @@ class MainModel(
                         interactor.getSimpleBuySyncLocalState()?.let {
                             handleOrderState(it)
                         } ?: process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
-                    }, onError = {
-                    Timber.e("Error doing SB sync for bank linking $it")
-                    interactor.resetLocalBankAuthState()
-                    process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
-                }
+                    },
+                    onError = {
+                        Timber.e("Error doing SB sync for bank linking $it")
+                        interactor.resetLocalBankAuthState()
+                        process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingBuyApprovalError))
+                    }
                 )
         }
     }
@@ -710,8 +584,8 @@ class MainModel(
                 network?.let {
                     val networkInfo = NetworkInfo(
                         networkTicker = network.networkTicker,
-                        name = network.networkName,
-                        chainId = network.chainId,
+                        name = network.name,
+                        chainId = network.chainId!!,
                         logo = interactor.getAssetFromTicker(network.networkTicker)?.logo
                     )
                     process(

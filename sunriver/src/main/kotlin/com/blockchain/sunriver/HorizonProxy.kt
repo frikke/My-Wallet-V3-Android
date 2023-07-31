@@ -218,7 +218,7 @@ internal class HorizonProxy(var serverFactory: ((String) -> Server)) {
         /**
          * The destination account id is not valid.
          */
-        BadDestinationAccountId(errorCode = 5),
+        BadDestinationAccountId(errorCode = 5)
     }
 
     private fun createUnsignedTransaction(

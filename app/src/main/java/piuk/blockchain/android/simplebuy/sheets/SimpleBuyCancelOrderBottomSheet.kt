@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyCancelOrderBottomSheetBinding
@@ -32,22 +31,26 @@ class SimpleBuyCancelOrderBottomSheet : SlidingModalBottomDialog<SimpleBuyCancel
         val asset = state?.selectedCryptoAsset
         if (asset != null) {
             with(binding) {
-
                 if (arguments.fromDashboard()) {
-                    cancelOrder.text = getString(R.string.cancel_order_do_cancel_dashboard)
-                    goBack.text = getString(R.string.cancel_order_go_back_dashboard)
+                    cancelOrder.text = getString(
+                        com.blockchain.stringResources.R.string.cancel_order_do_cancel_dashboard
+                    )
+                    goBack.text = getString(com.blockchain.stringResources.R.string.cancel_order_go_back_dashboard)
+                } else {
+                    cancelOrder.text = getString(com.blockchain.stringResources.R.string.cancel_order_do_cancel)
+                    goBack.text = getString(com.blockchain.stringResources.R.string.cancel_order_go_back)
                 }
 
                 cancelOrderToken.text = getString(
-                    R.string.cancel_token_instruction,
+                    com.blockchain.stringResources.R.string.cancel_token_instruction,
                     asset.displayTicker
                 )
-                cancelOrder.setOnClickListenerDebounced {
+                cancelOrder.onClick = {
                     analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_CONFIRMED)
                     dismiss()
                     host.cancelOrderConfirmAction(true, state.id)
                 }
-                goBack.setOnClickListenerDebounced {
+                goBack.onClick = {
                     analytics.logEvent(SimpleBuyAnalytics.BANK_DETAILS_CANCEL_GO_BACK)
                     dismiss()
                     host.cancelOrderConfirmAction(false, null)

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -18,19 +19,21 @@ import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.HandholdPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.preferences.RuntimePermissionsPrefs
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.storedatasource.StoreWiper
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityLocalFeatureFlagsBinding
-import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
-import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.referral.presentation.ReferralInviteNowSheet
 import piuk.blockchain.android.util.AppUtil
 
@@ -47,11 +50,14 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private val remoteLogger: RemoteLogger by inject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val handholdPrefs: HandholdPrefs by inject()
     private val appMaintenancePrefs: AppMaintenancePrefs by inject()
     private val appRatingPrefs: AppRatingPrefs by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
     private val getUserStore: GetUserStore by scopedInject()
     private val kycTiersStore: KycTiersStore by scopedInject()
+    private val storeWiper: StoreWiper by scopedInject()
+    private val runtimePermissionsPrefs: RuntimePermissionsPrefs by inject()
 
     private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
 
@@ -83,12 +89,13 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             }
             val parent = nestedParent
 
+            resetRuntimePermissionCooldown.setOnClickListener { resetRuntimePermissionCooldown() }
             btnResetUserCache.setOnClickListener { onResetUserCache() }
+            btnResetStoreCaches.setOnClickListener { onResetStoreCaches() }
             btnShowReferralSheet.setOnClickListener { showInviteNow() }
             resetAppRating.setOnClickListener { resetAppRating() }
             btnRndDeviceId.setOnClickListener { onRndDeviceId() }
             btnResetWallet.setOnClickListener { onResetWallet() }
-            btnResetAnnounce.setOnClickListener { onResetAnnounce() }
             btnResetPrefs.setOnClickListener { onResetPrefs() }
             btnComponentLib.setOnClickListener { onComponentLib() }
             deviceCurrency.text = "Select a new currency. Current one is ${currencyPrefs.selectedFiatCurrency}"
@@ -113,6 +120,27 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             }
 
             brokerageErrorSwitch.isChecked = remoteConfigPrefs.brokerageErrorsEnabled
+
+            // handhold
+            handholdOverride.setOnCheckedChangeListener { buttonView, isChecked ->
+                handholdPrefs.overrideHandholdVerification = isChecked
+            }
+            handholdOverride.isChecked = handholdPrefs.overrideHandholdVerification
+
+            handholdEmail.setOnCheckedChangeListener { buttonView, isChecked ->
+                handholdPrefs.debugHandholdEmailVerified = isChecked
+            }
+            handholdEmail.isChecked = handholdPrefs.debugHandholdEmailVerified
+
+            handholdKyc.setOnCheckedChangeListener { buttonView, isChecked ->
+                handholdPrefs.debugHandholdKycVerified = isChecked
+            }
+            handholdKyc.isChecked = handholdPrefs.debugHandholdKycVerified
+
+            handholdBuy.setOnCheckedChangeListener { buttonView, isChecked ->
+                handholdPrefs.debugHandholdBuyVerified = isChecked
+            }
+            handholdBuy.isChecked = handholdPrefs.debugHandholdBuyVerified
 
             // app maintenance
             ignoreAppMaintenanceRcSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -147,17 +175,27 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
         }
     }
 
+    private fun resetRuntimePermissionCooldown() {
+        runtimePermissionsPrefs.notificationLastRequestMillis = 0
+    }
+
     private fun showSnackbar(text: String) {
         BlockchainSnackbar.make(
             binding.root,
             text,
-            duration = Snackbar.LENGTH_SHORT,
+            duration = Snackbar.LENGTH_SHORT
         ).show()
     }
 
     private fun onResetUserCache() {
         getUserStore.markAsStale()
         kycTiersStore.invalidate()
+    }
+
+    private fun onResetStoreCaches() {
+        lifecycleScope.launch {
+            storeWiper.wipe()
+        }
     }
 
     private fun showInviteNow() {
@@ -185,24 +223,12 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
         showSnackbar("Wallet reset")
     }
 
-    private fun onResetAnnounce() {
-        val announcementList: AnnouncementList by scopedInject()
-        val dismissRecorder: DismissRecorder by scopedInject()
-
-        dismissRecorder.reinstateAllAnnouncements(announcementList)
-
-        showSnackbar("Announcement reset")
-    }
-
     private fun onResetPrefs() {
         sessionPrefs.clear()
-
         remoteLogger.logEvent("debug clear prefs. Pin reset")
         loginState.clearPin()
-
         showSnackbar("Prefs Reset")
     }
-
     private fun onComponentLib() {
         startActivity(Intent(this, ComponentLibDemoActivity::class.java))
     }

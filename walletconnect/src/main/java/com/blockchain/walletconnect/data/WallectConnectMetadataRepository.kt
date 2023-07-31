@@ -1,6 +1,8 @@
 package com.blockchain.walletconnect.data
 
-import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.walletconnect.domain.ClientMeta
@@ -8,14 +10,15 @@ import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletInfo
+import com.blockchain.walletconnect.ui.networks.ETH_CHAIN_ID
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class WalletConnectMetadataRepository(
-    private val metadataRepository: MetadataRepository
+    private val metadataRepository: MetadataRepository,
+    private val walletConnectSessionsStorage: WalletConnectSessionsStorage
 ) : SessionRepository {
 
     override fun contains(session: WalletConnectSession): Single<Boolean> = loadSessions().map {
@@ -28,9 +31,9 @@ class WalletConnectMetadataRepository(
     }
 
     private fun loadSessions(): Single<List<WalletConnectSession>> =
-        metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA).map { json ->
-            jsonBuilder.decodeFromString<WalletConnectMetadata>(json)
-        }.map { walletConnectMetadata ->
+        walletConnectSessionsStorage.stream(
+            FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        ).asSingle().map { walletConnectMetadata ->
             walletConnectMetadata.sessions?.let { sessions ->
                 sessions.v1.map { dapp ->
                     WalletConnectSession(
@@ -38,7 +41,7 @@ class WalletConnectMetadataRepository(
                         dAppInfo = DAppInfo(
                             peerId = dapp.dAppInfo.peerId,
                             peerMeta = dapp.dAppInfo.peerMeta.toClientMeta(),
-                            chainId = dapp.dAppInfo.chainId ?: EthDataManager.ethChain.chainId
+                            chainId = dapp.dAppInfo.chainId ?: ETH_CHAIN_ID
                         ),
                         walletInfo = WalletInfo(
                             clientId = dapp.walletInfo.clientId,
@@ -47,15 +50,18 @@ class WalletConnectMetadataRepository(
                     )
                 }
             } ?: emptyList()
-        }.switchIfEmpty(Single.just(emptyList()))
+        }
 
     private fun updateRemoteSessions(sessions: List<WalletConnectSession>): Completable =
-        metadataRepository.saveRawValue(sessions.toJsonMetadata(), MetadataEntry.WALLET_CONNECT_METADATA)
+        metadataRepository.saveRawValue(sessions.toJsonMetadata(), MetadataEntry.WALLET_CONNECT_METADATA).doOnComplete {
+            walletConnectSessionsStorage.markAsStale()
+        }
 
     override fun store(session: WalletConnectSession): Completable =
         loadSessions().flatMapCompletable { sessions ->
-            if (sessions.contains(session)) Completable.complete()
-            else {
+            if (sessions.contains(session)) {
+                Completable.complete()
+            } else {
                 val newSessions = sessions + session
                 updateRemoteSessions(newSessions)
             }

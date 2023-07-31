@@ -16,13 +16,13 @@ import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
 import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycLimitsBinding
 import piuk.blockchain.android.ui.adapters.Diffable
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import retrofit2.HttpException
 
 class KycLimitsFragment :
@@ -48,8 +48,13 @@ class KycLimitsFragment :
             recyclerviewFeatures.layoutManager = LinearLayoutManager(requireContext())
             recyclerviewFeatures.adapter = adapter
 
-            errorBtnOk.setOnClickListener {
-                requireActivity().finish()
+            errorBtnOk.apply {
+                text = getString(
+                    com.blockchain.stringResources.R.string.common_ok
+                )
+                onClick = {
+                    requireActivity().finish()
+                }
             }
         }
     }
@@ -105,12 +110,14 @@ class KycLimitsFragment :
                 ErrorSlidingBottomDialog.newInstance(
                     ErrorDialogData(
                         title = nabuException?.getServerSideErrorInfo()?.title ?: getString(
-                            R.string.setting_limits_load_error_title
+                            com.blockchain.stringResources.R.string.setting_limits_load_error_title
                         ),
                         description = nabuException?.getServerSideErrorInfo()?.description ?: getString(
-                            R.string.setting_limits_load_error_description
+                            com.blockchain.stringResources.R.string.setting_limits_load_error_description
                         ),
-                        errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                        errorButtonCopies = ErrorButtonCopies(
+                            primaryButtonText = getString(com.blockchain.stringResources.R.string.common_ok)
+                        ),
                         error = errorState.toString(),
                         nabuApiException = (errorState.exception as? HttpException)?.let {
                             NabuApiExceptionFactory.fromResponseBody(errorState.exception)
@@ -141,7 +148,7 @@ class KycLimitsFragment :
         KycLimitsNavigationAction.None -> {
         }
         KycLimitsNavigationAction.StartKyc -> {
-            KycNavHostActivity.start(requireContext(), CampaignType.None)
+            KycNavHostActivity.start(requireContext(), KycEntryPoint.Other)
             model.process(KycLimitsIntent.ClearNavigation)
         }
     }
@@ -151,7 +158,7 @@ class KycLimitsFragment :
             Header.NEW_KYC -> model.process(KycLimitsIntent.NewKycHeaderCtaClicked)
             Header.UPGRADE_TO_GOLD -> model.process(KycLimitsIntent.UpgradeToGoldHeaderCtaClicked)
             Header.HIDDEN,
-            Header.MAX_TIER_REACHED,
+            Header.MAX_TIER_REACHED
             -> {
             }
         }

@@ -40,7 +40,7 @@ class ImportedAccountsHeaderDelegate(
         private val plus: ImageView = binding.imageviewPlus
 
         fun bind(item: AccountListItem.ImportedHeader, listener: AccountAdapter.Listener) {
-            header.setText(R.string.imported_addresses)
+            header.setText(com.blockchain.stringResources.R.string.imported_addresses)
 
             if (item.enableImport) {
                 itemView.setOnClickListener { listener.onImportAddressClicked() }

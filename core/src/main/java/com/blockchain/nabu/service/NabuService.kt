@@ -1,7 +1,7 @@
 package com.blockchain.nabu.service
 
-import com.blockchain.core.sdd.domain.model.SddEligibilityDto
-import com.blockchain.core.sdd.domain.model.SddStatusDto
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.tags.TagsService
 import com.blockchain.enviroment.EnvironmentConfig
@@ -12,6 +12,7 @@ import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
+import com.blockchain.nabu.models.responses.nabu.IsProfileNameValidRequest
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
 import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountRequest
@@ -22,17 +23,17 @@ import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
-import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
+import com.blockchain.nabu.models.responses.simplebuy.CustodialAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.DepositRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsDto
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
+import com.blockchain.nabu.models.responses.simplebuy.WireTransferAccountDetailsResponse
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawLocksCheckRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawRequestBody
 import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
@@ -45,6 +46,8 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRequest
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.fold
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.utils.thenSingle
 import com.blockchain.utils.toJsonElement
@@ -82,13 +85,25 @@ class NabuService internal constructor(
         deviceId
     ).wrapErrorMessage()
 
-    internal fun createBasicUser(
+    internal suspend fun createBasicUser(
         firstName: String,
         lastName: String,
-        dateOfBirth: String,
-    ): Completable = nabu.createBasicUser(
-        NabuBasicUser(firstName, lastName, dateOfBirth),
+        dateOfBirth: String
+    ): Outcome<Exception, Unit> = nabu.createBasicUser(
+        NabuBasicUser(firstName, lastName, dateOfBirth)
     )
+
+    internal suspend fun isProfileNameValid(firstName: String, lastName: String): Outcome<Exception, Boolean> =
+        nabu.isProfileNameValid(IsProfileNameValidRequest(firstName, lastName)).fold(
+            onSuccess = { Outcome.Success(true) },
+            onFailure = { error ->
+                if (error is NabuApiException && error.getErrorCode() == NabuErrorCodes.BadParamValue) {
+                    Outcome.Success(false)
+                } else {
+                    Outcome.Failure(error)
+                }
+            }
+        )
 
     internal fun getUser(): Single<NabuUser> = nabu.getUser().flatMap { user ->
         val newTags = tagsService.tags(user.tagKeys)
@@ -113,13 +128,13 @@ class NabuService internal constructor(
     internal fun updateWalletInformation(
         jwt: String
     ): Single<NabuUser> = nabu.updateWalletInformation(
-        NabuJwt(jwt),
+        NabuJwt(jwt)
     ).wrapErrorMessage()
 
     internal fun getSupportedDocuments(
         countryCode: String
     ): Single<List<SupportedDocuments>> = nabu.getSupportedDocuments(
-        countryCode,
+        countryCode
     ).wrapErrorMessage()
         .map { it.documentTypes }
 
@@ -138,7 +153,7 @@ class NabuService internal constructor(
             state,
             postCode,
             countryCode
-        ),
+        )
     ).wrapErrorMessage()
 
     internal fun recordCountrySelection(
@@ -152,7 +167,7 @@ class NabuService internal constructor(
             countryCode,
             notifyWhenAvailable,
             stateCode
-        ),
+        )
     ).wrapErrorMessage()
 
     internal fun startVeriffSession(): Single<VeriffApplicantAndToken> =
@@ -162,7 +177,7 @@ class NabuService internal constructor(
     internal fun submitVeriffVerification(
         userId: String
     ): Completable = nabu.submitVerification(
-        ApplicantIdRequest(userId),
+        ApplicantIdRequest(userId)
     ).wrapErrorMessage()
 
     internal fun recoverAccount(
@@ -200,7 +215,7 @@ class NabuService internal constructor(
         campaignName: String
     ): Completable = nabu.registerCampaign(
         campaignRequest,
-        campaignName,
+        campaignName
     ).wrapErrorMessage()
 
     internal fun fetchExchangeSendToAddressForCrypto(
@@ -208,12 +223,6 @@ class NabuService internal constructor(
     ): Single<SendToExchangeAddressResponse> = nabu.fetchExchangeSendAddress(
         SendToExchangeAddressRequest(cryptoSymbol)
     ).wrapErrorMessage()
-
-    internal fun isSDDEligible(): Single<SddEligibilityDto> =
-        nabu.isSDDEligible().wrapErrorMessage()
-
-    internal fun isSDDVerified(): Single<SddStatusDto> =
-        nabu.isSDDVerified().wrapErrorMessage()
 
     internal fun fetchQuote(
         quoteRequest: QuoteRequest
@@ -226,6 +235,12 @@ class NabuService internal constructor(
     ): Single<CustodialOrderResponse> = nabu.createCustodialOrder(
         order = createOrderRequest,
         localisedError = getLocalisedErrorIfEnabled()
+    ).wrapErrorMessage()
+
+    internal fun getCustodialOrder(
+        id: String
+    ): Single<CustodialOrderResponse> = nabu.getCustodialOrder(
+        id = id,
     ).wrapErrorMessage()
 
     internal fun fetchProductLimits(
@@ -256,10 +271,19 @@ class NabuService internal constructor(
     ): Single<SimpleBuyPairsDto> =
         nabu.getSupportedSimpleBuyPairs(fiatCurrency).wrapErrorMessage()
 
-    fun getSimpleBuyBankAccountDetails(
+    fun getWireTransferAccountDetails(
         currency: String
-    ): Single<BankAccountResponse> =
-        nabu.getSimpleBuyBankAccountDetails(
+    ): Single<WireTransferAccountDetailsResponse> =
+        nabu.getWireTransferAccountDetails(
+            SimpleBuyCurrency(currency)
+        ).wrapErrorMessage()
+
+    fun getCustodialAccountDetails(
+        product: String,
+        currency: String
+    ): Single<CustodialAccountResponse> =
+        nabu.getCustodialAccountDetails(
+            product,
             SimpleBuyCurrency(currency)
         ).wrapErrorMessage()
 
@@ -304,17 +328,12 @@ class NabuService internal constructor(
         }
     }.wrapErrorMessage()
 
-    fun createRecurringBuyOrder(
-        recurringOrderBody: RecurringBuyRequestBody
-    ) = nabu.createRecurringBuy(
-        recurringBuyBody = recurringOrderBody
-    ).wrapErrorMessage()
-
     internal fun fetchWithdrawFeesAndLimits(
         product: String,
         paymentMethod: String
     ) = nabu.getWithdrawFeeAndLimits(
-        product, paymentMethod
+        product,
+        paymentMethod
     ).wrapErrorMessage()
 
     internal fun fetchWithdrawLocksRules(
@@ -322,7 +341,8 @@ class NabuService internal constructor(
         fiatCurrency: String
     ) = nabu.getWithdrawalLocksCheck(
         WithdrawLocksCheckRequestBody(
-            paymentMethod = paymentMethod.name, currency = fiatCurrency
+            paymentMethod = paymentMethod.name,
+            currency = fiatCurrency
         )
     ).wrapErrorMessage()
 
@@ -342,7 +362,11 @@ class NabuService internal constructor(
         product: String
     ) = nabu.createDepositOrder(
         DepositRequestBody(
-            currency = currency, depositAddress = address, txHash = hash, amount = amount, product = product
+            currency = currency,
+            depositAddress = address,
+            txHash = hash,
+            amount = amount,
+            product = product
         )
     )
 
@@ -419,18 +443,6 @@ class NabuService internal constructor(
         body: ProductTransferRequestBody
     ) = nabu.executeTransfer(
         body = body
-    ).wrapErrorMessage()
-
-    fun getRecurringBuyForId(
-        recurringBuyId: String
-    ) = nabu.getRecurringBuyById(
-        recurringBuyId = recurringBuyId
-    ).wrapErrorMessage()
-
-    fun cancelRecurringBuy(
-        id: String
-    ) = nabu.cancelRecurringBuy(
-        id = id
     ).wrapErrorMessage()
 
     private fun getLocalisedErrorIfEnabled(): String? =

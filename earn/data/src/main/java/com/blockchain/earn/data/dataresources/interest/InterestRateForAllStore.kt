@@ -1,7 +1,7 @@
 package com.blockchain.earn.data.dataresources.interest
 
-import com.blockchain.api.interest.InterestApiService
-import com.blockchain.api.interest.data.InterestRatesDto
+import com.blockchain.api.earn.passive.InterestApiService
+import com.blockchain.api.earn.passive.data.InterestRatesDto
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
@@ -10,7 +10,7 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 
 class InterestRateForAllStore(
-    private val interestApiService: InterestApiService,
+    private val interestApiService: InterestApiService
 ) : Store<InterestRatesDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

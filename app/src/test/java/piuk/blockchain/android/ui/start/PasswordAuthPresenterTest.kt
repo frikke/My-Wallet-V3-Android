@@ -209,7 +209,7 @@ class PasswordAuthPresenterTest {
             any(),
             any(),
             any(),
-            any(),
+            any()
         )
     }
 
@@ -350,7 +350,10 @@ class PasswordAuthPresenterTest {
 
         // Assert
         verify(remoteLogger).logState("initial_error", "This is an error")
-        verify(view).showErrorSnackbarWithParameter(R.string.common_replaceable_value, "This is an error")
+        verify(view).showErrorSnackbarWithParameter(
+            com.blockchain.stringResources.R.string.common_replaceable_value,
+            "This is an error"
+        )
     }
 
     @Test
@@ -367,7 +370,7 @@ class PasswordAuthPresenterTest {
 
         // Assert
         verify(remoteLogger).logState(eq("initial_error"), any())
-        verify(view).showSnackbar(R.string.common_error, SnackbarType.Error)
+        verify(view).showSnackbar(com.blockchain.stringResources.R.string.common_error, SnackbarType.Error)
     }
 
     /**
@@ -425,7 +428,7 @@ class PasswordAuthPresenterTest {
         // Act
         subject.submitTwoFactorCode(responseObject, GUID, PASSWORD, null)
         // Assert
-        verify(view).showSnackbar(R.string.two_factor_null_error, SnackbarType.Error)
+        verify(view).showSnackbar(com.blockchain.stringResources.R.string.two_factor_null_error, SnackbarType.Error)
     }
 
     @Test
@@ -439,9 +442,12 @@ class PasswordAuthPresenterTest {
         // Act
         subject.submitTwoFactorCode(responseObject, GUID, PASSWORD, code)
         // Assert
-        verify(view).showProgressDialog(R.string.please_wait, null)
+        verify(view).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(view, atLeastOnce()).dismissProgressDialog()
-        verify(view).showSnackbar(R.string.two_factor_incorrect_error, SnackbarType.Error)
+        verify(view).showSnackbar(
+            com.blockchain.stringResources.R.string.two_factor_incorrect_error,
+            SnackbarType.Error
+        )
         verify(authDataManager).submitTwoFactorCode(GUID, code)
     }
 
@@ -466,7 +472,7 @@ class PasswordAuthPresenterTest {
         subject.submitTwoFactorCode(responseObject, GUID, PASSWORD, code)
 
         // Assert
-        verify(view).showProgressDialog(R.string.please_wait, null)
+        verify(view).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(view, atLeastOnce()).dismissProgressDialog()
         verify(view).goToPinPage()
         verify(authDataManager).submitTwoFactorCode(GUID, code)

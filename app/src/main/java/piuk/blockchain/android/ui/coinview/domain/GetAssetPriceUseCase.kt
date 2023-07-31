@@ -21,12 +21,10 @@ object GetAssetPriceUseCase {
             asset.historicRateSeries(timeSpan),
             asset.getPricesWith24hDelta()
         ) { historicRates, prices ->
-
             combineDataResources(historicRates, prices) { historicRatesData, pricesData ->
                 val firstPrice = historicRatesData.firstOrNull()?.rate ?: 0.0
                 val lastPrice = historicRatesData.lastOrNull()?.rate ?: 0.0
                 val difference = lastPrice - firstPrice
-
                 val percentChange = if (timeSpan == HistoricalTimeSpan.DAY) {
                     pricesData.delta24h
                 } else {

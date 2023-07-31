@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.auth.newlogin.data.model
 
+import com.blockchain.domain.auth.SecureChannelBrowserMessage
 import kotlinx.serialization.Serializable
-import piuk.blockchain.android.ui.auth.newlogin.domain.model.SecureChannelBrowserMessage
 
 @Serializable
 internal data class SecureChannelBrowserMessageDto(

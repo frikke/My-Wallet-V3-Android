@@ -3,11 +3,12 @@ package piuk.blockchain.android.ui.transactionflow.engine
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.isInternetConnectionError
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.InvoiceTarget
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
@@ -19,9 +20,11 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.eth.WalletConnectTarget
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.DepositTerms
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.TransactionError
@@ -30,7 +33,6 @@ import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import java.util.Stack
-import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import retrofit2.HttpException
 
 sealed class TransactionIntent : MviIntent<TransactionState> {
@@ -151,24 +153,9 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 passwordRequired -> TransactionStep.ENTER_PASSWORD
                 target is InvoiceTarget -> TransactionStep.CONFIRM_DETAIL
                 target is WalletConnectTarget -> TransactionStep.CONFIRM_DETAIL
+                sourceAccount is EarnRewardsAccount.Active -> TransactionStep.CONFIRM_DETAIL
                 else -> TransactionStep.ENTER_AMOUNT
             }
-    }
-
-    data class GetNetworkName(
-        val fromAccount: SingleAccount
-    ) : TransactionIntent() {
-        override fun reduce(oldState: TransactionState): TransactionState = oldState
-    }
-
-    data class SetNetworkName(
-        private val networkName: String
-    ) : TransactionIntent() {
-        override fun reduce(oldState: TransactionState): TransactionState {
-            return oldState.copy(
-                networkName = networkName
-            )
-        }
     }
 
     object ClearBackStack : TransactionIntent() {
@@ -324,6 +311,10 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState): TransactionState = oldState
     }
 
+    object FetchConfirmationRates : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
     class FiatRateUpdated(
         private val fiatRate: ExchangeRate
     ) : TransactionIntent() {
@@ -339,6 +330,15 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
                 targetRate = targetRate
+            ).updateBackstack(oldState)
+    }
+
+    class ConfirmationRateUpdated(
+        private val confirmationRate: ExchangeRate?
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                confirmationRate = confirmationRate
             ).updateBackstack(oldState)
     }
 
@@ -380,7 +380,6 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
-                nextEnabled = false,
                 setMax = false
             ).updateBackstack(oldState)
     }
@@ -399,6 +398,11 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     object UseMaxSpendable : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(setMax = true)
+    }
+
+    object ResetUseMaxSpendable : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(setMax = false)
     }
 
     class ModifyTxOption(
@@ -454,16 +458,15 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     }
 
     class FatalTransactionError(
-        private val _error: Throwable
+        private val error: Throwable
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState {
-
             val error = when {
-                _error is TransactionError -> _error
-                _error is NabuApiException -> TransactionError.HttpError(_error)
-                _error is HttpException -> TransactionError.HttpError(NabuApiExceptionFactory.fromResponseBody(_error))
-                _error.isInternetConnectionError() -> TransactionError.InternetConnectionError
-                else -> throw _error
+                error is TransactionError -> error
+                error is NabuApiException -> TransactionError.HttpError(error)
+                error is HttpException -> TransactionError.HttpError(NabuApiExceptionFactory.fromResponseBody(error))
+                error.isInternetConnectionError() -> TransactionError.InternetConnectionError
+                else -> throw error
             }
             return oldState.copy(
                 nextEnabled = true,
@@ -676,18 +679,23 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         )
     }
 
-    class FilterTradingTargets(val showTrading: Boolean) : TransactionIntent() {
+    class SwitchAccountType(val showTrading: Boolean) : TransactionIntent() {
         override fun reduce(oldState: TransactionState) = oldState.copy(
             selectedTarget = NullAddress,
             nextEnabled = false,
-            isLoading = true
+            isLoading = true,
+            showTradingAccounts = showTrading
         )
 
         override fun isValidFor(oldState: TransactionState): Boolean {
             return if (showTrading) {
-                oldState.availableTargets.none { it is TradingAccount }
+                oldState.availableTargets.any { it is TradingAccount } &&
+                    oldState.availableTargets.any { it is NonCustodialAccount } ||
+                    oldState.availableTargets.none { it is TradingAccount }
             } else {
-                oldState.availableTargets.any { it is TradingAccount }
+                oldState.availableTargets.any { it is TradingAccount } &&
+                    oldState.availableTargets.any { it is NonCustodialAccount } ||
+                    oldState.availableTargets.none { it is NonCustodialAccount }
             }
         }
     }
@@ -695,8 +703,25 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     class UpdateTradingAccountsFilterState(private val canFilterTradingAccounts: Boolean) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
-                canFilterOutTradingAccounts = canFilterTradingAccounts
+                canSwitchBetweenAccountType = canFilterTradingAccounts
             )
+    }
+
+    class UpdatePrivateKeyAccountsFilterState(private val isPkwAccountFilterActive: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                isPkwAccountFilterActive = isPkwAccountFilterActive
+            )
+    }
+
+    class UpdatePrivateKeyFilter(val isPkwAccountFilterActive: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                isPkwAccountFilterActive = isPkwAccountFilterActive
+            )
+
+        override fun isValidFor(oldState: TransactionState): Boolean =
+            isPkwAccountFilterActive != oldState.isPkwAccountFilterActive
     }
 
     class UpdatePrivateKeyAccountsFilterState(private val isPkwAccountFilterActive: Boolean) : TransactionIntent() {
@@ -745,6 +770,17 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
 
     class UpdateStakingWithdrawalSeen(val networkTicker: String) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    object LoadRewardsWithdrawalUnbondingDays : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
+    }
+
+    class RewardsWithdrawalUnbondingDaysLoaded(val unbondingDays: Int) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                earnWithdrawalUnbondingDays = unbondingDays
+            )
     }
 }
 

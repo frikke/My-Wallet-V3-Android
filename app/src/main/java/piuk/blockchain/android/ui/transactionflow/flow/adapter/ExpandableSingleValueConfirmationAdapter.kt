@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.getResolvedColor
 import piuk.blockchain.android.R
@@ -33,7 +34,9 @@ class ExpandableSingleValueConfirmationAdapter(private val mapper: TxConfirmRead
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as ExpandableSingleValueCheckoutItemViewHolder).bind(
-        items[position]
+        items[position],
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -54,8 +57,14 @@ private class ExpandableSingleValueCheckoutItemViewHolder(
         }
     }
 
-    fun bind(item: TxConfirmationValue) {
+    fun bind(
+        item: TxConfirmationValue,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
+    ) {
         with(binding) {
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
             expandableItemValue.gone()
             arrowIcon.setImageResource(R.drawable.collapse_animated)
             mapper.map(item).run {
@@ -70,10 +79,10 @@ private class ExpandableSingleValueCheckoutItemViewHolder(
         with(binding) {
             if (isExpanded) {
                 arrowIcon.setImageResource(R.drawable.expand_animated)
-                arrowIcon.setColorFilter(context.getResolvedColor(R.color.blue_600))
+                arrowIcon.setColorFilter(context.getResolvedColor(com.blockchain.common.R.color.blue_600))
             } else {
                 arrowIcon.setImageResource(R.drawable.collapse_animated)
-                arrowIcon.setColorFilter(context.getResolvedColor(R.color.grey_600))
+                arrowIcon.setColorFilter(context.getResolvedColor(com.blockchain.common.R.color.grey_600))
             }
         }
     }

@@ -22,7 +22,7 @@ import java.lang.Integer.min
 fun PagerIndicatorDots(
     modifier: Modifier = Modifier,
     selectedIndex: Int = 0,
-    count: Int = 2,
+    count: Int = 2
 ) {
     val dotSize = 8.dp
     val dotSpacingSize = 8.dp
@@ -42,7 +42,7 @@ fun PagerIndicatorDots(
             isSelected = true,
             modifier = Modifier.offset(
                 x = animateDpAsState(targetValue = selectedIndexOffset).value,
-                y = 0.dp,
+                y = 0.dp
             )
         )
     }
@@ -52,7 +52,7 @@ fun PagerIndicatorDots(
 private fun PagerIndicatorDot(
     dotSize: Dp,
     modifier: Modifier = Modifier,
-    isSelected: Boolean = false,
+    isSelected: Boolean = false
 ) {
     Box(
         modifier = modifier

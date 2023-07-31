@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemBankEmptyBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 
@@ -29,8 +30,9 @@ class BankInfoEmptyDelegate(private val onAddNewBankClicked: () -> Unit) : Adapt
 class YapilyBankEmptyViewHolder(val binding: ItemBankEmptyBinding) : RecyclerView.ViewHolder(binding.root) {
     fun bind(listener: () -> Unit) {
         with(binding) {
-            addNewButton.setOnClickListener {
-                listener.invoke()
+            addNewButton.apply {
+                text = context.getString(com.blockchain.stringResources.R.string.yapily_empty_cta)
+                onClick = { listener.invoke() }
             }
         }
     }

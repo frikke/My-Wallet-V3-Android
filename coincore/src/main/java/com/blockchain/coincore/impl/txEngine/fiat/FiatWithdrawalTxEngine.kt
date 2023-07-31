@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.fiat
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -14,9 +13,12 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.MissingLimitsException
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.TransactionsStore
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -27,14 +29,21 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class FiatWithdrawalTxEngine(
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager,
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity
 ) : TxEngine() {
 
+    private val tradingService: TradingService by scopedInject()
+
+    private val transactionsStore: TransactionsStore by scopedInject()
+
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf()
+        get() = listOf(transactionsStore)
+
+    override fun ensureSourceBalanceFreshness() {
+        tradingService.markAsStale()
+    }
 
     private val userIsGoldVerified: Single<Boolean>
         get() = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))
@@ -53,7 +62,7 @@ class FiatWithdrawalTxEngine(
         val withdrawFeeAndMinLimit = (txTarget as LinkedBankAccount).getWithdrawalFeeAndMinLimit().cache()
         val zeroFiat = Money.zero((sourceAccount as FiatAccount).currency)
         return Single.zip(
-            sourceAccount.balanceRx.firstOrError(),
+            sourceAccount.balanceRx().firstOrError(),
             withdrawFeeAndMinLimit,
             limitsDataManager.getLimits(
                 outputCurrency = zeroFiat.currency,
@@ -101,7 +110,9 @@ class FiatWithdrawalTxEngine(
                     TxConfirmationValue.Amount(pendingTx.amount, false),
                     if (pendingTx.feeAmount.isPositive) {
                         TxConfirmationValue.TransactionFee(pendingTx.feeAmount)
-                    } else null,
+                    } else {
+                        null
+                    },
                     TxConfirmationValue.Amount(pendingTx.amount.plus(pendingTx.feeAmount), true)
                 )
             )

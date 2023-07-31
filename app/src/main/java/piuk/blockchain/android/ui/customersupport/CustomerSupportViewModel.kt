@@ -5,20 +5,20 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 
 class CustomerSupportViewModel(
     customerSupportModelState: CustomerSupportModelState
-) : MviViewModel<CustomerSupportIntents,
+) : MviViewModel<
+    CustomerSupportIntents,
     CustomerSupportViewState,
     CustomerSupportModelState,
     CustomerSupportNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     customerSupportModelState
 ) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: CustomerSupportModelState): CustomerSupportViewState {
-        return CustomerSupportViewState
-    }
+    override fun CustomerSupportModelState.reduce() = CustomerSupportViewState
 
     override suspend fun handleIntent(modelState: CustomerSupportModelState, intent: CustomerSupportIntents) {
     }

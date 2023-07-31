@@ -410,13 +410,6 @@
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.adapter.CustodialFiatActivityItemDelegate.kt:86</ID>
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.adapter.CustodialFiatActivityItemDelegate.kt:87</ID>
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.ActivityDetailsIntents.kt:67</ID>
-    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.ActivityDetailsInteractor.kt:74</ID>
-    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.ActivityDetailsInteractor.kt:76</ID>
-    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.ActivityDetailsInteractor.kt:78</ID>
-    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.ActivityDetailsInteractor.kt:80</ID>
-    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.TransactionHelper.kt:109</ID>
-    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.TransactionHelper.kt:120</ID>
-    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.TransactionHelper.kt:137</ID>
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.addresses.AccountPresenter.kt:161</ID>
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.addresses.AccountPresenter.kt:163</ID>
     <ID>MultiLineIfElse:piuk.blockchain.android.ui.addresses.EditAccountSheet.kt:345</ID>
@@ -487,10 +480,6 @@
     <ID>NestedBlockDepth:SwapInfoHeaderView.kt$SwapInfoHeaderView$override fun update(state: TransactionState)</ID>
     <ID>NestedBlockDepth:TransactionHelper.kt$TransactionHelper$ fun filterNonChangeBtcAddresses( tx: NonCustodialActivitySummaryItem ): Pair&lt;Map&lt;String, Money>, Map&lt;String, Money>></ID>
     <ID>NestedBlockDepth:TransactionHelper.kt$TransactionHelper$fun filterNonChangeBchAddresses( tx: NonCustodialActivitySummaryItem ): Pair&lt;Map&lt;String, Money>, Map&lt;String, Money>></ID>
-    <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.TriangleTranslationEdgeTreatment.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.UiTourCardView.kt:17</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.UiTourView.kt:1</ID>
     <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycAdditionalInfoAnalytics.kt:1</ID>
     <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireFragment.kt:1</ID>
     <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireIntent.kt:1</ID>

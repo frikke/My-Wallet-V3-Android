@@ -2,29 +2,33 @@ package piuk.blockchain.android.ui.home.models
 
 import android.content.Intent
 import android.net.Uri
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialStakingAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.deeplinking.processor.LinkState
+import com.blockchain.domain.auth.SecureChannelService
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankAuthDeepLinkState
+import com.blockchain.domain.paymentmethods.model.BankAuthFlowState
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.paymentmethods.model.fromPreferencesValue
+import com.blockchain.domain.paymentmethods.model.toPreferencesValue
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.home.presentation.navigation.ScanResult
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
-import com.blockchain.outcome.fold
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.walletmode.WalletMode
@@ -34,28 +38,21 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import kotlinx.coroutines.rx3.asObservable
-import kotlinx.coroutines.rx3.rxSingle
+import kotlinx.coroutines.rx3.rxCompletable
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
-import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.scan.QrScanResultProcessor
-import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
-import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
-import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
-import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
-import piuk.blockchain.android.ui.linkbank.toPreferencesValue
-import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
@@ -67,7 +64,6 @@ class MainInteractor internal constructor(
     private val bankService: BankService,
     private val simpleBuySync: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
-    private val upsellManager: KycUpgradePromptManager,
     private val credentialsWiper: CredentialsWiper,
     private val qrScanResultProcessor: QrScanResultProcessor,
     private val secureChannelService: SecureChannelService,
@@ -75,14 +71,13 @@ class MainInteractor internal constructor(
     private val referralPrefs: ReferralPrefs,
     private val referralRepository: ReferralRepository,
     private val ethDataManager: EthDataManager,
-    private val stakingAccountFlag: FeatureFlag,
     private val membershipFlag: FeatureFlag,
     private val coincore: Coincore,
     private val walletModeService: WalletModeService,
     private val earnOnNavBarFlag: FeatureFlag
 ) {
 
-    fun checkForDeepLinks(intent: Intent): Single<LinkState> =
+    fun checkForDeepLinks(intent: Intent): Maybe<LinkState> =
         deepLinkProcessor.getLink(intent)
 
     fun checkForDeepLinks(scanResult: ScanResult.HttpUri): Single<LinkState> =
@@ -117,7 +112,8 @@ class MainInteractor internal constructor(
 
     fun updateOpenBankingConsent(consentToken: String): Completable =
         bankService.updateOpenBankingConsent(
-            bankLinkingPrefs.getDynamicOneTimeTokenUrl(), consentToken
+            bankLinkingPrefs.getDynamicOneTimeTokenUrl(),
+            consentToken
         ).doOnError {
             resetLocalBankAuthState()
         }
@@ -139,9 +135,6 @@ class MainInteractor internal constructor(
     fun getSimpleBuySyncLocalState(): SimpleBuyState? = simpleBuySync.currentState()
 
     fun performSimpleBuySync(): Completable = simpleBuySync.performSync()
-
-    fun checkIfShouldUpsell(action: AssetAction, account: BlockchainAccount?): Single<KycUpgradePromptManager.Type> =
-        upsellManager.queryUpsell(action, account)
 
     fun unpairWallet(): Completable =
         Completable.fromAction {
@@ -165,33 +158,13 @@ class MainInteractor internal constructor(
             deepLinkPersistence.popDataFromSharedPrefs()
         }
 
-    fun checkReferral(): Single<ReferralState> = rxSingle {
-        val areMembershipsEnabled = membershipFlag.coEnabled()
-        referralRepository.fetchReferralData().fold(
-            onSuccess = { info ->
-                ReferralState(
-                    referralInfo = info,
-                    hasReferralBeenClicked = referralPrefs.hasReferralIconBeenClicked,
-                    areMembershipsEnabled = areMembershipsEnabled
-                )
-            },
-            onFailure = {
-                ReferralState(
-                    referralInfo = ReferralInfo.NotAvailable,
-                    hasReferralBeenClicked = false
-                )
-            }
-        )
-    }
+    fun checkReferral(): Single<ReferralState> = Single.just(ReferralState(ReferralInfo.NotAvailable))
 
     fun storeReferralClicked() {
         referralPrefs.hasReferralIconBeenClicked = true
     }
 
     fun getSupportedEvmNetworks() = ethDataManager.supportedNetworks
-
-    fun isStakingEnabled(): Single<Boolean> =
-        stakingAccountFlag.enabled
 
     fun selectAccountForTxFlow(networkTicker: String, action: AssetAction): Single<LaunchFlowForAccount> =
         if (action == AssetAction.FiatDeposit) {
@@ -207,38 +180,39 @@ class MainInteractor internal constructor(
                 }
             }
         } else {
-            coincore.walletsWithActions(setOf(action)).map { accountsForAction ->
-                accountsForAction.filter { account ->
-                    account.currency.networkTicker == networkTicker
-                }
-            }.map { sameAssetAccounts ->
+            Single.just(LaunchFlowForAccount.NoAccount)
+            /*  coincore.walletsWithAction(action = action).map { accountsForAction ->
+                  accountsForAction.filter { account ->
+                      account.currency.networkTicker == networkTicker
+                  }
+              }.map { sameAssetAccounts ->
 
-                val eligibleTradingAccount = sameAssetAccounts.filterIsInstance<CustodialTradingAccount>()
-                    .firstOrNull { tradingAccount ->
-                        tradingAccount.isFunded
-                    }
+                  val eligibleTradingAccount = sameAssetAccounts.filterIsInstance<CustodialTradingAccount>()
+                      .firstOrNull { tradingAccount ->
+                          tradingAccount.isFunded
+                      }
 
-                when {
-                    eligibleTradingAccount != null -> {
-                        return@map LaunchFlowForAccount.SourceAccount(eligibleTradingAccount)
-                    }
-                    else -> {
-                        val eligibleNonCustodialAccount =
-                            sameAssetAccounts.filterIsInstance<CryptoNonCustodialAccount>()
-                                .firstOrNull { ncAccount ->
-                                    ncAccount.isFunded
-                                }
-                        when {
-                            eligibleNonCustodialAccount != null -> {
-                                return@map LaunchFlowForAccount.SourceAccount(eligibleNonCustodialAccount)
-                            }
-                            else -> {
-                                return@map LaunchFlowForAccount.NoAccount
-                            }
-                        }
-                    }
-                }
-            }
+                  when {
+                      eligibleTradingAccount != null -> {
+                          return@map LaunchFlowForAccount.SourceAccount(eligibleTradingAccount)
+                      }
+                      else -> {
+                          val eligibleNonCustodialAccount =
+                              sameAssetAccounts.filterIsInstance<CryptoNonCustodialAccount>()
+                                  .firstOrNull { ncAccount ->
+                                      ncAccount.isFunded
+                                  }
+                          when {
+                              eligibleNonCustodialAccount != null -> {
+                                  return@map LaunchFlowForAccount.SourceAccount(eligibleNonCustodialAccount)
+                              }
+                              else -> {
+                                  return@map LaunchFlowForAccount.NoAccount
+                              }
+                          }
+                      }
+                  }
+              }*/
         }
 
     fun selectRewardsAccountForAsset(cryptoTicker: String): Single<LaunchFlowForAccount> =
@@ -260,7 +234,9 @@ class MainInteractor internal constructor(
         walletModeService.walletMode.asObservable()
 
     fun updateWalletMode(mode: WalletMode): Completable =
-        Completable.fromAction { walletModeService.updateEnabledWalletMode(mode) }
+        Completable.fromAction {
+            rxCompletable { walletModeService.updateEnabledWalletMode(mode) }
+        }
 
     fun isEarnOnNavBarEnabled(): Single<Boolean> = earnOnNavBarFlag.enabled
 }

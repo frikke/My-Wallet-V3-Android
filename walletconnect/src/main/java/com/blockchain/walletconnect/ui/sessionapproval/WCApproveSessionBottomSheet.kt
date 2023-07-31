@@ -15,8 +15,8 @@ import com.bumptech.glide.Glide
 
 class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBottomSheetBinding>() {
 
-    private val session: WalletConnectSession by lazy {
-        arguments?.getSerializable(SESSION_KEY) as WalletConnectSession
+    private val session: WalletConnectSession? by lazy {
+        arguments?.getSerializable(SESSION_KEY)?.let { it as WalletConnectSession }
     }
 
     private val selectedNetwork: NetworkInfo by lazy {
@@ -42,35 +42,40 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
 
     @SuppressLint("StringFormatInvalid")
     override fun initControls(binding: SessionApprovalBottomSheetBinding) {
-        Glide.with(this).load(session.dAppInfo.peerMeta.uiIcon()).into(binding.icon)
         with(binding) {
-            title.text = getString(R.string.dapp_wants_to_connect, session.dAppInfo.peerMeta.name)
-            description.text = session.dAppInfo.peerMeta.url
-            walletAndNetwork.apply {
-                primaryText = getString(R.string.common_network)
-                secondaryText = selectedNetwork.name
-                startImageResource = selectedNetwork.logo?.let { ImageResource.Remote(it) }
-                    ?: ImageResource.Local(R.drawable.ic_default_asset_logo)
-                onClick = {
-                    host.onSelectNetworkClicked(session)
-                    dismiss()
+            session?.let { session ->
+                Glide.with(requireActivity()).load(session.dAppInfo.peerMeta.uiIcon()).into(binding.icon)
+                title.text = getString(
+                    com.blockchain.stringResources.R.string.dapp_wants_to_connect, session.dAppInfo.peerMeta.name
+                )
+                description.text = session.dAppInfo.peerMeta.url
+                walletAndNetwork.apply {
+                    primaryText = getString(com.blockchain.stringResources.R.string.common_network)
+                    secondaryText = selectedNetwork.name
+                    startImageResource = selectedNetwork.logo?.let { ImageResource.Remote(it) }
+                        ?: ImageResource.Local(R.drawable.ic_default_asset_logo)
+                    onClick = {
+                        host.onSelectNetworkClicked(session)
+                        dismiss()
+                    }
                 }
-            }
-            cancelButton.apply {
-                text = getString(R.string.common_cancel)
-                onClick = {
-                    host.onSessionRejected(session)
-                    dismiss()
+
+                cancelButton.apply {
+                    text = getString(com.blockchain.stringResources.R.string.common_cancel)
+                    onClick = {
+                        host.onSessionRejected(session)
+                        dismiss()
+                    }
                 }
-            }
 
-            stateIndicator.gone()
+                stateIndicator.gone()
 
-            approveButton.apply {
-                text = getString(R.string.common_confirm)
-                onClick = {
-                    host.onSessionApproved(session)
-                    dismiss()
+                approveButton.apply {
+                    text = getString(com.blockchain.stringResources.R.string.common_confirm)
+                    onClick = {
+                        host.onSessionApproved(session)
+                        dismiss()
+                    }
                 }
             }
         }

@@ -24,7 +24,6 @@ import coil.compose.LocalImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.SvgDecoder
-import com.blockchain.componentlib.BuildConfig
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -106,6 +105,8 @@ object AppTheme : Theme() {
         get() = LocalShapes.current
 }
 
+val AppColors: SemanticColors @Composable get() = AppTheme.colors
+
 object FakeAppThemeProvider : AppThemeProvider {
     override val appTheme: Flow<Theme>
         get() = flow {
@@ -117,7 +118,8 @@ object FakeAppThemeProvider : AppThemeProvider {
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     themeProvider: AppThemeProvider = defValue(),
-    content: @Composable () -> Unit,
+    setSystemColors: Boolean = false,
+    content: @Composable () -> Unit
 ) {
     val imageLoader = runCatching {
         ImageLoader.Builder(LocalContext.current)
@@ -136,9 +138,9 @@ fun AppTheme(
          * Note the only reason we have this getOrElse block is for previews. For some reason, SvgDecoder fails to
          * be found/initialized when we are looking at jetpack compose previews in split view in Android Studio.
          * Inorder to allow for previews to work we have this try catch block. This is why we are throwing this error */
-        if (BuildConfig.DEBUG.not()) {
+     /*   if (BuildConfig.DEBUG.not()) {
             throw IllegalStateException("SVG Decoder failed, this should not happen in release", throwable)
-        }
+        }*/
         /**
          * because if this code breaks in release we need to know about it, instead of silently failing as we are doing
          * here.
@@ -161,16 +163,18 @@ fun AppTheme(
         Color.White
     }
 
-    val colorsLocalProvider = if (darkTheme)
+    val colorsLocalProvider = if (darkTheme) {
         LocalDarkColors provides mTheme.colors.copy().apply { updateColorsFrom(mTheme.colors) }
-    else
+    } else
         LocalLightColors provides mTheme.colors.copy().apply { updateColorsFrom(mTheme.colors) }
 
-    SystemColors(
-        statusColor = mTheme.colors.background,
-        navigationColor = navigationBackground,
-        isDarkTheme = darkTheme
-    )
+    if (setSystemColors) {
+        SystemColors(
+            statusColor = mTheme.colors.backgroundSecondary,
+            navigationColor = navigationBackground,
+            isDarkTheme = darkTheme
+        )
+    }
 
     MaterialTheme(
         colors = Colors(
@@ -178,8 +182,8 @@ fun AppTheme(
             primaryVariant = mTheme.colors.primaryMuted,
             secondary = mTheme.colors.light,
             secondaryVariant = mTheme.colors.dark,
-            background = mTheme.colors.background,
-            surface = mTheme.colors.background,
+            background = mTheme.colors.backgroundSecondary,
+            surface = mTheme.colors.backgroundSecondary,
             error = mTheme.colors.error,
             onPrimary = mTheme.colors.light,
             onSecondary = mTheme.colors.primary,
@@ -231,6 +235,12 @@ fun SystemColors(statusColor: Color, navigationColor: Color, isDarkTheme: Boolea
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+}
+
+@Composable
+fun SystemColors(statusBarDarkContent: Boolean = !isSystemInDarkTheme()) {
+    val systemUiController = rememberSystemUiController()
+    systemUiController.statusBarDarkContentEnabled = statusBarDarkContent
 }
 
 /**

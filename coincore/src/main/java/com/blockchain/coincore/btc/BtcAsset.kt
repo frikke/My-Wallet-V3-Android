@@ -1,6 +1,5 @@
 package com.blockchain.coincore.btc
 
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.MultipleWalletsAsset
@@ -10,11 +9,11 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.NotificationAddresses
-import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.thenSingle
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -37,37 +36,40 @@ internal class BtcAsset(
     private val notificationUpdater: BackendNotificationUpdater,
     private val addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(),
-    StandardL1Asset,
     MultipleWalletsAsset {
 
     override val currency: AssetInfo
         get() = CryptoCurrency.BTC
 
-    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Single.fromCallable {
-            with(payloadManager) {
-                val result = mutableListOf<CryptoAccount>()
-                accounts.forEachIndexed { i, account ->
-                    val btcAccount = btcAccountFromPayloadAccount(i, account)
-                    if (btcAccount.isDefault) {
-                        updateBackendNotificationAddresses(btcAccount)
+    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
+        val renameAccounts =
+            payloadManager.accounts.filter { it.labelNeedsUpdate() }.takeIf { it.isNotEmpty() }?.let { accounts ->
+                payloadManager.updateAccountsLabel(
+                    internalAccounts = accounts.associateWith {
+                        it.label.updatedLabel()
                     }
-                    result.add(btcAccount)
-                }
+                ).onErrorComplete()
+            } ?: Completable.complete()
 
-                importedAddresses.forEach { account ->
-                    result.add(btcAccountFromImportedAccount(account))
-                }
-                result
+        return renameAccounts.thenSingle {
+            val btcAccounts = payloadManager.accounts.mapIndexed { i, account ->
+                btcAccountFromPayloadAccount(i, account)
+            } + payloadManager.importedAddresses.map { account ->
+                btcAccountFromImportedAccount(account)
+            }
+
+            val updateNotificationsCompletable = btcAccounts.firstOrNull { it.isDefault && !it.isArchived }?.let {
+                updateBackendNotificationAddresses(it)
+            } ?: Completable.complete()
+
+            updateNotificationsCompletable.thenSingle {
+                Single.just(btcAccounts)
             }
         }
+    }
 
-    private fun updateBackendNotificationAddresses(account: BtcCryptoWalletAccount) {
-        require(account.isDefault)
-        require(!account.isArchived)
-
+    private fun updateBackendNotificationAddresses(account: BtcCryptoWalletAccount): Completable {
         val addressList = mutableListOf<String>()
-
         for (i in 0 until OFFLINE_CACHE_ITEM_COUNT) {
             account.getReceiveAddressAtPosition(i)?.let {
                 addressList += it
@@ -92,7 +94,7 @@ internal class BtcAsset(
             }?.let {
                 val amountString = it.removePrefix(BTC_ADDRESS_AMOUNT_PART)
                 if (amountString.isNotEmpty()) {
-                    CryptoValue.fromMajor(CryptoCurrency.BTC, amountString.toBigDecimal())
+                    CryptoValue.fromMajor(currency, amountString.toBigDecimal())
                 } else {
                     null
                 }
@@ -140,8 +142,9 @@ internal class BtcAsset(
             PrivateKeyFactory.BIP38 -> extractBip38Key(keyData, keyPassword!!)
             else -> extractKey(keyData, keyFormat)
         }.map { key ->
-            if (!key.hasPrivKey)
+            if (!key.hasPrivKey) {
                 throw Exception()
+            }
             key
         }.flatMap { key ->
             payloadManager.addImportedAddressFromKey(key, walletSecondPassword)
@@ -167,7 +170,6 @@ internal class BtcAsset(
             feeDataManager = feeDataManager,
             exchangeRates = exchangeRates,
             walletPreferences = walletPreferences,
-            custodialWalletManager = custodialManager,
             refreshTrigger = this,
             addressResolver = addressResolver
         )
@@ -180,7 +182,6 @@ internal class BtcAsset(
             feeDataManager = feeDataManager,
             exchangeRates = exchangeRates,
             walletPreferences = walletPreferences,
-            custodialWalletManager = custodialManager,
             refreshTrigger = this,
             addressResolver = addressResolver
         )

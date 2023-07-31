@@ -36,7 +36,7 @@ fun SheetHeaderBackAndAction(
     actionType: SheetHeaderActionType,
     onActionPress: () -> Unit,
     modifier: Modifier = Modifier,
-    backPressContentDescription: String? = null,
+    backPressContentDescription: String? = null
 ) {
     Box(
         modifier = modifier
@@ -55,16 +55,16 @@ fun SheetHeaderBackAndAction(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
+                Spacer(Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)))
 
                 SheetHeaderBackButton(
                     onBackPress = onBackPress,
                     backPressContentDescription = backPressContentDescription,
                     modifier = Modifier
                         .fillMaxHeight()
-                        .size(dimensionResource(R.dimen.standard_spacing))
+                        .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                 )
 
                 Text(
@@ -75,9 +75,9 @@ fun SheetHeaderBackAndAction(
                     modifier = Modifier
                         .weight(1f)
                         .padding(
-                            start = dimensionResource(R.dimen.standard_spacing),
-                            top = dimensionResource(R.dimen.smallest_spacing)
-                        ),
+                            start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                            top = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
+                        )
                 )
 
                 Text(
@@ -95,10 +95,10 @@ fun SheetHeaderBackAndAction(
                             onClick = { onActionPress() }
                         )
                         .widthIn(min = 48.dp)
-                        .padding(top = dimensionResource(R.dimen.smallest_spacing)),
+                        .padding(top = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
                 )
 
-                Spacer(Modifier.width(dimensionResource(R.dimen.medium_spacing)))
+                Spacer(Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)))
             }
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }

@@ -1,7 +1,6 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.analytics.Analytics
-import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.bitpay.BitPayDataManager
 import com.blockchain.bitpay.BitPayInvoiceTarget
 import com.blockchain.bitpay.BitpayTxEngine
@@ -10,20 +9,25 @@ import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionProcessor
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TransferError
+import com.blockchain.coincore.eth.EthCryptoWalletAccount
 import com.blockchain.coincore.eth.EthOnChainTxEngine
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.coincore.eth.EthereumSignMessageTarget
+import com.blockchain.coincore.eth.WalletConnectV2SignMessageTarget
+import com.blockchain.coincore.evm.L1EvmOnChainTxEngine
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.coincore.impl.txEngine.active_rewards.ActiveRewardsDepositOnChainTxEngine
+import com.blockchain.coincore.impl.txEngine.active_rewards.ActiveRewardsDepositTradingEngine
+import com.blockchain.coincore.impl.txEngine.active_rewards.ActiveRewardsWithdrawTradingTxEngine
 import com.blockchain.coincore.impl.txEngine.fiat.FiatDepositTxEngine
 import com.blockchain.coincore.impl.txEngine.fiat.FiatWithdrawalTxEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositOnChainTxEngine
@@ -34,6 +38,7 @@ import com.blockchain.coincore.impl.txEngine.sell.OnChainSellTxEngine
 import com.blockchain.coincore.impl.txEngine.sell.TradingSellTxEngine
 import com.blockchain.coincore.impl.txEngine.staking.StakingDepositOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.staking.StakingDepositTradingEngine
+import com.blockchain.coincore.impl.txEngine.staking.StakingWithdrawTradingTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
@@ -45,8 +50,8 @@ import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
-import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
-import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
+import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
+import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
@@ -55,6 +60,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapTransactionsStore
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.storedatasource.FlushableDataSource
 import io.reactivex.rxjava3.core.Single
 
 class TxProcessorFactory(
@@ -63,32 +69,36 @@ class TxProcessorFactory(
     private val walletManager: CustodialWalletManager,
     private val bankService: BankService,
     private val limitsDataManager: LimitsDataManager,
-    private val interestBalanceStore: InterestBalancesStore,
+    private val interestBalanceStore: FlushableDataSource,
     private val interestService: InterestService,
     private val tradingStore: TradingStore,
     private val walletPrefs: WalletStatusPrefs,
     private val ethMessageSigner: EthMessageSigner,
     private val ethDataManager: EthDataManager,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
-    private val quotesEngine: TransferQuotesEngine,
+    private val quotesEngineFactory: TransferQuotesEngine.Factory,
     private val fees: FeeDataManager,
     private val analytics: Analytics,
     private val withdrawLocksRepository: WithdrawLocksRepository,
     private val userIdentity: UserIdentity,
     private val swapTransactionsStore: SwapTransactionsStore,
     private val plaidFeatureFlag: FeatureFlag,
-    private val stakingBalanceStore: StakingBalanceStore,
-    private val stakingService: StakingService
+    private val stakingBalanceStore: FlushableDataSource,
+    private val stakingService: StakingService,
+    private val activeRewardsBalanceStore: FlushableDataSource,
+    private val activeRewardsService: ActiveRewardsService
 ) {
     fun createProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> =
         when (source) {
             is CryptoNonCustodialAccount -> createOnChainProcessor(source, target, action)
             is CustodialTradingAccount -> createTradingProcessor(source, target)
             is CustodialInterestAccount -> createInterestWithdrawalProcessor(source, target, action)
+            is CustodialActiveRewardsAccount -> createActiveRewardsWithdrawalProcessor(source, target)
+            is CustodialStakingAccount -> createStakingWithdrawalProcessor(source, target)
             is BankAccount -> createFiatDepositProcessor(source, target, action)
             is FiatAccount -> createFiatWithdrawalProcessor(source, target, action)
             else -> Single.error(NotImplementedError())
@@ -97,7 +107,7 @@ class TxProcessorFactory(
     private fun createInterestWithdrawalProcessor(
         source: CustodialInterestAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> =
         when (target) {
             is CustodialTradingAccount -> {
@@ -132,10 +142,56 @@ class TxProcessorFactory(
             else -> Single.error(IllegalStateException("$target is not supported yet"))
         }
 
+    private fun createActiveRewardsWithdrawalProcessor(
+        source: CustodialActiveRewardsAccount,
+        target: TransactionTarget
+    ): Single<TransactionProcessor> =
+        when (target) {
+            is CustodialTradingAccount -> {
+                Single.just(
+                    TransactionProcessor(
+                        exchangeRates = exchangeRates,
+                        sourceAccount = source,
+                        txTarget = target,
+                        engine = ActiveRewardsWithdrawTradingTxEngine(
+                            activeRewardsBalanceStore = activeRewardsBalanceStore,
+                            activeRewardsService = activeRewardsService,
+                            tradingStore = tradingStore,
+                            walletManager = walletManager
+                        )
+                    )
+                )
+            }
+            else -> Single.error(IllegalStateException("$target is not supported yet"))
+        }
+
+    private fun createStakingWithdrawalProcessor(
+        source: CustodialStakingAccount,
+        target: TransactionTarget
+    ): Single<TransactionProcessor> =
+        when (target) {
+            is CustodialTradingAccount -> {
+                Single.just(
+                    TransactionProcessor(
+                        exchangeRates = exchangeRates,
+                        sourceAccount = source,
+                        txTarget = target,
+                        engine = StakingWithdrawTradingTxEngine(
+                            stakingBalanceStore = stakingBalanceStore,
+                            stakingService = stakingService,
+                            tradingStore = tradingStore,
+                            walletManager = walletManager
+                        )
+                    )
+                )
+            }
+            else -> Single.error(IllegalStateException("$target is not supported yet"))
+        }
+
     private fun createFiatDepositProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> =
         when (target) {
             is FiatAccount -> {
@@ -164,7 +220,7 @@ class TxProcessorFactory(
     private fun createFiatWithdrawalProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> =
         when (target) {
             is LinkedBankAccount -> {
@@ -189,7 +245,7 @@ class TxProcessorFactory(
     private fun createOnChainProcessor(
         source: CryptoNonCustodialAccount,
         target: TransactionTarget,
-        action: AssetAction,
+        action: AssetAction
     ): Single<TransactionProcessor> {
         val engine = source.createTxEngine(target, action) as OnChainTxEngineBase
 
@@ -207,13 +263,17 @@ class TxProcessorFactory(
                     )
                 )
             )
+            is WalletConnectV2SignMessageTarget,
             is EthereumSignMessageTarget -> Single.just(
                 TransactionProcessor(
                     exchangeRates = exchangeRates,
                     sourceAccount = source,
                     txTarget = target,
                     engine = WalletConnectSignEngine(
-                        assetEngine = engine as EthOnChainTxEngine,
+                        assetEngine = if (source is EthCryptoWalletAccount)
+                            engine as EthOnChainTxEngine
+                        else
+                            engine as L1EvmOnChainTxEngine,
                         ethMessageSigner = ethMessageSigner
                     )
                 )
@@ -225,7 +285,7 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = WalletConnectTransactionEngine(
                         feeManager = fees,
-                        ethDataManager = ethDataManager,
+                        ethDataManager = ethDataManager
                     )
                 )
             )
@@ -254,6 +314,20 @@ class TxProcessorFactory(
                             engine = StakingDepositOnChainTxEngine(
                                 stakingBalanceStore = stakingBalanceStore,
                                 stakingService = stakingService,
+                                onChainEngine = engine
+                            )
+                        )
+                    }
+            is CustodialActiveRewardsAccount ->
+                target.receiveAddress
+                    .map {
+                        TransactionProcessor(
+                            exchangeRates = exchangeRates,
+                            sourceAccount = source,
+                            txTarget = it,
+                            engine = ActiveRewardsDepositOnChainTxEngine(
+                                activeRewardsBalanceStore = activeRewardsBalanceStore,
+                                activeRewardsService = activeRewardsService,
                                 walletManager = walletManager,
                                 onChainEngine = engine
                             )
@@ -284,7 +358,7 @@ class TxProcessorFactory(
                             sourceAccount = source,
                             txTarget = target,
                             engine = OnChainSwapTxEngine(
-                                quotesEngine = quotesEngine,
+                                quotesEngine = quotesEngineFactory.create(),
                                 walletManager = walletManager,
                                 limitsDataManager = limitsDataManager,
                                 userIdentity = userIdentity,
@@ -301,7 +375,7 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = OnChainSellTxEngine(
                         tradingStore = tradingStore,
-                        quotesEngine = quotesEngine,
+                        quotesEngine = quotesEngineFactory.create(),
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
                         userIdentity = userIdentity,
@@ -315,7 +389,7 @@ class TxProcessorFactory(
 
     private fun createTradingProcessor(
         source: CustodialTradingAccount,
-        target: TransactionTarget,
+        target: TransactionTarget
     ) = when (target) {
         is CryptoAddress ->
             Single.just(
@@ -331,7 +405,7 @@ class TxProcessorFactory(
                     )
                 )
             )
-        is InterestAccount ->
+        is EarnRewardsAccount.Interest ->
             Single.just(
                 TransactionProcessor(
                     exchangeRates = exchangeRates,
@@ -345,7 +419,7 @@ class TxProcessorFactory(
                     )
                 )
             )
-        is StakingAccount ->
+        is EarnRewardsAccount.Staking ->
             Single.just(
                 TransactionProcessor(
                     exchangeRates = exchangeRates,
@@ -354,6 +428,20 @@ class TxProcessorFactory(
                     engine = StakingDepositTradingEngine(
                         stakingBalanceStore = stakingBalanceStore,
                         stakingService = stakingService,
+                        tradingStore = tradingStore,
+                        walletManager = walletManager
+                    )
+                )
+            )
+        is EarnRewardsAccount.Active ->
+            Single.just(
+                TransactionProcessor(
+                    exchangeRates = exchangeRates,
+                    sourceAccount = source,
+                    txTarget = target,
+                    engine = ActiveRewardsDepositTradingEngine(
+                        activeRewardsBalanceStore = activeRewardsBalanceStore,
+                        activeRewardsService = activeRewardsService,
                         tradingStore = tradingStore,
                         walletManager = walletManager
                     )
@@ -369,7 +457,7 @@ class TxProcessorFactory(
                         tradingStore = tradingStore,
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
-                        quotesEngine = quotesEngine,
+                        quotesEngine = quotesEngineFactory.create(),
                         userIdentity = userIdentity
                     )
                 )
@@ -384,7 +472,7 @@ class TxProcessorFactory(
                         tradingStore = tradingStore,
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
-                        quotesEngine = quotesEngine,
+                        quotesEngine = quotesEngineFactory.create(),
                         userIdentity = userIdentity,
                         swapTransactionsStore = swapTransactionsStore
                     )

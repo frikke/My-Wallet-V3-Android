@@ -24,6 +24,10 @@ abstract class MviActivity<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        if (processDeathOccurredAndThisIsNotLauncherActivity) {
+            model.disablePermanently()
+        }
     }
 
     @UiThread

@@ -13,40 +13,47 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.conditional
 
 @Composable
 private fun TableRow(
+    modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     content: @Composable RowScope.() -> Unit,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
+    backgroundShape: Shape = RectangleShape,
+    contentAlpha: Float = 1F
 ) {
-
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .run {
-                if (onContentClicked != null) {
-                    clickable { onContentClicked() }
-                } else {
-                    this
-                }
+            .conditional(onContentClicked != null) {
+                clickable { onContentClicked?.invoke() }
             }
-            .background(backgroundColor)
+            .background(backgroundColor, backgroundShape)
             .padding(paddingValues)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().alpha(contentAlpha),
             verticalAlignment = Alignment.CenterVertically
         ) {
             contentStart?.invoke(this)
-            content()
+            Row(
+                modifier = Modifier.weight(weight = 1F, fill = true),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                content()
+            }
             contentEnd?.invoke(this)
         }
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -57,41 +64,51 @@ private fun TableRow(
 
 @Composable
 fun TableRow(
+    modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
+    backgroundShape: Shape = RectangleShape,
+    contentAlpha: Float = 1F
 ) {
     TableRow(
+        modifier = modifier,
         paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
         content = content,
         contentStart = contentStart,
         contentEnd = contentEnd,
         contentBottom = contentBottom,
         onContentClicked = onContentClicked,
-        backgroundColor = backgroundColor
+        backgroundColor = backgroundColor,
+        backgroundShape = backgroundShape,
+        contentAlpha = contentAlpha
     )
 }
 
 @Composable
 fun FlexibleTableRow(
+    modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     content: @Composable RowScope.() -> Unit,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
     onContentClicked: (() -> Unit)? = null,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary,
+    backgroundShape: Shape = RectangleShape
 ) {
     TableRow(
+        modifier = modifier,
         paddingValues = paddingValues,
         content = content,
         contentStart = contentStart,
         contentEnd = contentEnd,
         contentBottom = contentBottom,
         onContentClicked = onContentClicked,
-        backgroundColor = backgroundColor
+        backgroundColor = backgroundColor,
+        backgroundShape = backgroundShape
     )
 }

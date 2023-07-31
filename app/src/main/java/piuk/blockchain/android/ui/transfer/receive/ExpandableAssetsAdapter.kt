@@ -130,10 +130,10 @@ class ExpandableAssetViewHolder(
     private fun ItemAssetExpandableBinding.updateUI(isExpanded: Boolean) {
         if (isExpanded) {
             expandableChevron.setImageResource(R.drawable.expand_animated)
-            expandableChevron.setColorFilter(context.getResolvedColor(R.color.blue_600))
+            expandableChevron.setColorFilter(context.getResolvedColor(com.blockchain.common.R.color.blue_600))
         } else {
             expandableChevron.setImageResource(R.drawable.collapse_animated)
-            expandableChevron.setColorFilter(context.getResolvedColor(R.color.grey_600))
+            expandableChevron.setColorFilter(context.getResolvedColor(com.blockchain.common.R.color.grey_600))
         }
         val arrow = expandableChevron.drawable as Animatable
         arrow.start()

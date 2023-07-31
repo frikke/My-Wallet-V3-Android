@@ -1,5 +1,8 @@
 package com.blockchain.addressverification.ui
 
+import android.content.Context
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,18 +10,25 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -26,41 +36,139 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.addressverification.R
+import androidx.fragment.app.FragmentActivity
 import com.blockchain.addressverification.domain.model.AutocompleteAddress
 import com.blockchain.addressverification.domain.model.AutocompleteAddressType
+import com.blockchain.commonarch.presentation.mvi_v2.compose.bindViewModel
+import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.basic.closeImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
-import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.loader.LoadingIndicator
 import com.blockchain.componentlib.system.CircularProgressBar
+import com.blockchain.componentlib.system.DialogueButton
+import com.blockchain.componentlib.system.DialogueCard
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.BackHandlerCallback
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.blockchain.componentlib.utils.rememberFlow
+import com.blockchain.koin.payloadScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import org.koin.androidx.compose.getViewModel
+
+abstract class AddressVerificationHost {
+
+    // Used by the host to communicate back into AddressVerification that the address was not valid for some reason
+    // This will reenable the button that was previously in a loading state and show the error
+    open val errorWhileSaving: Flow<AddressVerificationSavingError> = MutableSharedFlow()
+
+    abstract fun launchContactSupport()
+    abstract fun addressVerifiedSuccessfully(address: AddressDetails)
+}
 
 @Composable
 fun AddressVerificationScreen(
-    viewState: StateFlow<AddressVerificationState>,
-    onIntent: (AddressVerificationIntent) -> Unit,
+    args: Args,
+    isVerifyAddressLoadingOverride: Boolean,
+    host: AddressVerificationHost
 ) {
-    val state by viewState.collectAsStateLifecycleAware()
+    val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .padding(AppTheme.dimensions.standardSpacing)
-            .fillMaxWidth()
-    ) {
-        when (state.step) {
-            AddressVerificationStep.SEARCH -> SearchStep(state, onIntent)
-            AddressVerificationStep.DETAILS -> DetailsStep(state, onIntent)
+    val viewModel: AddressVerificationModel = getViewModel(scope = payloadScope)
+    val state by viewModel.viewState.collectAsStateLifecycleAware()
+    val onIntent = viewModel::onIntent
+
+    val backCallback = BackHandlerCallback {
+        onIntent(AddressVerificationIntent.BackClicked)
+    }
+
+    bindViewModel(viewModel, args) { navigation ->
+        when (navigation) {
+            Navigation.Back -> {
+                backCallback.remove()
+                (context as FragmentActivity).onBackPressedDispatcher.onBackPressed()
+            }
+
+            is Navigation.FinishSuccessfully -> host.addressVerifiedSuccessfully(navigation.address)
+            Navigation.LaunchSupport -> host.launchContactSupport()
+        }
+    }
+
+    val errorWhileSavingFlow = rememberFlow(host.errorWhileSaving)
+    LaunchedEffect(Unit) {
+        errorWhileSavingFlow.collect {
+            onIntent(AddressVerificationIntent.ErrorWhileSaving(it))
+        }
+    }
+
+    Content(state, isVerifyAddressLoadingOverride, onIntent)
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun Content(
+    state: AddressVerificationState,
+    isVerifyAddressLoadingOverride: Boolean,
+    onIntent: (AddressVerificationIntent) -> Unit
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+    val scaffoldState = rememberScaffoldState()
+    Scaffold(scaffoldState = scaffoldState) { padding ->
+        LaunchedEffect(state.error) {
+            val error = state.error
+            if (error != null) {
+                keyboardController?.hide()
+                scaffoldState.snackbarHostState.showSnackbar(
+                    message = error.errorMessage(context),
+                    duration = SnackbarDuration.Long
+                )
+                onIntent(AddressVerificationIntent.ErrorHandled)
+            }
+        }
+
+        if (state.showInvalidStateErrorDialog) {
+            DialogueCard(
+                title = stringResource(
+                    com.blockchain.stringResources.R.string.address_verification_invalid_state_title
+                ),
+                body = stringResource(
+                    com.blockchain.stringResources.R.string.address_verification_invalid_state_message
+                ),
+                firstButton = DialogueButton(stringResource(com.blockchain.stringResources.R.string.contact_support)) {
+                    onIntent(AddressVerificationIntent.InvalidStateErrorHandled)
+                    onIntent(AddressVerificationIntent.LaunchSupportClicked)
+                },
+                secondButton = DialogueButton(stringResource(com.blockchain.stringResources.R.string.common_cancel)) {
+                    onIntent(AddressVerificationIntent.InvalidStateErrorHandled)
+                },
+                onDismissRequest = { onIntent(AddressVerificationIntent.InvalidStateErrorHandled) }
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(AppColors.background)
+                .padding(padding)
+                .padding(AppTheme.dimensions.standardSpacing)
+        ) {
+            when (state.step) {
+                AddressVerificationStep.SEARCH -> SearchStep(state, onIntent)
+                AddressVerificationStep.DETAILS -> DetailsStep(state, isVerifyAddressLoadingOverride, onIntent)
+            }
         }
     }
 }
@@ -68,27 +176,30 @@ fun AddressVerificationScreen(
 @Composable
 private fun ColumnScope.SearchStep(
     state: AddressVerificationState,
-    onIntent: (AddressVerificationIntent) -> Unit,
+    onIntent: (AddressVerificationIntent) -> Unit
 ) {
     val searchInputIcon =
-        if (state.searchInput.text.isNotEmpty()) ImageResource.Local(R.drawable.ic_close_circle)
-        else ImageResource.None
+        if (state.searchInput.text.isNotEmpty()) {
+            closeImageResource()
+        } else {
+            ImageResource.None
+        }
     OutlinedTextInput(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = AppTheme.dimensions.smallSpacing),
         value = state.searchInput,
-        label = stringResource(R.string.address_verification_home_address),
+        label = stringResource(com.blockchain.stringResources.R.string.address_verification_home_address),
         onValueChange = {
             onIntent(AddressVerificationIntent.SearchInputChanged(it))
         },
         singleLine = true,
-        placeholder = stringResource(R.string.address_verification_home_address),
+        placeholder = stringResource(com.blockchain.stringResources.R.string.address_verification_home_address),
         focusedTrailingIcon = searchInputIcon,
         unfocusedTrailingIcon = searchInputIcon,
         onTrailingIconClicked = {
             onIntent(AddressVerificationIntent.SearchInputChanged(TextFieldValue("")))
-        },
+        }
     )
 
     Box {
@@ -107,7 +218,9 @@ private fun ColumnScope.SearchStep(
                             onIntent(AddressVerificationIntent.ManualOverrideClicked)
                         }
                         .padding(vertical = AppTheme.dimensions.tinySpacing),
-                    text = stringResource(R.string.address_verification_my_address_is_not_here),
+                    text = stringResource(
+                        com.blockchain.stringResources.R.string.address_verification_my_address_is_not_here
+                    ),
                     style = ComposeTypographies.Body2,
                     color = ComposeColors.Primary,
                     gravity = ComposeGravities.Start
@@ -123,7 +236,7 @@ private fun ColumnScope.SearchStep(
 
             LazyColumn(
                 modifier = Modifier.padding(vertical = AppTheme.dimensions.tinySpacing),
-                state = listState,
+                state = listState
             ) {
                 itemsIndexed(
                     items = suggestions,
@@ -143,8 +256,9 @@ private fun ColumnScope.SearchStep(
                                 descriptionHighlightRange = suggestion.descriptionHighlightRanges
                             )
                         }
-                        if (index < suggestions.lastIndex)
-                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        if (index < suggestions.lastIndex) {
+                            AppDivider(color = AppColors.medium)
+                        }
                     }
                 )
             }
@@ -152,10 +266,10 @@ private fun ColumnScope.SearchStep(
             if (suggestions.isEmpty() && state.searchInput.text.isNotEmpty() && !state.isSearchLoading) {
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.common_no_results_found),
+                    text = stringResource(com.blockchain.stringResources.R.string.common_no_results_found),
                     style = ComposeTypographies.Paragraph1,
                     color = ComposeColors.Title,
-                    gravity = ComposeGravities.Centre,
+                    gravity = ComposeGravities.Centre
                 )
             }
         }
@@ -165,19 +279,20 @@ private fun ColumnScope.SearchStep(
 @Composable
 private fun ColumnScope.DetailsStep(
     state: AddressVerificationState,
-    onIntent: (AddressVerificationIntent) -> Unit,
+    isVerifyAddressLoadingOverride: Boolean,
+    onIntent: (AddressVerificationIntent) -> Unit
 ) {
     OutlinedTextInput(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = AppTheme.dimensions.smallSpacing),
         value = state.mainLineInput,
-        label = stringResource(R.string.address_verification_home_address),
+        label = stringResource(com.blockchain.stringResources.R.string.address_verification_home_address),
         onValueChange = {
             onIntent(AddressVerificationIntent.MainLineInputChanged(it))
         },
         singleLine = true,
-        placeholder = stringResource(R.string.address_verification_home_address),
+        placeholder = stringResource(com.blockchain.stringResources.R.string.address_verification_home_address),
         state = if (state.isMainLineInputEnabled) {
             TextInputState.Default(null)
         } else {
@@ -191,12 +306,12 @@ private fun ColumnScope.DetailsStep(
             .fillMaxWidth()
             .padding(bottom = AppTheme.dimensions.smallSpacing),
         value = state.secondLineInput,
-        label = stringResource(R.string.address_verification_apt_suite),
+        label = stringResource(com.blockchain.stringResources.R.string.address_verification_apt_suite),
         onValueChange = {
             onIntent(AddressVerificationIntent.SecondLineInputChanged(it))
         },
         singleLine = true,
-        placeholder = stringResource(R.string.address_verification_apt_suite)
+        placeholder = stringResource(com.blockchain.stringResources.R.string.address_verification_apt_suite)
     )
 
     OutlinedTextInput(
@@ -204,12 +319,12 @@ private fun ColumnScope.DetailsStep(
             .fillMaxWidth()
             .padding(bottom = AppTheme.dimensions.smallSpacing),
         value = state.cityInput,
-        label = stringResource(R.string.address_verification_city),
+        label = stringResource(com.blockchain.stringResources.R.string.address_verification_city),
         onValueChange = {
             onIntent(AddressVerificationIntent.CityInputChanged(it))
         },
         singleLine = true,
-        placeholder = stringResource(R.string.address_verification_city)
+        placeholder = stringResource(com.blockchain.stringResources.R.string.address_verification_city)
     )
 
     Row(
@@ -221,18 +336,18 @@ private fun ColumnScope.DetailsStep(
                     .weight(1f)
                     .padding(bottom = AppTheme.dimensions.smallSpacing),
                 value = state.stateInput,
-                label = stringResource(R.string.address_verification_state),
+                label = stringResource(com.blockchain.stringResources.R.string.address_verification_state),
                 onValueChange = {},
                 singleLine = true,
-                placeholder = stringResource(R.string.address_verification_state),
-                state = TextInputState.Disabled(),
+                placeholder = stringResource(com.blockchain.stringResources.R.string.address_verification_state),
+                state = TextInputState.Disabled()
             )
         }
 
         val postcodeLabel = if (state.isShowingStateInput) {
-            stringResource(R.string.address_verification_zip)
+            stringResource(com.blockchain.stringResources.R.string.address_verification_zip)
         } else {
-            stringResource(R.string.address_verification_postcode)
+            stringResource(com.blockchain.stringResources.R.string.address_verification_postcode)
         }
         OutlinedTextInput(
             modifier = Modifier
@@ -246,7 +361,9 @@ private fun ColumnScope.DetailsStep(
             singleLine = true,
             placeholder = postcodeLabel,
             state = if (state.showPostcodeError) {
-                TextInputState.Error(stringResource(R.string.address_verification_postcode_error))
+                TextInputState.Error(
+                    stringResource(com.blockchain.stringResources.R.string.address_verification_postcode_error)
+                )
             } else {
                 TextInputState.Default()
             }
@@ -256,11 +373,11 @@ private fun ColumnScope.DetailsStep(
     OutlinedTextInput(
         modifier = Modifier.fillMaxWidth(),
         value = state.countryInput,
-        label = stringResource(R.string.address_verification_country),
+        label = stringResource(com.blockchain.stringResources.R.string.address_verification_country),
         onValueChange = {},
         singleLine = true,
         readOnly = true,
-        placeholder = stringResource(R.string.address_verification_country),
+        placeholder = stringResource(com.blockchain.stringResources.R.string.address_verification_country),
         state = TextInputState.Disabled()
     )
 
@@ -268,9 +385,9 @@ private fun ColumnScope.DetailsStep(
 
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
-        text = stringResource(R.string.common_save),
-        state = state.saveButtonState,
-        onClick = { onIntent(AddressVerificationIntent.SaveClicked) },
+        text = stringResource(com.blockchain.stringResources.R.string.common_save),
+        state = if (isVerifyAddressLoadingOverride) ButtonState.Loading else state.saveButtonState,
+        onClick = { onIntent(AddressVerificationIntent.SaveClicked) }
     )
 }
 
@@ -325,29 +442,38 @@ fun AutoCompleteItem(
         if (isContainer) {
             SimpleText(
                 modifier = Modifier.padding(start = AppTheme.dimensions.smallestSpacing),
-                text = stringResource(R.string.address_verification_addresses_count, containedAddressesCount ?: 0),
+                text = stringResource(
+                    com.blockchain.stringResources.R.string.address_verification_addresses_count,
+                    containedAddressesCount ?: 0
+                ),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.End
             )
             Image(
                 modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing),
-                imageResource = ImageResource.Local(R.drawable.ic_arrow_right)
+                imageResource = Icons.ChevronRight.withTint(AppColors.muted)
             )
         } else {
             // Always put the loading in the screen and change the alpha so the space is reserved
             // and the text doesn't jump around
-            CircularProgressBar(
-                Modifier
+            LoadingIndicator(
+                modifier = Modifier
                     .padding(start = AppTheme.dimensions.smallSpacing)
-                    .size(24.dp)
-                    .alpha(if (isLoading) 1f else 0f)
+                    .alpha(if (isLoading) 1f else 0f),
+                color = AppColors.primary
             )
         }
     }
 }
 
-@Preview(showBackground = true)
+private fun AddressVerificationError.errorMessage(context: Context): String = when (this) {
+    is AddressVerificationError.Unknown -> message ?: context.getString(
+        com.blockchain.stringResources.R.string.common_error
+    )
+}
+
+@Preview
 @Composable
 fun PreviewSearchScreen() {
     val suggestions = listOf(
@@ -358,7 +484,7 @@ fun PreviewSearchScreen() {
             titleHighlightRanges = listOf(IntRange(0, 9)),
             description = "Santa Rosa, CA",
             descriptionHighlightRanges = listOf(),
-            containedAddressesCount = null,
+            containedAddressesCount = null
         ),
         AutocompleteAddress(
             id = "1330 River Park Boulevard",
@@ -367,7 +493,7 @@ fun PreviewSearchScreen() {
             titleHighlightRanges = listOf(IntRange(0, 9)),
             description = "Napa, CA",
             descriptionHighlightRanges = listOf(),
-            containedAddressesCount = 13,
+            containedAddressesCount = 13
         ),
         AutocompleteAddress(
             id = "1330 River Park Boulevard LOADING",
@@ -376,7 +502,7 @@ fun PreviewSearchScreen() {
             titleHighlightRanges = listOf(IntRange(0, 9)),
             description = "Napa, CA",
             descriptionHighlightRanges = listOf(),
-            containedAddressesCount = 67,
+            containedAddressesCount = 67
         ),
         AutocompleteAddress(
             id = "1330 River Road",
@@ -385,7 +511,7 @@ fun PreviewSearchScreen() {
             titleHighlightRanges = listOf(IntRange(0, 9)),
             description = "Modesto, CA",
             descriptionHighlightRanges = listOf(),
-            containedAddressesCount = 12,
+            containedAddressesCount = 12
         )
     )
 
@@ -397,6 +523,7 @@ fun PreviewSearchScreen() {
         results = suggestions,
         isSearchLoading = true,
         loadingAddressDetails = suggestions[2],
+        showInvalidStateErrorDialog = false,
         error = null,
         mainLineInput = "",
         isMainLineInputEnabled = true,
@@ -407,13 +534,20 @@ fun PreviewSearchScreen() {
         showPostcodeError = false,
         postCodeInput = "",
         countryInput = "",
-        saveButtonState = ButtonState.Disabled,
+        saveButtonState = ButtonState.Disabled
     )
 
-    AddressVerificationScreen(
-        viewState = MutableStateFlow(state),
+    Content(
+        state = state,
+        isVerifyAddressLoadingOverride = false,
         onIntent = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewSearchScreenDark() {
+    PreviewSearchScreen()
 }
 
 @Preview(showBackground = true)
@@ -427,6 +561,7 @@ fun PreviewSearchScreenEmptyState() {
         results = emptyList(),
         isSearchLoading = false,
         loadingAddressDetails = null,
+        showInvalidStateErrorDialog = false,
         error = null,
         mainLineInput = "",
         isMainLineInputEnabled = true,
@@ -437,16 +572,23 @@ fun PreviewSearchScreenEmptyState() {
         showPostcodeError = false,
         postCodeInput = "",
         countryInput = "",
-        saveButtonState = ButtonState.Disabled,
+        saveButtonState = ButtonState.Disabled
     )
 
-    AddressVerificationScreen(
-        viewState = MutableStateFlow(state),
+    Content(
+        state = state,
+        isVerifyAddressLoadingOverride = false,
         onIntent = {}
     )
 }
 
-@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewSearchScreenEmptyStateDark() {
+    PreviewSearchScreenEmptyState()
+}
+
+@Preview
 @Composable
 fun PreviewDetailsScreen() {
     val state = AddressVerificationState(
@@ -457,6 +599,7 @@ fun PreviewDetailsScreen() {
         results = emptyList(),
         isSearchLoading = false,
         loadingAddressDetails = null,
+        showInvalidStateErrorDialog = false,
         error = null,
         mainLineInput = "1330 River",
         isMainLineInputEnabled = true,
@@ -467,13 +610,20 @@ fun PreviewDetailsScreen() {
         showPostcodeError = false,
         postCodeInput = "13200",
         countryInput = "United States",
-        saveButtonState = ButtonState.Enabled,
+        saveButtonState = ButtonState.Enabled
     )
 
-    AddressVerificationScreen(
-        viewState = MutableStateFlow(state),
+    Content(
+        state = state,
+        isVerifyAddressLoadingOverride = false,
         onIntent = {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDetailsScreenDark() {
+    PreviewDetailsScreen()
 }
 
 @Preview(showBackground = true)

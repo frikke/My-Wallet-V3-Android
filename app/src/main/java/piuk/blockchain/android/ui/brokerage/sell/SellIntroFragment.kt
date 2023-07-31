@@ -11,12 +11,15 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.User
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
@@ -29,7 +32,6 @@ import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
-import com.blockchain.presentation.openUrl
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
@@ -78,7 +80,6 @@ class SellIntroFragment :
 
     private val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         host.onSellFinished()
-        viewModel.onIntent(SellIntent.CheckSellEligibility(showLoader = false))
     }
 
     private var _binding: SellIntroFragmentBinding? = null
@@ -93,7 +94,7 @@ class SellIntroFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = SellIntroFragmentBinding.inflate(inflater, container, false)
         return binding.root
@@ -105,9 +106,10 @@ class SellIntroFragment :
 
         with(binding) {
             with(sellSearchEmpty) {
-                text = getString(R.string.search_empty)
+                text = getString(com.blockchain.stringResources.R.string.search_empty)
                 gravity = ComposeGravities.Centre
                 style = ComposeTypographies.Body1
+                textColor = ComposeColors.Dark
             }
 
             sellEmpty.gone()
@@ -124,8 +126,6 @@ class SellIntroFragment :
     override fun onStateUpdated(state: SellViewState) {
         when (state.sellEligibility) {
             is DataResource.Data -> {
-                hideLoading()
-
                 when (val eligibilityData = state.sellEligibility.data) {
                     is SellEligibility.Eligible -> {
                         renderEligibleUser(eligibilityData.sellAssets)
@@ -152,8 +152,6 @@ class SellIntroFragment :
                 }
             }
             is DataResource.Error -> {
-                hideLoading()
-
                 renderSellError()
                 logErrorAnalytics(
                     nabuApiException = (state.sellEligibility.error as? HttpException)?.let {
@@ -172,22 +170,19 @@ class SellIntroFragment :
                     action = ClientErrorAnalytics.ACTION_SELL
                 )
             }
-            DataResource.Loading -> if (state.showLoader) {
-                showLoading()
-            }
+            DataResource.Loading -> {}
         }
-
         state.supportedAccountList.doOnData { supportedAccounts ->
             with(binding.accountsList) {
                 if (isAccountsFirstLoad) {
                     initialise(
-                        Single.just(supportedAccounts.map(AccountListViewItem.Companion::create)),
-                        status = ::statusDecorator,
+                        Single.just(supportedAccounts.map { (AccountListViewItem(it)) }),
+                        status = ::statusDecorator
                     )
                     isAccountsFirstLoad = false
                 } else {
                     loadItems(
-                        Single.just(supportedAccounts.map(AccountListViewItem.Companion::create)),
+                        Single.just(supportedAccounts.map { (AccountListViewItem(it)) }),
                         accountsLocksSource = Single.just(emptyList())
                     )
                 }
@@ -200,14 +195,12 @@ class SellIntroFragment :
             kycBenefits.gone()
             sellAccountsContainer.visible()
             sellIntroSearch.apply {
-                label = getString(R.string.search_coins_hint)
+                placeholder = getString(com.blockchain.stringResources.R.string.search_coins_hint)
                 onValueChange = { searchTerm ->
                     hasEnteredSearchTerm = searchTerm.isNotEmpty()
                     viewModel.onIntent(SellIntent.FilterAccounts(searchTerm))
                 }
             }
-
-            viewModel.onIntent(SellIntent.LoadSupportedAccounts(supportedAssets))
 
             with(accountsList) {
                 onAccountSelected = { account ->
@@ -216,14 +209,16 @@ class SellIntroFragment :
                         startSellFlow(it)
                     }
                 }
-                onListLoaded = { isEmpty ->
-                    hideLoading()
+                onListLoaded = { accounts ->
+                    val isEmpty = accounts.isEmpty()
 
                     sellSearchEmpty.visibleIf { isEmpty && hasEnteredSearchTerm }
                     accountsList.goneIf { isEmpty }
 
-                    if (isEmpty && !hasEnteredSearchTerm) {
-                        renderSellEmpty()
+                    if (!hasEnteredSearchTerm) {
+                        if (isEmpty) {
+                            renderSellEmpty()
+                        } else sellEmpty.gone()
                     }
                 }
             }
@@ -236,7 +231,7 @@ class SellIntroFragment :
         source: ClientErrorAnalytics.Companion.Source,
         action: String,
         nabuApiException: NabuApiException? = null,
-        errorDescription: String? = null,
+        errorDescription: String? = null
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
@@ -269,9 +264,9 @@ class SellIntroFragment :
             sellAccountsContainer.gone()
 
             sellEmpty.setDetails(
-                title = R.string.sell_intro_empty_title,
-                description = R.string.sell_intro_empty_label,
-                ctaText = R.string.buy_now,
+                title = com.blockchain.stringResources.R.string.sell_intro_empty_title,
+                description = com.blockchain.stringResources.R.string.sell_intro_empty_label,
+                ctaText = com.blockchain.stringResources.R.string.buy_now,
                 action = { host.onSellListEmptyCta() },
                 onContactSupport = { requireContext().startActivity(SupportCentreActivity.newIntent(requireContext())) }
             )
@@ -292,10 +287,10 @@ class SellIntroFragment :
             sellAccountsContainer.gone()
 
             customEmptyState.apply {
-                title = R.string.account_restricted
+                title = com.blockchain.stringResources.R.string.account_restricted
                 descriptionText = reason.message
-                icon = R.drawable.ic_wallet_intro_image
-                ctaText = R.string.common_learn_more
+                icon = Icons.Filled.User
+                ctaText = com.blockchain.stringResources.R.string.common_learn_more
                 ctaAction = action
                 visible()
             }
@@ -311,27 +306,30 @@ class SellIntroFragment :
             kycBenefits.initWithBenefits(
                 benefits = listOf(
                     VerifyIdentityNumericBenefitItem(
-                        getString(R.string.invalid_id),
-                        getString(R.string.invalid_id_description)
+                        getString(com.blockchain.stringResources.R.string.invalid_id),
+                        getString(com.blockchain.stringResources.R.string.invalid_id_description)
                     ),
                     VerifyIdentityNumericBenefitItem(
-                        getString(R.string.information_missmatch),
-                        getString(R.string.information_missmatch_description)
+                        getString(com.blockchain.stringResources.R.string.information_missmatch),
+                        getString(com.blockchain.stringResources.R.string.information_missmatch_description)
                     ),
                     VerifyIdentityNumericBenefitItem(
-                        getString(R.string.blocked_by_local_laws),
-                        getString(R.string.sell_intro_kyc_subtitle_3)
+                        getString(com.blockchain.stringResources.R.string.blocked_by_local_laws),
+                        getString(com.blockchain.stringResources.R.string.sell_intro_kyc_subtitle_3)
                     )
                 ),
-                title = getString(R.string.unable_to_verify_id),
-                description = getString(R.string.unable_to_verify_id_description),
+                title = getString(com.blockchain.stringResources.R.string.unable_to_verify_id),
+                description = getString(com.blockchain.stringResources.R.string.unable_to_verify_id_description),
                 icon = R.drawable.ic_cart,
-                secondaryButton = ButtonOptions(true, getString(R.string.contact_support)) {
+                secondaryButton = ButtonOptions(
+                    true,
+                    getString(com.blockchain.stringResources.R.string.contact_support)
+                ) {
                     startActivity(SupportCentreActivity.newIntent(requireContext()))
                 },
                 primaryButton = ButtonOptions(false) {},
                 showSheetIndicator = false,
-                footerText = getString(R.string.error_contact_support)
+                footerText = getString(com.blockchain.stringResources.R.string.error_contact_support)
             )
         }
     }
@@ -359,26 +357,20 @@ class SellIntroFragment :
             TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 sourceAccount = it,
-                action = AssetAction.Sell
+                action = AssetAction.Sell,
+                origin = "",
             )
         )
     }
 
-    override fun onResumeFragment() {
+    override fun onResume() {
+        super.onResume()
         viewModel.onIntent(SellIntent.CheckSellEligibility(showLoader = false))
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun showLoading() {
-        (requireActivity() as? BlockchainActivity)?.showLoading()
-    }
-
-    private fun hideLoading() {
-        (requireActivity() as? BlockchainActivity)?.hideLoading()
     }
 
     companion object {

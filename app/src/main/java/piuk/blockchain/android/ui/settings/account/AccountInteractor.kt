@@ -1,15 +1,9 @@
 package piuk.blockchain.android.ui.settings.account
 
-import com.blockchain.blockchaincard.domain.BlockchainCardRepository
-import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.utils.rxCompletableOutcome
@@ -27,13 +21,10 @@ import kotlinx.coroutines.rx3.asCoroutineDispatcher
 class AccountInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
-    private val blockchainCardRepository: BlockchainCardRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeLinkingState: ExchangeLinking,
     private val localSettingsPrefs: LocalSettingsPrefs,
-    private val fiatCurrenciesService: FiatCurrenciesService,
-    private val blockchainCardFF: FeatureFlag,
-    private val dustBalancesFF: FeatureFlag
+    private val fiatCurrenciesService: FiatCurrenciesService
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =
@@ -81,47 +72,9 @@ class AccountInteractor internal constructor(
             }
         }
 
-    suspend fun getDebitCardState(): Outcome<BlockchainCardError, BlockchainCardOrderState> =
-        blockchainCardRepository.getCards()
-            .mapError { it }
-            .flatMap { cards ->
-                blockchainCardRepository.getProducts()
-                    .mapError { it }
-                    .map { products ->
-                        if (cards.isNotEmpty()) {
-                            val defaultCardId = blockchainCardRepository.getDefaultCard()
-                            cards.find { it.id == defaultCardId }?.let { defaultCard ->
-                                BlockchainCardOrderState.Ordered(
-                                    cardProducts = products,
-                                    cards = cards,
-                                    defaultCard = defaultCard
-                                )
-                            } ?: BlockchainCardOrderState.Ordered(
-                                cardProducts = products,
-                                cards = cards
-                            )
-                        } else {
-                            if (products.isNotEmpty())
-                                BlockchainCardOrderState.Eligible(products)
-                            else
-                                BlockchainCardOrderState.NotEligible
-                        }
-                    }
-            }
-
     fun toggleChartVibration(chartVibrationEnabled: Boolean): Single<Boolean> =
         Single.fromCallable {
             localSettingsPrefs.isChartVibrationEnabled = !chartVibrationEnabled
             return@fromCallable !chartVibrationEnabled
-        }
-    fun loadFeatureFlags(): Single<FeatureFlagSet> =
-        Single.zip(
-            blockchainCardFF.enabled,
-            dustBalancesFF.enabled
-        ) { blockchainCardEnabled, dustBalancesEnabled ->
-            FeatureFlagSet(
-                blockchainCardEnabled,
-                dustBalancesEnabled
-            )
         }
 }

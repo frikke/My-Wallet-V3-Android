@@ -8,7 +8,10 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentTxAccountSelectorBinding
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
@@ -28,20 +31,24 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
         }
     }
 
+    private val walletModeService: WalletModeService by scopedInject()
     override fun render(newState: TransactionState) {
         with(binding) {
-            accountList.initialise(
-                source = Single.just(
-                    newState.availableTargets.map { transactionTarget ->
-                        AccountListViewItem.create(transactionTarget as SingleAccount)
-                    }
-                ),
-                status = customiser.selectTargetStatusDecorator(newState),
-                assetAction = newState.action
-            )
+            walletModeService.walletModeSingle.subscribeBy {
+                accountList.initialise(
+                    source = Single.just(
+                        newState.availableTargets.filterIsInstance<SingleAccount>().map { transactionTarget ->
+                            AccountListViewItem(transactionTarget)
+                        }
+                    ),
+                    status = customiser.selectTargetStatusDecorator(newState, it),
+                    assetAction = newState.action
+                )
+            }
             if (customiser.selectTargetShouldShowSubtitle(newState)) {
                 accountListSubtitle.text = customiser.selectTargetAccountDescription(newState)
                 accountListSubtitle.visible()
+                accountListSeparator.visible()
             } else {
                 accountListSubtitle.gone()
                 accountListSeparator.gone()
@@ -53,7 +60,7 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxAccountSelectorBinding =
         FragmentTxAccountSelectorBinding.inflate(inflater, container, false)
 
-    private fun doOnListLoaded(isEmpty: Boolean) {
+    private fun doOnListLoaded(accounts: List<AccountListViewItem>) {
         binding.progress.gone()
     }
 

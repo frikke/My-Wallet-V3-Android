@@ -67,7 +67,7 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         VectorDrawableCompat.create(
             resources,
             R.drawable.vector_expand_more,
-            ContextThemeWrapper(context, R.style.AppTheme).theme
+            ContextThemeWrapper(context, com.blockchain.common.R.style.AppTheme).theme
         )?.run {
             DrawableCompat.wrap(this)
         }
@@ -267,8 +267,7 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
     }
 
     private inner class ExpandAnimation(
-        private
-        val startHeight: Int,
+        private val startHeight: Int,
         endHeight: Int
     ) :
         Animation() {

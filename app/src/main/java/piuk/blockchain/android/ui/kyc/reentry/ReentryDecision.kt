@@ -50,7 +50,9 @@ class ReentryDecisionKycNavigator(
             }
             ReentryPoint.CountrySelection -> KycNavXmlDirections.actionStartCountrySelection()
             ReentryPoint.Profile -> KycNavXmlDirections.actionStartProfile(
-                user.requireCountryCode(), user.address?.stateIso ?: "", user.address?.stateIso ?: ""
+                user.requireCountryCode(),
+                user.address?.stateIso ?: "",
+                user.address?.stateIso ?: ""
             )
             ReentryPoint.Address -> {
                 KycNavXmlDirections.actionStartAutocompleteAddressEntry(user.toProfileModel())
@@ -65,9 +67,6 @@ class ReentryDecisionKycNavigator(
                 val countryCode = user.requireCountryCode()
                 KycNavXmlDirections.actionStartVeriff(countryCode)
             }
-            is ReentryPoint.TierCurrentState -> KycNavXmlDirections.actionStartTierCurrentState(
-                reentryPoint.kycState,
-                reentryPoint.isSddVerified,
-            )
+            is ReentryPoint.TierCurrentState -> KycNavXmlDirections.actionStartTierCurrentState(reentryPoint.kycState)
         }
 }

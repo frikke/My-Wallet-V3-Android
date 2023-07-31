@@ -1,6 +1,8 @@
 package piuk.blockchain.android.deeplink
 
 import android.net.Uri
+import com.blockchain.deeplinking.processor.LinkState
+import com.blockchain.deeplinking.processor.OpenBankingLinkType
 import piuk.blockchain.android.kyc.ignoreFragment
 
 class OpenBankingDeepLinkParser {
@@ -32,10 +34,4 @@ class OpenBankingDeepLinkParser {
         private const val BANK_LINK = "/open/ob-bank-link"
         private const val BANK_APPROVAL = "/open/ob-bank-approval"
     }
-}
-
-enum class OpenBankingLinkType {
-    LINK_BANK,
-    PAYMENT_APPROVAL,
-    UNKNOWN
 }

@@ -8,13 +8,13 @@ import com.blockchain.coincore.custodialonly.DynamicCustodialAddress
 import com.blockchain.coincore.erc20.Erc20Address
 import com.blockchain.coincore.eth.EthAddress
 import com.blockchain.coincore.xlm.XlmAddress
-import com.blockchain.core.chains.erc20.isErc20
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isCustodial
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Completable
 
-internal fun makeExternalAssetAddress(
+fun makeExternalAssetAddress(
     asset: AssetInfo,
     address: String,
     label: String = address,
@@ -49,7 +49,7 @@ internal fun makeExternalAssetAddress(
                 onTxCompleted = postTransactions
             )
         }
-        asset.isErc20() -> {
+        asset.isLayer2Token -> {
             Erc20Address(
                 asset = asset,
                 address = address,

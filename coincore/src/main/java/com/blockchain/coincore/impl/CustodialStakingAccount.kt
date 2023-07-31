@@ -7,8 +7,8 @@ import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CustodialStakingActivitySummaryItem
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TxResult
@@ -17,10 +17,11 @@ import com.blockchain.coincore.toActionState
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.earn.domain.models.staking.StakingActivity
-import com.blockchain.earn.domain.models.staking.StakingState
+import com.blockchain.data.asObservable
+import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.earn.domain.models.EarnRewardsActivity
+import com.blockchain.earn.domain.models.EarnRewardsState
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Feature
@@ -28,17 +29,13 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.store.asObservable
-import com.blockchain.store.asSingle
-import com.blockchain.utils.mapList
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlinx.coroutines.rx3.rxSingle
 
 class CustodialStakingAccount(
     override val currency: AssetInfo,
@@ -49,26 +46,20 @@ class CustodialStakingAccount(
     private val identity: UserIdentity,
     private val kycService: KycService,
     private val custodialWalletManager: CustodialWalletManager
-) : CryptoAccountBase(), StakingAccount {
+) : CryptoAccountBase(), EarnRewardsAccount.Staking {
 
-    override val baseActions: Set<AssetAction> = emptySet() // Not used by this class
+    override val baseActions: Single<Set<AssetAction>> = Single.just(emptySet()) // Not used by this class
 
     private val hasFunds = AtomicBoolean(false)
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() = rxSingle { stakingService.getAccountAddress(currency) }.map {
-            when (it) {
-                is DataResource.Data -> {
-                    makeExternalAssetAddress(
-                        asset = currency,
-                        address = it.data,
-                        label = label,
-                        postTransactions = onTxCompleted
-                    )
-                }
-                is DataResource.Error,
-                DataResource.Loading -> throw IllegalStateException()
-            }
+        get() = rxSingleOutcome { stakingService.getAccountAddress(currency) }.map { address ->
+            makeExternalAssetAddress(
+                asset = currency,
+                address = address,
+                label = label,
+                postTransactions = onTxCompleted
+            )
         }
 
     override val onTxCompleted: (TxResult) -> Completable
@@ -89,17 +80,14 @@ class CustodialStakingAccount(
     override val directions: Set<TransferDirection>
         get() = emptySet()
 
-    override fun requireSecondPassword(): Single<Boolean> =
-        Single.just(false)
-
     override fun matches(other: CryptoAccount): Boolean =
         other is CustodialStakingAccount && other.currency == currency
 
-    override val balanceRx: Observable<AccountBalance>
-        get() = Observable.combineLatest(
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> =
+        Observable.combineLatest(
             stakingService.getBalanceForAsset(
                 currency = currency,
-                refreshStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+                refreshStrategy = freshnessStrategy
             ).asObservable(),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
@@ -107,59 +95,48 @@ class CustodialStakingAccount(
                 total = balance.totalBalance,
                 withdrawable = balance.availableBalance,
                 pending = balance.pendingDeposit,
-                dashboardDisplay = balance.totalBalance,
                 exchangeRate = rate
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
-    override val activity: Single<ActivitySummaryList>
-        get() = stakingService.getActivity(
-            currency = currency,
-            refreshStrategy = FreshnessStrategy.Cached(forceRefresh = false)
-        ).asSingle()
-            .onErrorReturn { emptyList() }
-            .mapList { stakingActivity ->
-                stakingActivityToSummary(asset = currency, stakingActivity = stakingActivity)
-            }
-            .filterActivityStates()
-            .doOnSuccess {
-                setHasTransactions(it.isNotEmpty())
+    override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> =
+        stakingService.getActivity(
+            asset = currency,
+            refreshStrategy = freshnessStrategy
+        ).asObservable()
+            .onErrorResumeNext { Observable.just(emptyList()) }
+            .map { stakingActivity ->
+                stakingActivity.map { activity ->
+                    stakingActivityToSummary(asset = currency, activity = activity)
+                }.filter {
+                    it is CustodialStakingActivitySummaryItem && displayedStates.contains(it.state)
+                }
             }
 
-    private fun stakingActivityToSummary(asset: AssetInfo, stakingActivity: StakingActivity): ActivitySummaryItem =
+    private fun stakingActivityToSummary(asset: AssetInfo, activity: EarnRewardsActivity): ActivitySummaryItem =
         CustodialStakingActivitySummaryItem(
             exchangeRates = exchangeRates,
-            asset = asset,
-            txId = stakingActivity.id,
-            timeStampMs = stakingActivity.insertedAt.time,
-            value = stakingActivity.value,
+            currency = asset,
+            txId = activity.id,
+            timeStampMs = activity.insertedAt.time,
+            value = activity.value,
             account = this,
-            status = stakingActivity.state,
-            type = stakingActivity.type,
-            confirmations = stakingActivity.extraAttributes?.confirmations ?: 0,
-            accountRef = stakingActivity.extraAttributes?.address
-                ?: stakingActivity.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
+            state = activity.state,
+            type = activity.type,
+            confirmations = activity.extraAttributes?.confirmations ?: 0,
+            accountRef = activity.extraAttributes?.address
+                ?: activity.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
                     internalAccountLabel
                 } ?: "",
-            recipientAddress = stakingActivity.extraAttributes?.address ?: ""
+            recipientAddress = activity.extraAttributes?.address ?: "",
+            fiatValue = activity.fiatValue
         )
-
-    private fun Single<ActivitySummaryList>.filterActivityStates(): Single<ActivitySummaryList> {
-        return flattenAsObservable { list ->
-            list.filter {
-                it is CustodialStakingActivitySummaryItem && displayedStates.contains(it.status)
-            }
-        }.toList()
-    }
 
     // No swaps on staking accounts, so just return the activity list unmodified
     override fun reconcileSwaps(
         tradeItems: List<TradeActivitySummaryItem>,
         activity: List<ActivitySummaryItem>
     ): List<ActivitySummaryItem> = activity
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
 
     override val isDefault: Boolean = false // Default is, presently, only ever a non-custodial account.
 
@@ -169,7 +146,7 @@ class CustodialStakingAccount(
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(
             kycService.getHighestApprovedTierLevelLegacy(),
-            identity.userAccessForFeature(Feature.DepositStaking)
+            identity.userAccessForFeature(Feature.DepositStaking, defFreshness)
         ) { tier, depositInterestEligibility ->
             return@zip when (tier) {
                 KycTier.BRONZE,
@@ -188,13 +165,36 @@ class CustodialStakingAccount(
             }.exhaustive
         }
 
+    override fun stateOfAction(assetAction: AssetAction): Single<ActionState> {
+        return when (assetAction) {
+            AssetAction.ViewActivity,
+            AssetAction.ViewStatement -> Single.just(ActionState.Available)
+            AssetAction.Send,
+            AssetAction.Swap,
+            AssetAction.Sell,
+            AssetAction.Buy,
+            AssetAction.FiatWithdraw,
+            AssetAction.FiatDeposit,
+            AssetAction.Sign,
+            AssetAction.InterestWithdraw,
+            AssetAction.InterestDeposit,
+            AssetAction.StakingWithdraw,
+            AssetAction.ActiveRewardsDeposit,
+            AssetAction.ActiveRewardsWithdraw,
+            AssetAction.Receive -> Single.just(ActionState.Unavailable)
+            AssetAction.StakingDeposit -> stateAwareActions.map { set ->
+                set.firstOrNull { it.action == assetAction }?.state ?: ActionState.Unavailable
+            }
+        }
+    }
+
     companion object {
         private val displayedStates = setOf(
-            StakingState.COMPLETE,
-            StakingState.PROCESSING,
-            StakingState.PENDING,
-            StakingState.MANUAL_REVIEW,
-            StakingState.FAILED
+            EarnRewardsState.COMPLETE,
+            EarnRewardsState.PROCESSING,
+            EarnRewardsState.PENDING,
+            EarnRewardsState.MANUAL_REVIEW,
+            EarnRewardsState.FAILED
         )
     }
 }

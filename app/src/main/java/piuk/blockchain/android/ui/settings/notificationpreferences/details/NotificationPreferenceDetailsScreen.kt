@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.notificationpreferences.details
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,6 +17,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.settings.notificationpreferences.component.PreferenceLoadingError
@@ -30,7 +31,7 @@ fun NotificationPreferenceDetailsScreen(
 ) {
     Column(
         modifier = Modifier
-            .background(Color.White)
+            .background(AppColors.backgroundSecondary)
             .fillMaxWidth()
     ) {
         Column(
@@ -38,7 +39,6 @@ fun NotificationPreferenceDetailsScreen(
                 .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.Start
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
                 text = state.description,
@@ -50,9 +50,9 @@ fun NotificationPreferenceDetailsScreen(
 
         Spacer(
             modifier = Modifier.padding(
-                start = dimensionResource(id = R.dimen.standard_spacing),
-                end = dimensionResource(id = R.dimen.standard_spacing),
-                bottom = dimensionResource(id = R.dimen.standard_spacing)
+                start = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                bottom = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)
             )
         )
 
@@ -60,6 +60,32 @@ fun NotificationPreferenceDetailsScreen(
             is NotificationPreferenceDetailsViewState.Loading -> PreferenceLoadingProgress()
             is NotificationPreferenceDetailsViewState.Error -> PreferenceLoadingError({}, {})
             is NotificationPreferenceDetailsViewState.Data -> PreferencesList(state.methods, onCheckedChanged)
+        }
+    }
+}
+
+@Composable
+fun PreferencesList(
+    methods: List<ContactMethod>,
+    onCheckedChanged: (methods: List<ContactMethod>, contactMethod: ContactMethod) -> Unit
+) {
+    Column {
+        methods.forEach { method ->
+            val text = if (method.required) {
+                stringResource(
+                    id = com.blockchain.stringResources.R.string.settings_notification_required,
+                    method.title
+                )
+            } else {
+                method.title
+            }
+            PreferenceToggleRow(
+                primaryText = text,
+                isChecked = method.isMethodEnabled,
+                enabled = !method.required,
+                onCheckedChange = { onCheckedChanged(methods, method) }
+            )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -72,6 +98,12 @@ private fun PreviewLoading() {
     ) { _, _ -> }
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewLoadingDark() {
+    PreviewLoading()
+}
+
 @Preview
 @Composable
 private fun ErrorLoadingPreview() {
@@ -81,6 +113,12 @@ private fun ErrorLoadingPreview() {
             "Sent when a particular asset increases or decreases in price"
         )
     ) { _, _ -> }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ErrorLoadingPreviewDark() {
+    ErrorLoadingPreview()
 }
 
 @Preview
@@ -95,31 +133,14 @@ private fun PreferencesListPreview() {
                 ContactMethod("Emails", "EMAIL", true, true),
                 ContactMethod("Push notifications", "PUSH", true, false),
                 ContactMethod("In-app messages", "IN_APP", false, false),
-                ContactMethod("In-app messages", "IN_APP", false, true),
+                ContactMethod("In-app messages", "IN_APP", false, true)
             )
         )
     ) { _, _ -> }
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreferencesList(
-    methods: List<ContactMethod>,
-    onCheckedChanged: (methods: List<ContactMethod>, contactMethod: ContactMethod) -> Unit
-) {
-    Column {
-        methods.forEach { method ->
-            val text = if (method.required) {
-                stringResource(id = R.string.settings_notification_required, method.title)
-            } else {
-                method.title
-            }
-            PreferenceToggleRow(
-                primaryText = text,
-                isChecked = method.isMethodEnabled,
-                enabled = !method.required,
-                onCheckedChange = { onCheckedChanged(methods, method) }
-            )
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        }
-    }
+private fun PreferencesListPreviewDark() {
+    PreferencesListPreview()
 }

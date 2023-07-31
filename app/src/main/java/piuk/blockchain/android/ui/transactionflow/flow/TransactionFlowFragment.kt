@@ -34,7 +34,9 @@ abstract class TransactionFlowFragment<T : ViewBinding> :
 
     protected fun showErrorToast(@StringRes msgId: Int) {
         BlockchainSnackbar.make(
-            binding.root, getString(msgId), type = SnackbarType.Error
+            binding.root,
+            getString(msgId),
+            type = SnackbarType.Error
         ).show()
     }
 }

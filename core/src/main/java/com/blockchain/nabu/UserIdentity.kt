@@ -1,6 +1,8 @@
 package com.blockchain.nabu
 
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import info.blockchain.balance.Currency
@@ -8,27 +10,46 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
+import java.util.concurrent.TimeUnit
 
 interface UserIdentity {
+    val defFreshness
+        get() = FreshnessStrategy.Cached(
+            RefreshStrategy.RefreshIfOlderThan(5, TimeUnit.MINUTES)
+        )
+
     @Deprecated("use UserFeaturePermissionService")
-    fun isEligibleFor(feature: Feature): Single<Boolean>
+    fun isEligibleFor(
+        feature: Feature,
+        freshnessStrategy: FreshnessStrategy = defFreshness
+    ): Single<Boolean>
+
     fun isVerifiedFor(feature: Feature): Single<Boolean>
     fun getBasicProfileInformation(): Single<BasicProfileInfo>
     fun checkForUserWalletLinkErrors(): Completable
     fun getUserCountry(): Maybe<String>
     fun getUserState(): Maybe<String>
+
     @Deprecated("use UserFeaturePermissionService")
-    fun userAccessForFeature(feature: Feature): Single<FeatureAccess>
-    fun userAccessForFeatures(features: List<Feature>): Single<Map<Feature, FeatureAccess>>
+    fun userAccessForFeature(
+        feature: Feature,
+        freshnessStrategy: FreshnessStrategy = defFreshness
+    ): Single<FeatureAccess>
+
+    fun userAccessForFeatures(
+        features: List<Feature>,
+        freshnessStrategy: FreshnessStrategy = defFreshness
+    ): Single<Map<Feature, FeatureAccess>>
+
     fun majorProductsNotEligibleReasons(): Single<List<ProductNotEligibleReason>>
     fun isArgentinian(): Single<Boolean>
     fun isCowboysUser(): Single<Boolean>
     fun isSSO(): Single<Boolean>
+    fun userLinkedError(): Maybe<LinkedError>
 }
 
 sealed class Feature {
     data class TierLevel(val tier: KycTier) : Feature()
-    object SimplifiedDueDiligence : Feature()
     data class Interest(val currency: Currency) : Feature()
     object Buy : Feature()
     object Swap : Feature()
@@ -38,6 +59,10 @@ sealed class Feature {
     object DepositInterest : Feature()
     object WithdrawFiat : Feature()
     object DepositStaking : Feature()
+    object DepositActiveRewards : Feature()
+    object CustodialAccounts : Feature()
+    object Kyc : Feature()
+    object Dex : Feature()
 }
 
 data class BasicProfileInfo(
@@ -51,6 +76,7 @@ sealed class FeatureAccess {
         // Only used by Feature.Buy and Feature.Swap
         val transactionsLimit: TransactionsLimit = TransactionsLimit.Unlimited
     ) : FeatureAccess()
+
     data class Blocked(val reason: BlockedReason) : FeatureAccess()
 
     fun isBlockedDueToEligibility(): Boolean =
@@ -65,6 +91,7 @@ sealed class BlockedReason : Serializable {
         object Tier1TradeLimitExceeded : InsufficientTier()
         data class Unknown(val message: String) : InsufficientTier()
     }
+
     sealed class Sanctions : BlockedReason() {
         abstract val message: String
 
@@ -72,6 +99,10 @@ sealed class BlockedReason : Serializable {
         data class RussiaEU8(override val message: String) : Sanctions()
         data class Unknown(override val message: String) : Sanctions()
     }
+
     class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
-    class ShouldAcknowledgeStakingWithdrawal(val assetIconUrl: String) : BlockedReason()
+    class ShouldAcknowledgeStakingWithdrawal(val assetIconUrl: String, val unbondingDays: Int) : BlockedReason()
+    object ShouldAcknowledgeActiveRewardsWithdrawalWarning : BlockedReason()
 }
+
+data class LinkedError(val linkError: String)

@@ -15,7 +15,6 @@ class AndroidDeviceIdGenerator(
 
     @SuppressLint("HardwareIds")
     override fun generateId(): PlatformDeviceId<DeviceIdSource.Android> {
-
         // In most cases, the android_id should do what we want. However, sometimes this has been
         // known to return null and some devices have a bug where it returns the emulator id.
         // In those cases, we'll generate an id based on the wifi interface. IF we can't find

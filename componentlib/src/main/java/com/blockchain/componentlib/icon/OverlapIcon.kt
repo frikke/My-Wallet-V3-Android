@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -24,13 +25,17 @@ fun OverlapIcon(
     icon: StackedIcon.OverlappingPair,
     iconSize: Dp,
     iconBackground: Color = AppTheme.colors.light,
-    borderColor: Color = AppTheme.colors.background
+    borderColor: Color = AppTheme.colors.backgroundSecondary,
+    alphaProvider: () -> Float = { 1F }
 ) {
     val borderSize = AppTheme.dimensions.composeSmallestSpacing
     val overlap = (iconSize.value.div(3)).dp
 
     Box(
         modifier = Modifier
+            .graphicsLayer {
+                alpha = alphaProvider()
+            }
             .size(
                 height = iconSize * 2 - overlap + borderSize,
                 width = iconSize + overlap + borderSize

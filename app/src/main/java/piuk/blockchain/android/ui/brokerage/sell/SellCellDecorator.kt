@@ -10,5 +10,5 @@ import piuk.blockchain.android.ui.customviews.account.CellDecorator
 class SellCellDecorator(private val account: BlockchainAccount) : CellDecorator {
     override fun view(context: Context): Maybe<View> = Maybe.empty()
 
-    override fun isEnabled(): Single<Boolean> = Single.just(account.isFunded)
+    override fun isEnabled(): Single<Boolean> = account.balanceRx().firstOrError().map { it.total.isPositive }
 }

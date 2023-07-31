@@ -13,39 +13,32 @@ import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrDefault
-import com.blockchain.outcome.zipOutcomes
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.veriff.VeriffApplicantAndToken
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import piuk.blockchain.android.BuildConfig
 import timber.log.Timber
 
 sealed class Navigation : NavigationEvent {
     data class Veriff(val veriffApplicantAndToken: VeriffApplicantAndToken) : Navigation()
-    data class TierCurrentState(
-        val kycState: KycState,
-        val isSddVerified: Boolean,
-    ) : Navigation()
+    data class TierCurrentState(val kycState: KycState) : Navigation()
 }
 
 @Parcelize
 data class Args(
-    val countryIso: CountryIso,
+    val countryIso: CountryIso
 ) : ModelConfigArgs.ParcelableArgs
 
 class VeriffSplashModel(
     private val userService: UserService,
-    private val custodialWalletManager: CustodialWalletManager,
     private val nabuDataManager: NabuDataManager,
     private val kycTiersStore: KycTiersStore,
     private val sessionPrefs: SessionPrefs,
@@ -62,7 +55,7 @@ class VeriffSplashModel(
 
     override fun viewCreated(args: Args) {
         viewModelScope.launch {
-            updateState { it.copy(isLoading = true, continueButtonState = ButtonState.Disabled) }
+            updateState { copy(isLoading = true, continueButtonState = ButtonState.Disabled) }
             val getSupportedDocumentsDeferred = async {
                 nabuDataManager.getSupportedDocuments(args.countryIso).awaitOutcome()
             }
@@ -85,12 +78,12 @@ class VeriffSplashModel(
                     ) {
                         sessionPrefs.devicePreIDVCheckFailed = true
                         analytics.logEvent(KYCAnalyticsEvents.VeriffPreIDV("UNAVAILABLE"))
-                        navigate(Navigation.TierCurrentState(KycState.Rejected, false))
+                        navigate(Navigation.TierCurrentState(KycState.Rejected))
                     } else {
                         updateState {
-                            it.copy(
+                            copy(
                                 error = VeriffSplashError.Generic,
-                                continueButtonState = ButtonState.Disabled,
+                                continueButtonState = ButtonState.Disabled
                             )
                         }
                     }
@@ -99,55 +92,46 @@ class VeriffSplashModel(
                     this@VeriffSplashModel.veriffApplicantAndToken = veriffApplicantAndToken
                     analytics.logEvent(KYCAnalyticsEvents.VeriffPreIDV("START_KYC"))
                     updateState {
-                        it.copy(
+                        copy(
                             supportedDocuments = supportedDocuments.toSortedSet(),
-                            continueButtonState = ButtonState.Enabled,
+                            continueButtonState = ButtonState.Enabled
                         )
                     }
                 }
-            updateState { it.copy(isLoading = false) }
+            updateState { copy(isLoading = false) }
         }
     }
 
-    override fun reduce(state: VeriffSplashModelState): VeriffSplashViewState = VeriffSplashViewState(
-        isLoading = state.isLoading,
-        supportedDocuments = state.supportedDocuments,
-        error = state.error,
-        continueButtonState = state.continueButtonState,
+    override fun VeriffSplashModelState.reduce() = VeriffSplashViewState(
+        isLoading = isLoading,
+        supportedDocuments = supportedDocuments,
+        error = error,
+        continueButtonState = continueButtonState
     )
 
     override suspend fun handleIntent(modelState: VeriffSplashModelState, intent: VeriffSplashIntent) {
         when (intent) {
             VeriffSplashIntent.ContinueClicked -> {
-                if (BuildConfig.DEBUG && BuildConfig.SKIP_VERIFF_KYC) {
-                    navigate(Navigation.TierCurrentState(KycState.Verified, true))
-                } else {
-                    navigate(Navigation.Veriff(veriffApplicantAndToken))
-                }
+                navigate(Navigation.Veriff(veriffApplicantAndToken))
             }
+
             VeriffSplashIntent.OnVeriffSuccess -> {
-                updateState { it.copy(continueButtonState = ButtonState.Loading) }
+                updateState { copy(continueButtonState = ButtonState.Loading) }
                 nabuDataManager.submitVeriffVerification().awaitOutcome()
                     .flatMap {
-                        zipOutcomes(
-                            { userService.getUser().map { it.kycState }.awaitOutcome() },
-                            {
-                                custodialWalletManager.fetchSimplifiedDueDiligenceUserState()
-                                    .map { it.isVerified }
-                                    .awaitOutcome()
-                            }
-                        )
+                        userService.getUser().map { it.kycState }.awaitOutcome()
                     }
-                    .doOnSuccess { (kycState, isSddVerified) ->
+                    .doOnSuccess { kycState ->
                         analytics.logEvent(KYCAnalyticsEvents.VeriffInfoSubmitted)
                         kycTiersStore.markAsStale()
-                        navigate(Navigation.TierCurrentState(kycState, isSddVerified))
+                        navigate(Navigation.TierCurrentState(kycState))
                     }
                     .doOnFailure { error ->
-                        updateState { it.copy(error = VeriffSplashError.Generic) }
+                        updateState { copy(error = VeriffSplashError.Generic) }
                     }
-                updateState { it.copy(continueButtonState = ButtonState.Enabled) }
+                updateState { copy(continueButtonState = ButtonState.Enabled) }
             }
+
             is VeriffSplashIntent.OnVeriffFailure -> {
                 analytics.logEvent(
                     VeriffAnalytics.VerifSubmissionFailed(
@@ -156,10 +140,11 @@ class VeriffSplashModel(
                     )
                 )
                 updateState {
-                    it.copy(error = VeriffSplashError.Generic)
+                    copy(error = VeriffSplashError.Generic)
                 }
             }
-            VeriffSplashIntent.ErrorHandled -> updateState { it.copy(error = null) }
+
+            VeriffSplashIntent.ErrorHandled -> updateState { copy(error = null) }
         }
     }
 }

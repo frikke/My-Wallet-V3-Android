@@ -4,6 +4,7 @@ configurations {
 
 dependencies {
     ktlint Libraries.ktlint
+    ktlint project(':instrumentation:ktlint-custom-rules')
 }
 
 task ktlint(type: JavaExec, group: "verification") {
@@ -20,4 +21,6 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     classpath = configurations.ktlint
     main = "com.pinterest.ktlint.Main"
     args "--android", "-F", "src/**/*.kt"
+    mainClass.set("com.pinterest.ktlint.Main")
+    jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
 }

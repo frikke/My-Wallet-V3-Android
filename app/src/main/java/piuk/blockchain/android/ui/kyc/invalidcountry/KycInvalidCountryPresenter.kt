@@ -10,7 +10,7 @@ import piuk.blockchain.android.ui.base.BasePresenter
 import timber.log.Timber
 
 class KycInvalidCountryPresenter(
-    private val nabuDataManager: NabuDataManager,
+    private val nabuDataManager: NabuDataManager
 ) : BasePresenter<KycInvalidCountryView>() {
 
     override fun onViewReady() = Unit

@@ -8,20 +8,23 @@ import java.util.Calendar
 data class KycProfileModelState(
     val firstNameInput: String = "",
     val lastNameInput: String = "",
+    val isNameInputErrorShowing: Boolean = false,
     val dateOfBirthInput: Calendar? = null,
-    val isSavingAddressLoading: Boolean = false,
-    val error: KycProfileError? = null,
+    val isSavingProfileLoading: Boolean = false,
+    val error: KycProfileError? = null
 ) : ModelState
 
 data class KycProfileViewState(
     val firstNameInput: String,
     val lastNameInput: String,
+    val isNameInputErrorShowing: Boolean,
     val dateOfBirthInput: Calendar?,
     val continueButtonState: ButtonState,
-    val error: KycProfileError?,
+    val error: KycProfileError?
 ) : ViewState
 
 sealed class KycProfileError {
-    object Generic : KycProfileError()
+    data class Generic(val message: String?) : KycProfileError()
     object UserConflict : KycProfileError()
+    object InvalidName : KycProfileError()
 }

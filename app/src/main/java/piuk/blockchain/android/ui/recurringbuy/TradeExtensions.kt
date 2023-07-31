@@ -18,12 +18,12 @@ fun PaymentMethodType.subtitleForLockedFunds(
     val intro = when (this) {
         PaymentMethodType.PAYMENT_CARD ->
             context.getString(
-                R.string.security_locked_card_funds_explanation_1,
+                com.blockchain.stringResources.R.string.security_locked_card_funds_explanation_1,
                 lockedFundDays.toString()
             )
         PaymentMethodType.BANK_TRANSFER ->
             context.getString(
-                R.string.security_locked_funds_bank_transfer_payment_screen_explanation,
+                com.blockchain.stringResources.R.string.security_locked_funds_bank_transfer_payment_screen_explanation,
                 lockedFundDays.toString()
             )
         else -> return SpannableStringBuilder()
@@ -33,7 +33,7 @@ fun PaymentMethodType.subtitleForLockedFunds(
 
     val learnLink = StringUtils.getStringWithMappedAnnotations(
         context,
-        R.string.common_linked_learn_more,
+        com.blockchain.stringResources.R.string.common_linked_learn_more,
         map
     )
 
@@ -41,8 +41,9 @@ fun PaymentMethodType.subtitleForLockedFunds(
     sb.append(intro)
         .append(learnLink)
         .setSpan(
-            ForegroundColorSpan(ContextCompat.getColor(context, R.color.blue_600)),
-            intro.length, intro.length + learnLink.length,
+            ForegroundColorSpan(ContextCompat.getColor(context, com.blockchain.common.R.color.blue_600)),
+            intro.length,
+            intro.length + learnLink.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 

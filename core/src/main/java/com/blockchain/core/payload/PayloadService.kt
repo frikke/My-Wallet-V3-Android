@@ -23,7 +23,7 @@ import org.bitcoinj.core.ECKey
 // into PayloadManager
 internal class PayloadService(
     private val payloadManager: PayloadManager,
-    private val sessionIdService: SessionIdService,
+    private val sessionIdService: SessionIdService
 ) {
 
     // /////////////////////////////////////////////////////////////////////////

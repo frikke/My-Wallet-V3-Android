@@ -41,7 +41,7 @@ data class AliasInfoResponse(
         @SerialName("bankName")
         val bankName: String?,
         @SerialName("accountType")
-        val accountType: String?,
+        val accountType: String?
     )
 }
 

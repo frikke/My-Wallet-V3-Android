@@ -11,6 +11,8 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenRespon
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeStore
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
@@ -26,17 +28,28 @@ import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito
 
-@OptIn(ExperimentalCoroutinesApi::class) class NabuAnalyticsTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class NabuAnalyticsTest {
     private val localAnalyticsPersistence = mock<AnalyticsLocalPersistence>()
 
     private val token: Optional<NabuSessionTokenResponse> = Optional.Some(
         NabuSessionTokenResponse(
-            "", "", "", true, "", "", ""
+            "",
+            "",
+            "",
+            true,
+            "",
+            "",
+            ""
         )
     )
 
     private val tokenStore: NabuSessionTokenStore = mock {
         on { getAccessToken() }.thenReturn(Observable.just(token))
+    }
+
+    private val walletModeStore: WalletModeStore = mock {
+        on { walletMode }.thenReturn(WalletMode.NON_CUSTODIAL)
     }
 
     private val sessionPrefs: SessionPrefs = mock {
@@ -56,8 +69,12 @@ import org.mockito.Mockito
     }
 
     private val subject = NabuAnalytics(
-        localAnalyticsPersistence = localAnalyticsPersistence, prefs = prefs,
-        remoteLogger = mock(), analyticsService = analyticsService, tokenStore = tokenStore,
+        localAnalyticsPersistence = localAnalyticsPersistence,
+        prefs = prefs,
+        remoteLogger = mock(),
+        analyticsService = analyticsService,
+        tokenStore = tokenStore,
+        walletModeStore = lazy { walletModeStore },
         analyticsContextProvider = analyticsContextProvider,
         lifecycleObservable = lifecycleObservable
     )

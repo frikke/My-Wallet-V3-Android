@@ -7,7 +7,7 @@
     android:layout_marginEnd="@dimen/smallest_spacing"
     android:orientation="vertical">
 
-   <com.blockchain.componentlib.button.MinimalButtonView
+   <com.blockchain.componentlib.button.MinimalPrimaryButtonView
        android:id="@+id/add_new_bank_account_button"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"

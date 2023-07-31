@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
     <include
         android:id="@+id/toolbar"
@@ -21,14 +22,14 @@
         android:id="@+id/tx_progress"
         android:layout_width="@dimen/animated_loader_view"
         android:layout_height="@dimen/animated_loader_view"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:lottie_autoPlay="true"
-        app:lottie_repeatMode="restart"
         android:visibility="gone"
-        app:lottie_loop="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="lottie/loader.json"
         app:lottie_imageAssetsFolder="lottie/loader.json"
-        app:lottie_fileName="lottie/loader.json" />
+        app:lottie_loop="true"
+        app:lottie_repeatMode="restart" />
 </androidx.constraintlayout.widget.ConstraintLayout>

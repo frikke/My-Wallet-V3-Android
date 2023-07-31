@@ -4,9 +4,11 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
+import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.earn.domain.models.interest.InterestLimits
 import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.InterestService
+import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -19,10 +21,16 @@ abstract class InterestBaseEngine(
     protected val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()
 
+    override fun ensureSourceBalanceFreshness() {
+        interestService.markBalancesAsStale()
+    }
+
+    protected val paymentTransactionHistoryStore: PaymentTransactionHistoryStore by scopedInject()
+
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,
         termsChecked: Boolean = getTermsOptionValue(pendingTx),
-        agreementChecked: Boolean = getTermsOptionValue(pendingTx),
+        agreementChecked: Boolean = getTermsOptionValue(pendingTx)
     ): PendingTx =
         pendingTx.removeOption(TxConfirmation.DESCRIPTION)
             .addOrReplaceOption(
@@ -69,4 +77,5 @@ abstract class InterestBaseEngine(
 sealed class TransferData {
     class Interest(val amount: Money) : TransferData()
     class Staking(val amount: Money, val stakingLimits: StakingLimits) : TransferData()
+    class ActiveRewards(val amount: Money) : TransferData()
 }

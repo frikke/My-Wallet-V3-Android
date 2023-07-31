@@ -2,6 +2,7 @@ package com.blockchain.nabu.api.getuser.data
 
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.internalnotifications.NotificationEvent
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuUserReporter
@@ -10,6 +11,8 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.NabuService
+import com.blockchain.preferences.CountryPrefs
+import com.blockchain.store.CacheConfiguration
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Mediator
@@ -24,12 +27,14 @@ class GetUserStore(
     private val userReporter: NabuUserReporter,
     private val remoteLogger: RemoteLogger,
     private val trust: DigitalTrust,
+    private val countryPrefs: CountryPrefs,
     private val walletReporter: WalletReporter,
     private val sessionInfo: SessionInfo,
     private val payloadDataManager: PayloadDataManager
 ) : Store<NabuUser> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
+        reset = CacheConfiguration.on(listOf(NotificationEvent.UserUpdated)),
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = {
                 nabuService.getUser()
@@ -37,6 +42,7 @@ class GetUserStore(
                         userReporter.reportUserId(user.id)
                         userReporter.reportUser(user)
                         trust.setUserId(user.id)
+                        countryPrefs.country = user.address?.countryCode.orEmpty()
                         remoteLogger.logUserId(user.id)
                         walletReporter.reportWalletGuid(payloadDataManager.guid)
                         sessionInfo.setUserId(user.id)

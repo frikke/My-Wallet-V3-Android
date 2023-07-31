@@ -1,7 +1,6 @@
 package piuk.blockchain.android.cards
 
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +9,13 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.payments.core.CardBillingAddress
+import com.blockchain.payments.vgs.VgsCardTokenizerService
 import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -26,7 +28,6 @@ import piuk.blockchain.android.databinding.FragmentBillingAddressBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class BillingAddressFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentBillingAddressBinding>(),
@@ -35,7 +36,9 @@ class BillingAddressFragment :
     SlidingModalBottomDialog.Host {
 
     private var usSelected = false
+    private var isVgsEnabled = false
     private val userService: UserService by scopedInject()
+    private val cardTokenizerService: VgsCardTokenizerService by scopedInject()
     private val fraudService: FraudService by inject()
 
     private val compositeDisposable = CompositeDisposable()
@@ -47,19 +50,18 @@ class BillingAddressFragment :
     private var countryPickerItem: CountryPickerItem? = null
     private var statePickerItem: StatePickerItem? = null
 
-    private val textWatcher = object : AfterTextChangedWatcher() {
-        override fun afterTextChanged(s: Editable?) {
-            binding.btnNext.isEnabled = addressIsValid()
-        }
+    private val textWatcher: (String) -> Unit = {
+        binding.btnNext.buttonState = if (addressIsValid()) ButtonState.Enabled else ButtonState.Disabled
     }
 
     private fun addressIsValid(): Boolean =
-        binding.fullName.text.isNullOrBlank().not() &&
-            binding.addressLine1.text.isNullOrBlank().not() &&
-            binding.city.text.isNullOrBlank().not() &&
+        binding.fullNameInput.value.isNotBlank() &&
+            binding.addressLine1Input.value.isNotBlank() &&
+            binding.cityInput.value.isNotBlank() &&
             (
-                if (usSelected) binding.zipUsa.text.isNullOrBlank().not() && binding.state.text.isNullOrBlank().not()
-                else binding.postcode.text.isNullOrBlank().not()
+                if (usSelected) {
+                    binding.zipUsaInput.value.isNotBlank() && binding.stateInput.value.isNotBlank()
+                } else binding.postcodeInput.value.isNotBlank()
                 )
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentBillingAddressBinding =
@@ -78,13 +80,34 @@ class BillingAddressFragment :
                 )
             }
 
-            fullName.addTextChangedListener(textWatcher)
-            addressLine1.addTextChangedListener(textWatcher)
-            addressLine2.addTextChangedListener(textWatcher)
-            city.addTextChangedListener(textWatcher)
-            zipUsa.addTextChangedListener(textWatcher)
-            state.addTextChangedListener(textWatcher)
-            postcode.addTextChangedListener(textWatcher)
+            fullNameInput.apply {
+                labelText = getString(com.blockchain.stringResources.R.string.full_name)
+                onValueChange = textWatcher
+            }
+            addressLine1Input.apply {
+                labelText = getString(com.blockchain.stringResources.R.string.address_line_1)
+                onValueChange = textWatcher
+            }
+            addressLine2Input.apply {
+                labelText = getString(com.blockchain.stringResources.R.string.address_line_2)
+                onValueChange = textWatcher
+            }
+            cityInput.apply {
+                labelText = getString(com.blockchain.stringResources.R.string.address_city)
+                onValueChange = textWatcher
+            }
+            zipUsaInput.apply {
+                labelText = getString(com.blockchain.stringResources.R.string.address_zip)
+                onValueChange = textWatcher
+            }
+            stateInput.apply {
+                labelText = getString(com.blockchain.stringResources.R.string.billing_address_state)
+                onValueChange = textWatcher
+            }
+            postcodeInput.apply {
+                labelText = getString(com.blockchain.stringResources.R.string.address_postcode)
+                onValueChange = textWatcher
+            }
 
             compositeDisposable += userService.getUser()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -93,47 +116,62 @@ class BillingAddressFragment :
                     setupUserDetails(user)
                 })
 
-            btnNext.setOnClickListener {
+            btnNext.text = getString(com.blockchain.stringResources.R.string.common_next)
+            btnNext.onClick = {
                 fraudService.endFlow(FraudFlow.CARD_LINK)
-                model.process(
-                    CardIntent.UpdateBillingAddress(
-                        BillingAddress(
-                            countryCode = countryPickerItem?.code
-                                ?: throw java.lang.IllegalStateException("No country selected"),
-                            postCode = (if (usSelected) zipUsa.text else postcode.text).toString(),
-                            state = if (usSelected) state.text.toString() else null,
-                            city = city.text.toString(),
-                            addressLine1 = addressLine1.text.toString(),
-                            addressLine2 = addressLine2.text.toString(),
-                            fullName = fullName.text.toString()
+
+                val billingAddress = BillingAddress(
+                    countryCode = countryPickerItem?.code
+                        ?: throw java.lang.IllegalStateException("No country selected"),
+                    postCode = if (usSelected) zipUsaInput.value else postcodeInput.value,
+                    state = if (usSelected) stateInput.value else null,
+                    city = cityInput.value,
+                    addressLine1 = addressLine1Input.value,
+                    addressLine2 = addressLine2Input.value,
+                    fullName = fullNameInput.value
+                )
+
+                if (isVgsEnabled) {
+                    cardTokenizerService.bindAddressDetails(
+                        CardBillingAddress(
+                            city = billingAddress.city,
+                            countryCode = billingAddress.countryCode,
+                            addressLine1 = billingAddress.addressLine1,
+                            addressLine2 = billingAddress.addressLine2,
+                            postalCode = billingAddress.postCode,
+                            state = billingAddress.state
                         )
                     )
-                )
-                model.process(CardIntent.ReadyToAddNewCard)
+                    model.process(CardIntent.SubmitVgsCardInfo)
+                } else {
+                    model.process(CardIntent.UpdateBillingAddress(billingAddress))
+                    model.process(CardIntent.ReadyToAddNewCard)
+                }
 
                 analytics.logEvent(SimpleBuyAnalytics.CARD_BILLING_ADDRESS_SET)
             }
         }
-        activity.updateToolbarTitle(getString(R.string.add_card_address_title))
+        activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.add_card_address_title))
 
         model.process(CardIntent.LoadListOfUsStates)
     }
 
     private fun setupUserDetails(user: NabuUser) {
         with(binding) {
-            fullName.setText(getString(R.string.common_spaced_strings, user.firstName, user.lastName))
+            fullNameInput.value =
+                getString(com.blockchain.stringResources.R.string.common_spaced_strings, user.firstName, user.lastName)
             user.address?.let {
-                addressLine1.setText(it.line1)
-                addressLine2.setText(it.line2)
-                city.setText(it.city)
+                addressLine1Input.value = it.line1.orEmpty()
+                addressLine2Input.value = it.line2.orEmpty()
+                cityInput.value = it.city.orEmpty()
                 if (it.countryCode == "US") {
-                    zipUsa.setText(it.postCode)
+                    zipUsaInput.value = it.postCode.orEmpty()
                     val stateName = it.stateIso?.let {
                         USState.findStateByIso(it)?.displayName ?: it.substringAfter("US-")
                     }
-                    state.setText(stateName)
+                    stateInput.value = stateName.orEmpty()
                 } else {
-                    postcode.setText(it.postCode)
+                    postcodeInput.value = it.postCode.orEmpty()
                 }
             }
         }
@@ -157,8 +195,9 @@ class BillingAddressFragment :
                 configureUiForCountry(item.code == "US")
                 countryPickerItem = item
             }
+
             is StatePickerItem -> {
-                binding.state.setText(item.code)
+                binding.stateInput.value = item.code
                 statePickerItem = item
             }
         }
@@ -176,13 +215,27 @@ class BillingAddressFragment :
             ?: throw IllegalStateException("Parent must implement AddCardNavigator")
 
     override fun render(newState: CardState) {
+        isVgsEnabled = newState.isVgsEnabled
+        newState.vgsTokenResponse?.let {
+            navigator.navigateToCardVerification()
+        }
+
         if (newState.addCard) {
             navigator.navigateToCardVerification()
         }
 
+        if (newState.showCardCreationError) {
+            BlockchainSnackbar.make(
+                view = binding.root,
+                message = com.blockchain.stringResources.R.string.something_went_wrong_try_again,
+                type = SnackbarType.Error
+            ).show()
+            model.process(CardIntent.ErrorHandled)
+        }
+
         newState.usStateList?.let { stateList ->
             if (stateList.isNotEmpty()) {
-                binding.state.setOnClickListener {
+                binding.stateInputSelect.setOnClickListener {
                     showBottomSheet(
                         SearchPickerItemBottomSheet.newInstance(
                             stateList.map { state ->
@@ -194,9 +247,9 @@ class BillingAddressFragment :
             } else {
                 BlockchainSnackbar.make(
                     view = binding.root,
-                    message = getString(R.string.unable_to_load_list_of_states),
+                    message = getString(com.blockchain.stringResources.R.string.unable_to_load_list_of_states),
                     type = SnackbarType.Error,
-                    actionLabel = getString(R.string.common_try_again),
+                    actionLabel = getString(com.blockchain.stringResources.R.string.common_try_again),
                     onClick = {
                         model.process(CardIntent.LoadListOfUsStates)
                     }

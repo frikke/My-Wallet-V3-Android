@@ -8,4 +8,7 @@ class FraudRemoteService internal constructor(
     private val api: FraudApi
 ) {
     suspend fun getFraudFlows(): Outcome<Exception, FraudFlowsResponse> = api.getFraudFlows()
+
+    suspend fun getUnauthenticatedFraudFlows(): Outcome<Exception, FraudFlowsResponse> =
+        api.getUnathenticatedFraudFlows()
 }

@@ -7,11 +7,11 @@ data class NabuAnalyticsEvent(
     val name: String,
     val type: String,
     val originalTimestamp: String,
-    val properties: Map<String, JsonElement>,
+    val properties: Map<String, JsonElement>
 )
 
 @Serializable
-class AnalyticsContext(
+data class AnalyticsContext(
     val device: DeviceInfo,
     val locale: String,
     val screen: ScreenInfo,

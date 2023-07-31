@@ -6,6 +6,8 @@ import android.content.Intent
 import android.net.Uri
 import com.blockchain.analytics.Analytics
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.domain.auth.SecureChannelService
+import com.blockchain.koin.payloadScopeOrNull
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.notifications.NotificationTokenManager
@@ -19,7 +21,6 @@ import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.emptySubscribe
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -29,26 +30,26 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.auth.newlogin.domain.model.toArg
-import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
-import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.ui.launcher.LauncherActivityV2
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
+import piuk.blockchain.android.ui.launcher.LauncherActivity
 import timber.log.Timber
 
 class FcmCallbackService : FirebaseMessagingService() {
 
     private val notificationManager: NotificationManager by inject()
-    private val notificationTokenManager: NotificationTokenManager by scopedInject()
     private val analytics: Analytics by inject()
     private val walletPrefs: WalletStatusPrefs by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
-    private val secureChannelService: SecureChannelService by scopedInject()
+    private val secureChannelService: SecureChannelService?
+        get() = payloadScopeOrNull?.get()
     private val compositeDisposable = CompositeDisposable()
     private val lifecycleObservable: LifecycleObservable by inject()
     private var isAppOnForegrounded = true
-    private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
+    private val deeplinkRedirector: DeeplinkRedirector?
+        get() = payloadScopeOrNull?.get()
     private val referralPrefs: ReferralPrefs by inject()
 
     init {
@@ -96,7 +97,9 @@ class FcmCallbackService : FirebaseMessagingService() {
                 title = remoteMessage.notification?.title,
                 body = remoteMessage.notification?.body,
                 pendingIntent = PendingIntent.getActivity(
-                    applicationContext, 0, Intent(),
+                    applicationContext,
+                    0,
+                    Intent(),
                     PendingIntent.FLAG_UPDATE_CURRENT or
                         PendingIntent.FLAG_IMMUTABLE
                 ),
@@ -112,7 +115,7 @@ class FcmCallbackService : FirebaseMessagingService() {
 
     override fun onNewToken(newToken: String) {
         super.onNewToken(newToken)
-        notificationTokenManager.storeAndUpdateToken(newToken)
+        payloadScopeOrNull?.get<NotificationTokenManager>()?.storeAndUpdateToken(newToken)
         subscribeToRealTimeRemoteConfigUpdates()
     }
 
@@ -121,13 +124,20 @@ class FcmCallbackService : FirebaseMessagingService() {
     }
 
     /**
-     * Redirects the user to the [LauncherActivityV2] if [foreground] is set to true, otherwise to
+     * Redirects the user to the [LauncherActivity] if [foreground] is set to true, otherwise to
      * the [MainActivity] unless it is a new device login, in which case [MainActivity] is
      * going to load the [piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet] .
      *
      * TODO verify if this is true.
      */
     private fun sendNotification(payload: NotificationPayload, foreground: Boolean) {
+        if (isSecureChannelMessage(payload)) {
+            GlobalScope.launch {
+                secureChannelService?.secureChannelLogin(payload.payload)
+            }
+            return
+        }
+
         compositeDisposable += createIntentForNotification(payload, foreground)
             .subscribeOn(Schedulers.io())
             .subscribeBy(
@@ -145,16 +155,17 @@ class FcmCallbackService : FirebaseMessagingService() {
                             startActivity(notifyIntent)
                         } else {
                             triggerNotification(
-                                title = getString(R.string.secure_channel_notif_title),
-                                body = getString(R.string.secure_channel_notif_summary),
+                                title = getString(com.blockchain.stringResources.R.string.secure_channel_notif_title),
+                                body = getString(com.blockchain.stringResources.R.string.secure_channel_notif_summary),
                                 pendingIntent = intent,
-                                notificationId = notificationId,
+                                notificationId = notificationId
                             )
                         }
                     } else if (payload.deeplinkURL != null) {
-                        deeplinkRedirector.processDeeplinkURL(
-                            Uri.parse(payload.deeplinkURL), payload
-                        ).emptySubscribe()
+                        deeplinkRedirector?.processDeeplinkURL(
+                            Uri.parse(payload.deeplinkURL),
+                            payload
+                        )?.emptySubscribe()
                     } else {
                         triggerNotification(
                             payload.title,
@@ -168,18 +179,20 @@ class FcmCallbackService : FirebaseMessagingService() {
             )
     }
 
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
+
     private fun createIntentForNotification(payload: NotificationPayload, foreground: Boolean): Maybe<Intent> {
         return when {
-            isSecureChannelMessage(payload) -> createSecureChannelIntent(payload.payload, foreground)
             foreground -> Maybe.just(
-                MainActivity.newIntent(
+                homeActivityLauncher.newIntent(
                     context = applicationContext,
                     intentFromNotification = true,
                     notificationAnalyticsPayload = createCampaignPayload(payload.payload, payload.title)
                 )
             )
+
             else -> Maybe.just(
-                LauncherActivityV2.newInstance(
+                LauncherActivity.newInstance(
                     context = applicationContext,
                     intentFromNotification = true,
                     notificationAnalyticsPayload = createCampaignPayload(payload.payload, payload.title)
@@ -190,30 +203,6 @@ class FcmCallbackService : FirebaseMessagingService() {
 
     private fun isSecureChannelMessage(payload: NotificationPayload) =
         payload.type == NotificationPayload.NotificationType.SECURE_CHANNEL_MESSAGE
-
-    private fun createSecureChannelIntent(payload: Map<String, String?>, foreground: Boolean): Maybe<Intent> {
-        val pubKeyHash = payload[NotificationPayload.PUB_KEY_HASH]
-            ?: return Maybe.empty()
-        val messageRawEncrypted = payload[NotificationPayload.DATA_MESSAGE]
-            ?: return Maybe.empty()
-
-        val message = secureChannelService.decryptMessage(pubKeyHash, messageRawEncrypted)
-            ?: return Maybe.empty()
-
-        return Maybe.just(
-            MainActivity.newIntent(
-                context = applicationContext,
-                launchAuthFlow = true,
-                pubKeyHash = pubKeyHash,
-                message = message.toArg(),
-                originIp = payload[NotificationPayload.ORIGIN_IP],
-                originLocation = payload[NotificationPayload.ORIGIN_COUNTRY],
-                originBrowser = payload[NotificationPayload.ORIGIN_BROWSER],
-                forcePin = !foreground,
-                shouldBeNewTask = foreground
-            )
-        )
-    }
 
     private fun triggerNotification(
         title: String?,
@@ -231,8 +220,8 @@ class FcmCallbackService : FirebaseMessagingService() {
             text = body,
             pendingIntent = pendingIntent,
             id = notificationId,
-            appName = R.string.app_name,
-            colorRes = R.color.primary_navy_medium,
+            appName = com.blockchain.stringResources.R.string.app_name,
+            colorRes = com.blockchain.common.R.color.primary_navy_medium,
             source = "FcmCallbackService"
         )
     }

@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.getResolvedColor
 import piuk.blockchain.android.R
@@ -20,7 +21,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCh
 
 class ExpandableComplexConfirmationCheckout(
     private val mapper: TxConfirmReadOnlyMapperCheckout,
-    private val onTooltipClicked: (TxConfirmationValue) -> Unit,
+    private val onTooltipClicked: (TxConfirmationValue) -> Unit
 ) :
     AdapterDelegate<TxConfirmationValue> {
     override fun isForViewType(items: List<TxConfirmationValue>, position: Int): Boolean {
@@ -39,7 +40,9 @@ class ExpandableComplexConfirmationCheckout(
         holder: RecyclerView.ViewHolder
     ) = (holder as ExpandableComplexConfirmationCheckoutItemViewHolder).bind(
         items[position],
-        onTooltipClicked
+        onTooltipClicked,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -58,14 +61,19 @@ private class ExpandableComplexConfirmationCheckoutItemViewHolder(
     fun bind(
         item: TxConfirmationValue,
         onTooltipClicked: (TxConfirmationValue) -> Unit,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
         with(binding) {
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
             mapper.map(item).run {
                 expandableComplexItemLabel.text = this[ConfirmationPropertyKey.LABEL] as String
                 expandableComplexItemTitle.text = this[ConfirmationPropertyKey.TITLE] as String
                 expandableComplexItemSubtitle.text = this[ConfirmationPropertyKey.SUBTITLE] as String
                 expandableComplexItemExpansion.setText(
-                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder, TextView.BufferType.SPANNABLE
+                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder,
+                    TextView.BufferType.SPANNABLE
                 )
                 expandableComplexItemLabel.setOnClickListener {
                     isExpanded = !isExpanded
@@ -86,12 +94,12 @@ private class ExpandableComplexConfirmationCheckoutItemViewHolder(
         with(binding) {
             when {
                 item.isNewQuote -> {
-                    expandableComplexItemTitle.updateColour(R.color.blue_600)
-                    expandableComplexItemSubtitle.updateColour(R.color.blue_600)
+                    expandableComplexItemTitle.updateColour(com.blockchain.componentlib.R.color.primary)
+                    expandableComplexItemSubtitle.updateColour(com.blockchain.componentlib.R.color.primary)
                 }
                 else -> {
-                    expandableComplexItemTitle.updateColour(R.color.grey_800)
-                    expandableComplexItemSubtitle.updateColour(R.color.grey_600)
+                    expandableComplexItemTitle.updateColour(com.blockchain.componentlib.R.color.body)
+                    expandableComplexItemSubtitle.updateColour(com.blockchain.componentlib.R.color.body)
                 }
             }
         }
@@ -109,11 +117,11 @@ private class ExpandableComplexConfirmationCheckoutItemViewHolder(
 
             if (isExpanded) {
                 expandableComplexItemLabel.compoundDrawables[DRAWABLE_END]?.setTint(
-                    expandableComplexItemLabel.context.getResolvedColor(R.color.blue_600)
+                    expandableComplexItemLabel.context.getResolvedColor(com.blockchain.common.R.color.blue_600)
                 )
             } else {
                 expandableComplexItemLabel.compoundDrawables[DRAWABLE_END]?.setTint(
-                    expandableComplexItemLabel.context.getResolvedColor(R.color.grey_300)
+                    expandableComplexItemLabel.context.getResolvedColor(com.blockchain.common.R.color.grey_300)
                 )
             }
         }

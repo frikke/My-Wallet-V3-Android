@@ -29,7 +29,7 @@ class MarkdownTextView @JvmOverloads constructor(
                     markdownText = markdownText,
                     style = style,
                     color = color,
-                    gravity = gravity,
+                    gravity = gravity
                 )
             }
         }

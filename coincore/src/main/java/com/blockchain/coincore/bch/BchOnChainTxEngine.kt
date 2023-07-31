@@ -21,6 +21,7 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.logging.Logger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.utils.then
@@ -44,7 +45,6 @@ import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
 import org.bitcoinj.core.Transaction
 import org.spongycastle.util.encoders.Hex
-import timber.log.Timber
 
 private const val STATE_UTXO = "bch_utxo"
 
@@ -102,7 +102,7 @@ class BchOnChainTxEngine(
         require(amount.currency == sourceAsset)
 
         return Singles.zip(
-            sourceAccount.balanceRx.firstOrError().map { it.total as CryptoValue },
+            sourceAccount.balanceRx().firstOrError().map { it.total as CryptoValue },
             getUnspentApiResponse(bchSource.xpubAddress),
             getDynamicFeePerKb()
         ) { balance, coins, feePerKb ->
@@ -115,13 +115,13 @@ class BchOnChainTxEngine(
     }
 
     private fun getUnspentApiResponse(address: String): Single<List<Utxo>> {
-        return sourceAccount.balanceRx.firstOrError().flatMap {
+        return sourceAccount.balanceRx().firstOrError().flatMap {
             if (it.total.isPositive) {
                 sendDataManager.getUnspentBchOutputs(address)
                     // If we get here, we should have balance and valid UTXOs. IF we don't, then, um... we'd best fail hard
                     .map { utxo ->
                         if (utxo.isEmpty()) {
-                            Timber.e("No BTC UTXOs found for non-zero balance!")
+                            Logger.e("No BTC UTXOs found for non-zero balance!")
                             throw IllegalStateException("No BTC UTXOs found for non-zero balance")
                         } else {
                             utxo
@@ -217,7 +217,9 @@ class BchOnChainTxEngine(
             txConfirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
                 TxConfirmationValue.To(
-                    txTarget, AssetAction.Send, sourceAccount
+                    txTarget,
+                    AssetAction.Send,
+                    sourceAccount
                 ),
                 TxConfirmationValue.CompoundNetworkFee(
                     sendingFeeInfo = if (!pendingTx.feeAmount.isZero) {
@@ -226,7 +228,9 @@ class BchOnChainTxEngine(
                             fiatRate.convert(pendingTx.feeAmount),
                             sourceAsset
                         )
-                    } else null,
+                    } else {
+                        null
+                    },
                     feeLevel = pendingTx.feeSelection.selectedLevel
                 ),
                 TxConfirmationValue.Total(
@@ -316,7 +320,7 @@ class BchOnChainTxEngine(
         try {
             bchDataManager.subtractAmountFromAddressBalance(xpub, pendingTx.totalSent.toBigInteger())
         } catch (e: Exception) {
-            Timber.e(e)
+            Logger.e(e)
         }
     }
 
@@ -344,7 +348,7 @@ class BchOnChainTxEngine(
     }
 
     override fun doOnTransactionFailed(pendingTx: PendingTx, e: Throwable) {
-        Timber.e("BCH Send failed: $e")
+        Logger.e("BCH Send failed: $e")
     }
 
     override fun doSignTransaction(

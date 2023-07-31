@@ -75,9 +75,9 @@ class AccountPresenterTest {
         subject.createNewAccount(NEW_BTC_LABEL)
 
         // Assert
-        verify(activity).showProgressDialog(R.string.please_wait, null)
+        verify(activity).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(activity).dismissProgressDialog()
-        verify(activity).showError(R.string.label_name_match)
+        verify(activity).showError(com.blockchain.stringResources.R.string.label_name_match)
         verifyNoMoreInteractions(activity)
     }
 
@@ -100,9 +100,9 @@ class AccountPresenterTest {
         subject.createNewAccount(NEW_BTC_LABEL)
 
         // Assert
-        verify(activity).showProgressDialog(R.string.please_wait, null)
+        verify(activity).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(activity).dismissProgressDialog()
-        verify(activity).showSuccess(R.string.remote_save_ok)
+        verify(activity).showSuccess(com.blockchain.stringResources.R.string.remote_save_ok)
         verifyNoMoreInteractions(activity)
         verify(analytics).logEvent(WalletAnalytics.AddNewWallet)
     }
@@ -119,9 +119,9 @@ class AccountPresenterTest {
         subject.createNewAccount(NEW_BTC_LABEL)
 
         // Assert
-        verify(activity).showProgressDialog(R.string.please_wait, null)
+        verify(activity).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(activity).dismissProgressDialog()
-        verify(activity).showError(R.string.double_encryption_password_error)
+        verify(activity).showError(com.blockchain.stringResources.R.string.double_encryption_password_error)
         verifyNoMoreInteractions(activity)
     }
 
@@ -137,9 +137,9 @@ class AccountPresenterTest {
         subject.createNewAccount(NEW_BTC_LABEL)
 
         // Assert
-        verify(activity).showProgressDialog(R.string.please_wait, null)
+        verify(activity).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(activity).dismissProgressDialog()
-        verify(activity).showError(R.string.unexpected_error)
+        verify(activity).showError(com.blockchain.stringResources.R.string.unexpected_error)
         verifyNoMoreInteractions(activity)
     }
 
@@ -152,15 +152,15 @@ class AccountPresenterTest {
         }
         val importedAccount: BtcCryptoWalletAccount = mock {
             on { updateLabel(UPDATED_BTC_LABEL) }.thenReturn(Completable.complete())
-            on { balanceRx }.thenReturn(Observable.just(cryptoValue))
+            on { balanceRx() }.thenReturn(Observable.just(cryptoValue))
         }
 
         // Act
         subject.updateImportedAddressLabel(UPDATED_BTC_LABEL, importedAccount)
 
         // Assert
-        verify(activity).showSuccess(R.string.remote_save_ok)
-        verify(activity).showProgressDialog(R.string.please_wait, null)
+        verify(activity).showSuccess(com.blockchain.stringResources.R.string.remote_save_ok)
+        verify(activity).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(activity).dismissProgressDialog()
     }
 
@@ -175,8 +175,8 @@ class AccountPresenterTest {
         subject.updateImportedAddressLabel(UPDATED_BTC_LABEL, importedAccount)
 
         // Assert
-        verify(activity).showError(R.string.remote_save_failed)
-        verify(activity).showProgressDialog(R.string.please_wait, null)
+        verify(activity).showError(com.blockchain.stringResources.R.string.remote_save_failed)
+        verify(activity).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(activity).dismissProgressDialog()
     }
 
@@ -187,7 +187,7 @@ class AccountPresenterTest {
         val balance: AccountBalance = mock {
             on { withdrawable }.thenReturn(CryptoValue.fromMinor(CryptoCurrency.BTC, 1.toBigInteger()))
         }
-        whenever(sendingAccount.balanceRx).thenReturn(Observable.just(balance))
+        whenever(sendingAccount.balanceRx()).thenReturn(Observable.just(balance))
 
         // Act
         subject.checkBalanceForTransfer(sendingAccount)
@@ -204,7 +204,7 @@ class AccountPresenterTest {
         val balance: AccountBalance = mock {
             on { withdrawable }.thenReturn(CryptoValue.zero(CryptoCurrency.BTC))
         }
-        whenever(sendingAccount.balanceRx).thenReturn(Observable.just(balance))
+        whenever(sendingAccount.balanceRx()).thenReturn(Observable.just(balance))
 
         // Act
         subject.checkBalanceForTransfer(sendingAccount)
@@ -267,9 +267,9 @@ class AccountPresenterTest {
         subject.importScannedAddress(SCANNED_ADDRESS, BIP38_PASSWORD, null)
 
         // Assert
-        verify(activity).showProgressDialog(R.string.please_wait, null)
+        verify(activity).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(activity).dismissProgressDialog()
-        verify(activity).showSuccess(R.string.private_key_successfully_imported)
+        verify(activity).showSuccess(com.blockchain.stringResources.R.string.private_key_successfully_imported)
         verify(activity).showRenameImportedAddressDialog(importedAccount)
         verifyNoMoreInteractions(activity)
         verify(analytics).logEvent(AddressAnalytics.ImportBTCAddress)
@@ -294,9 +294,9 @@ class AccountPresenterTest {
         subject.importScannedAddress(SCANNED_ADDRESS, BIP38_PASSWORD, null)
 
         // Assert
-        verify(activity).showProgressDialog(R.string.please_wait, null)
+        verify(activity).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(activity).dismissProgressDialog()
-        verify(activity).showError(R.string.no_private_key)
+        verify(activity).showError(com.blockchain.stringResources.R.string.no_private_key)
         verifyNoMoreInteractions(activity)
     }
 
@@ -320,9 +320,9 @@ class AccountPresenterTest {
         subject.importScannedAddress(SCANNED_ADDRESS, null)
 
         // Assert
-        verify(activity).showProgressDialog(R.string.please_wait, null)
+        verify(activity).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(activity).dismissProgressDialog()
-        verify(activity).showSuccess(R.string.private_key_successfully_imported)
+        verify(activity).showSuccess(com.blockchain.stringResources.R.string.private_key_successfully_imported)
         verify(activity).showRenameImportedAddressDialog(importedAccount)
         verifyNoMoreInteractions(activity)
         verify(analytics).logEvent(AddressAnalytics.ImportBTCAddress)
@@ -347,9 +347,9 @@ class AccountPresenterTest {
         subject.importScannedAddress(SCANNED_ADDRESS, null)
 
         // Assert
-        verify(activity).showProgressDialog(R.string.please_wait, null)
+        verify(activity).showProgressDialog(com.blockchain.stringResources.R.string.please_wait, null)
         verify(activity).dismissProgressDialog()
-        verify(activity).showError(R.string.no_private_key)
+        verify(activity).showError(com.blockchain.stringResources.R.string.no_private_key)
         verifyNoMoreInteractions(activity)
     }
 
@@ -363,7 +363,7 @@ class AccountPresenterTest {
         subject.importScannedAddress(SCANNED_ADDRESS, null)
 
         // Assert
-        verify(activity).showError(R.string.watch_only_not_supported)
+        verify(activity).showError(com.blockchain.stringResources.R.string.watch_only_not_supported)
         verifyNoMoreInteractions(activity)
     }
 
@@ -377,7 +377,7 @@ class AccountPresenterTest {
         subject.importScannedAddress(SCANNED_ADDRESS, null)
 
         // Assert
-        verify(activity).showError(R.string.privkey_error)
+        verify(activity).showError(com.blockchain.stringResources.R.string.privkey_error)
         verifyNoMoreInteractions(activity)
     }
 

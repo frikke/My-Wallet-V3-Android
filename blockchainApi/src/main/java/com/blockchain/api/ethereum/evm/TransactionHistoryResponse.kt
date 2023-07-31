@@ -62,3 +62,17 @@ enum class Status {
     COMPLETED,
     FAILED
 }
+
+@Serializable
+data class FeesResponse(
+    @SerialName("LOW")
+    val LOW: String?,
+    @SerialName("NORMAL")
+    val NORMAL: String?,
+    @SerialName("HIGH")
+    val HIGH: String?,
+    @SerialName("gasLimit")
+    val gasLimit: String?,
+    @SerialName("gasLimitContract")
+    val gasLimitContract: String?
+)

@@ -14,11 +14,11 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
-import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.domain.models.interest.InterestLimits
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.storedatasource.FlushableDataSource
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -43,7 +43,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
     }
 
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val interestBalanceStore: InterestBalancesStore = mock()
+    private val interestBalanceStore: FlushableDataSource = mock()
     private val interestService: InterestService = mock()
 
     private lateinit var subject: InterestWithdrawOnChainTxEngine
@@ -167,7 +167,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
         verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
         verify(currencyPrefs).selectedFiatCurrency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -200,7 +200,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
         verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -231,7 +231,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
         verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -288,11 +288,10 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<CustodialInterestAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balanceRx }.thenReturn(
+        on { balanceRx() }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
-                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

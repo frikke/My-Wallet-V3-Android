@@ -10,6 +10,7 @@ import com.blockchain.api.interceptors.SessionIdInterceptor
 import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.interceptors.UserAgentInterceptor
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.instrumentation.InstrumentationInterceptor // ktlint-disable instrumentation-ruleset:no-instrumentation-import
 import com.blockchain.network.modules.OkHttpAuthInterceptor
 import com.blockchain.network.modules.OkHttpInterceptors
 import com.blockchain.network.modules.OkHttpLoggingInterceptors
@@ -52,6 +53,7 @@ val apiInterceptorsModule = module {
                     add(StethoInterceptor())
                     add(ApiLoggingInterceptor())
                     add(ChuckerInterceptor.Builder(androidContext()).build())
+                    add(InstrumentationInterceptor())
                     // add for alpha prod build
                 } else if (!env.isRunningInDebugMode() && env.isCompanyInternalBuild()) {
                     add(ChuckerInterceptor.Builder(androidContext()).build())

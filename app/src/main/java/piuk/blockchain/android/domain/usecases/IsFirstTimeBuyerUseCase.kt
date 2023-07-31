@@ -1,8 +1,8 @@
 package piuk.blockchain.android.domain.usecases
 
+import com.blockchain.domain.trade.TradeDataService
 import com.blockchain.usecases.UseCase
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.domain.repositories.TradeDataService
 
 class IsFirstTimeBuyerUseCase(
     private val tradeDataService: TradeDataService

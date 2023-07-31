@@ -1,29 +1,28 @@
 package com.blockchain.coincore.erc20
 
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
-import com.blockchain.coincore.eth.MultiChainAccount
+import com.blockchain.coincore.eth.L2NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Money
+import info.blockchain.balance.CoinNetwork
+import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
 
 class Erc20NonCustodialAccount(
     asset: AssetInfo,
@@ -31,17 +30,12 @@ class Erc20NonCustodialAccount(
     internal val address: String,
     private val fees: FeeDataManager,
     override val label: String,
+    private val currencyPrefs: CurrencyPrefs,
     override val exchangeRates: ExchangeRatesDataManager,
     private val walletPreferences: WalletStatusPrefs,
-    private val custodialWalletManager: CustodialWalletManager,
     override val addressResolver: AddressResolver,
-    override val l1Network: EvmNetwork
-) : MultiChainAccount, CryptoNonCustodialAccount(asset) {
-
-    private val hasFunds = AtomicBoolean(false)
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
+    override val l1Network: CoinNetwork
+) : L2NonCustodialAccount, CryptoNonCustodialAccount(asset) {
 
     override val isDefault: Boolean = true // Only one account, so always default
 
@@ -50,53 +44,28 @@ class Erc20NonCustodialAccount(
             Erc20Address(currency, address, label)
         )
 
-    override fun getOnChainBalance(): Observable<Money> =
-        erc20DataManager.getErc20Balance(currency)
-            .doOnNext { hasFunds.set(it.balance.isPositive) }
-            .doOnNext { setHasTransactions(it.hasTransactions) }
-            .map { it.balance }
-
-    override val balanceRx: Observable<AccountBalance>
-        get() = super.balanceRx.onErrorResumeNext {
-            if (it is UnifiedBalanceNotFoundException)
-                Observable.just(AccountBalance.zero(currency))
-            else Observable.error(it)
-        }.doOnNext {
-            hasFunds.set(it.total.isPositive)
+    override fun balanceRx(freshnessStrategy: FreshnessStrategy): Observable<AccountBalance> {
+        return super.balanceRx(freshnessStrategy).onErrorResumeNext {
+            if (it is UnifiedBalanceNotFoundException) {
+                Observable.just(
+                    AccountBalance.zero(
+                        currency = currency,
+                        exchangeRate = ExchangeRate.zeroRateExchangeRate(
+                            from = currency,
+                            to = currencyPrefs.selectedFiatCurrency
+                        )
+                    )
+                )
+            } else Observable.error(it)
         }
+    }
+
     override val index: Int
         get() = DEFAULT_SINGLE_ACCOUNT_INDEX
 
     override suspend fun publicKey(): List<PublicKey> {
         throw IllegalAccessException("Public key of an erc20 cannot be accessed use the L1")
     }
-
-    override val activity: Single<ActivitySummaryList>
-        get() {
-            val feedTransactions = erc20DataManager.getErc20History(currency, l1Network)
-
-            return Single.zip(
-                feedTransactions,
-                erc20DataManager.latestBlockNumber(l1Chain = currency.l1chainTicker)
-            ) { transactions, latestBlockNumber ->
-                transactions.map { transaction ->
-                    Erc20ActivitySummaryItem(
-                        currency,
-                        event = transaction,
-                        accountHash = address,
-                        erc20DataManager = erc20DataManager,
-                        exchangeRates = exchangeRates,
-                        lastBlockNumber = latestBlockNumber,
-                        account = this,
-                        supportsDescription = erc20DataManager.supportsErc20TxNote(currency)
-                    )
-                }
-            }.flatMap {
-                appendTradeActivity(custodialWalletManager, currency, it)
-            }.doOnSuccess {
-                setHasTransactions(it.isNotEmpty())
-            }
-        }
 
     override val sourceState: Single<TxSourceState>
         get() = super.sourceState.flatMap { state ->
@@ -118,8 +87,4 @@ class Erc20NonCustodialAccount(
             walletPreferences = walletPreferences,
             resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
-
-    companion object {
-        private const val ETH_CHAIN_TX_HISTORY_MULTIPLIER = 1000
-    }
 }

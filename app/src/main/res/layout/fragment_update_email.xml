@@ -5,13 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="@dimen/standard_spacing">
+    android:padding="@dimen/standard_spacing"
+    android:background="@color/backgroundSecondary">
 
     <TextView
         android:id="@+id/verify_email_msg"
         style="@style/TextAppearance.Blockchain.Paragraph1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/title"
         android:text="@string/profile_verify_email_msg"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@string/profile_verify_email_msg" />

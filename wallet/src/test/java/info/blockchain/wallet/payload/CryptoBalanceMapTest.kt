@@ -226,7 +226,6 @@ class CryptoBalanceMapTest {
 
     @Test
     fun `can't adjust a missing balance`() {
-
         val xpubs = listOf(
             XPubs(XPub(address = "A", derivation = XPub.Format.LEGACY)),
             XPubs(XPub(address = "D", derivation = XPub.Format.SEGWIT))

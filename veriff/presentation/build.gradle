@@ -6,6 +6,7 @@ android {
         warningsAsErrors true
         abortOnError true
     }
+    namespace 'com.blockchain.veriff'
 }
 
 dependencies {

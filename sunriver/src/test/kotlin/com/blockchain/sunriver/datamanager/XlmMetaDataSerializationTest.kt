@@ -36,7 +36,7 @@ class XlmMetaDataSerializationTest {
                 accounts `should be equal to` listOf(
                     XlmAccount(
                         "GBCRNVZPJFDBF3JECAXOTD2LTAQMLHVYJUV5IEGYJ5H73TA3EOW7RZJY",
-                        label = "My Stellar Wallet",
+                        _label = "My Stellar Wallet",
                         _archived = false
                     )
                 )
@@ -52,12 +52,12 @@ class XlmMetaDataSerializationTest {
                 accounts `should be equal to` listOf(
                     XlmAccount(
                         "GBNPUQCB2UY7YXBKZZYMRXDH3WMVD6XOGOHAU5U4WIXOPHKN3TRBXD2Z",
-                        label = "My Old Stellar Wallet",
+                        _label = "My Old Stellar Wallet",
                         _archived = true
                     ),
                     XlmAccount(
                         "GDTDFKFRZHTSGQGCSRWLJWCTR5BPM6LBLMQQ75G3DR4DANLDY73CTNU4",
-                        label = "My New Stellar Wallet",
+                        _label = "My New Stellar Wallet",
                         _archived = false
                     )
                 )
@@ -76,13 +76,13 @@ class XlmMetaDataSerializationTest {
                 accounts `should be equal to` listOf(
                     XlmAccount(
                         publicKey = "GBNPUQCB2UY7YXBKZZYMRXDH3WMVD6XOGOHAU5U4WIXOPHKN3TRBXD2Z",
-                        label = null,
+                        _label = null,
                         pubKey = null,
                         _archived = null
                     ),
                     XlmAccount(
                         publicKey = "GDTDFKFRZHTSGQGCSRWLJWCTR5BPM6LBLMQQ75G3DR4DANLDY73CTNU4",
-                        label = null,
+                        _label = null,
                         pubKey = null,
                         _archived = null
                     )

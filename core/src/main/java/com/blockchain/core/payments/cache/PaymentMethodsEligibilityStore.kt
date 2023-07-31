@@ -21,7 +21,6 @@ class PaymentMethodsEligibilityStore(
         mapper = { key ->
             paymentMethodsService.getAvailablePaymentMethodsTypes(
                 currency = key.currencyTicker,
-                tier = if (key.shouldFetchSddLimits) SDD_ELIGIBLE_TIER else null,
                 eligibleOnly = key.eligibleOnly
             )
         }
@@ -35,12 +34,10 @@ class PaymentMethodsEligibilityStore(
     @Serializable
     data class Key(
         val currencyTicker: String,
-        val eligibleOnly: Boolean,
-        val shouldFetchSddLimits: Boolean
+        val eligibleOnly: Boolean
     )
 
     companion object {
         private const val STORE_ID = "PaymentMethodsEligibilityStore"
-        private const val SDD_ELIGIBLE_TIER = 3
     }
 }

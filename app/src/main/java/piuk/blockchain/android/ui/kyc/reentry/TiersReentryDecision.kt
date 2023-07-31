@@ -1,16 +1,18 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
+import com.blockchain.data.asSingle
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.utils.rxMaybeOutcome
 import io.reactivex.rxjava3.core.Single
 
 class TiersReentryDecision(
-    private val custodialWalletManager: CustodialWalletManager,
     private val dataRemediationService: DataRemediationService,
+    private val userFeaturePermissionService: UserFeaturePermissionService
 ) : ReentryDecision {
 
     private lateinit var nabuUser: NabuUser
@@ -18,33 +20,31 @@ class TiersReentryDecision(
         nabuUser.tiers?.current == 0
     }
 
-    override fun findReentryPoint(user: NabuUser): Single<ReentryPoint> {
-        if (user.kycState != KycState.None) {
-            return custodialWalletManager.fetchSimplifiedDueDiligenceUserState().map {
-                ReentryPoint.TierCurrentState(
-                    kycState = user.kycState,
-                    isSddVerified = it.isVerified,
-                )
+    override fun findReentryPoint(user: NabuUser): Single<ReentryPoint> =
+        userFeaturePermissionService.isEligibleFor(Feature.Kyc).asSingle().flatMap { isEligibleToKyc ->
+            if (user.kycState != KycState.None) {
+                return@flatMap Single.just(ReentryPoint.TierCurrentState(user.kycState))
+            } else if (!isEligibleToKyc) {
+                return@flatMap Single.just(ReentryPoint.TierCurrentState(KycState.Rejected))
+            }
+
+            nabuUser = user
+            return@flatMap when {
+                tier0UnverifiedEmail() -> Single.just(ReentryPoint.EmailEntry)
+                tier0UnselectedCountry() -> Single.just(ReentryPoint.CountrySelection)
+                else -> when {
+                    tier0ProfileIncompleteOrResubmitAllowed() &&
+                        !tier0UnselectedCountry() -> Single.just(ReentryPoint.Profile)
+                    tier0AndCanAdvance() && tier0MissingAddress() -> Single.just(ReentryPoint.Address)
+                    !hasMobileVerified() -> Single.just(ReentryPoint.MobileEntry)
+                    else -> rxMaybeOutcome {
+                        dataRemediationService.getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION)
+                    }.map { questionnaire ->
+                        ReentryPoint.Questionnaire(questionnaire) as ReentryPoint
+                    }.defaultIfEmpty(ReentryPoint.Veriff)
+                }
             }
         }
-
-        nabuUser = user
-        val entryPoint = when {
-            tier0UnverifiedEmail() -> ReentryPoint.EmailEntry
-            tier0UnselectedCountry() -> ReentryPoint.CountrySelection
-            tier0ProfileIncompleteOrResubmitAllowed() &&
-                !tier0UnselectedCountry() -> ReentryPoint.Profile
-            tier0AndCanAdvance() && tier0MissingAddress() -> ReentryPoint.Address
-            !hasMobileVerified() -> ReentryPoint.MobileEntry
-            else -> return rxMaybeOutcome {
-                dataRemediationService.getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION)
-            }.map { questionnaire ->
-                ReentryPoint.Questionnaire(questionnaire) as ReentryPoint
-            }.defaultIfEmpty(ReentryPoint.Veriff)
-        }
-
-        return Single.just(entryPoint)
-    }
 
     private fun tier0UnverifiedEmail(): Boolean = isTierZero && !nabuUser.emailVerified
 

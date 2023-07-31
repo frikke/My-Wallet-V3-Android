@@ -1,11 +1,12 @@
 apply plugin: 'com.squareup.sqldelight'
 apply from: rootProject.file('gradle/local/common-feature-android.gradle')
-
+android {
+    namespace 'com.blockchain.store_persisters_persistedjsonsqldelight'
+}
 dependencies {
     implementation project(':store:core')
     implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':common:interface')
-
     implementation Libraries.kotlinCoroutines
     implementation Libraries.sqlDelight
     implementation Libraries.coroutinesSqlDelight

@@ -13,8 +13,12 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetCodeSmsVerificationBinding
 
 class SMSPhoneVerificationBottomSheet :
-    MviBottomSheet<SMSVerificationModel, SMSVerificationIntent,
-        SMSVerificationState, BottomSheetCodeSmsVerificationBinding>() {
+    MviBottomSheet<
+        SMSVerificationModel,
+        SMSVerificationIntent,
+        SMSVerificationState,
+        BottomSheetCodeSmsVerificationBinding
+        >() {
 
     interface Host : HostedBottomSheet.Host {
         fun onPhoneNumberVerified()
@@ -43,20 +47,22 @@ class SMSPhoneVerificationBottomSheet :
         if (newState.error != null) {
             when (newState.error) {
                 VerificationError.VerifyPhoneError -> showSnackbar(
-                    SnackbarType.Error, R.string.profile_verification_code_error
+                    SnackbarType.Error,
+                    com.blockchain.stringResources.R.string.profile_verification_code_error
                 )
+
                 VerificationError.ResendSmsError ->
-                    showSnackbar(SnackbarType.Error, R.string.profile_resend_sms_error)
+                    showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.profile_resend_sms_error)
             }
             model.process(SMSVerificationIntent.ClearErrors)
         }
 
         if (newState.isCodeSmsSent) {
-            showSnackbar(SnackbarType.Success, R.string.code_verification_resent_sms)
+            showSnackbar(SnackbarType.Success, com.blockchain.stringResources.R.string.code_verification_resent_sms)
             model.process(SMSVerificationIntent.ResetCodeSentVerification)
         }
         if (newState.isPhoneVerified) {
-            showSnackbar(SnackbarType.Success, R.string.sms_verified)
+            showSnackbar(SnackbarType.Success, com.blockchain.stringResources.R.string.sms_verified)
             host.onPhoneNumberVerified()
             dismiss()
         }
@@ -74,20 +80,21 @@ class SMSPhoneVerificationBottomSheet :
         with(binding) {
             smsCode.apply {
                 singleLine = true
-                labelText = getString(R.string.code_verification_enter)
+                labelText = getString(com.blockchain.stringResources.R.string.code_verification_enter)
                 onValueChange = { value = it }
-                placeholderText = context.getString(R.string.code_verification_placeholder)
+                placeholderText =
+                    context.getString(com.blockchain.stringResources.R.string.code_verification_placeholder)
             }
             resendSms.apply {
-                text = getString(R.string.code_verification_re_send_text)
+                text = getString(com.blockchain.stringResources.R.string.code_verification_re_send_text)
                 onClick = { resendSMS() }
             }
             verifyCode.apply {
-                text = getString(R.string.code_verification_verify_code)
+                text = getString(com.blockchain.stringResources.R.string.code_verification_verify_code)
                 onClick = { verifyCode() }
             }
             sheetHeader.apply {
-                title = getString(R.string.code_verification_title)
+                title = getString(com.blockchain.stringResources.R.string.code_verification_title)
                 onClosePress = {
                     this@SMSPhoneVerificationBottomSheet.dismiss()
                 }

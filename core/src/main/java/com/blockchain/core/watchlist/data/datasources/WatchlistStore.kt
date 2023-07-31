@@ -11,7 +11,7 @@ import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.rxSingleOutcome
 
 class WatchlistStore internal constructor(
-    private val watchlistService: WatchlistApiService,
+    private val watchlistService: WatchlistApiService
 ) : Store<WatchlistDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

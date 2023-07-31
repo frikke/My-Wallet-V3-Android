@@ -10,11 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.ButtonType
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.lang.IllegalStateException
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
@@ -25,7 +25,7 @@ data class SendNetworkWarningInfo(
     val network: String
 ) : Parcelable
 
-class SendNetworkWarningSheet : BottomSheetDialogFragment() {
+class SendNetworkWarningSheet : ThemedBottomSheetFragment() {
 
     private val info: SendNetworkWarningInfo by lazy {
         arguments?.getParcelable<SendNetworkWarningInfo>(INFO) ?: throw IllegalStateException(
@@ -76,9 +76,9 @@ class SendNetworkWarningSheet : BottomSheetDialogFragment() {
     private fun SheetContent() {
         BottomSheetOneButton(
             onCloseClick = { dismiss() },
-            title = stringResource(id = R.string.common_did_you_know),
+            title = stringResource(id = com.blockchain.stringResources.R.string.common_did_you_know),
             subtitle = stringResource(
-                id = R.string.send_select_wallet_warning_sheet_desc,
+                id = com.blockchain.stringResources.R.string.send_select_wallet_warning_sheet_desc,
                 info.currencyName,
                 info.network
             ),
@@ -86,7 +86,7 @@ class SendNetworkWarningSheet : BottomSheetDialogFragment() {
             button = BottomSheetButton(
                 type = ButtonType.PRIMARY,
                 onClick = { dismiss() },
-                text = stringResource(id = R.string.common_ok),
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_ok)
             ),
             shouldShowHeaderDivider = false
         )

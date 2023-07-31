@@ -20,7 +20,9 @@ class VerifyIdentityBenefitsView @JvmOverloads constructor(context: Context, att
     ConstraintLayout(context, attrs) {
 
     private val binding: VerifyIdentityBenefitsLayoutBinding = VerifyIdentityBenefitsLayoutBinding.inflate(
-        LayoutInflater.from(context), this, true
+        LayoutInflater.from(context),
+        this,
+        true
     )
 
     fun initWithBenefits(
@@ -50,22 +52,27 @@ class VerifyIdentityBenefitsView @JvmOverloads constructor(context: Context, att
                     .error(R.drawable.ic_cash)
                     .into(kycBenefitsDefaultSymbol)
             } ?: kycBenefitsDefaultSymbol.gone()
-            kycBenefitsNegativeAction.visibleIf { secondaryButton.visible }
-            kycBenefitsPositiveAction.visibleIf { primaryButton.visible }
-            kycBenefitsPositiveAction.setOnClickListener {
-                primaryButton.cta()
-            }
-            primaryButton.text?.let {
-                kycBenefitsPositiveAction.text = it
+
+            kycBenefitsPositiveAction.apply {
+                visibleIf { primaryButton.visible }
+                onClick = {
+                    primaryButton.cta()
+                }
+                text = primaryButton.text ?: context.getString(
+                    com.blockchain.stringResources.R.string.fiat_funds_no_kyc_positive_action
+                )
             }
 
-            secondaryButton.text?.let {
-                kycBenefitsNegativeAction.text = it
+            kycBenefitsNegativeAction.apply {
+                visibleIf { secondaryButton.visible }
+                onClick = {
+                    secondaryButton.cta()
+                }
+                text = secondaryButton.text ?: context.getString(
+                    com.blockchain.stringResources.R.string.fiat_funds_no_kyc_negative_action
+                )
             }
 
-            kycBenefitsNegativeAction.setOnClickListener {
-                secondaryButton.cta()
-            }
             this.footerText.visibleIf { footerText.isNotEmpty() }
             this.footerText.text = footerText
 

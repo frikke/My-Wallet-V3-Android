@@ -1,14 +1,24 @@
 package com.blockchain.home.data.koin
 
+import com.blockchain.home.actions.QuickActionsService
 import com.blockchain.home.activity.CustodialActivityService
+import com.blockchain.home.announcements.AnnouncementsService
 import com.blockchain.home.data.FiltersStorage
 import com.blockchain.home.data.HomeAccountsRepository
+import com.blockchain.home.data.actions.QuickActionsRepository
 import com.blockchain.home.data.activity.CustodialActivityRepository
-import com.blockchain.home.data.activity.dataresource.CustodialActivityStore
+import com.blockchain.home.data.announcements.AnnouncementsCredentials
+import com.blockchain.home.data.announcements.AnnouncementsCredentialsImpl
+import com.blockchain.home.data.announcements.AnnouncementsRepository
+import com.blockchain.home.data.announcements.AnnouncementsStore
+import com.blockchain.home.data.emptystate.CustodialEmptyCardRepository
+import com.blockchain.home.data.emptystate.EmptyStateBuyAmountsRemoteConfig
+import com.blockchain.home.data.handhold.HandholdRepository
 import com.blockchain.home.domain.FiltersService
 import com.blockchain.home.domain.HomeAccountsService
+import com.blockchain.home.emptystate.CustodialEmptyCardService
+import com.blockchain.home.handhold.HandholdService
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.superAppModeService
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -16,21 +26,72 @@ val homeDataModule = module {
     scope(payloadScopeQualifier) {
         scoped {
             HomeAccountsRepository(
-                coincore = get(),
-                walletModeService = get(superAppModeService)
+                unifiedBalancesService = get(),
+                coincore = get()
             )
         }.bind(HomeAccountsService::class)
 
-        scoped {
-            CustodialActivityStore(coincore = get())
+        scoped<CustodialActivityService> {
+            CustodialActivityRepository(coincore = get())
         }
 
-        factory <CustodialActivityService> {
-            CustodialActivityRepository(custodialActivityStore = get())
+        scoped {
+            QuickActionsRepository(
+                coincore = get(),
+                userFeaturePermissionService = get()
+            )
+        }.bind(QuickActionsService::class)
+
+        scoped {
+            CustodialEmptyCardRepository(
+                emptyStateBuyAmountsRemoteConfig = get()
+            )
+        }.bind(CustodialEmptyCardService::class)
+
+        scoped {
+            EmptyStateBuyAmountsRemoteConfig(
+                remoteConfigService = get(),
+                json = get()
+            )
+        }
+
+        scoped<AnnouncementsCredentials> {
+            AnnouncementsCredentialsImpl(
+                remoteConfigService = get(),
+                userService = get(),
+                environmentConfig = get()
+            )
+        }
+        scoped<AnnouncementsService> {
+            AnnouncementsRepository(
+                announcementsStore = get(),
+                announcementsApiService = get(),
+                announcementsCredentials = get(),
+                announcementsPrefs = get()
+            )
+        }
+
+        scoped {
+            AnnouncementsStore(
+                announcementsApiService = get(),
+                announcementsCredentials = get()
+            )
+        }
+
+        scoped<HandholdService> {
+            HandholdRepository(
+                userService = get(),
+                kycService = get(),
+                tradingService = get(),
+                interestService = get(),
+                stakingService = get(),
+                activeRewardsService = get(),
+                handholdPrefs = get()
+            )
         }
     }
 
     factory {
-        FiltersStorage(sharedPreferences = get())
+        FiltersStorage(smallBalancesPrefs = get())
     }.bind(FiltersService::class)
 }

@@ -7,18 +7,23 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.core.asset.domain.AssetService
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
+import com.blockchain.image.LogoValue
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.news.NewsService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -28,11 +33,11 @@ import io.mockk.mockk
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
@@ -56,6 +61,7 @@ class CoinviewViewModelTest {
 
     private val walletModeService: WalletModeService = mockk()
     private val coincore: Coincore = mockk()
+    private val assetCatalogue: AssetCatalogue = mockk()
     private val currencyPrefs: CurrencyPrefs = mockk()
     private val labels: DefaultLabels = mockk()
     private val getAssetPriceUseCase: GetAssetPriceUseCase = mockk()
@@ -83,7 +89,7 @@ class CoinviewViewModelTest {
 
     private val money: Money = mockk()
     private val balanceFormatted = "balanceFormatted"
-    private val percentChange = 1.1
+    private val percentChange = ValueChange.fromValue(1.1)
     private val timeSpan = HistoricalTimeSpan.DAY
     private val totalBalance: CoinviewAssetTotalBalance = mockk()
     private val totalCryptoBalance: Map<AssetFilter, Money> = mapOf(AssetFilter.All to money)
@@ -95,15 +101,21 @@ class CoinviewViewModelTest {
 
     private val coinviewAssetPrice: CoinviewAssetPrice = mockk()
 
+    private val recurringBuyService: RecurringBuyService = mockk()
+
+    private val newsService: NewsService = mockk()
+    private val kycService: KycService = mockk()
+
     private val tradingWalletLabel = "TradingWalletLabel"
 
     @Before
     fun setUp() {
-        every { walletModeService.enabledWalletMode() } returns WalletMode.CUSTODIAL_ONLY
+        every { walletModeService.walletMode } returns flowOf(WalletMode.CUSTODIAL)
 
         viewModel = CoinviewViewModel(
             walletModeService = walletModeService,
             coincore = coincore,
+            assetCatalogue = assetCatalogue,
             currencyPrefs = currencyPrefs,
             labels = labels,
             getAssetPriceUseCase = getAssetPriceUseCase,
@@ -113,7 +125,10 @@ class CoinviewViewModelTest {
             loadAssetRecurringBuysUseCase = loadAssetRecurringBuysUseCase,
             loadQuickActionsUseCase = loadQuickActionsUseCase,
             assetService = assetService,
-            custodialWalletManager = custodialWalletManager
+            custodialWalletManager = custodialWalletManager,
+            recurringBuyService = recurringBuyService,
+            newsService = newsService,
+            kycService = kycService
         )
 
         every { cryptoAsset.currency } returns currency
@@ -138,7 +153,7 @@ class CoinviewViewModelTest {
 
         every { coinviewAssetPrice.price } returns money
         every { coinviewAssetPrice.changeDifference } returns money
-        every { coinviewAssetPrice.percentChange } returns percentChange
+        every { coinviewAssetPrice.percentChange } returns percentChange.value
         every { coinviewAssetPrice.timeSpan } returns HistoricalTimeSpan.DAY
 
         every { labels.getDefaultTradingWalletLabel() } returns tradingWalletLabel
@@ -152,7 +167,7 @@ class CoinviewViewModelTest {
         viewModel.viewState.test {
             viewModel.viewCreated(coinviewArgs)
             awaitItem().run {
-                assertEquals(CoinviewAssetState.Error, asset)
+                assertEquals(DataResource.Error(Exception()), asset)
             }
         }
     }
@@ -163,7 +178,10 @@ class CoinviewViewModelTest {
             expectMostRecentItem()
             viewModel.viewCreated(coinviewArgs)
             awaitItem().run {
-                assertEquals(CoinviewAssetState.Data(cryptoAsset.currency), asset)
+                assertEquals(
+                    DataResource.Data(CoinviewAssetState(asset = cryptoAsset.currency, l1Network = null)),
+                    asset
+                )
             }
         }
     }
@@ -190,6 +208,7 @@ class CoinviewViewModelTest {
     fun `GIVEN asset tradeable, THEN tradeable state should be Tradeable`() = runTest {
         val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
         coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
+        coEvery { loadAssetRecurringBuysUseCase(any(), any()) } returns MutableSharedFlow()
         val dataResourceQuickActionUnused = MutableSharedFlow<DataResource<CoinviewQuickActions>>()
         coEvery { loadQuickActionsUseCase(any(), any(), any()) } returns dataResourceQuickActionUnused
 
@@ -220,16 +239,18 @@ class CoinviewViewModelTest {
                 DataResource.Data(CoinviewAssetPriceHistory(listOf(HistoricalRate(1L, 1.1)), coinviewAssetPrice))
             )
             awaitItem().run {
-                val expected = CoinviewPriceState.Data(
-                    assetName = networkTicker,
-                    assetLogo = logo,
-                    fiatSymbol = fiatCurrencySymbol,
-                    price = balanceFormatted,
-                    priceChange = balanceFormatted,
-                    percentChange = percentChange,
-                    intervalName = R.string.coinview_price_day,
-                    chartData = CoinviewPriceState.Data.CoinviewChartState.Data(listOf(ChartEntry(1.0F, 1.1F))),
-                    selectedTimeSpan = timeSpan
+                val expected = DataResource.Data(
+                    CoinviewPriceState(
+                        assetName = networkTicker,
+                        assetLogo = logo,
+                        fiatSymbol = fiatCurrencySymbol,
+                        price = balanceFormatted,
+                        priceChange = balanceFormatted,
+                        valueChange = percentChange,
+                        intervalText = PriceIntervalText.TimeSpanText(HistoricalTimeSpan.DAY),
+                        chartData = CoinviewPriceState.CoinviewChartState.Data(listOf(ChartEntry(1.0F, 1.1F))),
+                        selectedTimeSpan = timeSpan
+                    )
                 )
                 assertEquals(expected, assetPrice)
             }
@@ -248,7 +269,7 @@ class CoinviewViewModelTest {
             viewModel.onIntent(CoinviewIntent.LoadPriceData)
             dataResource.emit(DataResource.Data(CoinviewAssetPriceHistory(listOf(), coinviewAssetPrice)))
             awaitItem().run {
-                assertEquals(CoinviewPriceState.Error, assetPrice)
+                assert(assetPrice is DataResource.Error)
             }
         }
     }
@@ -266,7 +287,7 @@ class CoinviewViewModelTest {
             viewModel.onIntent(CoinviewIntent.LoadWatchlistData)
             dataResource.emit(DataResource.Data(true))
             awaitItem().run {
-                assertEquals(CoinviewWatchlistState.Data(true), watchlist)
+                assertEquals(DataResource.Data(true), watchlist)
             }
         }
     }
@@ -284,47 +305,24 @@ class CoinviewViewModelTest {
                 viewModel.onIntent(CoinviewIntent.LoadWatchlistData)
                 dataResource.emit(DataResource.Data(false))
                 awaitItem().run {
-                    assertEquals(CoinviewWatchlistState.Data(false), watchlist)
-                }
-            }
-        }
-
-    // total balance
-    @Test
-    fun `GIVEN valid accounts, WHEN LoadAccountsData is called, THEN totalBalance state should be Data`() =
-        runTest {
-            val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
-            coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
-            val dataResourceQuickActionUnused = MutableSharedFlow<DataResource<CoinviewQuickActions>>()
-            coEvery { loadQuickActionsUseCase(any(), any(), any()) } returns dataResourceQuickActionUnused
-
-            viewModel.viewState.test {
-                viewModel.viewCreated(coinviewArgs)
-                expectMostRecentItem()
-
-                viewModel.onIntent(CoinviewIntent.LoadAccountsData)
-                dataResource.emit(
-                    DataResource.Data(CoinviewAssetDetail.Tradeable(coinviewCustodialAccounts, totalBalance))
-                )
-                awaitItem().run {
-                    assertEquals(
-                        CoinviewTotalBalanceState.Data(
-                            assetName = networkTicker,
-                            totalFiatBalance = balanceFormatted,
-                            totalCryptoBalance = balanceFormatted
-                        ),
-                        totalBalance
-                    )
+                    assertEquals(DataResource.Data(false), watchlist)
                 }
             }
         }
 
     // accounts
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `GIVEN valid accossunts, WHEN LoadAccountsData is called, THEN totalBalance state should be Data`() =
+    fun `GIVEN valid accounts, WHEN LoadAccountsData is called, THEN totalBalance state should be Data`() =
         runTest {
             val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
             coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
+            coEvery {
+                loadAssetRecurringBuysUseCase(
+                    any(),
+                    any()
+                )
+            } returns MutableSharedFlow()
             val dataResourceQuickActionUnused = MutableSharedFlow<DataResource<CoinviewQuickActions>>()
             coEvery { loadQuickActionsUseCase(any(), any(), any()) } returns dataResourceQuickActionUnused
 
@@ -337,20 +335,20 @@ class CoinviewViewModelTest {
                     DataResource.Data(CoinviewAssetDetail.Tradeable(coinviewCustodialAccounts, totalBalance))
                 )
                 awaitItem().run {
-                    val expected = CoinviewAccountsState.Data(
-                        style = CoinviewAccountsStyle.Simple,
-                        header = CoinviewAccountsState.Data.CoinviewAccountsHeaderState.ShowHeader(
-                            TextValue.IntResValue(R.string.coinview_accounts_label)
-                        ),
-                        accounts = listOf(
-                            CoinviewAccountsState.Data.CoinviewAccountState.Available(
-                                cvAccount = coinviewAccount,
-                                title = tradingWalletLabel,
-                                subtitle = TextValue.IntResValue(R.string.coinview_c_available_desc),
-                                cryptoBalance = balanceFormatted,
-                                fiatBalance = balanceFormatted,
-                                logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
-                                assetColor = color
+                    val expected = DataResource.Data(
+                        CoinviewAccountsState(
+                            assetName = networkTicker,
+                            totalBalance = balanceFormatted,
+                            accounts = listOf(
+                                CoinviewAccountsState.CoinviewAccountState.Available(
+                                    cvAccount = coinviewAccount,
+                                    title = "SOMETICKER",
+                                    subtitle = null,
+                                    cryptoBalance = balanceFormatted,
+                                    fiatBalance = balanceFormatted,
+                                    logo = LogoValue.SingleIcon(logo),
+                                    assetColor = color
+                                )
                             )
                         )
                     )

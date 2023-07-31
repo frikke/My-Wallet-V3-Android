@@ -9,13 +9,13 @@ import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.databinding.FragmentSimpleBuyKycPendingBinding
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 
 class SimpleBuyPendingKycFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyKycPendingBinding>(),
@@ -30,7 +30,8 @@ class SimpleBuyPendingKycFragment :
         super.onViewCreated(view, savedInstanceState)
         model.process(SimpleBuyIntent.FetchKycState)
         model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.KYC_VERIFICATION))
-        binding.continueToWallet.setOnClickListener {
+        binding.continueToWallet.text = getString(com.blockchain.stringResources.R.string.common_continue)
+        binding.continueToWallet.onClick = {
             navigator().exitSimpleBuyFlow()
         }
     }
@@ -46,20 +47,26 @@ class SimpleBuyPendingKycFragment :
             }
 
             verifText.text = when (newState.kycVerificationState) {
-                KycState.PENDING -> resources.getString(R.string.kyc_verifying_info)
-                KycState.IN_REVIEW, KycState.FAILED -> resources.getString(R.string.kyc_manual_review_required)
-                KycState.UNDECIDED -> resources.getString(R.string.kyc_pending_review)
-                KycState.VERIFIED_BUT_NOT_ELIGIBLE -> resources.getString(R.string.kyc_veriff_but_not_eligible_review)
+                KycState.PENDING -> resources.getString(com.blockchain.stringResources.R.string.kyc_verifying_info)
+                KycState.IN_REVIEW, KycState.FAILED -> resources.getString(
+                    com.blockchain.stringResources.R.string.kyc_manual_review_required
+                )
+                KycState.UNDECIDED -> resources.getString(com.blockchain.stringResources.R.string.kyc_pending_review)
+                KycState.VERIFIED_BUT_NOT_ELIGIBLE -> resources.getString(
+                    com.blockchain.stringResources.R.string.kyc_veriff_but_not_eligible_review
+                )
                 else -> ""
             }
 
             verifTime.text = when (newState.kycVerificationState) {
-                KycState.PENDING -> resources.getString(R.string.kyc_verifying_time_info)
+                KycState.PENDING -> resources.getString(com.blockchain.stringResources.R.string.kyc_verifying_time_info)
                 KycState.FAILED,
                 KycState.IN_REVIEW,
-                KycState.UNDECIDED -> resources.getString(R.string.kyc_verifying_manual_review_required_info)
+                KycState.UNDECIDED -> resources.getString(
+                    com.blockchain.stringResources.R.string.kyc_verifying_manual_review_required_info
+                )
                 KycState.VERIFIED_BUT_NOT_ELIGIBLE -> resources.getString(
-                    R.string.kyc_veriff_but_not_eligible_review_info
+                    com.blockchain.stringResources.R.string.kyc_veriff_but_not_eligible_review_info
                 )
                 else -> ""
             }
@@ -87,7 +94,9 @@ class SimpleBuyPendingKycFragment :
                 model.process(SimpleBuyIntent.ResetLinkBankTransfer)
                 startActivityForResult(
                     BankAuthActivity.newInstance(
-                        it, BankAuthSource.SIMPLE_BUY, requireContext()
+                        it,
+                        BankAuthSource.SIMPLE_BUY,
+                        requireContext()
                     ),
                     BankAuthActivity.LINK_BANK_REQUEST_CODE
                 )
@@ -115,12 +124,12 @@ class SimpleBuyPendingKycFragment :
             if (newState.buyErrorState == ErrorState.LinkedBankNotSupported) {
                 kycIcon.setImageResource(R.drawable.ic_bank_details_big)
                 kycIcon.visible()
-                verifText.text = getString(R.string.common_oops_bank)
-                verifTime.text = getString(R.string.please_try_linking_your_bank_again)
+                verifText.text = getString(com.blockchain.stringResources.R.string.common_oops_bank)
+                verifTime.text = getString(com.blockchain.stringResources.R.string.please_try_linking_your_bank_again)
                 continueToWallet.visible()
                 // Case when user is trying to link a payment method, after successful kyc
                 logErrorAnalytics(
-                    title = getString(R.string.please_try_linking_your_bank_again)
+                    title = getString(com.blockchain.stringResources.R.string.please_try_linking_your_bank_again)
                 )
             } else if (newState.isLoading) {
                 kycIcon.setImageResource(R.drawable.ic_bank_details_big)
@@ -186,6 +195,9 @@ class SimpleBuyPendingKycFragment :
                     )
                 )
                 navigator().goToCheckOutScreen()
+            } else if (resultCode == CardDetailsActivity.RESULT_CODE_RELAUNCH) {
+                val intent = Intent(activity, CardDetailsActivity::class.java)
+                startActivityForResult(intent, CardDetailsActivity.ADD_CARD_REQUEST_CODE)
             } else {
                 model.process(SimpleBuyIntent.ClearState)
                 navigator().exitSimpleBuyFlow()

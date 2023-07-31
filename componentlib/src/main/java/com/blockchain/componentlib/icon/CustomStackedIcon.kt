@@ -1,50 +1,73 @@
 package com.blockchain.componentlib.icon
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import coil.annotation.ExperimentalCoilApi
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.theme.AppTheme
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun CustomStackedIcon(
     icon: StackedIcon,
-    iconBackground: Color = AppTheme.colors.light,
-    borderColor: Color = AppTheme.colors.background,
-    size: Dp = 18.dp,
+    iconBackground: Color = AppTheme.colors.background,
+    borderColor: Color = AppTheme.colors.backgroundSecondary,
+    size: Dp = AppTheme.dimensions.standardSpacing,
+    tagIconSize: Dp? = null,
+    iconShape: Shape = CircleShape,
+    alphaProvider: () -> Float = { 1F }
 ) {
     when (icon) {
-        is StackedIcon.OverlappingPair -> OverlapIcon(
-            icon = icon,
-            iconSize = size,
-            iconBackground = iconBackground,
-            borderColor = borderColor
-        )
-        is StackedIcon.SmallTag -> SmallTagIcon(
-            icon = icon,
-            mainIconSize = size,
-            iconBackground = iconBackground,
-            borderColor = borderColor
-        )
-        is StackedIcon.SingleIcon -> AsyncMediaItem(
-            modifier = Modifier
-                .size(AppTheme.dimensions.standardSpacing)
-                .background(color = AppTheme.colors.light, shape = CircleShape)
-                .border(width = AppTheme.dimensions.noSpacing, Color.Transparent, shape = CircleShape),
-            imageResource = icon.icon
-        )
+        is StackedIcon.OverlappingPair -> {
+            OverlapIcon(
+                icon = icon,
+                iconSize = size * 0.75f,
+                iconBackground = iconBackground,
+                borderColor = borderColor
+            )
+        }
+        is StackedIcon.SmallTag -> {
+            SmallTagIcon(
+                icon = icon,
+                mainIconSize = size,
+                tagIconSize = tagIconSize,
+                iconBackground = iconBackground,
+                borderColor = borderColor,
+                mainIconShape = iconShape
+            )
+        }
+        is StackedIcon.SingleIcon -> {
+            Surface(
+                modifier = Modifier
+                    .graphicsLayer {
+                        alpha = alphaProvider()
+                    }
+                    .size(size),
+                shape = iconShape,
+                color = iconBackground
+            ) {
+                Box {
+                    AsyncMediaItem(
+                        modifier = Modifier
+                            .align(Alignment.Center),
+                        imageResource = icon.icon,
+                        onErrorDrawable = com.blockchain.componentlib.icons.R.drawable.coins_on
+                    )
+                }
+            }
+        }
         StackedIcon.None -> {
             // n/a
         }
@@ -78,5 +101,13 @@ fun PreviewCustomStackedIconOverlapIcon() {
 fun PreviewCustomStackedIconSingleIcon() {
     CustomStackedIcon(
         icon = StackedIcon.SingleIcon(ImageResource.Local(R.drawable.ic_close_circle_dark))
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCustomStackedIconSingleIconRemote() {
+    CustomStackedIcon(
+        icon = StackedIcon.SingleIcon(ImageResource.Remote(""))
     )
 }

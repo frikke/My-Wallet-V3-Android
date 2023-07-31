@@ -5,6 +5,7 @@ import com.blockchain.outcome.Outcome
 enum class CardAcquirer {
     CHECKOUTDOTCOM,
     EVERYPAY,
+    FAKE_CARD_ACQUIRER,
     STRIPE,
     UNKNOWN;
 
@@ -13,6 +14,7 @@ enum class CardAcquirer {
             return when {
                 acquirerName.contains(CHECKOUTDOTCOM.name, ignoreCase = true) -> CHECKOUTDOTCOM
                 acquirerName.contains(EVERYPAY.name, ignoreCase = true) -> EVERYPAY
+                acquirerName.contains(FAKE_CARD_ACQUIRER.name, ignoreCase = true) -> FAKE_CARD_ACQUIRER
                 acquirerName.contains(STRIPE.name, ignoreCase = true) -> STRIPE
                 else -> UNKNOWN
             }

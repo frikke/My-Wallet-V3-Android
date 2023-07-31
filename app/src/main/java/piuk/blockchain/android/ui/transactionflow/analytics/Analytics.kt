@@ -7,9 +7,9 @@ import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
@@ -23,7 +23,7 @@ import com.blockchain.coincore.impl.txEngine.swap.RECEIVE_AMOUNT
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.earn.EarnAnalytics
 import com.blockchain.earn.TxFlowAnalyticsAccountType
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 import com.blockchain.logging.RemoteLogger
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -50,10 +50,11 @@ class TxFlowAnalytics(
     fun onFlowCanceled(state: TransactionState) {
         when (state.action) {
             AssetAction.Send ->
-                if (state.currentStep == TransactionStep.CONFIRM_DETAIL)
+                if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(SendAnalyticsEvent.CancelTransaction)
+                }
             AssetAction.Sell ->
-                if (state.currentStep == TransactionStep.CONFIRM_DETAIL)
+                if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(
                         SellAnalyticsEvent(
                             event = SellAnalytics.CancelTransaction,
@@ -61,12 +62,15 @@ class TxFlowAnalytics(
                             source = state.sendingAccount.toCategory()
                         )
                     )
+                }
             AssetAction.Swap ->
-                if (state.currentStep == TransactionStep.CONFIRM_DETAIL)
+                if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(SwapAnalyticsEvents.CancelTransaction)
+                }
             AssetAction.InterestDeposit ->
-                if (state.currentStep == TransactionStep.CONFIRM_DETAIL)
+                if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(InterestDepositAnalyticsEvent.CancelTransaction)
+                }
             AssetAction.FiatWithdraw ->
                 if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(
@@ -137,7 +141,8 @@ class TxFlowAnalytics(
             AssetAction.InterestDeposit -> triggerDepositScreenEvent(state.currentStep)
             AssetAction.InterestWithdraw -> triggerInterestWithdrawScreenEvent(state.currentStep)
             AssetAction.FiatWithdraw -> triggerWithdrawScreenEvent(
-                state.currentStep, (state.sendingAccount as FiatAccount).currency.networkTicker
+                state.currentStep,
+                (state.sendingAccount as FiatAccount).currency.networkTicker
             )
             else -> {
             }
@@ -158,7 +163,7 @@ class TxFlowAnalytics(
                     (account as LinkedBankAccount).type
                 )
             )
-            AssetAction.Send -> if (account is InterestAccount) {
+            AssetAction.Send -> if (account is EarnRewardsAccount.Interest) {
                 analytics.logEvent(
                     EarnAnalytics.InterestDepositClicked(
                         currency = state.sendingAsset.networkTicker,
@@ -209,7 +214,6 @@ class TxFlowAnalytics(
 
     private fun triggerDepositScreenEvent(step: TransactionStep) {
         when (step) {
-
             TransactionStep.ENTER_AMOUNT -> {
                 analytics.logEvent(EarnAnalytics.InterestDepositViewed)
                 analytics.logEvent(InterestDepositAnalyticsEvent.EnterAmountSeen)
@@ -404,13 +408,14 @@ class TxFlowAnalytics(
             AssetAction.Swap -> analytics.logEvent(SwapAnalyticsEvents.SwapFiatCryptoSwitcherClickedEvent(inputType))
             else -> {}
         }
-        if (state.action.shouldLogInputSwitch())
+        if (state.action.shouldLogInputSwitch()) {
             analytics.logEvent(
                 AmountSwitched(
                     action = state.action,
                     newInput = inputType
                 )
             )
+        }
     }
 
     fun onEnterAmountCtaClick(state: TransactionState) {
@@ -462,7 +467,8 @@ class TxFlowAnalytics(
             AssetAction.FiatWithdraw -> {
                 analytics.logEvent(
                     withdrawEvent(
-                        WithdrawAnalytics.WITHDRAW_CONFIRM, (state.sendingAccount as FiatAccount).currency.networkTicker
+                        WithdrawAnalytics.WITHDRAW_CONFIRM,
+                        (state.sendingAccount as FiatAccount).currency.networkTicker
                     )
                 )
                 val amount = state.pendingTx?.amount ?: throw IllegalArgumentException("Amount is missing")
@@ -655,7 +661,7 @@ class TxFlowAnalytics(
                 ) {
                     analytics.logEvent(
                         SwapAnalyticsEvents.OnChainSwapRequested(
-                            exchangeRate = state.targetRate?.price?.toBigDecimal() ?: throw IllegalStateException(
+                            exchangeRate = state.confirmationRate?.price?.toBigDecimal() ?: throw IllegalStateException(
                                 "Target rate is missing"
                             ),
                             amount = state.pendingTx.amount,
@@ -673,7 +679,8 @@ class TxFlowAnalytics(
             AssetAction.FiatWithdraw ->
                 analytics.logEvent(
                     withdrawEvent(
-                        WithdrawAnalytics.WITHDRAW_SUCCESS, (state.sendingAccount as FiatAccount).currency.networkTicker
+                        WithdrawAnalytics.WITHDRAW_SUCCESS,
+                        (state.sendingAccount as FiatAccount).currency.networkTicker
                     )
                 )
             else -> {
@@ -712,7 +719,8 @@ class TxFlowAnalytics(
             AssetAction.FiatWithdraw ->
                 analytics.logEvent(
                     withdrawEvent(
-                        WithdrawAnalytics.WITHDRAW_ERROR, (state.sendingAccount as FiatAccount).currency.networkTicker
+                        WithdrawAnalytics.WITHDRAW_ERROR,
+                        (state.sendingAccount as FiatAccount).currency.networkTicker
                     )
                 )
             else -> {
@@ -746,7 +754,7 @@ class TxFlowAnalytics(
                 PARAM_TARGET to target,
                 PARAM_SOURCE to source,
                 PARAM_ERROR to error
-            ).withoutNullValues()
+            ).filterNotNullValues()
     }
 }
 
@@ -760,7 +768,7 @@ private fun AssetAction.shouldLogInputSwitch(): Boolean =
 
 fun SingleAccount.toCategory() =
     when (this) {
-        is InterestAccount -> WALLET_TYPE_INTEREST
+        is EarnRewardsAccount.Interest -> WALLET_TYPE_INTEREST
         is TradingAccount -> WALLET_TYPE_CUSTODIAL
         is NonCustodialAccount -> WALLET_TYPE_NON_CUSTODIAL
         is BankAccount -> WALLET_TYPE_BANK
@@ -770,7 +778,7 @@ fun SingleAccount.toCategory() =
 fun TransactionTarget.toCategory(): String =
     when (this) {
         is CryptoAddress -> WALLET_TYPE_EXTERNAL
-        is InterestAccount -> WALLET_TYPE_INTEREST
+        is EarnRewardsAccount.Interest -> WALLET_TYPE_INTEREST
         is TradingAccount -> WALLET_TYPE_CUSTODIAL
         is NonCustodialAccount -> WALLET_TYPE_NON_CUSTODIAL
         is BankAccount -> WALLET_TYPE_BANK

@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.settings.security.pin
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import com.google.android.play.core.appupdate.AppUpdateManager
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 
 sealed class PinIntent : MviIntent<PinState> {
@@ -13,6 +12,12 @@ sealed class PinIntent : MviIntent<PinState> {
     data class UpdateApiStatus(val apiStatus: Boolean) : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(isApiHealthyStatus = apiStatus)
+    }
+
+    data class UpdateLoading(private val loading: Boolean) : PinIntent() {
+        override fun reduce(oldState: PinState): PinState {
+            return oldState.copy(isLoading = loading)
+        }
     }
 
     object GetAction : PinIntent() {
@@ -55,7 +60,6 @@ sealed class PinIntent : MviIntent<PinState> {
     ) : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(
-                isLoading = true,
                 biometricStatus = BiometricStatus(
                     shouldShowFingerprint = false,
                     canShowFingerprint = oldState.biometricStatus.canShowFingerprint
@@ -66,12 +70,11 @@ sealed class PinIntent : MviIntent<PinState> {
     object ValidatePINSucceeded : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(
-                isLoading = false,
                 pinStatus = PinStatus(
                     isPinValidated = true,
                     currentPin = oldState.pinStatus.currentPin,
                     isFromPinCreation = oldState.pinStatus.isFromPinCreation
-                ),
+                )
             )
     }
 
@@ -82,7 +85,6 @@ sealed class PinIntent : MviIntent<PinState> {
     data class ValidatePINFailed(val pinError: PinError) : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(
-                isLoading = false,
                 error = pinError
             )
     }
@@ -90,7 +92,6 @@ sealed class PinIntent : MviIntent<PinState> {
     class UpdatePinErrorState(val errorState: PinError) : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(
-                isLoading = false,
                 error = errorState
             )
     }
@@ -108,10 +109,6 @@ sealed class PinIntent : MviIntent<PinState> {
             )
     }
 
-    data class UpdatePayload(val password: String, val isFromPinCreation: Boolean) : PinIntent() {
-        override fun reduce(oldState: PinState): PinState = oldState
-    }
-
     data class PayloadSucceeded(val isFromPinCreation: Boolean) : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(
@@ -124,7 +121,6 @@ sealed class PinIntent : MviIntent<PinState> {
                     currentPin = oldState.pinStatus.currentPin,
                     isPinValidated = oldState.pinStatus.isPinValidated
                 ),
-                isLoading = false
             )
     }
 
@@ -190,7 +186,6 @@ sealed class PinIntent : MviIntent<PinState> {
     data class UpgradeWalletResponse(val hasSucceeded: Boolean) : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(
-                isLoading = false,
                 upgradeWalletStatus = UpgradeWalletStatus(
                     isWalletUpgradeRequired = oldState.upgradeWalletStatus?.isWalletUpgradeRequired ?: false,
                     upgradeAppSucceeded = hasSucceeded
@@ -229,7 +224,6 @@ sealed class PinIntent : MviIntent<PinState> {
                 passwordStatus = null,
                 payloadStatus = PayloadStatus(),
                 upgradeWalletStatus = null,
-                progressDialog = null
             )
     }
 
@@ -252,13 +246,6 @@ sealed class PinIntent : MviIntent<PinState> {
         override fun reduce(oldState: PinState): PinState = oldState
     }
 
-    data class CheckAppUpgradeStatus(
-        val versionName: String,
-        val appUpdateManager: AppUpdateManager
-    ) : PinIntent() {
-        override fun reduce(oldState: PinState): PinState = oldState
-    }
-
     data class AppNeedsUpgrade(val appStatus: AppUpgradeStatus) : PinIntent() {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(
@@ -268,16 +255,6 @@ sealed class PinIntent : MviIntent<PinState> {
 
     object PinLogout : PinIntent() {
         override fun reduce(oldState: PinState): PinState = oldState
-    }
-
-    data class HandleProgressDialog(val showDialog: Boolean, val msgResource: Int = 0) : PinIntent() {
-        override fun reduce(oldState: PinState): PinState =
-            oldState.copy(
-                progressDialog = ProgressDialogStatus(
-                    hasToShow = showDialog,
-                    messageToShow = msgResource
-                )
-            )
     }
 
     data class UpdateIntercomStatus(private val isIntercomEnabled: Boolean) : PinIntent() {

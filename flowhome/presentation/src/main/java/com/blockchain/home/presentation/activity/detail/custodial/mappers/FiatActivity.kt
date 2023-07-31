@@ -1,8 +1,6 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
@@ -12,8 +10,10 @@ import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtraKey
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
+import com.blockchain.image.LocalLogo
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
@@ -22,23 +22,23 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 
-@DrawableRes internal fun FiatActivitySummaryItem.iconDetail(): Int {
+internal fun FiatActivitySummaryItem.iconDetail(): LocalLogo {
     return when (type) {
-        TransactionType.DEPOSIT -> R.drawable.ic_activity_buy_dark
-        TransactionType.WITHDRAWAL -> R.drawable.ic_activity_sell_dark
+        TransactionType.DEPOSIT -> LocalLogo.Buy
+        TransactionType.WITHDRAWAL -> LocalLogo.Sell
     }
 }
 
 internal fun FiatActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
     value = when (type) {
-        TransactionType.DEPOSIT -> R.string.tx_title_deposited
-        TransactionType.WITHDRAWAL -> R.string.tx_title_withdrawn
+        TransactionType.DEPOSIT -> com.blockchain.stringResources.R.string.tx_title_deposited
+        TransactionType.WITHDRAWAL -> com.blockchain.stringResources.R.string.tx_title_withdrawn
     },
-    args = listOf(asset.displayTicker)
+    args = listOf(account.currency.displayTicker)
 )
 
 internal fun FiatActivitySummaryItem.detailItems(
-    extras: List<CustodialActivityDetailExtra>
+    extras: Map<CustodialActivityDetailExtraKey, CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
     // deposit ----€10
     // to/from ---- euro
@@ -52,8 +52,9 @@ internal fun FiatActivitySummaryItem.detailItems(
                     ActivityStackView.Text(
                         value = TextValue.IntResValue(
                             when (type) {
-                                TransactionType.DEPOSIT -> R.string.common_deposit
-                                TransactionType.WITHDRAWAL -> R.string.fiat_funds_detail_withdraw_title
+                                TransactionType.DEPOSIT -> com.blockchain.stringResources.R.string.common_deposit
+                                TransactionType.WITHDRAWAL ->
+                                    com.blockchain.stringResources.R.string.fiat_funds_detail_withdraw_title
                             }
                         ),
                         style = basicTitleStyle.muted()
@@ -74,8 +75,8 @@ internal fun FiatActivitySummaryItem.detailItems(
                     ActivityStackView.Text(
                         value = TextValue.IntResValue(
                             when (type) {
-                                TransactionType.DEPOSIT -> R.string.common_to
-                                TransactionType.WITHDRAWAL -> R.string.common_from
+                                TransactionType.DEPOSIT -> com.blockchain.stringResources.R.string.common_to
+                                TransactionType.WITHDRAWAL -> com.blockchain.stringResources.R.string.common_from
                             }
                         ),
                         style = basicTitleStyle.muted()
@@ -94,13 +95,13 @@ internal fun FiatActivitySummaryItem.detailItems(
     // to/from ---- euro
     ActivityDetailGroup(
         title = null,
-        itemGroup = listOf(
+        itemGroup = listOfNotNull(
             // status ---- success
             ActivityComponent.StackView(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.common_status),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_status),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -111,9 +112,8 @@ internal fun FiatActivitySummaryItem.detailItems(
                     )
                 )
             ),
-            // extra
             // payment method
-            *extras.map { it.toActivityComponent() }.toTypedArray()
+            extras[CustodialActivityDetailExtraKey.PaymentMethod]?.toActivityComponent()
         )
     ),
     // date ---- 11:38 PM on Aug 1, 2022
@@ -127,7 +127,7 @@ internal fun FiatActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.date),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.date),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -144,7 +144,9 @@ internal fun FiatActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_buy_tx_id),
+                        value = TextValue.IntResValue(
+                            com.blockchain.stringResources.R.string.activity_details_buy_tx_id
+                        ),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -159,7 +161,7 @@ internal fun FiatActivitySummaryItem.detailItems(
             // copy txid
             ActivityComponent.Button(
                 id = toString(),
-                value = TextValue.IntResValue(R.string.activity_details_copy_tx_id),
+                value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_copy_tx_id),
                 style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.Copy,
@@ -172,15 +174,18 @@ internal fun FiatActivitySummaryItem.detailItems(
 
 private fun FiatActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
     when (state) {
-        TransactionState.COMPLETED -> R.string.activity_details_completed
-        TransactionState.PENDING -> R.string.activity_details_label_pending
-        TransactionState.FAILED -> R.string.activity_details_label_failed
+        TransactionState.COMPLETED -> com.blockchain.stringResources.R.string.activity_details_completed
+        TransactionState.MANUAL_REVIEW -> com.blockchain.stringResources.R.string.activity_details_label_manual_review
+        TransactionState.PENDING -> com.blockchain.stringResources.R.string.activity_details_label_pending
+        TransactionState.FAILED -> com.blockchain.stringResources.R.string.activity_details_label_failed
     }
 )
 
 private fun FiatActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
     TransactionState.COMPLETED -> ActivityTagStyle.Success
+    TransactionState.MANUAL_REVIEW,
     TransactionState.PENDING -> ActivityTagStyle.Info
+
     TransactionState.FAILED -> ActivityTagStyle.Error
 }
 
@@ -188,20 +193,23 @@ internal fun FiatActivitySummaryItem.buildActivityDetail(
     paymentMethod: PaymentMethodDetails
 ) = CustodialActivityDetail(
     activity = this,
-    extras = listOf(
-        CustodialActivityDetailExtra(
-            title = TextValue.IntResValue(R.string.activity_details_buy_payment_method),
+    extras = mapOf(
+        CustodialActivityDetailExtraKey.PaymentMethod to CustodialActivityDetailExtra(
+            title = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_buy_payment_method),
             value = with(paymentMethod) {
                 when {
                     mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> TextValue.IntResValue(
-                        R.string.google_pay
+                        com.blockchain.stringResources.R.string.google_pay
                     )
+
                     mobilePaymentType == MobilePaymentType.APPLE_PAY -> TextValue.IntResValue(
-                        R.string.apple_pay
+                        com.blockchain.stringResources.R.string.apple_pay
                     )
+
                     label.isNullOrBlank() -> TextValue.StringValue(
                         account.currency.name
                     )
+
                     else -> TextValue.StringValue(
                         "$label $endDigits"
                     )

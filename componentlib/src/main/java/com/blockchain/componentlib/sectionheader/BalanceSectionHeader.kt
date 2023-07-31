@@ -26,11 +26,11 @@ fun BalanceSectionHeader(
     iconResource: ImageResource = ImageResource.Local(R.drawable.ic_star, null),
     onIconClick: () -> Unit = {},
     shouldShowIcon: Boolean = true,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier.padding(AppTheme.dimensions.standardSpacing),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f)) {
             Text(

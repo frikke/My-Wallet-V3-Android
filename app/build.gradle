@@ -9,7 +9,6 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.squareup.sqldelight'
 apply from: rootProject.file('quality/ktlint.gradle')
 apply from: rootProject.file('quality/detekt.gradle')
-apply from: rootProject.file('gradle/local/embrace.gradle')
 
 
 def getGitCommitHash = { ->
@@ -49,6 +48,10 @@ android {
     compileSdkVersion Versions.compileSdk
     buildToolsVersion Versions.buildTools
 
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         applicationId "piuk.blockchain.android"
         targetSdkVersion Versions.targetSdk
@@ -61,7 +64,6 @@ android {
 
         // Flag to hide or show the Contacts feature
         buildConfigField "boolean", "LOG_KOIN_STARTUP", "false"
-        buildConfigField "boolean", "SKIP_VERIFF_KYC", "false"
         buildConfigField "boolean", "INTERNAL", "true"
 
         buildConfigField "String", "SHAPE_SHIFT_API_KEY", "\"${buildProperties.secrets['shapeShiftApiKey']}\""
@@ -133,6 +135,7 @@ android {
             buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
             buildConfigField "boolean",  "INTERNAL", "false"
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['prodLoginPortal']}\""
+            buildConfigField "String", "PASSWORD_RECOVERY_URL", "\"${buildProperties.secrets['prodRecoveryPortal']}\""
             buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassProduction']}\""
 
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreProdDemoEmail']}\""
@@ -146,6 +149,9 @@ android {
             buildConfigField "String", "CHECKMARKET_URL", "\"${buildProperties.secrets['checkMarketProduction']}\""
 
             buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineProduction']}\""
+
+            buildConfigField "String", "WALLETCONNECT_PROJECT_ID", "\"${buildProperties.secrets['walletConnectProjectId']}\""
+            buildConfigField "String", "WALLETCONNECT_RELAY_URL", "\"${buildProperties.secrets['walletConnectRelayUrl']}\""
 
             buildConfigField "boolean", "ALPHA", "false"
 
@@ -190,6 +196,7 @@ android {
             buildConfigField "String", "ZENDESK_API_KEY", "\"${buildProperties.secrets['zendeskAccountKey']}\""
             buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['prodLoginPortal']}\""
+            buildConfigField "String", "PASSWORD_RECOVERY_URL", "\"${buildProperties.secrets['prodRecoveryPortal']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreProdDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreProdDemoWalletId']}\""
 
@@ -202,6 +209,9 @@ android {
             buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassProduction']}\""
 
             buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineProduction']}\""
+
+            buildConfigField "String", "WALLETCONNECT_PROJECT_ID", "\"${buildProperties.secrets['walletConnectProjectId']}\""
+            buildConfigField "String", "WALLETCONNECT_RELAY_URL", "\"${buildProperties.secrets['walletConnectRelayUrl']}\""
 
             buildConfigField "boolean", "ALPHA", "true"
 
@@ -249,6 +259,7 @@ android {
             buildConfigField "String", "ZENDESK_API_KEY", "\"${buildProperties.secrets['zendeskAccountKey']}\""
             buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['stagingLoginPortal']}\""
+            buildConfigField "String", "PASSWORD_RECOVERY_URL", "\"${buildProperties.secrets['stagingRecoveryPortal']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreStagingDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreStagingDemoWalletId']}\""
             buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassStaging']}\""
@@ -261,6 +272,9 @@ android {
             buildConfigField "String", "CHECKMARKET_URL", "\"${buildProperties.secrets['checkMarketStaging']}\""
 
             buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineStaging']}\""
+
+            buildConfigField "String", "WALLETCONNECT_PROJECT_ID", "\"${buildProperties.secrets['walletConnectProjectId']}\""
+            buildConfigField "String", "WALLETCONNECT_RELAY_URL", "\"${buildProperties.secrets['walletConnectRelayUrl']}\""
 
             buildConfigField "boolean", "ALPHA", "false"
 
@@ -284,7 +298,6 @@ android {
         debug {
             signingConfig null
             multiDexEnabled true
-            buildConfigField "boolean",  "SKIP_VERIFF_KYC", "false"
         }
     }
 
@@ -332,7 +345,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion Versions.compose
+        kotlinCompilerExtensionVersion Versions.composeCompiler
     }
 
     testOptions {
@@ -351,6 +364,7 @@ android {
             maxHeapSize = "1g"
         }
     }
+    namespace 'piuk.blockchain.android'
 }
 
 kapt {
@@ -376,10 +390,6 @@ dependencies {
     implementation project(':common:network')
     implementation project(':common:domain')
     implementation project(':common:presentation')
-    implementation project(':payments:checkoutcom')
-    implementation project(':payments:stripe')
-    implementation project(':payments:googlepay:presentation')
-    implementation project(':payments:core')
     implementation project(':deeplinking')
     implementation project(':logging:domain')
     implementation project(':logging:data')
@@ -389,8 +399,10 @@ dependencies {
     implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':store:caches:inmemory')
     implementation project(':store:persisters:persistedjsonsqldelight')
-    implementation project(':blockchainCard')
     implementation project(':addressVerification')
+    implementation project(':kyc-providers:prove')
+    implementation project(':instrumentation:data')
+    implementation project(':instrumentation:presentation')
 
     implementation project(':appMaintenance:data')
     implementation project(':appMaintenance:domain')
@@ -404,10 +416,24 @@ dependencies {
     implementation project(':appRating:domain')
     implementation project(':appRating:presentaion')
 
+    implementation project(':payments:core')
+    implementation project(':payments:checkoutcom')
+    implementation project(':payments:stripe')
+    implementation project(':payments:vgs')
+    implementation project(':payments:googlepay:presentation')
+
+    implementation project(':chrome:common')
     implementation project(':chrome:presentation')
 
     implementation project(':flowhome:presentation')
     implementation project(':flowhome:data')
+
+    implementation project(':flowprices:presentation')
+    implementation project(':flowprices:data')
+    implementation project(':flowprices:domain')
+
+    implementation project(':flowtransactions:presentation')
+    implementation project(':flowtransactions:data')
 
     implementation project(':fraud:data')
     implementation project(':fraud:domain')
@@ -422,6 +448,17 @@ dependencies {
     implementation project(':earn:data')
     implementation project(':earn:domain')
     implementation project(':earn:presentation')
+
+    implementation project(':fiatActions')
+    implementation project(':componentlib')
+    implementation project(':dex:presentation')
+    implementation project(':dex:data')
+
+    implementation project(':news:data')
+    implementation project(':news:domain')
+    implementation project(':news:presentation')
+
+    implementation project(':kyc:presentation')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
@@ -474,6 +511,7 @@ dependencies {
     implementation Libraries.googleServicesReCaptcha
     implementation Libraries.biometricsApi
 
+    implementation Libraries.kotlinImmutableCollections
     implementation Libraries.kotlinJson
     implementation Libraries.json
 
@@ -539,7 +577,7 @@ dependencies {
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.accompanistSwipeRefresh
 
-    // TODO(aromano): TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
+    // TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
     debugImplementation "androidx.customview:customview:1.2.0-alpha01"
     debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0-alpha01"
 
@@ -552,6 +590,12 @@ dependencies {
     implementation(Libraries.stripe) {
         exclude group: 'com.github.stephenc.jcip', module: 'jcip-annotations'
     }
+
+    // VGS
+    implementation Libraries.vgs
+
+    implementation Libraries.walletConnectV2Web3Wallet
+    implementation Libraries.walletConnectV2AndroidCore
 
     // UI/Instrumentation Tests
     androidTestImplementation(Libraries.espresso) {

@@ -10,7 +10,7 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 
 internal class NonCustodialSubscriptionsStore(
-    private val dynamicSelfCustodyService: DynamicSelfCustodyService,
+    private val dynamicSelfCustodyService: DynamicSelfCustodyService
 ) : Store<GetSubscriptionsResponse> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,

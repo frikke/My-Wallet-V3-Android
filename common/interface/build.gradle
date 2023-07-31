@@ -12,6 +12,7 @@ dependencies {
     implementation project(':logging:domain')
 
     implementation Libraries.kotlin
+    implementation Libraries.kotlinImmutableCollections
     implementation Libraries.kotlinJson
     implementation Libraries.commonsLang
     implementation Libraries.rxKotlin

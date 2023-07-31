@@ -74,7 +74,11 @@ class SendDataManager(
         bigIntAmount: BigInteger
     ): Transaction {
         return paymentService.getBtcTx(
-            unspentOutputBundle, toAddress, changeAddress, bigIntFee, bigIntAmount
+            unspentOutputBundle,
+            toAddress,
+            changeAddress,
+            bigIntFee,
+            bigIntAmount
         )
     }
 
@@ -127,7 +131,11 @@ class SendDataManager(
         bigIntAmount: BigInteger
     ): Observable<Pair<Transaction, DustInput?>> =
         paymentService.getBchTx(
-            unspentOutputBundle, toAddress, changeAddress, bigIntFee, bigIntAmount
+            unspentOutputBundle,
+            toAddress,
+            changeAddress,
+            bigIntFee,
+            bigIntAmount
         )
 
     /**

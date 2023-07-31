@@ -1,58 +1,62 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.data.DataResource
+import com.blockchain.image.LocalLogo
+import com.blockchain.image.LogoValue
+import com.blockchain.news.NewsArticle
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
 data class CoinviewViewState(
-    val asset: CoinviewAssetState,
-    val assetPrice: CoinviewPriceState,
+    val asset: DataResource<CoinviewAssetState>,
+    val showKycRejected: Boolean,
+    val assetPrice: DataResource<CoinviewPriceState>,
     val tradeable: CoinviewAssetTradeableState,
-    val watchlist: CoinviewWatchlistState,
-    val totalBalance: CoinviewTotalBalanceState,
-    val accounts: CoinviewAccountsState,
-    val centerQuickAction: CoinviewCenterQuickActionsState,
-    val recurringBuys: CoinviewRecurringBuysState,
-    val bottomQuickAction: CoinviewBottomQuickActionsState,
+    val watchlist: DataResource<Boolean>,
+    val accounts: DataResource<CoinviewAccountsState?>,
+    val centerQuickAction: DataResource<List<CoinviewQuickAction>>,
+    val recurringBuys: DataResource<CoinviewRecurringBuysState>,
+    val bottomQuickAction: DataResource<List<CoinviewQuickAction>>,
     val assetInfo: CoinviewAssetInfoState,
+    val news: CoinviewNewsState,
+    val pillAlert: CoinviewPillAlertState,
     val snackbarError: CoinviewSnackbarAlertState
 ) : ViewState
 
 // Asset
-sealed interface CoinviewAssetState {
-    object Error : CoinviewAssetState
-    data class Data(
-        val asset: AssetInfo
-    ) : CoinviewAssetState
-}
+data class CoinviewAssetState(
+    val asset: AssetInfo,
+    val l1Network: CoinViewNetwork?
+)
+
+data class CoinViewNetwork(
+    val logo: String,
+    val name: String
+)
 
 // Price
-sealed interface CoinviewPriceState {
-    object Loading : CoinviewPriceState
-    object Error : CoinviewPriceState
-    data class Data(
-        val assetName: String,
-        val assetLogo: String,
-        val fiatSymbol: String,
-        val price: String,
-        val priceChange: String,
-        val percentChange: Double,
-        @StringRes val intervalName: Int,
-        val chartData: CoinviewChartState,
-        val selectedTimeSpan: HistoricalTimeSpan
-    ) : CoinviewPriceState {
-        sealed interface CoinviewChartState {
-            object Loading : CoinviewChartState
-            data class Data(val chartData: List<ChartEntry>) : CoinviewChartState
-        }
+data class CoinviewPriceState(
+    val assetName: String,
+    val assetLogo: String,
+    val fiatSymbol: String,
+    val price: String,
+    val priceChange: String,
+    val valueChange: ValueChange,
+    val intervalText: PriceIntervalText,
+    val chartData: CoinviewChartState,
+    val selectedTimeSpan: HistoricalTimeSpan
+) {
+    sealed interface CoinviewChartState {
+        object Loading : CoinviewChartState
+        data class Data(val chartData: List<ChartEntry>) : CoinviewChartState
     }
 }
 
@@ -63,16 +67,6 @@ sealed interface CoinviewAssetTradeableState {
         val assetName: String,
         val assetTicker: String
     ) : CoinviewAssetTradeableState
-}
-
-// Watchlist
-sealed interface CoinviewWatchlistState {
-    object NotSupported : CoinviewWatchlistState
-    object Loading : CoinviewWatchlistState
-    object Error : CoinviewWatchlistState
-    data class Data(
-        val isInWatchlist: Boolean
-    ) : CoinviewWatchlistState
 }
 
 // Total balance
@@ -88,61 +82,40 @@ sealed interface CoinviewTotalBalanceState {
 }
 
 // Accounts
-sealed interface CoinviewAccountsState {
-    object NotSupported : CoinviewAccountsState
-    object Loading : CoinviewAccountsState
-    object Error : CoinviewAccountsState
-    data class Data(
-        val style: CoinviewAccountsStyle,
-        val header: CoinviewAccountsHeaderState,
-        val accounts: List<CoinviewAccountState>
-    ) : CoinviewAccountsState {
-        sealed interface CoinviewAccountState {
-            // todo find a better way to identify an account for the viewmodel without sending the whole object
-            val cvAccount: CoinviewAccount
+data class CoinviewAccountsState(
+    val assetName: String,
+    val totalBalance: String,
+    val accounts: List<CoinviewAccountState>
+) {
+    sealed interface CoinviewAccountState {
+        // todo find a better way to identify an account for the viewmodel without sending the whole object
+        val cvAccount: CoinviewAccount
 
-            data class Available(
-                override val cvAccount: CoinviewAccount,
-                val title: String,
-                val subtitle: TextValue,
-                val cryptoBalance: String,
-                val fiatBalance: String,
-                val logo: LogoSource,
-                val assetColor: String,
-            ) : CoinviewAccountState
+        data class Available(
+            override val cvAccount: CoinviewAccount,
+            val title: String,
+            val subtitle: TextValue?,
+            val cryptoBalance: String,
+            val fiatBalance: String,
+            val logo: LogoValue,
+            val assetColor: String
+        ) : CoinviewAccountState
 
-            data class Unavailable(
-                override val cvAccount: CoinviewAccount,
-                val title: String,
-                val subtitle: TextValue,
-                val logo: LogoSource
-            ) : CoinviewAccountState
-        }
-
-        sealed interface CoinviewAccountsHeaderState {
-            data class ShowHeader(val text: TextValue) : CoinviewAccountsHeaderState
-            object NoHeader : CoinviewAccountsHeaderState
-        }
+        data class Unavailable(
+            override val cvAccount: CoinviewAccount,
+            val title: String,
+            val subtitle: TextValue,
+            val logo: LogoValue
+        ) : CoinviewAccountState
     }
-}
-
-/**
- * The accounts section can be drawn either boxed (defi) or simple (custodial)
- */
-enum class CoinviewAccountsStyle {
-    Simple, Boxed
 }
 
 // Recurring buys
 sealed interface CoinviewRecurringBuysState {
-    object NotSupported : CoinviewRecurringBuysState
-    object Loading : CoinviewRecurringBuysState
-    object Error : CoinviewRecurringBuysState
     object Upsell : CoinviewRecurringBuysState
     data class Data(
         val recurringBuys: List<CoinviewRecurringBuyState>
     ) : CoinviewRecurringBuysState {
-
         data class CoinviewRecurringBuyState(
             val id: String,
             val description: TextValue,
@@ -153,82 +126,22 @@ sealed interface CoinviewRecurringBuysState {
 }
 
 // Quick actions
-// center
-sealed interface CoinviewCenterQuickActionsState {
-    object NotSupported : CoinviewCenterQuickActionsState
-    object Loading : CoinviewCenterQuickActionsState
-    data class Data(
-        val center: CoinviewQuickActionState,
-    ) : CoinviewCenterQuickActionsState
+fun CoinviewQuickAction.name() = when (this) {
+    is CoinviewQuickAction.Buy -> com.blockchain.stringResources.R.string.common_buy
+    is CoinviewQuickAction.Sell -> com.blockchain.stringResources.R.string.common_sell
+    is CoinviewQuickAction.Send -> com.blockchain.stringResources.R.string.common_send
+    is CoinviewQuickAction.Receive -> com.blockchain.stringResources.R.string.common_receive
+    is CoinviewQuickAction.Swap -> com.blockchain.stringResources.R.string.common_swap
+}.run {
+    TextValue.IntResValue(this)
 }
 
-// bottom
-sealed interface CoinviewBottomQuickActionsState {
-    object NotSupported : CoinviewBottomQuickActionsState
-    object Loading : CoinviewBottomQuickActionsState
-    data class Data(
-        val start: CoinviewQuickActionState,
-        val end: CoinviewQuickActionState
-    ) : CoinviewBottomQuickActionsState
-}
-
-sealed interface CoinviewQuickActionState {
-    val name: TextValue
-    val logo: LogoSource.Resource
-    val enabled: Boolean
-
-    data class Buy(override val enabled: Boolean) : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(R.string.common_buy)
-        override val logo = LogoSource.Resource(R.drawable.ic_cta_buy)
-    }
-
-    data class Sell(override val enabled: Boolean) : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(R.string.common_sell)
-        override val logo = LogoSource.Resource(R.drawable.ic_cta_sell)
-    }
-
-    data class Send(override val enabled: Boolean) : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(R.string.common_send)
-        override val logo = LogoSource.Resource(R.drawable.ic_cta_send)
-    }
-
-    data class Receive(override val enabled: Boolean) : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(R.string.common_receive)
-        override val logo = LogoSource.Resource(R.drawable.ic_cta_receive)
-    }
-
-    data class Swap(override val enabled: Boolean) : CoinviewQuickActionState {
-        override val name = TextValue.IntResValue(R.string.common_swap)
-        override val logo = LogoSource.Resource(R.drawable.ic_cta_swap)
-    }
-
-    object None : CoinviewQuickActionState {
-        override val name: TextValue get() = error("None action doesn't have name property")
-        override val logo: LogoSource.Resource get() = error("None action doesn't have log property")
-        override val enabled: Boolean get() = error("None action doesn't have enabled property")
-    }
-}
-
-fun CoinviewQuickAction.toViewState(): CoinviewQuickActionState = run {
-    when (this) {
-        is CoinviewQuickAction.Buy -> CoinviewQuickActionState.Buy(enabled)
-        is CoinviewQuickAction.Sell -> CoinviewQuickActionState.Sell(enabled)
-        is CoinviewQuickAction.Send -> CoinviewQuickActionState.Send(enabled)
-        is CoinviewQuickAction.Receive -> CoinviewQuickActionState.Receive(enabled)
-        is CoinviewQuickAction.Swap -> CoinviewQuickActionState.Swap(enabled)
-        CoinviewQuickAction.None -> CoinviewQuickActionState.None
-    }
-}
-
-fun CoinviewQuickActionState.toModelState(): CoinviewQuickAction = run {
-    when (this) {
-        is CoinviewQuickActionState.Buy -> CoinviewQuickAction.Buy(enabled)
-        is CoinviewQuickActionState.Sell -> CoinviewQuickAction.Sell(enabled)
-        is CoinviewQuickActionState.Send -> CoinviewQuickAction.Send(enabled)
-        is CoinviewQuickActionState.Receive -> CoinviewQuickAction.Receive(enabled)
-        is CoinviewQuickActionState.Swap -> CoinviewQuickAction.Swap(enabled)
-        CoinviewQuickActionState.None -> CoinviewQuickAction.None
-    }
+fun CoinviewQuickAction.logo() = when (this) {
+    is CoinviewQuickAction.Buy -> LocalLogo.Buy
+    is CoinviewQuickAction.Sell -> LocalLogo.Sell
+    is CoinviewQuickAction.Send -> LocalLogo.Send
+    is CoinviewQuickAction.Receive -> LocalLogo.Receive
+    is CoinviewQuickAction.Swap -> LocalLogo.Swap
 }
 
 // Info
@@ -242,23 +155,47 @@ sealed interface CoinviewAssetInfoState {
     ) : CoinviewAssetInfoState
 }
 
+// News
+data class CoinviewNewsState(
+    val newsArticles: List<NewsArticle>?
+)
+
+// Pill alerts
+sealed interface CoinviewPillAlertState {
+    val message: Int
+    val icon: ImageResource.Local
+
+    data class Alert(override val message: Int, override val icon: ImageResource.Local) : CoinviewPillAlertState {
+        override fun equals(other: Any?): Boolean {
+            return (other as? Alert)?.message == message
+        }
+
+        override fun hashCode(): Int = message
+    }
+
+    object None : CoinviewPillAlertState {
+        override val message: Int get() = error("None error doesn't have message property")
+        override val icon: ImageResource.Local get() = error("None error doesn't have icon property")
+    }
+}
+
 // Snackbar errors
 sealed interface CoinviewSnackbarAlertState {
     val message: Int
     val snackbarType: SnackbarType
 
     object AccountsLoadError : CoinviewSnackbarAlertState {
-        override val message: Int = R.string.coinview_wallet_load_error
+        override val message: Int = com.blockchain.stringResources.R.string.coinview_wallet_load_error
         override val snackbarType: SnackbarType = SnackbarType.Error
     }
 
     object ActionsLoadError : CoinviewSnackbarAlertState {
-        override val message: Int = R.string.coinview_actions_error
+        override val message: Int = com.blockchain.stringResources.R.string.coinview_actions_error
         override val snackbarType: SnackbarType = SnackbarType.Warning
     }
 
     object WatchlistToggleError : CoinviewSnackbarAlertState {
-        override val message: Int = R.string.coinview_watchlist_toggle_fail
+        override val message: Int = com.blockchain.stringResources.R.string.coinview_watchlist_toggle_fail
         override val snackbarType: SnackbarType = SnackbarType.Warning
     }
 
@@ -272,12 +209,4 @@ sealed interface CoinviewSnackbarAlertState {
 sealed interface ValueAvailability {
     data class Available(val value: String) : ValueAvailability
     object NotAvailable : ValueAvailability
-}
-
-/**
- * Logo can either be Remote with a String URL - or Local with a drawable resource
- */
-sealed interface LogoSource {
-    data class Remote(val value: String) : LogoSource
-    data class Resource(@DrawableRes val value: Int) : LogoSource
 }

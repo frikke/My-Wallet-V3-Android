@@ -24,7 +24,6 @@ import android.content.pm.PackageManager
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Bundle
-import android.os.Parcelable
 import android.preference.PreferenceManager
 import android.view.KeyEvent
 import android.view.Menu
@@ -39,19 +38,22 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.ui.graphics.Color
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.icons.ArrowLeft
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.componentlib.viewextensions.windowRect
+import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.consume
 import com.blockchain.utils.unsafeLazy
@@ -62,7 +64,6 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.DecodeHintType
 import com.google.zxing.Result
 import com.karumi.dexter.Dexter
-import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -73,9 +74,9 @@ import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
-import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityScanBinding
+import piuk.blockchain.android.ui.home.QrScanActivityContract
 import timber.log.Timber
 
 /**
@@ -86,36 +87,6 @@ import timber.log.Timber
  * @author dswitkin@google.com (Daniel Switkin)
  * @author Sean Owen
  */
-
-sealed class QrExpected : Parcelable {
-    @Parcelize
-    object AnyAssetAddressQr : QrExpected()
-
-    @Parcelize
-    data class AssetAddressQr(val assetTicker: String) : QrExpected()
-
-    @Parcelize
-    object BitPayQr : QrExpected()
-
-    @Parcelize
-    object WalletConnectQr : QrExpected()
-
-    @Parcelize
-    object ImportWalletKeysQr : QrExpected() // Import a wallet.
-
-    @Parcelize
-    object WebLoginQr : QrExpected() // New auth
-
-    companion object {
-        val IMPORT_KEYS_QR = setOf(ImportWalletKeysQr)
-        val WEB_LOGIN_QR = setOf(WebLoginQr)
-        val MAIN_ACTIVITY_QR = setOf(AnyAssetAddressQr, BitPayQr, WalletConnectQr)
-
-        @Suppress("FunctionName")
-        fun ASSET_ADDRESS_QR(asset: AssetInfo) = setOf(AssetAddressQr(asset.networkTicker))
-    }
-}
-
 class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
 
     private var cameraProvider: ProcessCameraProvider? = null
@@ -178,6 +149,13 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             }
             visible()
         }
+        binding.backIcon.apply {
+            image = Icons.ArrowLeft.withTint(Color.White)
+            onClick = {
+                finish()
+            }
+            visible()
+        }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -189,6 +167,7 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
         get() = when (windowManager.defaultDisplay.rotation) {
             Surface.ROTATION_0,
             Surface.ROTATION_270 -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
             else -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
         }
 
@@ -205,26 +184,16 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
 
     override fun onResume() {
         super.onResume()
-
-        // CameraManager must be initialized here, not in onCreate()
-        // because possible bugs with setting view when not yet measured
-        binding.previewView.post {
-            try {
-                setUpCamera()
-            } catch (e: java.lang.IllegalStateException) {
-                BlockchainSnackbar.make(
-                    binding.root,
-                    getString(R.string.camera_setup_failed),
-                    type = SnackbarType.Error
-                ).show()
-                setResult(RESULT_CAMERA_ERROR)
-                finish()
-            }
-        }
-
         inactivityTimer.onActivityResumed()
-
-        doConfigureUiElements()
+        if (canOpenScan(this)) {
+            start()
+        } else {
+            requestScanPermissions(
+                this,
+                { start() },
+                { onPermissionDenied(binding.root) }
+            )
+        }
     }
 
     private fun doConfigureUiElements() {
@@ -234,12 +203,25 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             ""
         } else {
             when (val expect = expectedSet.first()) {
-                is QrExpected.AnyAssetAddressQr -> getString(R.string.qr_activity_hint_any_asset)
-                is QrExpected.AssetAddressQr -> getString(R.string.qr_activity_hint_asset_address, expect.assetTicker)
-                is QrExpected.BitPayQr -> getString(R.string.qr_activity_hint_bitpay)
-                is QrExpected.ImportWalletKeysQr -> getString(R.string.qr_activity_hint_import_wallet)
-                is QrExpected.WebLoginQr -> getString(R.string.qr_activity_hint_new_web_login)
-                is QrExpected.WalletConnectQr -> getString(R.string.empty)
+                is QrExpected.AnyAssetAddressQr -> getString(
+                    com.blockchain.stringResources.R.string.qr_activity_hint_any_asset
+                )
+
+                is QrExpected.AssetAddressQr -> getString(
+                    com.blockchain.stringResources.R.string.qr_activity_hint_asset_address,
+                    expect.assetTicker
+                )
+
+                is QrExpected.BitPayQr -> getString(com.blockchain.stringResources.R.string.qr_activity_hint_bitpay)
+                is QrExpected.ImportWalletKeysQr -> getString(
+                    com.blockchain.stringResources.R.string.qr_activity_hint_import_wallet
+                )
+
+                is QrExpected.WebLoginQr -> getString(
+                    com.blockchain.stringResources.R.string.qr_activity_hint_new_web_login
+                )
+
+                is QrExpected.WalletConnectQr -> getString(com.blockchain.stringResources.R.string.empty)
             }
         }
 
@@ -254,7 +236,11 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
                     binding.walletConnectApps.visibleIf { apps.isNotEmpty() }
                     binding.walletConnectApps.apply {
                         text =
-                            resources.getQuantityString(R.plurals.wallet_connect_connected_apps, apps.size, apps.size)
+                            resources.getQuantityString(
+                                com.blockchain.stringResources.R.plurals.wallet_connect_connected_apps,
+                                apps.size,
+                                apps.size
+                            )
                         startIcon = ImageResource.Local(R.drawable.ic_vector_world_small)
                         onClick = {
                             startActivity(ConnectedDappsActivity.newIntent(this@QrScanActivity))
@@ -288,10 +274,12 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             KeyEvent.KEYCODE_CAMERA ->
                 // Handle these events so they don't launch the Camera app
                 return true
+
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
                 camera?.cameraControl?.enableTorch(false)
                 return true
             }
+
             KeyEvent.KEYCODE_VOLUME_UP -> {
                 camera?.cameraControl?.enableTorch(true)
                 return true
@@ -305,7 +293,7 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
         setResult(
             Activity.RESULT_OK,
             Intent(intent.action).apply {
-                putExtra(EXTRA_SCAN_RESULT, rawResult.toString())
+                putExtra(QrScanActivityContract.EXTRA_SCAN_RESULT, rawResult.toString())
             }
         )
         finish()
@@ -316,6 +304,7 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             R.id.action_flash_light -> {
                 toggleTorch(); true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
 
@@ -340,7 +329,6 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
     private fun setUpCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
-
             // CameraProvider
             cameraProvider = cameraProviderFuture.get()
 
@@ -363,7 +351,6 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
 
     /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
-
         // Get screen metrics used to setup camera for full screen resolution
         val targetWindowRect = binding.viewfinderGuide.windowRect
         binding.viewfinderView.let {
@@ -446,6 +433,8 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             hints.putAll(it)
         }
 
+        hints[DecodeHintType.ALSO_INVERTED] = true
+
         // The prefs can't change while the thread is running, so pick them up once here.
         hints[DecodeHintType.POSSIBLE_FORMATS] =
             if (decodeFormats.isNullOrEmpty()) {
@@ -476,10 +465,29 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
         }
     }
 
+    private fun start() {
+        // CameraManager must be initialized here, not in onCreate()
+        // because possible bugs with setting view when not yet measured
+        binding.previewView.post {
+            try {
+                setUpCamera()
+            } catch (e: java.lang.IllegalStateException) {
+                BlockchainSnackbar.make(
+                    binding.root,
+                    getString(com.blockchain.stringResources.R.string.camera_setup_failed),
+                    type = SnackbarType.Error
+                ).show()
+                setResult(RESULT_CAMERA_ERROR)
+                finish()
+            }
+        }
+
+        doConfigureUiElements()
+    }
+
     companion object {
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0
-        private const val EXTRA_SCAN_RESULT = "EXTRA_SCAN_RESULT"
 
         const val RESULT_CAMERA_ERROR = 10
 
@@ -508,65 +516,21 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
                 BarcodeFormat.CODABAR
             ) + productBarcodeFormats
 
-        fun start(ctx: Activity, expect: Set<QrExpected>) {
-            requestScanPermissions(
-                ctx,
-                { doStart(ctx, expect) },
-                { onPermissionDenied(ctx.window.decorView.findViewById(android.R.id.content)) }
-            )
-        }
-
-        fun start(fragment: Fragment, expect: Set<QrExpected>) {
-            val ctx = fragment.requireContext()
-            requestScanPermissions(
-                ctx,
-                { doStart(fragment, expect) },
-                { onPermissionDenied(fragment.requireView()) }
-            )
-        }
-
-        private fun doStart(fragment: Fragment, expect: Set<QrExpected>) =
-            if (canOpenScan(fragment.requireContext())) {
-                fragment.startActivityForResult(
-                    prepIntent(fragment.requireContext(), expect),
-                    SCAN_URI_RESULT
-                )
-            } else {
-                BlockchainSnackbar.make(
-                    fragment.requireView(),
-                    fragment.requireContext().getString(R.string.camera_unavailable),
-                    type = SnackbarType.Error
-                ).show()
-            }
-
-        private fun doStart(activity: Activity, expect: Set<QrExpected>) =
-            if (canOpenScan(activity)) {
-                activity.startActivityForResult(
-                    prepIntent(activity, expect),
-                    SCAN_URI_RESULT
-                )
-            } else {
-                BlockchainSnackbar.make(
-                    activity.window.decorView.findViewById(android.R.id.content),
-                    activity.getString(R.string.camera_unavailable),
-                    type = SnackbarType.Error
-                ).show()
-            }
-
-        private fun onPermissionDenied(view: View) {
-            BlockchainSnackbar.make(
-                view, view.context.getString(R.string.request_camera_permission),
-                type = SnackbarType.Error
-            ).show()
-        }
-
-        private fun prepIntent(ctx: Context, expect: Set<QrExpected>) =
-            Intent(ctx, QrScanActivity::class.java).apply {
+        fun newInstance(context: Context, expect: Set<QrExpected>) =
+            Intent(context, QrScanActivity::class.java).apply {
                 action = QrScanIntents.ACTION
                 putExtra(QrScanIntents.FORMATS, EnumSet.allOf(BarcodeFormat::class.java).joinToString { it.name })
                 putExtra(QrScanIntents.MODE, QrScanIntents.QR_CODE_MODE)
                 putExtra(PARAM_EXPECTED_QR, expect.toTypedArray())
             }
+
+        private fun onPermissionDenied(view: View) {
+            BlockchainSnackbar.make(
+                view,
+                view.context.getString(com.blockchain.stringResources.R.string.request_camera_permission),
+                type = SnackbarType.Error
+            ).show()
+        }
 
         private fun canOpenScan(ctx: Context): Boolean =
             ActivityCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
@@ -590,7 +554,7 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
         }
 
         fun Intent?.getRawScanData(): String? =
-            this?.getStringExtra(EXTRA_SCAN_RESULT)
+            this?.getStringExtra(QrScanActivityContract.EXTRA_SCAN_RESULT)
     }
 
     override fun onCameraAccessAllowed() {}

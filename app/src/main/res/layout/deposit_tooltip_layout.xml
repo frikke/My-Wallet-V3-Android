@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_spacing"
         android:layout_marginTop="@dimen/small_spacing"
+        android:textColor="@color/title"
         android:layout_marginEnd="@dimen/small_spacing"
         android:ellipsize="end"
         android:singleLine="true"
@@ -31,7 +32,7 @@
         android:layout_marginTop="4dp"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:text="@string/payment_methods_bank_transfer"
-        android:textColor="@color/grey_600"
+        android:textColor="@color/body"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/payment_method_title" />
@@ -44,7 +45,7 @@
         android:layout_marginStart="@dimen/small_spacing"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:text="@string/payment_methods_make_deposit"
-        android:textColor="@color/blue_600"
+        android:textColor="@color/primary"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/instructions" />

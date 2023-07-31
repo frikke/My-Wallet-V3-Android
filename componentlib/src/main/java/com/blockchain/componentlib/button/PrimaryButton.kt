@@ -1,152 +1,197 @@
 package com.blockchain.componentlib.button
 
+import android.content.Context
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.requiredHeightIn
+import android.util.AttributeSet
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue400
-import com.blockchain.componentlib.theme.Blue700
-import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.button.common.BaseButtonView
+import com.blockchain.componentlib.button.common.Button
+import com.blockchain.componentlib.button.common.ButtonIconColor
+import com.blockchain.componentlib.button.common.ButtonStyle
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Plus
+import com.blockchain.componentlib.theme.AppColors
+
+class PrimaryButtonView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : BaseButtonView(context, attrs, defStyleAttr) {
+
+    @Composable
+    override fun Content() {
+        if (isInEditMode) {
+            text = "dummy text"
+        }
+
+        PrimaryButton(
+            onClick = onClick,
+            text = text,
+            state = buttonState,
+            icon = icon as? ImageResource.Local
+        )
+    }
+}
+
+private val bgColorLight = Color(0XFF0C6CF2)
+private val bgColorDark = Color(0XFF0C6CF2)
+private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark else bgColorLight
+
+private val disabledBgColorLight = Color(0XFF65A5FF)
+private val disabledBgColorDark = Color(0XFF1656B9)
+private val disabledBgColor @Composable get() = if (isSystemInDarkTheme()) disabledBgColorDark else disabledBgColorLight
 
 @Composable
 fun PrimaryButton(
     modifier: Modifier = Modifier,
     text: String,
-    onClick: () -> Unit,
     state: ButtonState = ButtonState.Enabled,
-    defaultBackgroundColor: Color? = null,
-    icon: ImageResource = ImageResource.None,
-    minHeight: Dp = 48.dp,
+    icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
+    onClick: () -> Unit
 ) {
-    Button(
+    PrimaryButton(
+        modifier = modifier,
         text = text,
-        onClick = onClick,
         state = state,
-        defaultTextColor = Color.White,
-        defaultBackgroundLightColor = defaultBackgroundColor ?: AppTheme.colors.primary,
-        defaultBackgroundDarkColor = defaultBackgroundColor ?: AppTheme.colors.primary,
-        disabledTextLightAlpha = 0.7f,
-        disabledTextDarkAlpha = 0.4f,
-        disabledBackgroundLightColor = Blue400,
-        disabledBackgroundDarkColor = Grey900,
-        pressedBackgroundColor = Blue700,
-        modifier = modifier.requiredHeightIn(min = minHeight),
         icon = icon,
-        buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, icon: ImageResource ->
-            ButtonContent(
-                state = state,
-                text = text,
-                textColor = textColor,
-                contentAlpha = textAlpha,
-                icon = icon,
-            )
-        },
+        iconColor = iconColor,
+        style = ButtonStyle.Default,
+        onClick = onClick
     )
 }
 
-@Preview(name = "Default", group = "Primary button")
 @Composable
-private fun PrimaryButtonPreview() {
-    AppTheme {
-        AppSurface {
-            PrimaryButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Enabled
-            )
-        }
-    }
+fun PrimarySmallButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    state: ButtonState = ButtonState.Enabled,
+    icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
+    onClick: () -> Unit
+) {
+    PrimaryButton(
+        modifier = modifier,
+        text = text,
+        state = state,
+        icon = icon,
+        iconColor = iconColor,
+        style = ButtonStyle.Small,
+        onClick = onClick
+    )
 }
 
-@Preview(name = "Disabled", group = "Primary button")
 @Composable
-private fun PrimaryButtonDisabledPreview() {
-    AppTheme {
-        AppSurface {
-            PrimaryButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Disabled
-            )
-        }
-    }
+private fun PrimaryButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    state: ButtonState = ButtonState.Enabled,
+    icon: ImageResource.Local? = null,
+    iconColor: ButtonIconColor = ButtonIconColor.Default,
+    style: ButtonStyle,
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = modifier,
+        text = text,
+        textColor = AppColors.backgroundSecondary,
+        backgroundColor = bgColor,
+        disabledBackgroundColor = disabledBgColor,
+        state = state,
+        style = style,
+        icon = icon,
+        iconColor = iconColor,
+        onClick = onClick
+    )
 }
 
-@Preview(name = "Loading", group = "Primary button")
-@Composable
-private fun PrimaryButtonLoadingPreview() {
-    AppTheme {
-        AppSurface {
-            PrimaryButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Loading
-            )
-        }
-    }
-}
+// ------------ preview
 
-@Preview(name = "Button with image", group = "Primary button")
+@Preview
 @Composable
-private fun PrimaryButtonWithImagePreview() {
-    AppTheme {
-        AppSurface {
-            PrimaryButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Enabled,
-                icon = ImageResource.Local(R.drawable.ic_blockchain)
-            )
-        }
-    }
+private fun PreviewPrimaryButton() {
+    PrimaryButton(
+        text = "Button Text", state = ButtonState.Enabled, icon = Icons.Plus, onClick = {}
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PrimaryButtonPreview_Dark() {
-    AppTheme {
-        AppSurface {
-            PrimaryButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Enabled
-            )
-        }
-    }
+private fun PreviewPrimaryButtonDark() {
+    PreviewPrimaryButton()
+}
+
+@Preview
+@Composable
+private fun PreviewPrimaryButtonSmall() {
+    PrimarySmallButton(
+        text = "Button Text", state = ButtonState.Enabled, icon = Icons.Plus, onClick = {}
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PrimaryButtonDisabledPreview_Dark() {
-    AppTheme {
-        AppSurface {
-            PrimaryButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Disabled
-            )
-        }
-    }
+private fun PreviewPrimaryButtonSmallDark() {
+    PreviewPrimaryButtonSmall()
+}
+
+@Preview
+@Composable
+private fun PreviewPrimaryButtonDisabled() {
+    PrimaryButton(
+        text = "Button Text", state = ButtonState.Disabled, icon = Icons.Plus, onClick = {}
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PrimaryButtonLoadingPreview_Dark() {
-    AppTheme {
-        AppSurface {
-            PrimaryButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Loading
-            )
-        }
-    }
+private fun PreviewPrimaryButtonDisabledDark() {
+    PreviewPrimaryButtonDisabled()
+}
+
+@Preview
+@Composable
+private fun PreviewPrimaryButtonSmallDisabled() {
+    PrimarySmallButton(
+        text = "Button Text", state = ButtonState.Disabled, icon = Icons.Plus, onClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewPrimaryButtonSmallDisabledDark() {
+    PreviewPrimaryButtonSmallDisabled()
+}
+
+@Preview
+@Composable
+private fun PreviewPrimaryButtonLoading() {
+    PrimaryButton(
+        text = "Button Text", state = ButtonState.Loading, icon = Icons.Plus, onClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewPrimaryButtonLoadingDark() {
+    PreviewPrimaryButtonLoading()
+}
+
+@Preview
+@Composable
+private fun PreviewPrimaryButtonSmallLoading() {
+    PrimarySmallButton(
+        text = "Button Text", state = ButtonState.Loading, icon = Icons.Plus, onClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewPrimaryButtonSmallLoadingDark() {
+    PreviewPrimaryButtonSmallLoading()
 }

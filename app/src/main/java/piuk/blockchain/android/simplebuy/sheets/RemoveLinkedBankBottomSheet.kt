@@ -49,14 +49,27 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
         binding.root.layoutTransition = transition
 
         with(binding) {
-            title.text = resources.getString(R.string.common_spaced_strings, bank.name, bank.currency.displayTicker)
-            endDigits.text = resources.getString(R.string.dotted_suffixed_string, bank.accountEnding)
-            accountInfo.text = getString(R.string.payment_method_type_account_info, bank.toHumanReadableAccount(), "")
-            rmvBankBtn.setOnClickListener {
-                showConfirmation()
+            title.text = resources.getString(
+                com.blockchain.stringResources.R.string.common_spaced_strings,
+                bank.name,
+                bank.currency.displayTicker
+            )
+            endDigits.text = resources.getString(
+                com.blockchain.stringResources.R.string.dotted_suffixed_string,
+                bank.accountEnding
+            )
+            accountInfo.text = getString(
+                com.blockchain.stringResources.R.string.payment_method_type_account_info,
+                bank.toHumanReadableAccount(),
+                ""
+            )
+            rmvBankBtn.apply {
+                text = getString(com.blockchain.stringResources.R.string.remove_bank)
+                onClick = ::showConfirmation
             }
-            rmvBankCancel.setOnClickListener {
-                dismiss()
+            rmvBankCancel.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_cancel)
+                onClick = ::dismiss
             }
         }
     }
@@ -69,12 +82,15 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
             }
 
             val alertIcon = requireContext().getResolvedDrawable(R.drawable.ic_asset_error)
-            alertIcon?.setTint(requireContext().getResolvedColor(R.color.orange_400))
+            alertIcon?.setTint(requireContext().getResolvedColor(com.blockchain.common.R.color.orange_400))
             icon.setImageDrawable(alertIcon)
 
             endDigits.gone()
-            title.text = getString(R.string.settings_bank_remove_check_title)
-            accountInfo.text = getString(R.string.settings_bank_remove_check_subtitle, bank.name)
+            title.text = getString(com.blockchain.stringResources.R.string.settings_bank_remove_check_title)
+            accountInfo.text = getString(
+                com.blockchain.stringResources.R.string.settings_bank_remove_check_subtitle,
+                bank.name
+            )
         }
     }
 
@@ -92,13 +108,14 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
                     analytics.logEvent(SimpleBuyAnalytics.REMOVE_BANK)
                     (host as? Host)?.onLinkedBankRemoved(bank.id)
                     dismiss()
-                }, onError = {
-                BlockchainSnackbar.make(
-                    dialog?.window?.decorView ?: binding.root,
-                    getString(R.string.settings_bank_remove_error),
-                    type = SnackbarType.Error
-                ).show()
-            }
+                },
+                onError = {
+                    BlockchainSnackbar.make(
+                        dialog?.window?.decorView ?: binding.root,
+                        getString(com.blockchain.stringResources.R.string.settings_bank_remove_error),
+                        type = SnackbarType.Error
+                    ).show()
+                }
             )
     }
 

@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <com.blockchain.componentlib.sheets.SheetNubView
         android:id="@+id/sheet_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="@dimen/very_small_spacing"
-        app:srcCompat="@drawable/vector_sheet_indicator_small" />
+        android:layout_marginTop="@dimen/very_small_spacing" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/payment_methods_title"
@@ -22,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="@dimen/small_spacing"
-        android:background="@color/white"
+        android:textColor="@color/title"
         android:paddingBottom="@dimen/very_small_spacing"
         android:text="@string/payment_methods" />
 

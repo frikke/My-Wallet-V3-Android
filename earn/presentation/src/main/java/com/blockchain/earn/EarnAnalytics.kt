@@ -5,9 +5,10 @@ import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.earn.dashboard.viewmodel.EarnType
 import info.blockchain.balance.Money
 import java.io.Serializable
 
@@ -21,6 +22,31 @@ sealed class EarnAnalytics(
     object InterestDashboardAction : EarnAnalytics("earn_interest_clicked")
     object InterestSummaryDepositCta : EarnAnalytics("earn_deposit_clicked")
     object InterestSummaryWithdrawCta : EarnAnalytics("earn_withdraw_clicked")
+
+    object DiscoverClicked : EarnAnalytics(AnalyticsNames.SUPERAPP_EARN_DISCOVER_CLICKED.eventName)
+
+    data class LearnMoreClicked(
+        val product: EarnType
+    ) : EarnAnalytics(
+        event = AnalyticsNames.SUPERAPP_EARN_LEARN_MORE_CLICKED.eventName,
+        params = mapOf(EARN_PRODUCT to product.typeName())
+    )
+
+    data class AddClicked(
+        val currency: String,
+        val product: EarnType
+    ) : EarnAnalytics(
+        event = AnalyticsNames.SUPERAPP_EARN_DETAIL_ADD_CLICKED.eventName,
+        params = mapOf(CURRENCY to currency, EARN_PRODUCT to product.typeName())
+    )
+
+    data class WithdrawClicked(
+        val currency: String,
+        val product: EarnType
+    ) : EarnAnalytics(
+        event = AnalyticsNames.SUPERAPP_EARN_DETAIL_WITHDRAW_CLICKED.eventName,
+        params = mapOf(CURRENCY to currency, EARN_PRODUCT to product.typeName())
+    )
 
     class InterestClicked(override val origin: LaunchOrigin) :
         EarnAnalytics(AnalyticsNames.INTEREST_CLICKED.eventName)
@@ -94,11 +120,45 @@ sealed class EarnAnalytics(
         origin = origin
     )
 
+    class StakingWithdrawalClicked(
+        currency: String,
+        origin: LaunchOrigin
+    ) : EarnAnalytics(
+        event = AnalyticsNames.STAKING_WITHDRAWAL_CLICKED.eventName,
+        mapOf(
+            CURRENCY to currency
+        ),
+        origin = origin
+    )
+
+    class ActiveRewardsDepositClicked(
+        currency: String,
+        origin: LaunchOrigin
+    ) : EarnAnalytics(
+        event = AnalyticsNames.ACTIVE_REWARDS_DEPOSIT_CLICKED.eventName,
+        mapOf(
+            CURRENCY to currency
+        ),
+        origin = origin
+    )
+
+    class ActiveRewardsWithdrawalClicked(
+        currency: String,
+        origin: LaunchOrigin
+    ) : EarnAnalytics(
+        event = AnalyticsNames.ACTIVE_REWARDS_WITHDRAWAL_CLICKED.eventName,
+        mapOf(
+            CURRENCY to currency
+        ),
+        origin = origin
+    )
+
     companion object {
         private const val CURRENCY = "currency"
         private const val SOURCE_ACCOUNT_TYPE = "from_account_type"
         private const val INPUT_AMOUNT = "input_amount"
         private const val INTEREST_RATE = "interest_rate"
+        private const val EARN_PRODUCT = "earn_product"
     }
 }
 
@@ -110,7 +170,7 @@ enum class TxFlowAnalyticsAccountType {
             when (account) {
                 is TradingAccount,
                 is BankAccount -> TRADING
-                is InterestAccount -> SAVINGS
+                is EarnRewardsAccount.Interest -> SAVINGS
                 else -> USERKEY
             }
 
@@ -120,4 +180,10 @@ enum class TxFlowAnalyticsAccountType {
             } ?: return EXTERNAL
         }
     }
+}
+
+private fun EarnType.typeName() = when (this) {
+    EarnType.Passive -> "SAVINGS"
+    EarnType.Staking -> "STAKING"
+    EarnType.Active -> "ACTIVE"
 }

@@ -23,7 +23,7 @@ class WalletModeBalanceCache(private val coincore: Coincore) : KeyedStore<
                     Single.just(emptyMap())
                 } else
                     Single.just(accounts).flattenAsObservable { it }.flatMapSingle { account ->
-                        account.balanceRx.firstOrError().map { balance ->
+                        account.balanceRx().firstOrError().map { balance ->
                             account to balance
                         }.onErrorReturn {
                             account to null

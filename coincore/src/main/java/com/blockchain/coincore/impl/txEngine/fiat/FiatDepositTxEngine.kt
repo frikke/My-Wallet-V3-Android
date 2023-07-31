@@ -1,9 +1,5 @@
 package com.blockchain.coincore.impl.txEngine.fiat
 
-import androidx.annotation.VisibleForTesting
-import com.blockchain.banking.BankPartnerCallbackProvider
-import com.blockchain.banking.BankPaymentApproval
-import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.FeeLevel
@@ -20,18 +16,23 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.MissingLimitsException
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.TransactionsStore
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
+import com.blockchain.domain.paymentmethods.model.BankTransferAction
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -52,19 +53,20 @@ const val WITHDRAW_LOCKS = "locks"
 private const val PAYMENT_METHOD_LIMITS = "PAYMENT_METHOD_LIMITS"
 
 class FiatDepositTxEngine(
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager,
     private val bankService: BankService,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
+    private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity,
     private val withdrawLocksRepository: WithdrawLocksRepository,
-    private val plaidFeatureFlag: FeatureFlag,
+    private val plaidFeatureFlag: FeatureFlag
 ) : TxEngine() {
 
+    private val transactionsStore: TransactionsStore by scopedInject()
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf()
+        get() = listOf(transactionsStore)
+
+    override fun ensureSourceBalanceFreshness() {}
 
     private val userIsGoldVerified: Single<Boolean>
         get() = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))
@@ -109,9 +111,10 @@ class FiatDepositTxEngine(
                         engineState = mapOf(
                             WITHDRAW_LOCKS to locks.takeIf { it.signum() == 1 }?.secondsToDays(),
                             PAYMENT_METHOD_LIMITS to TxLimits.fromAmounts(
-                                paymentMethodLimits.min, paymentMethodLimits.max
+                                paymentMethodLimits.min,
+                                paymentMethodLimits.max
                             )
-                        ).withoutNullValues()
+                        ).filterNotNullValues()
                     )
                 }
             }
@@ -140,7 +143,9 @@ class FiatDepositTxEngine(
                     TxConfirmationValue.To(txTarget, AssetAction.FiatDeposit),
                     if (!isOpenBankingCurrency()) {
                         TxConfirmationValue.EstimatedCompletion
-                    } else null,
+                    } else {
+                        null
+                    },
                     TxConfirmationValue.Amount(pendingTx.amount, true)
                 )
             )
@@ -245,7 +250,10 @@ class FiatDepositTxEngine(
             amount = pendingTx.amount,
             currency = pendingTx.amount.currencyCode,
             callback = if (isOpenBankingCurrency()) {
-                bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
+                bankPartnerCallbackProvider.callback(
+                    BankPartner.YAPILY,
+                    BankTransferAction.PAY
+                )
             } else {
                 null
             }

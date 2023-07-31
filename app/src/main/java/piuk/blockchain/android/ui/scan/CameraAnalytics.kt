@@ -27,7 +27,7 @@ sealed class CameraAnalytics(
     class QrCodeClicked(
         override val origin: LaunchOrigin = LaunchOrigin.DASHBOARD
     ) : CameraAnalytics(
-        event = AnalyticsNames.QR_CODE_CLICKED.eventName,
+        event = AnalyticsNames.QR_CODE_CLICKED.eventName
     )
 
     class QrCodeScanned(type: QrCodeType) : CameraAnalytics(

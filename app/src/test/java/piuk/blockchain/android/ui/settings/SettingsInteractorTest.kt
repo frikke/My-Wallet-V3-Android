@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings
 
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.data.DataResource
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.referral.ReferralService
@@ -10,8 +11,8 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
-import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -20,6 +21,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -51,14 +53,15 @@ class SettingsInteractorTest {
             getAvailablePaymentMethodsTypesUseCase = getAvailablePaymentMethodsTypesUseCase,
             currencyPrefs = currencyPrefs,
             referralService = referralService,
-            nabuUserIdentity = nabuUserIdentity,
-            dustBalancesFF = dustBalancesFF
+            nabuUserIdentity = nabuUserIdentity
         )
     }
 
     @Test
     fun `Load eligibility and basic information`() = runBlocking {
-        whenever(referralService.fetchReferralData()).doReturn(Outcome.Success(ReferralInfo.NotAvailable))
+        whenever(referralService.fetchReferralData(any())).doReturn(
+            flowOf(DataResource.Data(ReferralInfo.NotAvailable))
+        )
         val userInformation = mock<BasicProfileInfo>()
         whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.GOLD))
         whenever(userIdentity.getBasicProfileInformation()).thenReturn(Single.just(userInformation))

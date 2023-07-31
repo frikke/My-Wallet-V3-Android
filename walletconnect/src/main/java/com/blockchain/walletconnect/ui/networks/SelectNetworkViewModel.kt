@@ -4,12 +4,11 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.utils.awaitOutcome
-import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CoinNetwork
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -21,27 +20,24 @@ class SelectNetworkViewModel(
     SelectNetworkViewState,
     SelectNetworkModelState,
     SelectNetworkNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    ModelConfigArgs.NoArgs
+    >(
     SelectNetworkModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
 
-    override fun reduce(state: SelectNetworkModelState): SelectNetworkViewState {
-        return with(state) {
-            SelectNetworkViewState(
-                networks = networks,
-                selectedNetwork = selectedNetwork
-            )
-        }
-    }
+    override fun SelectNetworkModelState.reduce() = SelectNetworkViewState(
+        networks = networks,
+        selectedNetwork = selectedNetwork
+    )
 
     override suspend fun handleIntent(modelState: SelectNetworkModelState, intent: SelectNetworkIntents) {
         when (intent) {
             is SelectNetworkIntents.LoadSupportedNetworks -> loadSupportedNetworks(intent.preSelectedChainId)
             is SelectNetworkIntents.LoadIconForNetworks -> loadIconsForNetworks(intent.networks, intent.selectedNetwork)
             is SelectNetworkIntents.SelectNetwork -> updateState {
-                it.copy(
-                    selectedNetwork = it.networks.findByChainId(intent.chainId)
+                copy(
+                    selectedNetwork = networks.findByChainId(intent.chainId)
                 )
             }
         }
@@ -54,7 +50,7 @@ class SelectNetworkViewModel(
                 val networks = supportedNetworks.map { evmNetwork -> evmNetwork.toNetworkInfo() }
                 val selectedNetwork = networks.findByChainId(chainIdToSelect)
                 updateState {
-                    it.copy(
+                    copy(
                         networks = networks,
                         selectedNetwork = selectedNetwork
                     )
@@ -68,12 +64,12 @@ class SelectNetworkViewModel(
             }
             .doOnFailure {
                 Timber.e(it)
-                updateState { state -> state.copy(networks = emptyList()) }
+                updateState { copy(networks = emptyList()) }
             }
     }
 
     private fun loadIconsForNetworks(networks: List<NetworkInfo>, selectedNetwork: NetworkInfo?) = updateState {
-        it.copy(
+        copy(
             networks = networks.map { network ->
                 network.copy(
                     logo = coincore[network.networkTicker]?.currency?.logo
@@ -85,15 +81,11 @@ class SelectNetworkViewModel(
         )
     }
 
-    private fun EvmNetwork.toNetworkInfo() =
+    private fun CoinNetwork.toNetworkInfo() =
         NetworkInfo(
-            networkTicker = if (networkTicker == CryptoCurrency.MATIC) {
-                CryptoCurrency.MATIC_ON_POLYGON
-            } else {
-                networkTicker
-            },
-            name = networkName,
-            chainId = chainId
+            networkTicker = nativeAssetTicker,
+            name = name,
+            chainId = chainId!!
         )
 
     private fun List<NetworkInfo>.findByChainId(chainId: Int) =

@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import org.koin.core.component.KoinComponent
@@ -32,7 +32,7 @@ class AssetWithAccountIcon @JvmOverloads constructor(
         binding.assetIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_default_asset_logo))
     }
 
-    fun updateIcon(account: CryptoAccount) {
+    fun updateIcon(account: SingleAccount) {
         val accountIcon = AccountIcon(account, assetResources)
 
         accountIcon.loadAssetIcon(binding.assetIcon)

@@ -12,9 +12,15 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common:network')
     implementation project(':wallet')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':logging:domain')
     implementation Libraries.rxKotlin
     implementation Libraries.kotlinJson
     implementation Libraries.koin
     implementation Libraries.kotlin
+    implementation(Libraries.retrofit)
+    implementation Libraries.json
+    implementation Libraries.rxjava3Coroutines
+
 }

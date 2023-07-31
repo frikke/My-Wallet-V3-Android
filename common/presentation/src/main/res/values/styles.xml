@@ -1,21 +1,27 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="BaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+    <style name="ThemeBaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="BaseTheme" parent="ThemeBaseTheme">
         <!-- Common styles across all res qualifiers resides here, anything specific can inherit from this -->
-        <item name="colorPrimary">@color/primary_blue_dark</item>
+        <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_blue_dark</item>
         <item name="colorAccent">@color/primary_blue_accent</item>
 
-        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorPrimary">@color/title</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
 
-        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowBackground">@color/background</item>
 
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">@color/primary_navy_medium</item>
 
         <item name="colorControlActivated">@color/primary_blue_accent</item>
         <item name="colorControlHighlight">@color/primary_blue_accent</item>
+
+        <item name="android:statusBarColor">@color/background</item>
     </style>
 
     <style name="AppTheme" parent="BaseTheme">
@@ -24,6 +30,11 @@
         <item name="android:windowContentTransitions">true</item>
         <item name="toolbarStyle">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
+        <item name="android:textColorHint">@color/body</item>
+    </style>
+
+    <style name="AppTheme.PinActivity">
+        <item name="android:statusBarColor">@color/backgroundSecondary</item>
     </style>
 
     <style name="AppTheme.MainActivity">
@@ -88,12 +99,6 @@
         <item name="android:backgroundDimAmount">0.5</item>
         <item name="android:windowFrame">@null</item>
         <item name="android:windowIsFloating">true</item>
-    </style>
-
-    <style name="RedesignBottomSheetDialog" parent="BottomSheetDialog">
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:navigationBarColor">@color/white</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="BottomSheetModalStyle" parent="Widget.Design.BottomSheet.Modal">
@@ -291,7 +296,7 @@
     <style name="SeparatorWithoutMargins">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/grey_000</item>
+        <item name="android:background">@color/background</item>
     </style>
 
     <style name="HalfSeparatorWithoutMargins">
@@ -301,30 +306,49 @@
     </style>
 
     <style name="ErrorText" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/title</item>
         <item name="android:textSize">12sp</item>
     </style>
 
     <style name="ErrorText.Red" parent="ErrorText">
-        <item name="android:textColor">@color/red_600</item>
+        <item name="android:textColor">@color/error</item>
     </style>
 
     <style name="CommonDataInputAppearance" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.Dense">
-        <item name="colorControlNormal">@color/grey_200</item>
-        <item name="boxBackgroundColor">@color/grey_000</item>
-        <item name="colorControlActivated">@color/blue_600</item>
-        <item name="colorControlHighlight">@color/blue_600</item>
+        <item name="colorControlNormal">@color/backgroundSecondary</item>
+        <item name="boxBackgroundColor">@color/backgroundSecondary</item>
+        <item name="colorControlActivated">@color/primary</item>
+        <item name="colorControlHighlight">@color/primary</item>
         <item name="errorTextAppearance">@style/ErrorText</item>
+        <item name="android:textColorHint">@color/body</item>
+    </style>
+
+    <style name="CardInfoTextInput" parent="CommonDataInputAppearance">
+        <item name="android:padding">2dp</item>
+        <item name="boxBackgroundModes">filled</item>
+        <item name="boxCornerRadius">4dp</item>
+        <item name="boxStrokeErrorColor">@color/error</item>
+        <item name="errorTextAppearance">@style/ErrorText.Red</item>
+    </style>
+
+    <style name="CardInfoTextInputField">
+        <item name="android:paddingStart">@dimen/small_spacing</item>
+        <item name="android:paddingEnd">@dimen/small_spacing</item>
+        <item name="android:paddingTop">@dimen/minuscule_spacing</item>
+        <item name="android:paddingBottom">@dimen/minuscule_spacing</item>
+        <item name="enableValidation">true</item>
+        <item name="isRequired">true</item>
+        <item name="textColor">@color/title</item>
     </style>
 
     <style name="LightEditTextThemeOverlay" parent="ThemeOverlay.AppCompat">
-        <item name="colorAccent">@color/blue_600</item>
-        <item name="colorPrimary">@color/blue_600</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="colorPrimary">@color/primary</item>
     </style>
 
     <style name="LightDataInputAppearance" parent="CommonDataInputAppearance">
-        <item name="colorControlNormal">@color/grey_100</item>
-        <item name="boxStrokeColor">@color/blue_600</item>
+        <item name="colorControlNormal">@color/backgroundSecondary</item>
+        <item name="boxStrokeColor">@color/primary</item>
         <item name="theme">@style/LightEditTextThemeOverlay</item>
     </style>
 
@@ -353,35 +377,11 @@
         <item name="cardCornerRadius">3dp</item>
         <item name="cardPreventCornerOverlap">true</item>
         <item name="cardUseCompatPadding">true</item>
-        <item name="cardBackgroundColor">@color/white</item>
+        <item name="cardBackgroundColor">@color/backgroundSecondary</item>
     </style>
 
     <style name="ToolbarTitleTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="fontFamily">@font/inter_medium</item>
-    </style>
-
-    <!-- Using a style to apply the font as it doesn't work in Themes -->
-
-    <style name="LightBlueButtonTheme" parent="ThemeOverlay.AppCompat.Dark">
-        <!-- Disabled colour -->
-        <item name="colorButtonNormal">@color/primary_grey_dark</item>
-        <!-- Enabled colour -->
-        <item name="colorControlHighlight">@color/primary_navy_medium</item>
-        <!-- Fonts -->
-        <item name="fontFamily">@font/inter_medium</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">16sp</item>
-        <item name="buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
-        <item name="textAllCaps">false</item>
-    </style>
-
-    <style name="WhiteButtonTheme" parent="ThemeOverlay.AppCompat.Dark">
-        <item name="colorButtonNormal">@color/primary_grey_dark</item>
-        <item name="colorControlHighlight">@color/white</item>
-        <item name="colorAccent">@color/white</item>
-        <item name="android:textColor">@color/primary_navy_medium</item>
-        <item name="android:textSize">16sp</item>
-        <item name="buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
     </style>
 
     <style name="FullscreenDialog">

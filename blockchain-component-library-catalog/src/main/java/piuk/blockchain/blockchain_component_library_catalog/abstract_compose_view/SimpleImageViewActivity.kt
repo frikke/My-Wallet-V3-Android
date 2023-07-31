@@ -2,6 +2,7 @@ package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vi
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import com.blockchain.componentlib.basic.ImageResource
@@ -16,7 +17,7 @@ class SimpleImageViewActivity : AppCompatActivity() {
 
         findViewById<SimpleImageView>(R.id.local_image_view).apply {
             image = ImageResource.Local(
-                id = R.drawable.ic_blockchain,
+                id = com.blockchain.componentlib.R.drawable.ic_blockchain,
                 contentDescription = ""
             )
             scaleType = ContentScale.Fit
@@ -24,9 +25,9 @@ class SimpleImageViewActivity : AppCompatActivity() {
 
         findViewById<SimpleImageView>(R.id.local_image_w_bkgd_view).apply {
             image = ImageResource.LocalWithBackground(
-                id = R.drawable.ic_blockchain,
-                iconTintColour = R.color.colorPrimary,
-                backgroundColour = R.color.black,
+                id = com.blockchain.componentlib.R.drawable.ic_blockchain,
+                iconColor = Color.Blue,
+                backgroundColor = Color.Black,
                 contentDescription = "",
                 size = Dp(32f),
                 iconSize = Dp(24f)

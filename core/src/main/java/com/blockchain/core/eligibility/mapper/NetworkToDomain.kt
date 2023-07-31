@@ -3,6 +3,7 @@ package com.blockchain.core.eligibility.mapper
 import com.blockchain.api.eligibility.data.BuyEligibilityResponse
 import com.blockchain.api.eligibility.data.CountryResponse
 import com.blockchain.api.eligibility.data.DefaultEligibilityResponse
+import com.blockchain.api.eligibility.data.DexEligibilityResponse
 import com.blockchain.api.eligibility.data.ProductEligibilityResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleReasonResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleResponse
@@ -23,12 +24,15 @@ fun ProductEligibilityResponse.toDomain(): List<ProductEligibility> =
         buy?.toProductEligibility(),
         useTradingAccount?.toProductEligibility(),
         swap?.toProductEligibility(),
+        dex?.toProductEligibility(),
         sell?.toProductEligibility(EligibleProduct.SELL),
         depositFiat?.toProductEligibility(EligibleProduct.DEPOSIT_FIAT),
         depositCrypto?.toProductEligibility(EligibleProduct.DEPOSIT_CRYPTO),
         depositInterest?.toProductEligibility(EligibleProduct.DEPOSIT_INTEREST),
+        depositEarnCC1W?.toProductEligibility(EligibleProduct.DEPOSIT_EARN_CC1W),
         withdrawFiat?.toProductEligibility(EligibleProduct.WITHDRAW_FIAT),
-        depositStaking?.toProductEligibility(EligibleProduct.DEPOSIT_STAKING)
+        depositStaking?.toProductEligibility(EligibleProduct.DEPOSIT_STAKING),
+        kycVerification?.toProductEligibility(EligibleProduct.KYC)
     )
 
 fun UseTradingAccountsResponse.toProductEligibility(): ProductEligibility = ProductEligibility(
@@ -36,7 +40,7 @@ fun UseTradingAccountsResponse.toProductEligibility(): ProductEligibility = Prod
     canTransact = enabled,
     isDefault = defaultProduct,
     maxTransactionsCap = TransactionsLimit.Unlimited,
-    reasonNotEligible = null /*not needed for the time being*/
+    reasonNotEligible = null // not needed for the time being
 )
 
 fun BuyEligibilityResponse.toProductEligibility(): ProductEligibility = ProductEligibility(
@@ -59,6 +63,14 @@ fun SwapEligibilityResponse.toProductEligibility(): ProductEligibility = Product
     } else {
         TransactionsLimit.Unlimited
     },
+    isDefault = false,
+    reasonNotEligible = reasonNotEligible?.toDomain().takeIf { !enabled }
+)
+
+fun DexEligibilityResponse.toProductEligibility(): ProductEligibility = ProductEligibility(
+    product = EligibleProduct.DEX,
+    canTransact = enabled,
+    maxTransactionsCap = TransactionsLimit.Unlimited,
     isDefault = false,
     reasonNotEligible = reasonNotEligible?.toDomain().takeIf { !enabled }
 )

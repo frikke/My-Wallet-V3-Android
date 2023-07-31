@@ -1,7 +1,5 @@
 package piuk.blockchain.android.ui.settings
 
-import com.blockchain.koin.blockchainCardFeatureFlag
-import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.presentation.BackupPhrasePinService
@@ -53,7 +51,8 @@ val redesignSettingsModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                remoteLogger = get()
+                remoteLogger = get(),
+                themeService = get()
             )
         }
 
@@ -67,8 +66,7 @@ val redesignSettingsModule = module {
                 getAvailablePaymentMethodsTypesUseCase = get(),
                 currencyPrefs = get(),
                 referralService = get(),
-                nabuUserIdentity = get(),
-                dustBalancesFF = get(hideDustFeatureFlag)
+                nabuUserIdentity = get()
             )
         }
 
@@ -105,7 +103,7 @@ val redesignSettingsModule = module {
         factory {
             ProfileInteractor(
                 settingsDataManager = get(),
-                authPrefs = get(),
+                authPrefs = get()
             )
         }
 
@@ -193,13 +191,10 @@ val redesignSettingsModule = module {
             AccountInteractor(
                 settingsDataManager = get(),
                 exchangeRates = get(),
-                blockchainCardRepository = get(),
                 currencyPrefs = get(),
                 exchangeLinkingState = get(),
                 localSettingsPrefs = get(),
-                fiatCurrenciesService = get(),
-                blockchainCardFF = get(blockchainCardFeatureFlag),
-                dustBalancesFF = get(hideDustFeatureFlag)
+                fiatCurrenciesService = get()
             )
         }
 
@@ -252,7 +247,6 @@ val redesignSettingsModule = module {
                 remoteLogger = get(),
                 specificAnalytics = get(),
                 analytics = get(),
-                momentLogger = get()
             )
         }
 

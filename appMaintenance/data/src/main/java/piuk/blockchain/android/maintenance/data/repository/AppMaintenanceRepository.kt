@@ -62,7 +62,10 @@ internal class AppMaintenanceRepository(
                 } else {
                     Outcome.Success(
                         AppMaintenanceConfigMapper.map(
-                            appUpdateInfo, maintenanceConfig, versionsInfo.versionCode, versionsInfo.osVersion
+                            appUpdateInfo,
+                            maintenanceConfig,
+                            versionsInfo.versionCode,
+                            versionsInfo.osVersion
                         )
                     )
                 }

@@ -54,6 +54,7 @@ android {
             res.srcDirs(file("src/androidTest/res"))
         }
     }
+    namespace = "com.blockchain.common.mp.util"
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {

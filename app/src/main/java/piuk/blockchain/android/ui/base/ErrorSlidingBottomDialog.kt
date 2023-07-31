@@ -15,6 +15,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.utils.unsafeLazy
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
@@ -48,8 +49,9 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
 
     override fun initControls(binding: ErrorSlidingBottomDialogBinding) {
         with(binding) {
-
-            errorSheetIndicator.image = ImageResource.Local(R.drawable.vector_sheet_indicator_small)
+            errorSheetIndicator.image = ImageResource.Local(
+                com.blockchain.componentlib.R.drawable.vector_sheet_indicator_small
+            )
 
             loadRemoteIcons(
                 title = errorDialogData.title,
@@ -59,8 +61,10 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
             )
 
             primaryCtaButton.apply {
-                text = errorDialogData.errorButtonCopies?.primaryButtonText?.ifEmpty { getString(R.string.common_ok) }
-                    ?: getString(R.string.common_ok)
+                text = errorDialogData.errorButtonCopies?.primaryButtonText?.ifEmpty {
+                    getString(com.blockchain.stringResources.R.string.common_ok)
+                }
+                    ?: getString(com.blockchain.stringResources.R.string.common_ok)
                 onClick = {
                     dismiss()
                     host.onErrorPrimaryCta()
@@ -114,7 +118,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
         statusIconUrl: String = "", // not all server side errors will have a status icon
         title: String,
         description: String,
-        @DrawableRes defaultErrorIcon: Int = R.drawable.ic_alert_white_bkgd,
+        @DrawableRes defaultErrorIcon: Int = R.drawable.ic_alert_white_bkgd
     ) {
         when {
             // we have been provided both icon and status
@@ -149,7 +153,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
         iconUrl: String,
         title: String,
         description: String,
-        @DrawableRes defaultErrorIcon: Int,
+        @DrawableRes defaultErrorIcon: Int
     ) {
         requireContext().loadRemoteErrorIcon(
             iconUrl,
@@ -181,7 +185,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
     private fun updateErrorIcon(
         title: String,
         subtitle: CharSequence,
-        icon: Drawable,
+        icon: Drawable
     ) {
         with(binding) {
             errorSheetIcon.image = ImageResource.LocalWithResolvedBitmap(icon.toBitmap())
@@ -203,7 +207,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
         statusIconUrl: String,
         title: String,
         description: String,
-        @DrawableRes defaultStatusIcon: Int,
+        @DrawableRes defaultStatusIcon: Int
     ) {
         requireContext().loadRemoteErrorAndStatusIcons(
             iconUrl,
@@ -243,7 +247,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
     private fun updateStatusIcon(
         title: String,
         subtitle: CharSequence,
-        statusIcon: Drawable,
+        statusIcon: Drawable
     ) {
         with(binding) {
             errorSheetStatus.image = ImageResource.LocalWithResolvedBitmap(statusIcon.toBitmap())
@@ -255,7 +259,9 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
 
     private fun Drawable.toBitmap(): Bitmap {
         val bitmap = Bitmap.createBitmap(
-            intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888
+            intrinsicWidth,
+            intrinsicHeight,
+            Bitmap.Config.ARGB_8888
         )
 
         val canvas = Canvas(bitmap)
@@ -295,6 +301,9 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
             ErrorSlidingBottomDialog().apply {
                 arguments = Bundle().apply { putParcelable(ERROR_DIALOG_DATA_KEY, errorDialogData) }
             }
+
+        fun newInstance(uxError: ServerSideUxErrorInfo): ErrorSlidingBottomDialog =
+            newInstance(uxError.toErrorDialogData())
     }
 }
 
@@ -312,6 +321,18 @@ data class ErrorDialogData(
     val statusIconUrl: String? = null,
     val errorId: String? = null
 ) : Parcelable
+
+private fun ServerSideUxErrorInfo.toErrorDialogData(): ErrorDialogData {
+    return ErrorDialogData(
+        errorId = id,
+        title = title,
+        description = description,
+        errorButtonCopies = actions.mapToErrorCopies(),
+        iconUrl = iconUrl,
+        statusIconUrl = statusUrl,
+        analyticsCategories = categories
+    )
+}
 
 fun List<ServerErrorAction>.mapToErrorCopies(): ErrorButtonCopies {
     var buttonCopies = ErrorButtonCopies()
@@ -332,5 +353,5 @@ fun List<ServerErrorAction>.mapToErrorCopies(): ErrorButtonCopies {
 data class ErrorButtonCopies(
     val primaryButtonText: String? = null,
     val secondaryButtonText: String? = null,
-    val tertiaryButtonText: String? = null,
+    val tertiaryButtonText: String? = null
 ) : Parcelable

@@ -1,7 +1,10 @@
 package info.blockchain.wallet.payload
 
 import com.blockchain.AppVersion
+import com.blockchain.api.blockchainApiModule
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.data.DataResource
+import com.blockchain.testutils.KoinTestRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
@@ -20,9 +23,12 @@ import info.blockchain.wallet.multiaddress.MultiAddressFactoryBtc
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
+import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
+import info.blockchain.wallet.payload.store.PayloadDataStore
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -31,20 +37,33 @@ import org.bitcoinj.core.ECKey
 import org.bitcoinj.crypto.DeterministicKey
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.test.KoinTest
+import org.koin.test.inject
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import retrofit2.HttpException
 import retrofit2.Response
 
-class PayloadManagerTest : WalletApiMockedResponseTest() {
+class PayloadManagerTest : WalletApiMockedResponseTest(), KoinTest {
     private val bitcoinApi = Mockito.mock(
         NonCustodialBitcoinService::class.java
     )
     private val walletApi: WalletApi = mock()
+    private val payloadDataStore: PayloadDataStore = mock()
 
     private lateinit var payloadManager: PayloadManager
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            blockchainApiModule
+        )
+    }
+    val json: Json by inject()
+
     @Before fun setup() {
         MockitoAnnotations.openMocks(this)
 
@@ -57,7 +76,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
                 anyOrNull(),
                 anyOrNull(),
                 anyOrNull(),
-                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(Completable.complete())
 
@@ -69,13 +88,15 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
                 anyString(),
                 anyOrNull(),
                 anyOrNull(),
-                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(Completable.complete())
 
         payloadManager = PayloadManager(
             walletApi,
+            payloadDataStore,
             bitcoinApi,
+            mock(),
             MultiAddressFactoryBtc(bitcoinApi),
             BalanceManagerBtc(bitcoinApi),
             BalanceManagerBch(bitcoinApi),
@@ -96,7 +117,13 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         mockEmptyBalance(bitcoinApi)
         whenever(
             walletApi.insertWallet(
-                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
                 anyOrNull()
             )
         ).thenReturn(Completable.complete())
@@ -120,10 +147,16 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
 
     @Test
     fun create_ServerConnectionException() {
-
         whenever(
             walletApi.insertWallet(
-                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(Completable.error(HttpException(Response.error<String>(500, ResponseBody.create(null, "")))))
         payloadManager.create(
@@ -151,7 +184,10 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         val balanceResponse5 = makeBalanceResponse(balance5)
         Mockito.`when`(
             bitcoinApi.getBalance(
-                any(), any(), any(), any()
+                any(),
+                any(),
+                any(),
+                any()
             )
         )
             .thenReturn(balanceResponse1)
@@ -197,7 +233,10 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         val balanceResponse5 = makeBalanceResponse(balance5)
         Mockito.`when`(
             bitcoinApi.getBalance(
-                any(), any(), any(), any()
+                any(),
+                any(),
+                any(),
+                any()
             )
         )
             .thenReturn(balanceResponse1)
@@ -215,7 +254,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
                 anyOrNull(),
                 anyOrNull(),
                 anyOrNull(),
-                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(
             Completable.error(HttpException(Response.error<String>(500, ResponseBody.Companion.create(null, ""))))
@@ -237,12 +276,12 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
     fun initializeAndDecrypt_unsupported_version_v4() {
         val walletBase = loadResourceContent("wallet_v5_unsupported.txt")
         whenever(
-            walletApi.fetchWalletData(
-                "any_guid", "any_shared_key", "sid"
+            payloadDataStore.stream(
+                any()
             )
         ).thenReturn(
-            Single.just(
-                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+            flowOf(
+                DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), walletBase))
             )
         )
         payloadManager.initializeAndDecrypt(
@@ -257,15 +296,17 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
     fun initializeAndDecrypt_v4() {
         val walletBase = loadResourceContent("wallet_v4_encrypted.txt")
         mockEmptyBalance(bitcoinApi)
+
         whenever(
-            walletApi.fetchWalletData(
-                "any", "any", "sid"
+            payloadDataStore.stream(
+                any()
             )
         ).thenReturn(
-            Single.just(
-                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+            flowOf(
+                DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), walletBase))
             )
         )
+
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
@@ -278,13 +319,26 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
     fun addLegacyAddress_v3() {
         whenever(
             walletApi.insertWallet(
-                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(Completable.complete())
 
         whenever(
             walletApi.updateWallet(
-                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull()
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(Completable.complete())
 
@@ -308,12 +362,25 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
 
         whenever(
             walletApi.insertWallet(
-                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(Completable.complete())
         whenever(
             walletApi.updateWallet(
-                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull()
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(Completable.complete())
 
@@ -339,10 +406,12 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
     @Test
     fun initializeAndDecrypt_invalidGuid() {
         val walletBase = loadResourceContent("invalid_guid.txt")
-        whenever(walletApi.fetchWalletData("any", "any", "sid")).thenReturn(
-            Single.error(
-                HttpException(
-                    Response.error<String>(500, walletBase.toResponseBody("application/json".toMediaTypeOrNull()))
+        whenever(payloadDataStore.stream(any())).thenReturn(
+            flowOf(
+                DataResource.Error(
+                    HttpException(
+                        Response.error<String>(500, walletBase.toResponseBody("application/json".toMediaTypeOrNull()))
+                    )
                 )
             )
         )
@@ -356,17 +425,29 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
 
     @Test
     fun setKeyForLegacyAddress_NoSuchAddressException() {
-
         mockEmptyBalance(bitcoinApi)
 
         whenever(
             walletApi.insertWallet(
-                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(Completable.complete())
         whenever(
             walletApi.updateWallet(
-                anyOrNull(), anyOrNull(), anyOrNull(), anyString(), anyOrNull(), anyOrNull(), anyOrNull()
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull(),
+                anyString(),
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(Completable.complete())
 
@@ -393,7 +474,6 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
 
     @Test
     fun addAccount_v4() {
-
         whenever(
             walletApi.insertWallet(
                 anyOrNull(),
@@ -403,7 +483,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
                 anyOrNull(),
                 anyOrNull(),
                 anyOrNull(),
-                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(
             Completable.complete()
@@ -417,7 +497,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
                 anyString(),
                 any(),
                 any(),
-                any(),
+                any()
             )
         ).thenReturn(
             Completable.complete()
@@ -442,7 +522,6 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
 
     @Test
     fun save_v4() {
-
         mockEmptyBalance(bitcoinApi)
         whenever(
             walletApi.insertWallet(
@@ -453,7 +532,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
                 anyOrNull(),
                 anyOrNull(),
                 anyOrNull(),
-                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(
             Completable.complete()
@@ -473,7 +552,6 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
     // Reserve an address to ensure it gets skipped
     @Test
     fun nextAddress_v3() {
-
         // set up indexes first
 
         // Next Receive
@@ -503,7 +581,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
                 eq(null),
                 any(),
                 any(),
-                any(),
+                any()
             )
         ).thenReturn(multiResponse1)
             .thenReturn(multiResponse2)
@@ -511,12 +589,14 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             .thenReturn(multiResponse4)
 
         whenever(
-            walletApi.fetchWalletData(
-                "4750d125-5344-4b79-9cf9-6e3c97bc9523", "06f6fa9c-d0fe-403d-815a-111ee26888e2", "sid"
+            payloadDataStore.stream(
+                any()
             )
         ).thenReturn(
-            Single.just(
-                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+            flowOf(
+                DataResource.Data(
+                    json.decodeFromString(WalletBaseDto.serializer(), walletBase)
+                )
             )
         )
 
@@ -533,7 +613,9 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
 
         // set up indexes first
         payloadManager.getAccountTransactions(
-            account.xpubs, 50, 0
+            account.xpubs,
+            50,
+            0
         )
 
         // Next Receive
@@ -557,13 +639,14 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
 
     @Test fun balance() {
         val walletBase = loadResourceContent("wallet_v3_6.txt")
+
         whenever(
-            walletApi.fetchWalletData(
-                "any", "any", "sid"
+            payloadDataStore.stream(
+                any()
             )
         ).thenReturn(
-            Single.just(
-                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+            flowOf(
+                DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), walletBase))
             )
         )
 
@@ -575,7 +658,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
                 eq("btc"),
                 any(),
                 any(),
-                any(),
+                any()
             )
         ).thenReturn(btcResponse)
 
@@ -587,7 +670,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
                 eq("bch"),
                 any(),
                 any(),
-                any(),
+                any()
             )
         ).thenReturn(bchResponse)
         payloadManager.initializeAndDecrypt(
@@ -640,7 +723,6 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
     // guid 5350e5d5-bd65-456f-b150-e6cc089f0b26
     @Test
     fun accountTransactions() {
-
         // Bitcoin
 
         // Bitcoin Cash
@@ -667,14 +749,14 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
 
         val walletBase = loadResourceContent("wallet_v3_6.txt")
         whenever(
-            walletApi.fetchWalletData(
-                "5350e5d5-bd65-456f-b150-e6cc089f0b26",
-                "0f28735d-0b89-405d-a40f-ee3e85c3c78c",
-                "sid"
+            payloadDataStore.stream(
+                any()
             )
         ).thenReturn(
-            Single.just(
-                walletBase.toResponseBody("application/json".toMediaTypeOrNull())
+            flowOf(
+                DataResource.Data(
+                    json.decodeFromString(WalletBaseDto.serializer(), walletBase)
+                )
             )
         )
 
@@ -683,9 +765,10 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         val btcBalanceResponse = makeBalanceResponse(btcBalance)
         Mockito.`when`(
             bitcoinApi.getBalance(
-                eq("btc"), any(),
+                eq("btc"),
                 any(),
                 any(),
+                any()
             )
         )
             .thenReturn(btcBalanceResponse)
@@ -695,9 +778,10 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         val bchBalanceResponse = makeBalanceResponse(bchBalance)
         Mockito.`when`(
             bitcoinApi.getBalance(
-                eq("bch"), any(),
+                eq("bch"),
                 any(),
                 any(),
+                any()
             )
         )
             .thenReturn(bchBalanceResponse)

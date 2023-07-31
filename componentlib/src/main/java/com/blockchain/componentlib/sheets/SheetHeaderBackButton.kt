@@ -17,18 +17,18 @@ internal fun SheetHeaderBackButton(
     onBackPress: () -> Unit,
     modifier: Modifier = Modifier,
     backPressContentDescription: String? = null,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
     Image(
         imageResource = ImageResource.Local(
             id = if (isDarkMode) R.drawable.ic_back_chevron_dark else R.drawable.ic_back_chevron_light,
-            contentDescription = backPressContentDescription,
+            contentDescription = backPressContentDescription
         ),
         modifier = modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = rememberRipple(bounded = false),
             onClick = { onBackPress() }
         ),
-        contentScale = ContentScale.None,
+        contentScale = ContentScale.None
     )
 }
