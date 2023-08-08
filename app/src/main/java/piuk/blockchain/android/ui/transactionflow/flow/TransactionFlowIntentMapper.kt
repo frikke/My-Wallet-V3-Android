@@ -7,12 +7,14 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.fiat.LinkedBankAccount
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 
 class TransactionFlowIntentMapper(
     private val sourceAccount: SingleAccount,
     private val target: TransactionTarget,
-    private val action: AssetAction
+    private val action: AssetAction,
+    private val origin: String = "",
 ) {
 
     fun map(passwordRequired: Boolean) =
@@ -20,30 +22,51 @@ class TransactionFlowIntentMapper(
             AssetAction.FiatDeposit -> {
                 handleFiatDeposit(passwordRequired)
             }
+
             AssetAction.Sell -> {
                 handleSell(passwordRequired)
             }
+
             AssetAction.Send -> {
-                handleSend(passwordRequired)
+                handleSend(passwordRequired, origin)
             }
+
             AssetAction.FiatWithdraw -> {
                 handleFiatWithdraw(passwordRequired)
             }
+
             AssetAction.Swap -> {
                 handleSwap(passwordRequired)
             }
+
             AssetAction.InterestDeposit -> {
                 handleInterestDeposit(passwordRequired)
             }
+
             AssetAction.InterestWithdraw -> {
                 handleInterestWithdraw(passwordRequired)
             }
+
             AssetAction.Sign -> {
                 handleSignAction(passwordRequired)
             }
+
             AssetAction.StakingDeposit -> {
                 handleStakingDeposit(passwordRequired)
             }
+
+            AssetAction.StakingWithdraw -> {
+                handleStakingWithdraw(passwordRequired)
+            }
+
+            AssetAction.ActiveRewardsDeposit -> {
+                handleActiveRewardsDeposit(passwordRequired)
+            }
+
+            AssetAction.ActiveRewardsWithdraw -> {
+                handleActiveRewardsWithdraw(passwordRequired)
+            }
+
             AssetAction.Receive,
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
@@ -69,11 +92,13 @@ class TransactionFlowIntentMapper(
                 target,
                 passwordRequired
             )
+
             target.isDefinedTarget() -> TransactionIntent.InitialiseWithTargetAndNoSource(
                 action = action,
                 target = target,
                 passwordRequired = passwordRequired
             )
+
             else -> throw IllegalStateException(
                 "Calling interest deposit without source and target is not supported"
             )
@@ -88,13 +113,66 @@ class TransactionFlowIntentMapper(
                 target,
                 passwordRequired
             )
+
             target.isDefinedTarget() -> TransactionIntent.InitialiseWithTargetAndNoSource(
                 action = action,
                 target = target,
                 passwordRequired = passwordRequired
             )
+
             else -> throw IllegalStateException(
                 "Calling staking deposit without source and target is not supported"
+            )
+        }
+
+    private fun handleStakingWithdraw(passwordRequired: Boolean) =
+        when {
+            sourceAccount.isDefinedCryptoAccount() && target.isDefinedTarget() ->
+                TransactionIntent.InitialiseWithSourceAndTargetAccount(
+                    action,
+                    sourceAccount,
+                    target,
+                    passwordRequired
+                )
+
+            else -> throw IllegalStateException(
+                "Calling staking withdraw without source and target is not supported"
+            )
+        }
+
+    private fun handleActiveRewardsDeposit(passwordRequired: Boolean) =
+        when {
+            sourceAccount.isDefinedCryptoAccount() &&
+                target.isDefinedTarget() -> TransactionIntent.InitialiseWithSourceAndTargetAccount(
+                action,
+                sourceAccount,
+                target,
+                passwordRequired
+            )
+
+            target.isDefinedTarget() -> TransactionIntent.InitialiseWithTargetAndNoSource(
+                action = action,
+                target = target,
+                passwordRequired = passwordRequired
+            )
+
+            else -> throw IllegalStateException(
+                "Calling active rewards deposit without source and target is not supported"
+            )
+        }
+
+    private fun handleActiveRewardsWithdraw(passwordRequired: Boolean) =
+        when {
+            sourceAccount.isDefinedCryptoAccount() && target.isDefinedTarget() ->
+                TransactionIntent.InitialiseWithSourceAndTargetAccount(
+                    action,
+                    sourceAccount,
+                    target,
+                    passwordRequired
+                )
+
+            else -> throw IllegalStateException(
+                "Calling active rewards withdraw without source and target is not supported"
             )
         }
 
@@ -105,6 +183,7 @@ class TransactionFlowIntentMapper(
                 sourceAccount,
                 passwordRequired
             )
+
             else -> throw IllegalStateException(
                 "Calling interest withdraw without source is not supported"
             )
@@ -116,11 +195,13 @@ class TransactionFlowIntentMapper(
                 action,
                 passwordRequired
             )
+
             !target.isDefinedTarget() -> TransactionIntent.InitialiseWithSourceAccount(
                 action,
                 sourceAccount,
                 passwordRequired
             )
+
             else -> TransactionIntent.InitialiseWithSourceAndPreferredTarget(
                 action,
                 sourceAccount,
@@ -132,12 +213,20 @@ class TransactionFlowIntentMapper(
     private fun handleFiatWithdraw(passwordRequired: Boolean): TransactionIntent {
         check(sourceAccount.isFiatAccount())
         return when {
+            target is LinkedBankAccount && target.capabilities?.withdrawal?.enabled == false ->
+                TransactionIntent.InitialiseWithSourceAccount(
+                    action,
+                    sourceAccount,
+                    passwordRequired
+                )
+
             target.isDefinedTarget() -> TransactionIntent.InitialiseWithSourceAndPreferredTarget(
                 action,
                 sourceAccount,
                 target,
                 passwordRequired
             )
+
             else -> TransactionIntent.InitialiseWithSourceAccount(
                 action,
                 sourceAccount,
@@ -146,8 +235,10 @@ class TransactionFlowIntentMapper(
         }
     }
 
-    private fun handleSend(passwordRequired: Boolean): TransactionIntent {
-        check(sourceAccount.isDefinedCryptoAccount()) { "Can't start send without a source account" }
+    private fun handleSend(passwordRequired: Boolean, origin: String): TransactionIntent {
+        check(
+            sourceAccount.isDefinedCryptoAccount()
+        ) { "Can't start send without a source account $sourceAccount  $origin" }
         return if (target.isDefinedTarget()) {
             TransactionIntent.InitialiseWithSourceAndTargetAccount(
                 action,
@@ -170,11 +261,13 @@ class TransactionFlowIntentMapper(
                 action,
                 passwordRequired
             )
+
             !target.isDefinedTarget() -> TransactionIntent.InitialiseWithSourceAccount(
                 action,
                 sourceAccount,
                 passwordRequired
             )
+
             else -> throw IllegalStateException("State is not supported")
         }
 
@@ -187,6 +280,7 @@ class TransactionFlowIntentMapper(
                 target,
                 passwordRequired
             )
+
             else -> TransactionIntent.InitialiseWithTargetAndNoSource(
                 action,
                 target,

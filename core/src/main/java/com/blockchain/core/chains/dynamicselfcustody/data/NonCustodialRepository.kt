@@ -8,30 +8,31 @@ import com.blockchain.api.selfcustody.TransactionDirection
 import com.blockchain.api.selfcustody.TransactionResponse
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
-import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialAccountBalance
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.FeeLevel
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialDerivedAddress
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.wallet.CoinType
-import com.blockchain.domain.wallet.NetworkType
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.asSingle
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
-import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.rx3.await
-import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.Sha256Hash
@@ -39,50 +40,38 @@ import org.spongycastle.util.encoders.Hex
 
 internal class NonCustodialRepository(
     private val dynamicSelfCustodyService: DynamicSelfCustodyService,
-    private val currencyPrefs: CurrencyPrefs,
     private val subscriptionsStore: NonCustodialSubscriptionsStore,
     private val assetCatalogue: AssetCatalogue,
-    private val remoteConfigService: RemoteConfigService,
-    private val networkConfigsFF: FeatureFlag,
-    private val coinTypeStore: CoinTypeStore
+    private val coinTypeStore: CoinTypeStore,
+    private val remoteConfigService: RemoteConfigService
 ) : NonCustodialService {
 
     private val supportedCoins: Single<Map<String, CoinType>>
         get() = getAllSupportedCoins()
 
     private fun getAllSupportedCoins(): Single<Map<String, CoinType>> {
-        return networkConfigsFF.enabled.flatMap { isEnabled ->
-            if (isEnabled) {
-                coinTypeStore.stream(FreshnessStrategy.Cached(false)).asSingle().map { coinTypes ->
-                    coinTypes.map { coinTypeDto ->
-                        coinTypeDto.derivations.map { derivationDto ->
-                            CoinType(
-                                network = coinTypeDto.type,
-                                type = derivationDto.coinType,
-                                purpose = derivationDto.purpose
-                            )
-                        }
+        return coinTypeStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+            .asSingle().map { coinTypes ->
+                coinTypes.map { coinTypeDto ->
+                    coinTypeDto.derivations.map { derivationDto ->
+                        CoinType(
+                            network = coinTypeDto.type,
+                            type = derivationDto.coinType,
+                            purpose = derivationDto.purpose
+                        )
                     }
-                        .flatten()
-                        .associateBy { it.network.name }
                 }
-            } else {
-                remoteConfigService.getRawJson(COIN_CONFIGURATIONS).map { json ->
-                    jsonBuilder.decodeFromString<Map<String, CoinConfiguration>>(json)
-                        .map {
-                            CoinType(
-                                network = NetworkType.valueOf(it.key),
-                                type = it.value.coinType,
-                                purpose = it.value.purpose
-                            )
-                        }.associateBy { it.network.name }
-                }
+                    .flatten()
+                    .associateBy { it.network.name }
             }
-        }
     }
 
-    override suspend fun getCoinTypeFor(currency: Currency): CoinType? {
-        return supportedCoins.await()[currency.networkTicker]
+    override fun getCoinTypeFor(currency: Currency): Maybe<CoinType> {
+        return supportedCoins.flatMapMaybe {
+            it[currency.networkTicker]?.let { type ->
+                Maybe.just(type)
+            } ?: Maybe.empty()
+        }
     }
 
     override fun getSubscriptions(refreshStrategy: FreshnessStrategy): Flow<Outcome<Exception, List<String>>> {
@@ -115,24 +104,7 @@ internal class NonCustodialRepository(
         )
             .map { it.success }
 
-    override suspend fun getBalances(currencies: List<String>):
-        Outcome<Exception, List<NonCustodialAccountBalance>> =
-        dynamicSelfCustodyService.getBalances(
-            currencies = currencies,
-            fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker
-        ).map { balancesResponse ->
-            balancesResponse.balances.mapNotNull { balanceResponse ->
-                NonCustodialAccountBalance(
-                    networkTicker = balanceResponse.currency,
-                    amount = balanceResponse.balance?.amount ?: return@mapNotNull null,
-                    pending = balanceResponse.pending?.amount ?: return@mapNotNull null,
-                    price = balanceResponse.price
-                )
-            }
-        }
-
-    override suspend fun getAddresses(currencies: List<String>):
-        Outcome<Exception, List<NonCustodialDerivedAddress>> =
+    override suspend fun getAddresses(currencies: List<String>): Outcome<Exception, List<NonCustodialDerivedAddress>> =
         dynamicSelfCustodyService.getAddresses(
             currencies = currencies
         ).map { addressesResponse ->
@@ -169,7 +141,7 @@ internal class NonCustodialRepository(
         type: String,
         transactionTarget: String,
         amount: String,
-        fee: String,
+        fee: FeeLevel,
         memo: String,
         feeCurrency: String
     ): Outcome<Exception, BuildTxResponse> =
@@ -179,12 +151,14 @@ internal class NonCustodialRepository(
             type,
             transactionTarget,
             amount,
-            fee,
-            memo
+            fee.toNetwork(),
+            memo,
+            swapTx = null,
+            spender = null
         )
 
     override fun getFeeCurrencyFor(asset: AssetInfo): AssetInfo =
-        asset.l1chainTicker?.let { ticker ->
+        asset.coinNetwork?.nativeAssetTicker?.let { ticker ->
             (assetCatalogue.fromNetworkTicker(ticker) as? AssetInfo) ?: asset
         } ?: asset
 
@@ -205,6 +179,27 @@ internal class NonCustodialRepository(
                 )
             }
         )
+
+    override suspend fun getFeeOptions(asset: AssetInfo): Outcome<Exception, Map<FeeLevel, CryptoValue>> {
+        // We're currently storing this as a Map<AssetNetworkTicker, FeeInMinor> in Firebase RemoteConfig
+        val serializer = MapSerializer(String.serializer(), String.serializer())
+        return remoteConfigService.getParsedJsonValue(
+            "blockchain_app_configuration_dynamicselfcustody_static_fee",
+            serializer
+        ).flatMap { response ->
+            val assetFees = response[asset.networkTicker] ?: return@flatMap Outcome.Failure(
+                UnsupportedOperationException("Network fees for ${asset.networkTicker} not found")
+            )
+            val amount = try {
+                BigInteger(assetFees)
+            } catch (ex: Exception) {
+                return@flatMap Outcome.Failure(
+                    IllegalArgumentException("Error parsing network fees for ${asset.networkTicker}")
+                )
+            }
+            Outcome.Success(mapOf(FeeLevel.NORMAL to CryptoValue.fromMinor(asset, amount)))
+        }
+    }
 
     private fun getHashedString(input: String): String = String(Hex.encode(Sha256Hash.hash(input.toByteArray())))
 
@@ -234,3 +229,5 @@ private fun TransactionResponse.toHistoryEvent(): NonCustodialTxHistoryItem {
         status = status ?: Status.PENDING
     )
 }
+
+private fun FeeLevel.toNetwork(): String = this.name

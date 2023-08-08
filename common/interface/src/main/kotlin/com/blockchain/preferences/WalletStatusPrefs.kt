@@ -7,6 +7,10 @@ interface WalletStatusPrefs {
     val isWalletBackedUp: Boolean
     var isWalletBackUpSkipped: Boolean
 
+    var hasSeenCustodialOnboarding: Boolean
+    var hasSeenDefiOnboarding: Boolean
+    var hasSeenEarnProductIntro: Boolean
+
     val isWalletFunded: Boolean
     fun setWalletFunded()
 

@@ -20,7 +20,8 @@ fun <T> rememberFlow(
 ): Flow<T> {
     return remember(key1 = flow, key2 = lifecycleOwner) {
         flow.flowWithLifecycle(
-            lifecycleOwner.lifecycle, Lifecycle.State.STARTED
+            lifecycleOwner.lifecycle,
+            Lifecycle.State.STARTED
         )
     }
 }

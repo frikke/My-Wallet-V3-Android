@@ -12,7 +12,7 @@ val addressVerificationModule = module {
         factory<AddressVerificationService> {
             AddressVerificationRepository(
                 api = get(),
-                userService = get(),
+                userService = get()
             )
         }
 

@@ -32,6 +32,7 @@ class TransactionSummary(
         WITHDRAW,
         INTEREST_EARNED,
         RECURRING_BUY,
+        DEBIT,
         UNKNOWN
     }
 

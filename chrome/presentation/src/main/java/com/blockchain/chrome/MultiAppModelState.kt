@@ -6,8 +6,13 @@ import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.Money
 
 data class MultiAppModelState(
-    val walletModes: List<WalletMode>,
-    val selectedWalletMode: WalletMode,
+    val walletModes: List<WalletMode>? = null,
+    val selectedWalletMode: WalletMode? = null,
+    val selectedBottomNavigationItem: ChromeBottomNavigationItem = ChromeBottomNavigationItem.Home,
+    val dexEnabled: Boolean = false,
     val totalBalance: DataResource<Money> = DataResource.Loading,
-    val balanceRevealed: Boolean = false
+    val custodialBalance: DataResource<Money> = DataResource.Loading,
+    val defiBalance: DataResource<Money> = DataResource.Loading,
+    val balanceRevealed: Boolean = false,
+    val checkAppRating: Boolean = true
 ) : ModelState

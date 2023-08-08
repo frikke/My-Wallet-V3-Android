@@ -13,7 +13,7 @@ interface SimpleBuyPrefsSerializer {
 
 internal class SimpleBuyPrefsSerializerImpl(
     private val prefs: SimpleBuyPrefs,
-    private val json: Json,
+    private val json: Json
 ) : SimpleBuyPrefsSerializer {
 
     override fun fetch(): SimpleBuyState? = prefs.simpleBuyState()?.decode()

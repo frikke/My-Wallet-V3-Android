@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.transactionflow
 
 import android.content.Context
 import com.blockchain.koin.defaultOrder
-import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.swapSourceOrder
@@ -16,8 +15,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionInteractor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxFlowErrorReporting
-import piuk.blockchain.android.ui.transactionflow.engine.data.QuickFillRoundingRepository
-import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.flow.AmountFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.AvailableToTradePropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.AvailableToWithdrawPropertyFormatter
@@ -29,6 +26,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.ExchangePriceFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.FromPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.NetworkFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.PaymentMethodPropertyFormatter
+import piuk.blockchain.android.ui.transactionflow.flow.ProcessingFeeFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.ReadMoreDisclaimerPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SalePropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.SignEthMessagePropertyFormatter
@@ -57,8 +55,7 @@ val transactionModule = module {
     factory {
         TransactionFlowCustomiserImpl(
             resources = get<Context>().resources,
-            assetResources = get(),
-            walletModeService = get()
+            assetResources = get()
         )
     }.apply {
         bind(TransactionFlowCustomiser::class)
@@ -169,6 +166,12 @@ val transactionModule = module {
     }.bind(TxOptionsFormatterCheckout::class)
 
     factory {
+        ProcessingFeeFormatter(
+            context = get()
+        )
+    }.bind(TxOptionsFormatterCheckout::class)
+
+    factory {
         AmountFormatter(
             context = get()
         )
@@ -211,13 +214,6 @@ val transactionModule = module {
         )
     }
 
-    factory {
-        QuickFillRoundingRepository(
-            remoteConfigService = get(),
-            json = get()
-        )
-    }.bind(QuickFillRoundingService::class)
-
     scope(transactionFlowActivityScope) {
         scoped {
             TransactionInteractor(
@@ -236,13 +232,11 @@ val transactionModule = module {
                 bankLinkingPrefs = payloadScope.get(),
                 dismissRecorder = payloadScope.get(),
                 fiatCurrenciesService = payloadScope.get(),
-                quickFillRoundingService = get(),
-                hideDustFF = payloadScope.get(hideDustFeatureFlag),
-                localSettingsPrefs = get(),
+                tradeDataService = payloadScope.get(),
                 improvedPaymentUxFF = payloadScope.get(improvedPaymentUxFeatureFlag),
-                dynamicAssetRepository = payloadScope.get(),
                 stakingService = payloadScope.get(),
-                transactionPrefs = payloadScope.get()
+                transactionPrefs = payloadScope.get(),
+                activeRewardsService = payloadScope.get()
             )
         }
 
@@ -251,7 +245,6 @@ val transactionModule = module {
                 initialState = TransactionState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
-                walletModeService = get(),
                 errorLogger = get(),
                 environmentConfig = get(),
                 remoteLogger = get()

@@ -1,17 +1,20 @@
 package com.blockchain.nabu.datamanagers.repositories.swap
 
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.nabu.datamanagers.CurrencyPair
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
+import com.blockchain.data.mapData
+import com.blockchain.data.toObservable
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.CustodialOrderState
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toCustodialOrderState
-import com.blockchain.store.asSingle
-import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
 
@@ -22,7 +25,7 @@ class CustodialRepository(
 ) {
 
     fun getSwapAvailablePairs(): Single<List<CurrencyPair>> =
-        pairsStore.stream(FreshnessStrategy.Cached(true))
+        pairsStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .mapData { pairList ->
                 pairList.mapNotNull { pair ->
                     val parts = pair.split("-")
@@ -36,16 +39,18 @@ class CustodialRepository(
 
     fun getCustodialActivityForAsset(
         cryptoCurrency: AssetInfo,
-        directions: Set<TransferDirection>
-    ): Single<List<TradeTransactionItem>> =
+        directions: Set<TransferDirection>,
+        freshnessStrategy: FreshnessStrategy
+    ): Observable<List<TradeTransactionItem>> =
 
         swapActivityStore.stream(
-            FreshnessStrategy.Cached(forceRefresh = true)
+            freshnessStrategy
         )
             .mapData { response ->
                 response.mapNotNull {
                     val pair = CurrencyPair.fromRawPair(
-                        it.pair, assetCatalogue
+                        it.pair,
+                        assetCatalogue
                     ) ?: return@mapNotNull null
                     val fiatCurrency =
                         assetCatalogue.fiatFromNetworkTicker(it.fiatCurrency) ?: return@mapNotNull null
@@ -77,7 +82,7 @@ class CustodialRepository(
                         it.sendingValue.currency == cryptoCurrency &&
                         directions.contains(it.direction)
                 }
-            }.asSingle()
+            }.toObservable()
 
     companion object {
         const val LONG_CACHE = 60000L

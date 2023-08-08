@@ -73,12 +73,16 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         setupBackPress()
 
         updateToolbar(
-            toolbarTitle = getString(R.string.manual_pairing),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.manual_pairing),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
+        updateToolbarBackground()
         with(binding) {
             binding.walletId.disableInputForDemoAccount()
-            commandNext.setOnClickListener { presenter.onContinueClicked(guid, password) }
+            commandNext.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_continue)
+                onClick = { presenter.onContinueClicked(guid, password) }
+            }
             binding.walletId.setText(prefilledGuid)
             walletPass.setOnEditorActionListener { _, i, _ ->
                 if (i == EditorInfo.IME_ACTION_GO) {
@@ -111,8 +115,8 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
     override fun updateWaitingForAuthDialog(secondsRemaining: Int) =
         updateProgressDialog(
             msg = getString(
-                R.string.common_spaced_strings,
-                getString(R.string.check_email_to_auth_login),
+                com.blockchain.stringResources.R.string.common_spaced_strings,
+                getString(com.blockchain.stringResources.R.string.check_email_to_auth_login),
                 secondsRemaining.toString()
             ),
             onCancel = {
@@ -128,7 +132,6 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         guid: String,
         password: String
     ) {
-
         hideKeyboard()
 
         val dialog = getTwoFactorDialog(this, authType, walletPrefs, positiveAction = {
@@ -139,22 +142,26 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
                 it
             )
         }, resendAction = { limitReached ->
-            if (!limitReached) {
-                presenter.requestNew2FaCode(password, guid)
-            } else {
-                showSnackbar(R.string.two_factor_retries_exceeded, SnackbarType.Error)
-                if (!isTwoFATimerRunning) {
-                    twoFATimer.start()
+                if (!limitReached) {
+                    presenter.requestNew2FaCode(password, guid)
+                } else {
+                    showSnackbar(
+                        com.blockchain.stringResources.R.string.two_factor_retries_exceeded,
+                        SnackbarType.Error
+                    )
+                    if (!isTwoFATimerRunning) {
+                        twoFATimer.start()
+                    }
                 }
-            }
-        })
+            })
 
         showAlert(dialog)
     }
 
     override fun resetPasswordField() {
-        if (!isFinishing)
+        if (!isFinishing) {
             binding.walletPass.setText("")
+        }
     }
 
     public override fun onDestroy() {
@@ -177,8 +184,9 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
     private fun TextInputEditText.disableInputForDemoAccount() {
         addTextChangedListener(object : AfterTextChangedWatcher() {
             override fun afterTextChanged(text: Editable) {
-                if (text.toString().isNotEmpty() && text.toString() == BuildConfig.PLAY_STORE_DEMO_WALLET_ID)
+                if (text.toString().isNotEmpty() && text.toString() == BuildConfig.PLAY_STORE_DEMO_WALLET_ID) {
                     inputType = InputType.TYPE_NULL
+                }
             }
         })
     }

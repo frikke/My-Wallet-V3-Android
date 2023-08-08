@@ -6,7 +6,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.RemoteException
 import androidx.appcompat.app.AppCompatDelegate
@@ -20,10 +19,10 @@ import com.blockchain.core.connectivity.SSLPinningObservable
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.KoinStarter
 import com.blockchain.lifecycle.LifecycleInterestedComponent
-import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AppInfoPrefs.Companion.DEFAULT_APP_VERSION_CODE
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.facebook.stetho.Stetho
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.android.gms.common.ConnectionResult
@@ -31,7 +30,6 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
 import com.google.firebase.FirebaseApp
-import io.embrace.android.embracesdk.Embrace
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -57,13 +55,13 @@ open class BlockchainApplication : Application() {
     private val remoteLogger: RemoteLogger by inject()
     private val trust: SiftDigitalTrust by inject()
     private val fraudService: FraudService by inject()
+    private val walletConnectV2Service: WalletConnectV2Service by inject()
 
     private val lifecycleListener: AppLifecycleListener by lazy {
         AppLifecycleListener(lifeCycleInterestedComponent, remoteLogger)
     }
 
     override fun onCreate() {
-
         if (MissingSplitsManagerFactory.create(this).disableAppIfMissingRequiredSplits()) {
             // Skip rest of the initialization to prevent the app from crashing.
             return
@@ -72,8 +70,6 @@ open class BlockchainApplication : Application() {
         super.onCreate()
 
         FirebaseApp.initializeApp(this)
-        Embrace.getInstance().start(this, BuildConfig.DEBUG)
-        Embrace.getInstance().startEvent(MomentEvent.LAUNCHER_TO_SPLASH.value)
 
         // TODO disable dark mode for now, re-enable once we're further into the redesign
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -114,12 +110,23 @@ open class BlockchainApplication : Application() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onNext = ::onConnectionEvent)
 
+        // Init WalletConnect
+        walletConnectV2Service.initWalletConnect(
+            application = this,
+            projectId = BuildConfig.WALLETCONNECT_PROJECT_ID,
+            relayUrl = BuildConfig.WALLETCONNECT_RELAY_URL,
+        )
+
         AppVersioningChecks(
             context = this,
             appInfoPrefs = appInfoPrefs,
             onAppInstalled = { code, name, installReferrer, installTimestampSeconds, adId ->
                 onAppInstalled(
-                    code, name, installReferrer, installTimestampSeconds, adId
+                    code,
+                    name,
+                    installReferrer,
+                    installTimestampSeconds,
+                    adId
                 )
             },
             onAppAppUpdated = { appUpdated -> onAppUpdated(appUpdated) }
@@ -165,27 +172,25 @@ open class BlockchainApplication : Application() {
     }
 
     private fun initNotifications() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            // Create the NotificationChannel
-            val channel2FA = NotificationChannel(
-                "notifications_2fa",
-                getString(R.string.notification_2fa_summary),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply { description = getString(R.string.notification_2fa_description) }
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        // Create the NotificationChannel
+        val channel2FA = NotificationChannel(
+            "notifications_2fa",
+            getString(com.blockchain.stringResources.R.string.notification_2fa_summary),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply { description = getString(com.blockchain.stringResources.R.string.notification_2fa_description) }
 
-            // We create two channels, since the user may want to opt out of
-            // payments notifications in the settings, and we don't need the
-            // high importance flag on those.
-            val channelPayments = NotificationChannel(
-                "notifications_payments",
-                getString(R.string.notification_payments_summary),
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply { description = getString(R.string.notification_payments_description) }
-            // TODO do we want some custom vibration pattern?
-            notificationManager.createNotificationChannel(channel2FA)
-            notificationManager.createNotificationChannel(channelPayments)
-        }
+        // We create two channels, since the user may want to opt out of
+        // payments notifications in the settings, and we don't need the
+        // high importance flag on those.
+        val channelPayments = NotificationChannel(
+            "notifications_payments",
+            getString(com.blockchain.stringResources.R.string.notification_payments_summary),
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply { description = getString(com.blockchain.stringResources.R.string.notification_payments_description) }
+        // TODO do we want some custom vibration pattern?
+        notificationManager.createNotificationChannel(channel2FA)
+        notificationManager.createNotificationChannel(channelPayments)
     }
 
     private fun initRemoteLogger() {
@@ -353,9 +358,11 @@ private class AppVersioningChecks(
                                     referrerClient.endConnection()
                                 }
                             }
+
                             InstallReferrerClient.InstallReferrerResponse.FEATURE_NOT_SUPPORTED -> {
                                 referrerClient.endConnection()
                             }
+
                             InstallReferrerClient.InstallReferrerResponse.SERVICE_UNAVAILABLE -> {
                                 referrerClient.endConnection()
                             }
@@ -376,7 +383,6 @@ private class AppVersioningChecks(
     }
 
     private fun checkForPotentialUpdate(installedVersion: String) {
-
         val runningVersionName = BuildConfig.VERSION_NAME
         val runningVersionCode = BuildConfig.VERSION_CODE
         val versionCodeUpdated = runningVersionCode != appInfoPrefs.currentStoredVersionCode

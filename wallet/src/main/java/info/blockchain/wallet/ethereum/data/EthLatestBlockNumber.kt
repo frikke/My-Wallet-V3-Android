@@ -1,4 +1,5 @@
 @file:UseSerializers(BigIntSerializer::class)
+
 package info.blockchain.wallet.ethereum.data
 
 import com.blockchain.serializers.BigIntSerializer

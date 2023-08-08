@@ -11,7 +11,9 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.fiat.FiatWithdrawalTxEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
@@ -23,7 +25,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -114,7 +115,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             on { withdrawable }.thenReturn(expectedBalance)
         }
         val sourceAccount = mock<FiatAccount>()
-        whenever(sourceAccount.balanceRx).thenReturn(Observable.just(balance))
+        whenever(sourceAccount.balanceRx(any())).thenReturn(Observable.just(balance))
         whenever(sourceAccount.currency).thenReturn(TEST_API_FIAT)
 
         val expectedMinAmountAndFee = FiatWithdrawalFeeAndLimit(
@@ -157,8 +158,8 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             outputCurrency = eq(TEST_API_FIAT),
             sourceCurrency = eq(TEST_API_FIAT),
             targetCurrency = eq(TEST_API_FIAT),
-            sourceAccountType = eq(AssetCategory.CUSTODIAL),
-            targetAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            sourceAccountType = eq(CUSTODIAL_LIMITS_ACCOUNT),
+            targetAccountType = eq(NON_CUSTODIAL_LIMITS_ACCOUNT),
             legacyLimits = any()
         )
     }
@@ -472,7 +473,8 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
         )
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertComplete()
             .assertNoErrors()
@@ -522,7 +524,8 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
         )
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertError {
                 it == exception

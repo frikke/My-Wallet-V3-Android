@@ -6,7 +6,7 @@ import com.blockchain.analytics.events.AnalyticsNames
 
 sealed class NotificationAnalyticsEvents(
     override val event: String,
-    override val params: Map<String, String>,
+    override val params: Map<String, String>
 ) : AnalyticsEvent {
 
     data class PushNotificationReceived(

@@ -24,7 +24,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
@@ -59,7 +58,7 @@ class LimitsDataManagerImplTest {
     private val subject = LimitsDataManagerImpl(
         limitsService = limitsService,
         exchangeRatesDataManager = exchangeRatesDataManager,
-        assetCatalogue = assetCatalogue,
+        assetCatalogue = assetCatalogue
     )
 
     @Before
@@ -102,8 +101,8 @@ class LimitsDataManagerImplTest {
             outputCurrency = OUTPUT_CRYPTO_CURRENCY,
             sourceCurrency = OUTPUT_CRYPTO_CURRENCY,
             targetCurrency = CryptoCurrency.ETHER,
-            sourceAccountType = AssetCategory.NON_CUSTODIAL,
-            targetAccountType = AssetCategory.CUSTODIAL,
+            sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
             legacyLimits = legacyLimitsSingle
         ).test()
             .assertComplete()
@@ -136,8 +135,8 @@ class LimitsDataManagerImplTest {
             outputCurrency = OUTPUT_FIAT_CURRENCY,
             sourceCurrency = OUTPUT_FIAT_CURRENCY,
             targetCurrency = CryptoCurrency.ETHER,
-            sourceAccountType = AssetCategory.NON_CUSTODIAL,
-            targetAccountType = AssetCategory.CUSTODIAL,
+            sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
             legacyLimits = legacyLimitsSingle
         ).test()
             .assertComplete()
@@ -186,8 +185,8 @@ class LimitsDataManagerImplTest {
             outputCurrency = OUTPUT_CRYPTO_CURRENCY,
             sourceCurrency = OUTPUT_CRYPTO_CURRENCY,
             targetCurrency = CryptoCurrency.ETHER,
-            sourceAccountType = AssetCategory.NON_CUSTODIAL,
-            targetAccountType = AssetCategory.CUSTODIAL,
+            sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
             legacyLimits = legacyLimitsSingle
         ).test()
             .assertComplete()
@@ -219,14 +218,16 @@ class LimitsDataManagerImplTest {
                         listOf(
                             TxPeriodicLimit(
                                 amount = CryptoValue.fromMinor(
-                                    OUTPUT_CRYPTO_CURRENCY, SUGGESTED_DAILY_LIMIT.toBigInteger()
+                                    OUTPUT_CRYPTO_CURRENCY,
+                                    SUGGESTED_DAILY_LIMIT.toBigInteger()
                                 ),
                                 period = TxLimitPeriod.DAILY,
                                 effective = false
                             ),
                             TxPeriodicLimit(
                                 amount = CryptoValue.fromMinor(
-                                    OUTPUT_CRYPTO_CURRENCY, SUGGESTED_YEARLY_LIMIT.toBigInteger()
+                                    OUTPUT_CRYPTO_CURRENCY,
+                                    SUGGESTED_YEARLY_LIMIT.toBigInteger()
                                 ),
                                 period = TxLimitPeriod.YEARLY,
                                 effective = false
@@ -240,8 +241,8 @@ class LimitsDataManagerImplTest {
             outputCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
             sourceCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
             targetCurrency = "ETH",
-            sourceAccountType = AssetCategory.NON_CUSTODIAL.name,
-            targetAccountType = AssetCategory.CUSTODIAL.name
+            sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT
         )
         verify(assetCatalogue, atLeastOnce()).fromNetworkTicker(OUTPUT_CRYPTO_CURRENCY.networkTicker)
         verify(exchangeRatesDataManager).exchangeRateLegacy(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
@@ -269,8 +270,8 @@ class LimitsDataManagerImplTest {
             outputCurrency = OUTPUT_FIAT_CURRENCY,
             sourceCurrency = OUTPUT_FIAT_CURRENCY,
             targetCurrency = CryptoCurrency.ETHER,
-            sourceAccountType = AssetCategory.NON_CUSTODIAL,
-            targetAccountType = AssetCategory.CUSTODIAL,
+            sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
             legacyLimits = legacyLimitsSingle
         ).test()
             .assertComplete()
@@ -284,8 +285,8 @@ class LimitsDataManagerImplTest {
             OUTPUT_FIAT_CURRENCY.networkTicker,
             OUTPUT_FIAT_CURRENCY.networkTicker,
             "ETH",
-            AssetCategory.NON_CUSTODIAL.name,
-            AssetCategory.CUSTODIAL.name
+            NON_CUSTODIAL_LIMITS_ACCOUNT,
+            CUSTODIAL_LIMITS_ACCOUNT
         )
     }
 
@@ -296,24 +297,30 @@ class LimitsDataManagerImplTest {
                 FeatureLimitResponse(FeatureName.SEND_CRYPTO.name, true, null), // Unspecified
                 FeatureLimitResponse(FeatureName.RECEIVE_CRYPTO.name, false, null), // Disabled
                 FeatureLimitResponse(
-                    FeatureName.SWAP_CRYPTO.name, true, FeaturePeriodicLimit(null, "YEAR")
+                    FeatureName.SWAP_CRYPTO.name,
+                    true,
+                    FeaturePeriodicLimit(null, "YEAR")
                 ), // Infinite
                 FeatureLimitResponse(
-                    FeatureName.BUY_AND_SELL.name, true,
+                    FeatureName.BUY_AND_SELL.name,
+                    true,
                     FeaturePeriodicLimit(ApiMoneyMinor("USD", "4000"), "DAY")
                 ), // Limited
                 FeatureLimitResponse(
-                    FeatureName.BUY_WITH_CARD.name, true,
+                    FeatureName.BUY_WITH_CARD.name,
+                    true,
                     FeaturePeriodicLimit(ApiMoneyMinor("USD", "5000"), "MONTH")
                 ), // Limited
                 FeatureLimitResponse(
-                    FeatureName.BUY_AND_DEPOSIT_WITH_BANK.name, true,
+                    FeatureName.BUY_AND_DEPOSIT_WITH_BANK.name,
+                    true,
                     FeaturePeriodicLimit(ApiMoneyMinor("USD", "6000"), "YEAR")
                 ), // Limited
                 FeatureLimitResponse(
-                    "UNKNOWN", true,
+                    "UNKNOWN",
+                    true,
                     FeaturePeriodicLimit(ApiMoneyMinor("USD", "6000"), "YEAR")
-                ),
+                )
             )
         )
         whenever(limitsService.getFeatureLimits()).thenReturn(Single.just(response))
@@ -357,7 +364,7 @@ class LimitsDataManagerImplTest {
                                 )
                             )
                         )
-                    ),
+                    )
                 ) && limits.none {
                     it.feature == Feature.FIAT_WITHDRAWAL ||
                         it.feature == Feature.REWARDS

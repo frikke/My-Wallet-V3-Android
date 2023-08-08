@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.presentation.complexcomponents.QuickFillRowView
@@ -13,13 +14,11 @@ import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import kotlin.math.floor
-import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.PrefillAmounts
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
-import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.convertFiatToCrypto
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 
@@ -64,15 +63,9 @@ class QuickFillRowView @JvmOverloads constructor(
             maxButtonText = customiser.quickFillRowMaxButtonLabel(state)
 
             onMaxItemClick = { maxAmount ->
+                model.process(TransactionIntent.UseMaxSpendable)
+
                 state.fiatRate?.let { rate ->
-                    model.process(
-                        TransactionIntent.UpdatePrefillAmount(
-                            PrefillAmounts(
-                                cryptoValue = maxAmount,
-                                fiatValue = state.convertBalanceToFiat(maxAmount, rate)
-                            )
-                        )
-                    )
                     analytics.onQuickMaxClicked(
                         state = state,
                         maxAmount = maxAmount
@@ -117,12 +110,14 @@ class QuickFillRowView @JvmOverloads constructor(
         }
 
         quickFillButtonData = QuickFillButtonData(
-            maxAmount = state.maxSpendable,
-            quickFillButtons = listOfAmounts.map { amount ->
+            maxAmount = state.maxSpendable.takeIf { it.isPositive },
+            quickFillButtons = listOfAmounts.distinct().map { amount ->
+                val index = listOfAmounts.indexOf(amount)
                 QuickFillDisplayAndAmount(
                     displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
                     amount = amount,
-                    position = listOfAmounts.indexOf(amount)
+                    roundingData = roundingData[index],
+                    position = index,
                 )
             }
         )
@@ -156,9 +151,18 @@ class QuickFillRowView @JvmOverloads constructor(
 
         val multiplierValues =
             listOf(
-                Pair(TWENTY_FIVE_PERCENT, resources.getString(R.string.enter_amount_quickfill_25)),
-                Pair(FIFTY_PERCENT, resources.getString(R.string.enter_amount_quickfill_50)),
-                Pair(SEVENTY_FIVE_PERCENT, resources.getString(R.string.enter_amount_quickfill_75))
+                Pair(
+                    TWENTY_FIVE_PERCENT,
+                    resources.getString(com.blockchain.stringResources.R.string.enter_amount_quickfill_25)
+                ),
+                Pair(
+                    FIFTY_PERCENT,
+                    resources.getString(com.blockchain.stringResources.R.string.enter_amount_quickfill_50)
+                ),
+                Pair(
+                    SEVENTY_FIVE_PERCENT,
+                    resources.getString(com.blockchain.stringResources.R.string.enter_amount_quickfill_75)
+                )
             )
 
         multiplierValues.forEach { value ->
@@ -169,6 +173,7 @@ class QuickFillRowView @JvmOverloads constructor(
                     QuickFillDisplayAndAmount(
                         displayValue = value.second,
                         amount = prefillAmount,
+                        roundingData = QuickFillRoundingData.SellSwapRoundingData(value.first, listOf(1)),
                         position = multiplierValues.indexOf(value)
                     )
                 )
@@ -176,8 +181,8 @@ class QuickFillRowView @JvmOverloads constructor(
         }
 
         quickFillButtonData = QuickFillButtonData(
-            maxAmount = state.maxSpendable,
-            quickFillButtons = listOfAmounts
+            maxAmount = state.maxSpendable.takeIf { it.isPositive },
+            quickFillButtons = listOfAmounts.distinct()
         )
 
         onQuickFillItemClick = { quickFillData ->
@@ -255,7 +260,8 @@ class QuickFillRowView @JvmOverloads constructor(
 
     private fun roundToNearest(lastAmount: Money, nearest: Int): Money {
         return Money.fromMajor(
-            lastAmount.currency, (nearest * (floor(lastAmount.toFloat() / nearest))).toBigDecimal()
+            lastAmount.currency,
+            (nearest * (floor(lastAmount.toFloat() / nearest))).toBigDecimal()
         )
     }
 
@@ -267,12 +273,6 @@ class QuickFillRowView @JvmOverloads constructor(
         private const val TWENTY_FIVE_PERCENT = 0.25f
         private const val FIFTY_PERCENT = 0.5f
         private const val SEVENTY_FIVE_PERCENT = 0.75f
-        private const val NEAREST_ONE = 1
-        private const val NEAREST_TEN = 10
-        private const val NEAREST_TWENTY_FIVE = 25
-        private const val NEAREST_HUNDRED = 100
-        private const val NEAREST_FIVE_HUNDRED = 500
-        private const val NEAREST_THOUSAND = 1000
     }
 }
 

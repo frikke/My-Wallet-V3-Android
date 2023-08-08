@@ -61,29 +61,52 @@ private class HeaderItemViewHolder(
     fun bind(item: KycLimitsItem.HeaderItem, onHeaderCtaClicked: (Header) -> Unit) {
         with(binding) {
             textTitle.text = when (item.header) {
-                Header.NEW_KYC -> context.getString(R.string.feature_limits_header_bronze_title)
-                Header.UPGRADE_TO_GOLD -> context.getString(R.string.feature_limits_header_silver_title)
+                Header.NEW_KYC -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_header_bronze_title
+                )
+
+                Header.UPGRADE_TO_GOLD -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_header_silver_title
+                )
+
                 Header.MAX_TIER_REACHED,
                 Header.HIDDEN -> null
             }
             textTitle.visibleIf { item.header != Header.MAX_TIER_REACHED }
 
             textDescription.text = when (item.header) {
-                Header.NEW_KYC -> context.getString(R.string.feature_limits_header_bronze_description)
-                Header.UPGRADE_TO_GOLD -> context.getString(R.string.feature_limits_header_silver_description)
-                Header.MAX_TIER_REACHED -> context.getString(R.string.feature_limits_header_denied_description)
+                Header.NEW_KYC -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_header_bronze_description
+                )
+
+                Header.UPGRADE_TO_GOLD -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_header_silver_description
+                )
+
+                Header.MAX_TIER_REACHED -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_header_denied_description
+                )
+
                 Header.HIDDEN -> null
             }
 
-            btnCta.text = when (item.header) {
-                Header.NEW_KYC -> context.getString(R.string.feature_limits_header_bronze_cta)
-                Header.UPGRADE_TO_GOLD -> context.getString(R.string.feature_limits_header_silver_cta)
-                Header.MAX_TIER_REACHED -> null
-                Header.HIDDEN -> null
-            }
-            btnCta.visibleIf { item.header != Header.MAX_TIER_REACHED }
-            btnCta.setOnClickListener {
-                onHeaderCtaClicked(item.header)
+            btnCta.apply {
+                text = when (item.header) {
+                    Header.NEW_KYC -> context.getString(
+                        com.blockchain.stringResources.R.string.feature_limits_header_bronze_cta
+                    )
+
+                    Header.UPGRADE_TO_GOLD -> context.getString(
+                        com.blockchain.stringResources.R.string.feature_limits_header_silver_cta
+                    )
+
+                    Header.MAX_TIER_REACHED -> ""
+                    Header.HIDDEN -> ""
+                }
+                visibleIf { item.header != Header.MAX_TIER_REACHED }
+                onClick = {
+                    onHeaderCtaClicked(item.header)
+                }
             }
         }
     }
@@ -137,16 +160,25 @@ private class CurrentTierItemViewHolder(
                 when (item.tier) {
                     KycTier.BRONZE -> R.drawable.ic_blockchain_logo
                     KycTier.SILVER -> R.drawable.ic_blockchain_logo
-                    KycTier.GOLD -> R.drawable.ic_verification_badge
+                    KycTier.GOLD -> com.blockchain.common.R.drawable.ic_verification_badge
                 }
             )
 
             textTier.text = when (item.tier) {
                 KycTier.BRONZE -> ""
-                KycTier.SILVER -> context.getString(R.string.feature_limits_silver_limits)
-                KycTier.GOLD -> context.getString(R.string.feature_limits_gold_limits)
+                KycTier.SILVER -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_silver_limits
+                )
+
+                KycTier.GOLD -> context.getString(com.blockchain.stringResources.R.string.feature_limits_gold_limits)
             }
             textGoldTierDescription.visibleIf { item.tier == KycTier.GOLD }
+
+            textTierState.apply {
+                text = context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_tier_state_approved
+                )
+            }
         }
     }
 }
@@ -182,46 +214,99 @@ class FeatureWithLimitItemViewHolder(
                     Feature.CARD_PURCHASES -> R.drawable.vector_card
                     Feature.FIAT_DEPOSIT -> R.drawable.ic_transfer_bank
                     Feature.FIAT_WITHDRAWAL -> R.drawable.ic_transfer_bank
-                    Feature.REWARDS -> R.drawable.ic_bottom_nav_earn
+                    Feature.REWARDS -> com.blockchain.componentlib.R.drawable.ic_bottom_nav_earn
                 }
             )
 
             textFeature.text = when (item.feature) {
-                Feature.SEND_FROM_TRADING_TO_PRIVATE -> context.getString(R.string.feature_limits_send_crypto)
-                Feature.RECEIVE_TO_TRADING -> context.getString(R.string.feature_limits_receive_crypto)
-                Feature.SWAP -> context.getString(R.string.feature_limits_swap_crypto)
-                Feature.BUY_SELL -> context.getString(R.string.feature_limits_buy_sell)
-                Feature.CARD_PURCHASES -> context.getString(R.string.feature_limits_card_purchases)
-                Feature.FIAT_DEPOSIT -> context.getString(R.string.feature_limits_deposits)
-                Feature.FIAT_WITHDRAWAL -> context.getString(R.string.feature_limits_withdrawals)
-                Feature.REWARDS -> context.getString(R.string.feature_limits_earn_rewards)
+                Feature.SEND_FROM_TRADING_TO_PRIVATE -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_send_crypto
+                )
+
+                Feature.RECEIVE_TO_TRADING -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_receive_crypto
+                )
+
+                Feature.SWAP -> context.getString(com.blockchain.stringResources.R.string.feature_limits_swap_crypto)
+                Feature.BUY_SELL -> context.getString(com.blockchain.stringResources.R.string.feature_limits_buy_sell)
+                Feature.CARD_PURCHASES -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_card_purchases
+                )
+
+                Feature.FIAT_DEPOSIT -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_deposits
+                )
+
+                Feature.FIAT_WITHDRAWAL -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_withdrawals
+                )
+
+                Feature.REWARDS -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_earn_rewards
+                )
             }
             val featureDescriptionText = when (item.feature) {
-                Feature.SEND_FROM_TRADING_TO_PRIVATE -> context.getString(R.string.feature_limits_from_trading_accounts)
-                Feature.RECEIVE_TO_TRADING -> context.getString(R.string.feature_limits_to_trading_accounts)
-                Feature.SWAP -> context.getString(R.string.feature_limits_swap_description)
-                Feature.BUY_SELL -> context.getString(R.string.feature_limits_buy_sell_description)
-                Feature.CARD_PURCHASES -> context.getString(R.string.feature_limits_card_purchases_description)
+                Feature.SEND_FROM_TRADING_TO_PRIVATE -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_from_trading_accounts
+                )
+
+                Feature.RECEIVE_TO_TRADING -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_to_trading_accounts
+                )
+
+                Feature.SWAP -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_swap_description
+                )
+
+                Feature.BUY_SELL -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_buy_sell_description
+                )
+
+                Feature.CARD_PURCHASES -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_card_purchases_description
+                )
+
                 Feature.FIAT_DEPOSIT -> null
-                Feature.FIAT_WITHDRAWAL -> context.getString(R.string.feature_limits_withdrawals_description)
-                Feature.REWARDS -> context.getString(R.string.feature_limits_earn_rewards_description)
+                Feature.FIAT_WITHDRAWAL -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_withdrawals_description
+                )
+
+                Feature.REWARDS -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_earn_rewards_description
+                )
             }
             textFeatureDescription.text = featureDescriptionText
             textFeatureDescription.visibleIf { featureDescriptionText != null }
 
             textLimit.text = when (val featureLimit = item.limit) {
-                FeatureLimit.Disabled -> context.getString(R.string.feature_limits_disabled)
-                FeatureLimit.Infinite -> context.getString(R.string.feature_limits_no_limit)
+                FeatureLimit.Disabled -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_disabled
+                )
+
+                FeatureLimit.Infinite -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_no_limit
+                )
+
                 is FeatureLimit.Limited -> featureLimit.limit.amount.formatOrSymbolForZero()
-                FeatureLimit.Unspecified -> context.getString(R.string.feature_limits_enabled)
+                FeatureLimit.Unspecified -> context.getString(
+                    com.blockchain.stringResources.R.string.feature_limits_enabled
+                )
             }
 
             val featureLimit = item.limit
             val limitPeriodDescription = if (featureLimit is FeatureLimit.Limited) {
                 when (featureLimit.limit.period) {
-                    TxLimitPeriod.DAILY -> context.getString(R.string.feature_limits_daily_limit_period)
-                    TxLimitPeriod.MONTHLY -> context.getString(R.string.feature_limits_monthly_limit_period)
-                    TxLimitPeriod.YEARLY -> context.getString(R.string.feature_limits_yearly_limit_period)
+                    TxLimitPeriod.DAILY -> context.getString(
+                        com.blockchain.stringResources.R.string.feature_limits_daily_limit_period
+                    )
+
+                    TxLimitPeriod.MONTHLY -> context.getString(
+                        com.blockchain.stringResources.R.string.feature_limits_monthly_limit_period
+                    )
+
+                    TxLimitPeriod.YEARLY -> context.getString(
+                        com.blockchain.stringResources.R.string.feature_limits_yearly_limit_period
+                    )
                 }
             } else {
                 null
@@ -256,7 +341,11 @@ private class FooterItemViewHolder(
         with(binding) {
             val links = mapOf("support_center_link" to Uri.parse(LIMITS_SUPPORT_CENTER))
             val parsedString =
-                StringUtils.getStringWithMappedAnnotations(context, R.string.feature_limits_footer, links)
+                StringUtils.getStringWithMappedAnnotations(
+                    context,
+                    com.blockchain.stringResources.R.string.feature_limits_footer,
+                    links
+                )
 
             textFooter.text = parsedString
             textFooter.movementMethod = LinkMovementMethod.getInstance()

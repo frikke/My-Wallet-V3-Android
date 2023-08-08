@@ -18,7 +18,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
@@ -117,21 +116,9 @@ class PinInteractorTest {
         interactor.doUpgradeWallet(secondPassword).test()
 
         verify(payloadDataManager).upgradeWalletPayload(
-            secondPassword, defaultLabels.getDefaultNonCustodialWalletLabel()
+            secondPassword,
+            defaultLabels.getDefaultNonCustodialWalletLabel()
         )
-
-        verifyNoMoreInteractions(payloadDataManager)
-    }
-
-    @Test
-    fun `checkForceUpgradeStatus then call checkForceUpgrade`() {
-        val versionName = "1234"
-        whenever(walletOptionsDataManager.checkForceUpgrade(versionName))
-            .thenReturn(Observable.just(mock()))
-
-        interactor.checkForceUpgradeStatus(versionName).test()
-
-        verify(walletOptionsDataManager).checkForceUpgrade(versionName)
 
         verifyNoMoreInteractions(payloadDataManager)
     }
@@ -194,7 +181,7 @@ class PinInteractorTest {
         whenever(apiStatus.isHealthy()).thenReturn(Single.just(true))
 
         val test = interactor.checkApiStatus().test()
-        test.assertValue { it == true }
+        test.assertValue { it }
 
         verify(apiStatus).isHealthy()
 

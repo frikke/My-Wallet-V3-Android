@@ -1,7 +1,7 @@
 package info.blockchain.wallet.dynamicselfcustody
 
 import com.blockchain.domain.wallet.CoinType
-import com.blockchain.domain.wallet.NetworkType
+import info.blockchain.balance.NetworkType
 import info.blockchain.wallet.bip44.HDWalletFactory
 import info.blockchain.wallet.payload.data.Derivation
 import org.bitcoinj.core.ECKey
@@ -63,7 +63,8 @@ class DynamicHDAccountTest {
         HDWalletFactory.Language.US,
         seedHex,
         "",
-        1, Derivation.LEGACY_PURPOSE
+        1,
+        Derivation.LEGACY_PURPOSE
     )
 
     companion object {

@@ -67,7 +67,7 @@ data class WalletBaseDto(
                 warChecksum = "",
                 language = "",
                 storageToken = "",
-                _syncPubkeys = false,
+                _syncPubkeys = false
             )
     }
 }

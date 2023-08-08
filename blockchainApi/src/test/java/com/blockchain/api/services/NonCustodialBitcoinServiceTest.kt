@@ -131,16 +131,22 @@ class NonCustodialBitcoinServiceTest {
                                 "b198392698c5b21caead19ff535df223c0bb63a978b1221ac2012102a4cc88b940db6a" +
                                 "00487b2638cae13dd3c7853ced968c99b1187eeceea0f91ceb",
                             prevOut = Output(
-                                isSpent = true, txIndex = 145808878L, addr = "1GrYvVX76JMMeU32PCoyndaeYU5odDGAu3",
-                                value = 240240L.toBigInteger(), count = 1L,
+                                isSpent = true,
+                                txIndex = 145808878L,
+                                addr = "1GrYvVX76JMMeU32PCoyndaeYU5odDGAu3",
+                                value = 240240L.toBigInteger(),
+                                count = 1L,
                                 script = "76a914ade8ea8fa072aafc8caf66af4ea815dd1e3dfe6f88ac"
                             )
                         )
                     ),
                     out = listOf(
                         Output(
-                            isSpent = false, txIndex = 145849898L, addr = "19tEaovasXx75vjuwYqziZSJg7b3u1MTQt",
-                            value = 20000L.toBigInteger(), count = 0L,
+                            isSpent = false,
+                            txIndex = 145849898L,
+                            addr = "19tEaovasXx75vjuwYqziZSJg7b3u1MTQt",
+                            value = 20000L.toBigInteger(),
+                            count = 0L,
                             script = "76a91461718f0b60dc85dc09c8e59d0ddd6901bab900da88ac",
                             xpub = XpubDto(
                                 "xpub6CmZamQcHw2TPtbGmJNEvRgfhLwitarvzFn3fBYEEkFTqztus7W7CNbf48Kxuj1b" +

@@ -88,15 +88,19 @@ class AccountPresenter internal constructor(
             .showProgress()
             .subscribeBy(
                 onComplete = {
-                    view?.showSuccess(R.string.remote_save_ok)
+                    view?.showSuccess(com.blockchain.stringResources.R.string.remote_save_ok)
                     analytics.logEvent(WalletAnalytics.AddNewWallet)
                 },
                 onError = { throwable ->
                     Timber.e(throwable)
                     when (throwable) {
-                        is DecryptionException -> view?.showError(R.string.double_encryption_password_error)
-                        is NameInUseException -> view?.showError(R.string.label_name_match)
-                        else -> view?.showError(R.string.unexpected_error)
+                        is DecryptionException -> view?.showError(
+                            com.blockchain.stringResources.R.string.double_encryption_password_error
+                        )
+                        is NameInUseException -> view?.showError(
+                            com.blockchain.stringResources.R.string.label_name_match
+                        )
+                        else -> view?.showError(com.blockchain.stringResources.R.string.unexpected_error)
                     }
                 }
             )
@@ -108,17 +112,17 @@ class AccountPresenter internal constructor(
             .showProgress()
             .subscribeBy(
                 onComplete = {
-                    view?.showSuccess(R.string.remote_save_ok)
+                    view?.showSuccess(com.blockchain.stringResources.R.string.remote_save_ok)
                     checkBalanceForTransfer(account)
                 },
                 onError = {
-                    view?.showError(R.string.remote_save_failed)
+                    view?.showError(com.blockchain.stringResources.R.string.remote_save_failed)
                 }
             )
     }
 
     internal fun checkBalanceForTransfer(account: CryptoNonCustodialAccount) {
-        compositeDisposable += account.balanceRx.firstOrError().map { it.withdrawable }
+        compositeDisposable += account.balanceRx().firstOrError().map { it.withdrawable }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy {
                 if (it.isPositive) {
@@ -157,10 +161,10 @@ class AccountPresenter internal constructor(
         if (format == null) {
             val btcAsset = coincore[CryptoCurrency.BTC]
             view?.showError(
-                if (btcAsset.isValidAddress(keyData))
-                    R.string.watch_only_not_supported
-                else
-                    R.string.privkey_error
+                if (btcAsset.isValidAddress(keyData)) {
+                    com.blockchain.stringResources.R.string.watch_only_not_supported
+                } else
+                    com.blockchain.stringResources.R.string.privkey_error
             )
             false
         } else {
@@ -184,12 +188,12 @@ class AccountPresenter internal constructor(
         }.showProgress()
             .subscribeBy(
                 onSuccess = {
-                    view?.showSuccess(R.string.private_key_successfully_imported)
+                    view?.showSuccess(com.blockchain.stringResources.R.string.private_key_successfully_imported)
                     view?.showRenameImportedAddressDialog(it)
                     analytics.logEvent(AddressAnalytics.ImportBTCAddress)
                 },
                 onError = {
-                    view?.showError(R.string.no_private_key)
+                    view?.showError(com.blockchain.stringResources.R.string.no_private_key)
                 }
             )
     }
@@ -224,11 +228,11 @@ class AccountPresenter internal constructor(
     }
 
     private fun <T> Single<T>.showProgress() =
-        this.doOnSubscribe { view?.showProgressDialog(R.string.please_wait) }
+        this.doOnSubscribe { view?.showProgressDialog(com.blockchain.stringResources.R.string.please_wait) }
             .doAfterTerminate { view?.dismissProgressDialog() }
 
     private fun Completable.showProgress() =
-        this.doOnSubscribe { view?.showProgressDialog(R.string.please_wait) }
+        this.doOnSubscribe { view?.showProgressDialog(com.blockchain.stringResources.R.string.please_wait) }
             .doAfterTerminate { view?.dismissProgressDialog() }
 
     // TODO: Find a better way!

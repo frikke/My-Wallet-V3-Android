@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
@@ -33,19 +32,18 @@ fun ToastAlert(
     onClick: () -> Unit = {},
     textColor: Color
 ) {
-
     Row(
         modifier = Modifier
             .clip(AppTheme.shapes.extraLarge)
             .background(backgroundColor)
             .wrapContentWidth()
             .padding(
-                horizontal = dimensionResource(R.dimen.standard_spacing),
-                vertical = dimensionResource(R.dimen.very_small_spacing)
+                horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                vertical = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing)
             )
     ) {
         val composeImage =
-            (startIcon as? ImageResource.Local)?.withColorFilter(ColorFilter.tint(iconColor)) ?: startIcon
+            (startIcon as? ImageResource.Local)?.withTint(iconColor) ?: startIcon
         if (startIcon != ImageResource.None) {
             Image(
                 modifier = Modifier

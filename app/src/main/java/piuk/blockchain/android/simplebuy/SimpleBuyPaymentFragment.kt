@@ -7,26 +7,30 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.api.NabuApiException
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.presentation.disableBackPress
 import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.presentation.spinner.SpinnerAnalyticsScreen
+import com.blockchain.presentation.spinner.SpinnerAnalyticsTracker
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.secondsToDays
 import com.checkout.android_sdk.PaymentForm
@@ -38,15 +42,16 @@ import com.stripe.android.model.ConfirmPaymentIntentParams
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
+import piuk.blockchain.android.cards.cvv.SecurityCodeActivity
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
+import piuk.blockchain.android.kyc.KycAnalytics
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
 import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
-import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INSUFFICIENT_FUNDS
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET_CONNECTION_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAXIMUM_SOURCE_LIMIT
@@ -55,8 +60,8 @@ import piuk.blockchain.android.simplebuy.sheets.UnlockHigherLimitsBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.customviews.TransactionProgressView
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import piuk.blockchain.android.util.StringUtils
@@ -86,6 +91,30 @@ class SimpleBuyPaymentFragment :
         enumValueOfOrNull<RecurringBuyFrequency>(arguments?.getString(RECURRING_BUY_REMOTE).orEmpty())
     }
 
+    private val securityCodeContractLauncher =
+        registerForActivityResult(SecurityCodeActivity.BlockchainActivityResultContract()) { result ->
+            when (result) {
+                SecurityCodeActivity.ActivityResult.Success -> {
+                    model.process(SimpleBuyIntent.CvvInputResult(true))
+                    model.process(SimpleBuyIntent.CheckOrderStatus)
+                }
+                is SecurityCodeActivity.ActivityResult.Failure -> {
+                    model.process(SimpleBuyIntent.ErrorIntent(ErrorState.ServerSideUxError(result.error)))
+                }
+                SecurityCodeActivity.ActivityResult.Skipped -> {
+                    cancelAndGoBackToEnterAmountScreen()
+                }
+                null -> navigator().goToCheckOutScreen(false)
+            }
+        }
+
+    private val spinnerTracker: SpinnerAnalyticsTracker by inject {
+        parametersOf(
+            SpinnerAnalyticsScreen.BuyConfirmOrder,
+            lifecycleScope
+        )
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity.disableBackPress(owner = this)
@@ -101,8 +130,10 @@ class SimpleBuyPaymentFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity.updateToolbarTitle(getString(R.string.common_payment))
+
+        activity.updateToolbarTitle(getString(com.blockchain.stringResources.R.string.common_payment))
         binding.checkoutCardForm.initCheckoutPaymentForm()
+        model.process(SimpleBuyIntent.LoadAssetUpSellDismissState)
     }
 
     override fun render(newState: SimpleBuyState) {
@@ -116,10 +147,11 @@ class SimpleBuyPaymentFragment :
             showBottomSheet(
                 RecurringBuyCreatedBottomSheet.newInstance(
                     title = getString(
-                        R.string.recurring_buy_created_title, newState.recurringBuyFrequency.name.capitalizeFirstChar()
+                        com.blockchain.stringResources.R.string.recurring_buy_created_title,
+                        newState.recurringBuyFrequency.name.capitalizeFirstChar()
                     ),
                     subtitle = getString(
-                        R.string.recurring_buy_payment_message,
+                        com.blockchain.stringResources.R.string.recurring_buy_payment_message,
                         newState.order.amount?.toStringWithSymbol(),
                         newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()).lowercase(),
                         newState.orderValue?.currency?.name,
@@ -131,23 +163,20 @@ class SimpleBuyPaymentFragment :
             return
         }
 
-        if (newState.sideEventsChecked) {
+        if (newState.paymentSucceeded) {
             recurringBuyFrequencyRemote?.let {
                 if (recurringBuyFrequencyRemote != RecurringBuyFrequency.ONE_TIME) {
-                    binding.transactionProgressView.showToggleUI(
+                    binding.transactionProgressView.showRecurringBuyToggleUI(
                         showToggle = showRecurringBuyToggle,
                         recurringBuyFrequency = it
                     )
                 }
             }
+            model.process(SimpleBuyIntent.OrderFinishedSuccessfully)
         }
 
         newState.selectedCryptoAsset.let {
             binding.transactionProgressView.setAssetIcon(it)
-        }
-
-        if (newState.paymentSucceeded) {
-            model.process(SimpleBuyIntent.CheckForOrderCompletedSideEvents)
         }
 
         if (newState.buyErrorState != null) {
@@ -164,7 +193,9 @@ class SimpleBuyPaymentFragment :
 
         if (newState.recurringBuyState == RecurringBuyState.INACTIVE) {
             BlockchainSnackbar.make(
-                binding.root, getString(R.string.recurring_buy_creation_error), Snackbar.LENGTH_SHORT,
+                binding.root,
+                getString(com.blockchain.stringResources.R.string.recurring_buy_creation_error),
+                Snackbar.LENGTH_SHORT,
                 SnackbarType.Error
             ).show()
         }
@@ -178,18 +209,19 @@ class SimpleBuyPaymentFragment :
             isFirstLoad = false
         }
 
-        binding.transactionProgressView.setupPrimaryCta(getString(R.string.common_ok)) {
+        binding.transactionProgressView.setupPrimaryCta(getString(com.blockchain.stringResources.R.string.common_ok)) {
             when {
-                newState.showRecurringBuyFirstTimeFlow -> {
-                    navigator().goToSetupFirstRecurringBuy()
-                }
                 !newState.paymentPending -> {
                     if (showRecurringBuyToggle && binding.transactionProgressView.isRecurringBuyEnabled()) {
                         recurringBuyFrequencyRemote?.let {
                             model.process(SimpleBuyIntent.CreateRecurringBuy(it))
                         }
                     } else {
-                        navigator().exitSimpleBuyFlow()
+                        if (newState.shouldUpsellAnotherAsset) {
+                            navigator().launchUpSellBottomSheet(newState.selectedCryptoAsset.networkTicker)
+                        } else {
+                            navigator().exitSimpleBuyFlow()
+                        }
                     }
                 }
                 else -> navigator().goToPendingOrderScreen()
@@ -203,11 +235,24 @@ class SimpleBuyPaymentFragment :
             model.process(SimpleBuyIntent.ResetCardPaymentAuth)
         }
 
+        if (newState.openCvvInput && newState.securityCodePaymentId != null) {
+            securityCodeContractLauncher.launch(
+                SecurityCodeActivity.ActivityArgs(
+                    paymentId = newState.securityCodePaymentId,
+                    cardId = newState.selectedPaymentMethod.id
+                )
+            )
+            model.process(SimpleBuyIntent.OpenCvvInputHandled)
+        }
+
         if (newState.shouldLaunchExternalFlow()) {
             newState.order.amount?.let { orderValue ->
                 launchExternalAuthoriseUrlFlow(
                     // !! here is safe because the state check validates nullability
-                    newState.id!!, newState.authorisePaymentUrl!!, newState.linkedBank!!, orderValue
+                    newState.id!!,
+                    newState.authorisePaymentUrl!!,
+                    newState.linkedBank!!,
+                    orderValue
                 )
             }
         }
@@ -236,6 +281,10 @@ class SimpleBuyPaymentFragment :
                 }
             }
             is CardAcquirerCredentials.Everypay -> openWebView(
+                cardAcquirerCredentials.paymentLink,
+                cardAcquirerCredentials.exitLink
+            )
+            is CardAcquirerCredentials.FakeCardAcquirer -> openWebView(
                 cardAcquirerCredentials.paymentLink,
                 cardAcquirerCredentials.exitLink
             )
@@ -307,224 +356,231 @@ class SimpleBuyPaymentFragment :
         when (errorState) {
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid -> showLegacyError(
-                title = getString(R.string.bank_transfer_payment_invalid_title),
-                subtitle = addLink(R.string.bank_transfer_payment_invalid_subtitle),
+                title = getString(com.blockchain.stringResources.R.string.bank_transfer_payment_invalid_title),
+                subtitle = addLink(com.blockchain.stringResources.R.string.bank_transfer_payment_invalid_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.ApprovedBankFailed,
             ErrorState.ApprovedBankFailedInternal -> showLegacyError(
-                title = getString(R.string.bank_transfer_payment_failed_title),
-                subtitle = addLink(R.string.bank_transfer_payment_failed_subtitle),
+                title = getString(com.blockchain.stringResources.R.string.bank_transfer_payment_failed_title),
+                subtitle = addLink(com.blockchain.stringResources.R.string.bank_transfer_payment_failed_subtitle),
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.ApprovedBankDeclined -> showLegacyError(
-                title = getString(R.string.bank_transfer_payment_declined_title),
-                subtitle = addLink(R.string.bank_transfer_payment_declined_subtitle),
+                title = getString(com.blockchain.stringResources.R.string.bank_transfer_payment_declined_title),
+                subtitle = addLink(com.blockchain.stringResources.R.string.bank_transfer_payment_declined_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.ApprovedBankRejected -> showLegacyError(
-                title = getString(R.string.bank_transfer_payment_rejected_title),
-                subtitle = addLink(R.string.bank_transfer_payment_rejected_subtitle),
+                title = getString(com.blockchain.stringResources.R.string.bank_transfer_payment_rejected_title),
+                subtitle = addLink(com.blockchain.stringResources.R.string.bank_transfer_payment_rejected_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.ApprovedBankExpired -> showLegacyError(
-                title = getString(R.string.bank_transfer_payment_expired_title),
-                subtitle = addLink(R.string.bank_transfer_payment_expired_subtitle),
+                title = getString(com.blockchain.stringResources.R.string.bank_transfer_payment_expired_title),
+                subtitle = addLink(com.blockchain.stringResources.R.string.bank_transfer_payment_expired_subtitle),
                 resourceIcon = R.drawable.ic_pending_icon_circle,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.ApprovedBankLimitedExceed -> showLegacyError(
-                title = getString(R.string.bank_transfer_payment_limited_exceeded_title),
-                subtitle = addLink(R.string.bank_transfer_payment_limited_exceeded_subtitle),
+                title = getString(com.blockchain.stringResources.R.string.bank_transfer_payment_limited_exceeded_title),
+                subtitle = addLink(
+                    com.blockchain.stringResources.R.string.bank_transfer_payment_limited_exceeded_subtitle
+                ),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.ApprovedBankInsufficientFunds -> showLegacyError(
-                title = getString(R.string.bank_transfer_payment_insufficient_funds_title),
-                subtitle = addLink(R.string.bank_transfer_payment_insufficient_funds_subtitle),
+                title = getString(
+                    com.blockchain.stringResources.R.string.bank_transfer_payment_insufficient_funds_title
+                ),
+                subtitle = addLink(
+                    com.blockchain.stringResources.R.string.bank_transfer_payment_insufficient_funds_subtitle
+                ),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = INSUFFICIENT_FUNDS,
                 currencyCode = currencyCode
             )
             is ErrorState.PaymentFailedError -> showLegacyError(
-                title = getString(R.string.payment_failed_title_with_reason),
-                subtitle = addLink(R.string.sb_checkout_contact_support),
+                title = getString(com.blockchain.stringResources.R.string.payment_failed_title_with_reason),
+                subtitle = addLink(com.blockchain.stringResources.R.string.sb_checkout_contact_support),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             is ErrorState.ApprovedBankUndefinedError -> showLegacyError(
-                title = getString(R.string.payment_failed_title_with_reason),
-                subtitle = addLink(R.string.sb_checkout_contact_support),
+                title = getString(com.blockchain.stringResources.R.string.payment_failed_title_with_reason),
+                subtitle = addLink(com.blockchain.stringResources.R.string.sb_checkout_contact_support),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.InternetConnectionError -> showLegacyError(
                 title = getString(
-                    R.string.executing_connection_error
+                    com.blockchain.stringResources.R.string.executing_connection_error
                 ),
-                subtitle = addLink(R.string.sb_checkout_contact_support),
+                subtitle = addLink(com.blockchain.stringResources.R.string.sb_checkout_contact_support),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = INTERNET_CONNECTION_ERROR,
                 currencyCode = currencyCode
             )
             is ErrorState.UnhandledHttpError -> showLegacyError(
                 title = getString(
-                    R.string.common_http_error_with_new_line_message, errorState.nabuApiException.getErrorDescription()
+                    com.blockchain.stringResources.R.string.common_http_error_with_new_line_message,
+                    errorState.nabuApiException.getErrorDescription()
                 ),
-                subtitle = addLink(R.string.sb_checkout_contact_support),
+                subtitle = addLink(com.blockchain.stringResources.R.string.sb_checkout_contact_support),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 nabuApiException = errorState.nabuApiException,
                 currencyCode = currencyCode
             )
             ErrorState.DailyLimitExceeded -> showLegacyError(
-                getString(R.string.sb_checkout_daily_limit_title),
-                getString(R.string.sb_checkout_daily_limit_blurb),
+                getString(com.blockchain.stringResources.R.string.sb_checkout_daily_limit_title),
+                getString(com.blockchain.stringResources.R.string.sb_checkout_daily_limit_blurb),
                 R.drawable.ic_cross_white_bckg,
                 errorState = OVER_MAXIMUM_SOURCE_LIMIT,
                 currencyCode = currencyCode
             )
             ErrorState.WeeklyLimitExceeded -> showLegacyError(
-                getString(R.string.sb_checkout_weekly_limit_title),
-                getString(R.string.sb_checkout_weekly_limit_blurb),
+                getString(com.blockchain.stringResources.R.string.sb_checkout_weekly_limit_title),
+                getString(com.blockchain.stringResources.R.string.sb_checkout_weekly_limit_blurb),
                 R.drawable.ic_cross_white_bckg,
                 errorState = OVER_MAXIMUM_SOURCE_LIMIT,
                 currencyCode = currencyCode
             )
             ErrorState.YearlyLimitExceeded -> showLegacyError(
-                getString(R.string.sb_checkout_yearly_limit_title),
-                getString(R.string.sb_checkout_yearly_limit_blurb),
+                getString(com.blockchain.stringResources.R.string.sb_checkout_yearly_limit_title),
+                getString(com.blockchain.stringResources.R.string.sb_checkout_yearly_limit_blurb),
                 R.drawable.ic_cross_white_bckg,
                 errorState = OVER_MAXIMUM_SOURCE_LIMIT,
                 currencyCode = currencyCode
             )
             ErrorState.ExistingPendingOrder -> showLegacyError(
-                getString(R.string.sb_checkout_pending_order_title),
-                getString(R.string.sb_checkout_pending_order_blurb),
+                getString(com.blockchain.stringResources.R.string.sb_checkout_pending_order_title),
+                getString(com.blockchain.stringResources.R.string.sb_checkout_pending_order_blurb),
                 R.drawable.ic_cross_white_bckg,
                 errorState = PENDING_ORDERS_LIMIT_REACHED,
                 currencyCode = currencyCode
             )
             ErrorState.InsufficientCardFunds -> showLegacyError(
-                getString(R.string.title_cardInsufficientFunds),
-                getString(R.string.msg_cardInsufficientFunds),
+                getString(com.blockchain.stringResources.R.string.title_cardInsufficientFunds),
+                getString(com.blockchain.stringResources.R.string.msg_cardInsufficientFunds),
                 R.drawable.ic_cross_white_bckg,
                 errorState = INSUFFICIENT_FUNDS,
                 currencyCode = currencyCode
             )
             ErrorState.CardBankDeclined -> showLegacyError(
-                getString(R.string.title_cardBankDecline),
-                getString(R.string.msg_cardBankDecline),
+                getString(com.blockchain.stringResources.R.string.title_cardBankDecline),
+                getString(com.blockchain.stringResources.R.string.msg_cardBankDecline),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardDuplicated -> showLegacyError(
-                getString(R.string.title_cardDuplicate),
-                getString(R.string.msg_cardDuplicate),
+                getString(com.blockchain.stringResources.R.string.title_cardDuplicate),
+                getString(com.blockchain.stringResources.R.string.msg_cardDuplicate),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardBlockchainDeclined -> showLegacyError(
-                getString(R.string.title_cardBlockchainDecline),
-                getString(R.string.msg_cardBlockchainDecline),
+                getString(com.blockchain.stringResources.R.string.title_cardBlockchainDecline),
+                getString(com.blockchain.stringResources.R.string.msg_cardBlockchainDecline),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardAcquirerDeclined -> showLegacyError(
-                getString(R.string.title_cardAcquirerDecline),
-                getString(R.string.msg_cardAcquirerDecline),
+                getString(com.blockchain.stringResources.R.string.title_cardAcquirerDecline),
+                getString(com.blockchain.stringResources.R.string.msg_cardAcquirerDecline),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardPaymentNotSupported -> showLegacyError(
-                getString(R.string.title_cardPaymentNotSupported),
-                getString(R.string.msg_cardPaymentNotSupported),
+                getString(com.blockchain.stringResources.R.string.title_cardPaymentNotSupported),
+                getString(com.blockchain.stringResources.R.string.msg_cardPaymentNotSupported),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardCreateFailed -> showLegacyError(
-                getString(R.string.title_cardCreateFailed),
-                getString(R.string.msg_cardCreateFailed),
+                getString(com.blockchain.stringResources.R.string.title_cardCreateFailed),
+                getString(com.blockchain.stringResources.R.string.msg_cardCreateFailed),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardPaymentFailed -> showLegacyError(
-                getString(R.string.title_cardPaymentFailed),
-                getString(R.string.msg_cardPaymentFailed),
+                getString(com.blockchain.stringResources.R.string.title_cardPaymentFailed),
+                getString(com.blockchain.stringResources.R.string.msg_cardPaymentFailed),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardCreateAbandoned -> showLegacyError(
-                getString(R.string.title_cardCreateAbandoned),
-                getString(R.string.msg_cardCreateAbandoned),
+                getString(com.blockchain.stringResources.R.string.title_cardCreateAbandoned),
+                getString(com.blockchain.stringResources.R.string.msg_cardCreateAbandoned),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardCreateExpired -> showLegacyError(
-                getString(R.string.title_cardCreateExpired),
-                getString(R.string.msg_cardCreateExpired),
+                getString(com.blockchain.stringResources.R.string.title_cardCreateExpired),
+                getString(com.blockchain.stringResources.R.string.msg_cardCreateExpired),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardCreateBankDeclined -> showLegacyError(
-                getString(R.string.title_cardCreateBankDeclined),
-                getString(R.string.msg_cardCreateBankDeclined),
+                getString(com.blockchain.stringResources.R.string.title_cardCreateBankDeclined),
+                getString(com.blockchain.stringResources.R.string.msg_cardCreateBankDeclined),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardCreateDebitOnly -> showLegacyError(
-                getString(R.string.title_cardCreateDebitOnly),
-                getString(R.string.msg_cardCreateDebitOnly),
+                getString(com.blockchain.stringResources.R.string.title_cardCreateDebitOnly),
+                getString(com.blockchain.stringResources.R.string.msg_cardCreateDebitOnly),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardPaymentDebitOnly -> showLegacyError(
-                getString(R.string.title_cardPaymentDebitOnly),
-                getString(R.string.msg_cardPaymentDebitOnly),
+                getString(com.blockchain.stringResources.R.string.title_cardPaymentDebitOnly),
+                getString(com.blockchain.stringResources.R.string.msg_cardPaymentDebitOnly),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.CardNoToken -> showLegacyError(
-                getString(R.string.title_cardCreateNoToken),
-                getString(R.string.msg_cardCreateNoToken),
+                getString(com.blockchain.stringResources.R.string.title_cardCreateNoToken),
+                getString(com.blockchain.stringResources.R.string.msg_cardCreateNoToken),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             is ErrorState.BankLinkMaxAccountsReached -> showLegacyError(
-                getString(R.string.bank_linking_max_accounts_title),
-                getString(R.string.bank_linking_max_accounts_subtitle),
+                getString(com.blockchain.stringResources.R.string.bank_linking_max_accounts_title),
+                getString(com.blockchain.stringResources.R.string.bank_linking_max_accounts_subtitle),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 nabuApiException = errorState.error,
                 currencyCode = currencyCode
             )
             is ErrorState.BankLinkMaxAttemptsReached -> showLegacyError(
-                getString(R.string.bank_linking_max_attempts_title),
-                getString(R.string.bank_linking_max_attempts_subtitle),
+                getString(com.blockchain.stringResources.R.string.bank_linking_max_attempts_title),
+                getString(com.blockchain.stringResources.R.string.bank_linking_max_attempts_subtitle),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 nabuApiException = errorState.error,
@@ -535,22 +591,22 @@ class SimpleBuyPaymentFragment :
             )
             ErrorState.UnknownCardProvider,
             ErrorState.ProviderIsNotSupported -> showLegacyError(
-                getString(R.string.sb_card_provider_not_supported),
-                getString(R.string.sb_checkout_contact_support),
+                getString(com.blockchain.stringResources.R.string.sb_card_provider_not_supported),
+                getString(com.blockchain.stringResources.R.string.sb_checkout_contact_support),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.BankLinkingTimeout -> showLegacyError(
-                getString(R.string.bank_linking_timeout_error_title),
-                getString(R.string.bank_linking_timeout_error_subtitle),
+                getString(com.blockchain.stringResources.R.string.bank_linking_timeout_error_title),
+                getString(com.blockchain.stringResources.R.string.bank_linking_timeout_error_subtitle),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
             )
             ErrorState.Card3DsFailed -> showLegacyError(
-                getString(R.string.card_3ds),
-                getString(R.string.sb_checkout_contact_support),
+                getString(com.blockchain.stringResources.R.string.card_3ds),
+                getString(com.blockchain.stringResources.R.string.sb_checkout_contact_support),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString(),
                 currencyCode = currencyCode
@@ -571,8 +627,9 @@ class SimpleBuyPaymentFragment :
 
     private fun showServerSideError(
         serverSideUxErrorInfo: ServerSideUxErrorInfo,
-        currencyCode: String,
+        currencyCode: String
     ) {
+        spinnerTracker.stop()
         logErrorAnalytics(
             errorId = serverSideUxErrorInfo.id,
             categories = serverSideUxErrorInfo.categories,
@@ -597,8 +654,9 @@ class SimpleBuyPaymentFragment :
         resourceIcon: Int = R.drawable.ic_alert_white_bkgd,
         errorState: String,
         nabuApiException: NabuApiException? = null,
-        currencyCode: String,
+        currencyCode: String
     ) {
+        spinnerTracker.stop()
         logErrorAnalytics(
             title = title,
             error = errorState,
@@ -620,7 +678,7 @@ class SimpleBuyPaymentFragment :
     private fun TransactionProgressView.setupErrorButtons(list: List<ServerErrorAction>, currencyCode: String) {
         if (list.isEmpty()) {
             setupPrimaryCta(
-                text = getString(R.string.common_try_again),
+                text = getString(com.blockchain.stringResources.R.string.common_try_again),
                 onClick = {
                     navigator().popFragmentsInStackUntilFind(
                         fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
@@ -629,7 +687,7 @@ class SimpleBuyPaymentFragment :
                 }
             )
             setupSecondaryCta(
-                text = getString(R.string.bank_transfer_transfer_go_back),
+                text = getString(com.blockchain.stringResources.R.string.bank_transfer_transfer_go_back),
                 onClick = {
                     navigator().exitSimpleBuyFlow()
                 }
@@ -664,7 +722,7 @@ class SimpleBuyPaymentFragment :
         paymentId: String,
         authorisationUrl: String,
         linkedBank: LinkedBank,
-        orderValue: FiatValue,
+        orderValue: FiatValue
     ) {
         startActivityForResult(
             BankAuthActivity.newInstance(
@@ -674,7 +732,8 @@ class SimpleBuyPaymentFragment :
                     linkedBank = linkedBank,
                     orderValue = orderValue
                 ),
-                BankAuthSource.SIMPLE_BUY, requireContext()
+                BankAuthSource.SIMPLE_BUY,
+                requireContext()
             ),
             BANK_APPROVAL
         )
@@ -694,7 +753,7 @@ class SimpleBuyPaymentFragment :
                 val lockedFundDays = newState.withdrawalLockPeriod.secondsToDays()
                 val messageOnPayment = if (newState.recurringBuyState == RecurringBuyState.ACTIVE) {
                     getString(
-                        R.string.recurring_buy_payment_message,
+                        com.blockchain.stringResources.R.string.recurring_buy_payment_message,
                         newState.order.amount?.toStringWithSymbol(),
                         newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()).lowercase(),
                         newState.orderValue.currency.name,
@@ -702,19 +761,27 @@ class SimpleBuyPaymentFragment :
                     )
                 } else {
                     getString(
-                        R.string.card_purchased_available_now,
+                        com.blockchain.stringResources.R.string.card_purchased_available_now,
                         newState.orderValue.currency.name
                     )
                 }
 
                 if (lockedFundDays <= 0L) {
+                    spinnerTracker.stop()
                     binding.transactionProgressView.showTxSuccess(
-                        title = getString(R.string.card_purchased, newState.orderValue.formatOrSymbolForZero()),
+                        title = getString(
+                            com.blockchain.stringResources.R.string.card_purchased,
+                            newState.orderValue.formatOrSymbolForZero()
+                        ),
                         subtitle = messageOnPayment
                     )
                 } else {
+                    spinnerTracker.stop()
                     binding.transactionProgressView.showPendingTx(
-                        title = getString(R.string.card_purchased, newState.orderValue.formatOrSymbolForZero()),
+                        title = getString(
+                            com.blockchain.stringResources.R.string.card_purchased,
+                            newState.orderValue.formatOrSymbolForZero()
+                        ),
                         subtitle = messageOnPayment,
                         locksNote = newState.selectedPaymentMethod.paymentMethodType
                             .subtitleForLockedFunds(
@@ -726,12 +793,16 @@ class SimpleBuyPaymentFragment :
                 checkForUnlockHigherLimits(newState.shouldShowUnlockHigherFunds)
             }
             newState.isLoading && newState.orderValue != null -> {
+                spinnerTracker.start()
                 binding.transactionProgressView.showTxInProgress(
-                    getString(R.string.card_buying, newState.orderValue.formatOrSymbolForZero()),
                     getString(
-                        R.string.completing_card_buy_1,
+                        com.blockchain.stringResources.R.string.card_buying,
                         newState.order.amount?.toStringWithSymbol(),
                         newState.selectedCryptoAsset?.displayTicker
+                    ),
+                    getString(
+                        com.blockchain.stringResources.R.string.completing_card_buy_1,
+                        newState.selectedCryptoAsset?.name
                     ) + appendRecurringBuyInfo(
                         order = newState.order,
                         selectedCryptoAsset = newState.selectedCryptoAsset,
@@ -742,27 +813,30 @@ class SimpleBuyPaymentFragment :
             newState.paymentPending && newState.orderValue != null -> {
                 when (newState.selectedPaymentMethod.paymentMethodType) {
                     PaymentMethodType.BANK_TRANSFER -> {
+                        spinnerTracker.stop()
                         binding.transactionProgressView.showTxPending(
                             getString(
-                                R.string.bank_transfer_in_progress_title, newState.orderValue.formatOrSymbolForZero()
+                                com.blockchain.stringResources.R.string.bank_transfer_in_progress_title,
+                                newState.orderValue.formatOrSymbolForZero()
                             ),
                             newState.linkBankTransfer?.partner?.let {
                                 when (it) {
                                     BankPartner.YAPILY -> {
-                                        getString(R.string.bank_transfer_in_progress_ob_blurb)
+                                        getString(
+                                            com.blockchain.stringResources.R.string.bank_transfer_in_progress_ob_blurb
+                                        )
                                     }
                                     BankPartner.YODLEE, BankPartner.PLAID -> {
                                         getString(
-                                            R.string.bank_transfer_in_progress_blurb,
+                                            com.blockchain.stringResources.R.string.bank_transfer_in_progress_blurb,
                                             getEstimatedTransactionCompletionTime()
                                         )
                                     }
                                 }
                             } ?: (
                                 getString(
-                                    R.string.completing_card_buy_1,
-                                    newState.order.amount?.toStringWithSymbol(),
-                                    newState.selectedCryptoAsset?.displayTicker
+                                    com.blockchain.stringResources.R.string.completing_card_buy_1,
+                                    newState.selectedCryptoAsset?.name
                                 ) + appendRecurringBuyInfo(
                                     order = newState.order,
                                     selectedCryptoAsset = newState.selectedCryptoAsset,
@@ -772,9 +846,13 @@ class SimpleBuyPaymentFragment :
                         )
                     }
                     else -> {
+                        spinnerTracker.stop()
                         binding.transactionProgressView.showTxPending(
-                            getString(R.string.card_in_progress, newState.orderValue.formatOrSymbolForZero()),
-                            getString(R.string.we_will_notify_order_complete)
+                            getString(
+                                com.blockchain.stringResources.R.string.card_in_progress,
+                                newState.orderValue.formatOrSymbolForZero()
+                            ),
+                            getString(com.blockchain.stringResources.R.string.we_will_notify_order_complete)
                         )
                     }
                 }
@@ -785,23 +863,26 @@ class SimpleBuyPaymentFragment :
     private fun appendRecurringBuyInfo(
         order: SimpleBuyOrder,
         selectedCryptoAsset: AssetInfo?,
-        recurringBuyFrequency: RecurringBuyFrequency,
+        recurringBuyFrequency: RecurringBuyFrequency
     ): String {
         return if (recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
             "\n" + getString(
-                R.string.completing_card_buy_rb,
+                com.blockchain.stringResources.R.string.completing_card_buy_rb,
                 order.amount?.toStringWithSymbol(),
                 selectedCryptoAsset?.displayTicker,
                 recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
             )
-        } else ""
+        } else {
+            ""
+        }
     }
 
     private fun checkForUnlockHigherLimits(shouldShowUnlockMoreFunds: Boolean) {
-        if (!shouldShowUnlockMoreFunds)
+        if (!shouldShowUnlockMoreFunds) {
             return
+        }
         binding.transactionProgressView.setupSecondaryCta(
-            text = getString(R.string.want_to_buy_more)
+            text = getString(com.blockchain.stringResources.R.string.want_to_buy_more)
         ) {
             showBottomSheet(UnlockHigherLimitsBottomSheet())
         }
@@ -841,8 +922,8 @@ class SimpleBuyPaymentFragment :
     }
 
     override fun unlockHigherLimits() {
-        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, SimpleBuyActivity.KYC_STARTED)
-        analytics.logEvent(SDDAnalytics.UPGRADE_TO_GOLD_CLICKED)
+        KycNavHostActivity.startForResult(this, KycEntryPoint.Buy, SimpleBuyActivity.KYC_STARTED)
+        analytics.logEvent(KycAnalytics.UPGRADE_TO_GOLD_CLICKED)
     }
 
     override fun navigator(): SimpleBuyNavigator =

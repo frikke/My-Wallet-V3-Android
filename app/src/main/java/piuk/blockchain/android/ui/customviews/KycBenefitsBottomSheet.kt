@@ -5,6 +5,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.fiatActions.fiatactions.KycBenefitsSheetHost
 import java.io.Serializable
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
@@ -12,16 +13,12 @@ import piuk.blockchain.android.databinding.KycBenefitsBottomSheetBinding
 
 class KycBenefitsBottomSheet : SlidingModalBottomDialog<KycBenefitsBottomSheetBinding>() {
 
-    interface Host : SlidingModalBottomDialog.Host {
-        fun verificationCtaClicked()
-    }
-
     private val benefitsDetails: BenefitsDetails by lazy {
         arguments?.getParcelable(BENEFITS_DETAILS) ?: BenefitsDetails()
     }
 
-    override val host: Host by lazy {
-        super.host as? Host ?: throw IllegalStateException(
+    override val host: KycBenefitsSheetHost by lazy {
+        super.host as? KycBenefitsSheetHost ?: throw IllegalStateException(
             "Host fragment is not a KycBenefitsBottomSheet.Host"
         )
     }
@@ -64,6 +61,6 @@ class KycBenefitsBottomSheet : SlidingModalBottomDialog<KycBenefitsBottomSheetBi
         val title: String = "",
         val description: String = "",
         val listOfBenefits: List<VerifyIdentityNumericBenefitItem> = emptyList(),
-        val icon: Serializable = R.drawable.ic_verification_badge
+        val icon: Serializable = com.blockchain.common.R.drawable.ic_verification_badge
     ) : Parcelable
 }

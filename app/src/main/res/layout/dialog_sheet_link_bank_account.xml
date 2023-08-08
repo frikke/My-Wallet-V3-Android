@@ -23,94 +23,12 @@
         android:visibility="gone"
         />
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/container_bank_details"
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/compose_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:requiresFadingEdge="vertical"
-        android:fadingEdgeLength="@dimen/very_small_spacing"
-        android:fadingEdge="vertical"
-        android:fillViewport="true"
         android:visibility="gone"
-        tools:visibility="visible"
-        >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="@dimen/very_small_spacing"
-                app:srcCompat="@drawable/vector_sheet_indicator_small" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/title"
-                style="@style/Text.Semibold.20"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_spacing"
-                android:layout_marginTop="@dimen/standard_spacing"
-                tools:text="Add an EUR account" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/subtitle"
-                style="@style/Text.Semibold.20"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_spacing"
-                android:layout_marginTop="@dimen/tiny_spacing"
-                android:text="@string/bank_transfer"
-                android:textColor="@color/grey_600"
-                tools:text="Bank Transfer" />
-
-            <piuk.blockchain.android.simplebuy.BankDetailsContainer
-                android:id="@+id/bank_details"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_spacing"
-                android:layout_marginTop="@dimen/standard_spacing"
-                android:layout_marginEnd="@dimen/standard_spacing"
-                android:background="@drawable/rounded_box"
-                android:orientation="vertical"
-                android:paddingBottom="@dimen/small_spacing" />
-
-            <piuk.blockchain.android.ui.dashboard.sheets.BankTransferDetailsLayout
-                android:id="@+id/bank_transfer_only"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                tools:visibility="visible"
-                app:image="@drawable/ic_transfer_bank"
-                app:subtitle="@string/bank_transfer_only_subtitle"
-                app:title="@string/bank_transfer_only" />
-
-            <piuk.blockchain.android.ui.dashboard.sheets.BankTransferDetailsLayout
-                android:id="@+id/processing_time"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/standard_spacing"
-                android:visibility="gone"
-                tools:visibility="visible"
-                app:image="@drawable/ic_clock"
-                app:title="@string/processing_time" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/bank_deposit_instruction"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/standard_spacing"
-                android:layout_marginStart="@dimen/standard_spacing"
-                android:layout_marginBottom="@dimen/standard_spacing"
-                android:gravity="center"
-                tools:text="Please transfer or more from your personal bank to Blockchain.com. This will securely link your bank account." />
-
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
+        />
 
     <include
         android:id="@+id/bank_details_error"

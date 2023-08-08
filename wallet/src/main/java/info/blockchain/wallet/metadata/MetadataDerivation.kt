@@ -36,7 +36,6 @@ class MetadataDerivation {
      * of the SHA256 hash of a reverse domain.
      */
     private fun getPurpose(sub: String): Int {
-
         val md = MessageDigest.getInstance("SHA-256")
         val text = "info.blockchain.$sub"
         md.update(text.toByteArray(charset("UTF-8")))

@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
@@ -41,9 +40,9 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.Radio
 import com.blockchain.componentlib.control.RadioButtonState
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletconnect.R
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -100,14 +99,19 @@ class SelectNetworkBottomSheet :
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing)))
+                    .background(
+                        AppColors.backgroundSecondary,
+                        RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
+                    )
                     .padding(AppTheme.dimensions.smallSpacing)
             ) {
                 Image(
                     modifier = Modifier
                         .padding(top = AppTheme.dimensions.tinySpacing)
                         .align(Alignment.CenterHorizontally),
-                    imageResource = ImageResource.Local(R.drawable.vector_sheet_indicator_small)
+                    imageResource = ImageResource.Local(
+                        com.blockchain.componentlib.R.drawable.vector_sheet_indicator_small
+                    )
                 )
                 SimpleText(
                     modifier = Modifier
@@ -165,17 +169,21 @@ class SelectNetworkBottomSheet :
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(bottom = AppTheme.dimensions.standardSpacing)
-                .background(Grey000, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
+                .background(
+                    AppColors.backgroundSecondary,
+                    RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
+                )
         ) {
             itemsIndexed(
                 items = networkItems,
                 itemContent = { index, networkItem ->
                     NetworkListItem(networkItem)
-                    if (index < networkItems.lastIndex)
+                    if (index < networkItems.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
                             dividerColor = AppTheme.colors.medium
                         )
+                    }
                 }
             )
         }

@@ -9,20 +9,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.EarnRewardsAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.earn.common.EarnFieldExplainer
+import com.blockchain.earn.common.EarnFieldExplainerBottomSheet
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.earn.staking.viewmodel.StakingSummaryArgs
 import com.blockchain.earn.staking.viewmodel.StakingSummaryNavigationEvent
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewModel
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewState
 import com.blockchain.koin.payloadScope
-import info.blockchain.balance.Currency
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
@@ -34,10 +42,9 @@ class StakingSummaryBottomSheet :
 
     interface Host : MVIBottomSheet.Host {
         fun openExternalUrl(url: String)
-        fun launchStakingWithdrawal(currency: Currency)
-        fun launchStakingDeposit(currency: Currency)
+        fun launchStakingWithdrawal(sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount)
+        fun launchStakingDeposit(account: EarnRewardsAccount.Staking)
         fun showStakingLoadingError(error: StakingError)
-        fun goToStakingAccountActivity(currency: Currency)
     }
 
     override val host: Host by lazy {
@@ -73,21 +80,20 @@ class StakingSummaryBottomSheet :
                         dismiss()
                         host.showStakingLoadingError(error)
                     },
-                    onWithdrawPressed = { currency ->
+                    onWithdrawPressed = { sourceAccount, tradingAccount ->
                         dismiss()
-                        host.launchStakingWithdrawal(currency)
+                        host.launchStakingWithdrawal(sourceAccount, tradingAccount)
                     },
-                    onDepositPressed = { currency ->
+                    onDepositPressed = { account ->
                         dismiss()
-                        host.launchStakingDeposit(currency)
+                        host.launchStakingDeposit(account)
                     },
                     withdrawDisabledLearnMore = {
                         dismiss()
                         host.openExternalUrl(ETH_STAKING_CONSIDERATIONS)
                     },
-                    onViewActivityPressed = { currency ->
-                        dismiss()
-                        host.goToStakingAccountActivity(currency)
+                    onExplainerClicked = { earnField ->
+                        showEarnFieldExplainer(earnField)
                     }
                 )
             }
@@ -99,6 +105,9 @@ class StakingSummaryBottomSheet :
 
     override fun route(navigationEvent: StakingSummaryNavigationEvent) {
     }
+
+    private fun showEarnFieldExplainer(earnField: EarnFieldExplainer) =
+        (activity as BlockchainActivity).showBottomSheet(EarnFieldExplainerBottomSheet.newInstance(earnField))
 
     companion object {
         private const val ASSET_TICKER = "ASSET_TICKER"
@@ -117,10 +126,10 @@ fun StakingSummaryScreen(
     viewModel: StakingSummaryViewModel,
     onClosePressed: () -> Unit,
     onLoadError: (StakingError) -> Unit,
-    onWithdrawPressed: (currency: Currency) -> Unit,
-    onDepositPressed: (currency: Currency) -> Unit,
+    onWithdrawPressed: (sourceAccount: BlockchainAccount, targetAccount: CustodialTradingAccount) -> Unit,
+    onDepositPressed: (currency: EarnRewardsAccount.Staking) -> Unit,
     withdrawDisabledLearnMore: () -> Unit,
-    onViewActivityPressed: (currency: Currency) -> Unit
+    onExplainerClicked: (EarnFieldExplainer) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -129,7 +138,7 @@ fun StakingSummaryScreen(
     val viewState: StakingSummaryViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        Column {
+        Column(modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection())) {
             when {
                 state.isLoading -> {
                     SummarySheetLoading()
@@ -144,7 +153,7 @@ fun StakingSummaryScreen(
                         onDepositPressed = onDepositPressed,
                         withdrawDisabledLearnMore = withdrawDisabledLearnMore,
                         onClosePressed = onClosePressed,
-                        onViewActivityPressed = onViewActivityPressed
+                        onExplainerClicked = onExplainerClicked
                     )
                 }
             }

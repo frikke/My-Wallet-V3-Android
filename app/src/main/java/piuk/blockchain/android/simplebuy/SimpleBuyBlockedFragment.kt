@@ -40,15 +40,20 @@ class SimpleBuyBlockedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            ok.setOnClickListener {
-                activity?.finish()
+            ok.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_ok)
+                onClick = { activity?.finish() }
             }
             title.text = data.title
             description.text = data.description
             notEligibleIcon.setImageResource(data.icon)
         }
 
-        (activity as BlockchainActivity).updateToolbar(getString(R.string.empty), emptyList()) { activity?.finish() }
+        (activity as BlockchainActivity).updateToolbar(
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.empty),
+            menuItems = emptyList(),
+            backAction = { activity?.finish() }
+        )
 
         logErrorAnalytics(data.title, data.error, data.description)
     }
@@ -82,21 +87,29 @@ class SimpleBuyBlockedFragment : Fragment() {
             val data = when (val reason = access.reason) {
                 is BlockedReason.NotEligible -> {
                     BlockedBuyData(
-                        title = resources.getString(R.string.sell_is_coming_soon),
-                        description = resources.getString(R.string.sell_is_coming_soon_description),
+                        title = resources.getString(com.blockchain.stringResources.R.string.sell_is_coming_soon),
+                        description = resources.getString(
+                            com.blockchain.stringResources.R.string.sell_is_coming_soon_description
+                        ),
                         icon = R.drawable.ic_trade_not_eligible,
                         error = INELIGIBLE
                     )
                 }
+
                 is BlockedReason.TooManyInFlightTransactions -> {
                     BlockedBuyData(
-                        title = resources.getString(R.string.pending_transaction_limit),
-                        description = resources.getString(R.string.pending_buys_description, reason.maxTransactions),
+                        title = resources.getString(com.blockchain.stringResources.R.string.pending_transaction_limit),
+                        description = resources.getString(
+                            com.blockchain.stringResources.R.string.pending_buys_description,
+                            reason.maxTransactions
+                        ),
                         icon = R.drawable.ic_trolley_market,
                         error = PENDING_ORDERS_LIMIT_REACHED
                     )
                 }
+
                 is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
+                is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning,
                 is BlockedReason.InsufficientTier,
                 is BlockedReason.Sanctions -> throw IllegalStateException("Not used in Buy")
             }.exhaustive

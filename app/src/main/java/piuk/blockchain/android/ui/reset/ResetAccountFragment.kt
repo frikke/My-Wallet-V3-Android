@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.reset
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.presentation.koin.scopedInject
@@ -51,17 +51,17 @@ class ResetAccountFragment :
     private fun showInfoScreen() {
         with(binding) {
             resetImage.setImageResource(R.drawable.ic_reset_round)
-            resetAccountLabel.text = getString(R.string.reset_account_title)
-            resetAccountDesc.text = getString(R.string.reset_account_description_1)
+            resetAccountLabel.text = getString(com.blockchain.stringResources.R.string.reset_account_title)
+            resetAccountDesc.text = getString(com.blockchain.stringResources.R.string.reset_account_description_1)
             resetButton.apply {
-                text = getString(R.string.reset_account_cta)
-                setOnClickListener {
+                text = getString(com.blockchain.stringResources.R.string.reset_account_cta)
+                onClick = {
                     model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.SHOW_WARNING))
                 }
             }
             retryButton.apply {
-                text = getString(R.string.retry_recovery_phrase_cta)
-                setOnClickListener {
+                text = getString(com.blockchain.stringResources.R.string.retry_recovery_phrase_cta)
+                onClick = {
                     model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.RETRY))
                 }
             }
@@ -72,17 +72,17 @@ class ResetAccountFragment :
     private fun showWarningScreen() {
         with(binding) {
             resetImage.setImageResource(R.drawable.ic_triangle_warning_circle)
-            resetAccountLabel.text = getString(R.string.reset_account_warning_title)
-            resetAccountDesc.text = getString(R.string.reset_account_warning_description)
+            resetAccountLabel.text = getString(com.blockchain.stringResources.R.string.reset_account_warning_title)
+            resetAccountDesc.text = getString(com.blockchain.stringResources.R.string.reset_account_warning_description)
             resetButton.apply {
-                text = getString(R.string.reset_account_cta)
-                setOnClickListener {
+                text = getString(com.blockchain.stringResources.R.string.reset_account_cta)
+                onClick = {
                     model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.RESET))
                 }
             }
             retryButton.apply {
-                text = getString(R.string.common_go_back)
-                setOnClickListener {
+                text = getString(com.blockchain.stringResources.R.string.common_go_back)
+                onClick = {
                     model.process(ResetAccountIntents.UpdateStatus(ResetAccountStatus.SHOW_INFO))
                 }
             }
@@ -100,7 +100,7 @@ class ResetAccountFragment :
 
     private fun launchResetPasswordFlow() {
         parentFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 binding.fragmentContainer.id,
                 ResetPasswordFragment.newInstance(

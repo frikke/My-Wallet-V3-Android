@@ -6,6 +6,7 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
+import com.blockchain.preferences.AuthPrefs
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -29,7 +30,8 @@ class LoginModel(
     remoteLogger: RemoteLogger,
     private val interactor: LoginInteractor,
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
-    private val analytics: Analytics
+    private val analytics: Analytics,
+    private val authPrefs: AuthPrefs
 ) : MviModel<LoginState, LoginIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: LoginState, intent: LoginIntents): Disposable? {
@@ -40,12 +42,16 @@ class LoginModel(
             }
             is LoginIntents.LoginWithQr -> loginWithQrCode(intent.qrString)
 
-            is LoginIntents.SendEmail ->
+            is LoginIntents.SendEmail -> {
+                // reset session
+                authPrefs.sessionId = ""
+
                 sendVerificationEmail(
                     intent.selectedEmail,
                     intent.captcha,
                     previousState.pollingState
                 )
+            }
             is LoginIntents.CheckForExistingSessionOrDeepLink -> {
                 process(interactor.checkSessionDetails(intent.action, intent.uri))
                 null

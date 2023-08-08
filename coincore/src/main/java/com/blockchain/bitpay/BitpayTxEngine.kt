@@ -1,7 +1,7 @@
 package com.blockchain.bitpay
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.bitpay.analytics.BitPayEvent
 import com.blockchain.bitpay.models.BitPayTransaction
 import com.blockchain.bitpay.models.BitPaymentRequest
@@ -20,7 +20,10 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.koin.scopedInject
+import com.blockchain.logging.Logger
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.CryptoCurrency
@@ -33,7 +36,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import java.util.concurrent.TimeUnit
 import org.bitcoinj.core.Transaction
 import org.spongycastle.util.encoders.Hex
-import timber.log.Timber
 
 const val BITPAY_TIMER_SUB = "bitpay_timer"
 private val PendingTx.bitpayTimer: Disposable?
@@ -52,18 +54,16 @@ interface BitPayClientEngine {
 }
 
 class BitpayTxEngine(
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val bitPayDataManager: BitPayDataManager,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val assetEngine: OnChainTxEngineBase,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletPrefs: WalletStatusPrefs,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val analytics: Analytics
+    private val bitPayDataManager: BitPayDataManager,
+    private val assetEngine: OnChainTxEngineBase,
+    private val walletPrefs: WalletStatusPrefs,
+    private val analytics: Analytics
 ) : TxEngine() {
 
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf()
+
+    private val balancesCache: Store<BalancesResponse> by scopedInject()
 
     override fun assertInputsValid() {
         // Only support non-custodial BTC & BCH bitpay at this time
@@ -75,6 +75,10 @@ class BitpayTxEngine(
         assetEngine.assertInputsValid()
     }
 
+    override fun ensureSourceBalanceFreshness() {
+        balancesCache.markAsStale()
+    }
+
     private val executionClient: BitPayClientEngine by unsafeLazy {
         assetEngine as BitPayClientEngine
     }
@@ -83,13 +87,12 @@ class BitpayTxEngine(
         txTarget as BitPayInvoiceTarget
     }
 
-    override fun start(
+    override fun doAfterOnStart(
         sourceAccount: BlockchainAccount,
         txTarget: TransactionTarget,
         exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger
     ) {
-        super.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
         assetEngine.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
     }
 
@@ -124,7 +127,8 @@ class BitpayTxEngine(
         if (pendingTx.bitpayTimer == null) {
             pendingTx.copy(
                 engineState = pendingTx.engineState.copyAndPut(
-                    BITPAY_TIMER_SUB, startCountdownTimer(timeRemainingSecs())
+                    BITPAY_TIMER_SUB,
+                    startCountdownTimer(timeRemainingSecs())
                 )
             )
         } else {
@@ -150,7 +154,7 @@ class BitpayTxEngine(
     }
 
     private fun handleCountdownComplete() {
-        Timber.d("BitPay Invoice Countdown expired")
+        Logger.d("BitPay Invoice Countdown expired")
         refreshConfirmations(true)
     }
 

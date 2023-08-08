@@ -1,22 +1,21 @@
 package piuk.blockchain.android.ui
 
-import android.app.Dialog
 import android.os.Bundle
-import android.widget.FrameLayout
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import piuk.blockchain.android.R
 
-class BottomSheetInformation : BottomSheetDialogFragment() {
+class BottomSheetInformation : ThemedBottomSheetFragment() {
 
     interface Host : HostedBottomSheet.Host {
         fun primaryButtonClicked()
@@ -35,69 +34,55 @@ class BottomSheetInformation : BottomSheetDialogFragment() {
     private val secondaryCtaText by lazy { arguments?.getString(CTA_TEXT_SECONDARY) }
     private val icon by lazy { arguments?.getInt(SHEET_ICON, -1)?.takeIf { it != -1 } }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = BottomSheetDialog(requireActivity())
-
-        dialog.setContentView(
-            ComposeView(requireContext()).apply {
-                setContent {
-                    val secondaryCtaText = secondaryCtaText
-                    if (secondaryCtaText == null) {
-                        BottomSheetOneButton(
-                            title = title,
-                            subtitle = description,
-                            shouldShowHeaderDivider = false,
-                            onCloseClick = { dismiss() },
-                            headerImageResource = icon?.let {
-                                ImageResource.Local(it)
-                            } ?: ImageResource.None,
-                            button = BottomSheetButton(
-                                type = ButtonType.PRIMARY,
-                                text = primaryCtaText,
-                                onClick = {
-                                    host.primaryButtonClicked()
-                                    super.dismiss()
-                                }
-                            )
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                val secondaryCtaText = secondaryCtaText
+                if (secondaryCtaText == null) {
+                    BottomSheetOneButton(
+                        title = title,
+                        subtitle = description,
+                        onCloseClick = { dismiss() },
+                        headerImageResource = icon?.let {
+                            ImageResource.Local(it)
+                        } ?: ImageResource.None,
+                        button = BottomSheetButton(
+                            type = ButtonType.PRIMARY,
+                            text = primaryCtaText,
+                            onClick = {
+                                host.primaryButtonClicked()
+                                super.dismiss()
+                            }
                         )
-                    } else {
-                        BottomSheetTwoButtons(
-                            title = title,
-                            subtitle = description,
-                            shouldShowHeaderDivider = false,
-                            onCloseClick = { dismiss() },
-                            headerImageResource = icon?.let {
-                                ImageResource.Local(it)
-                            } ?: ImageResource.None,
-                            button1 = BottomSheetButton(
-                                type = ButtonType.PRIMARY,
-                                text = primaryCtaText,
-                                onClick = {
-                                    host.primaryButtonClicked()
-                                    super.dismiss()
-                                }
-                            ),
-                            button2 = BottomSheetButton(
-                                type = ButtonType.MINIMAL,
-                                text = secondaryCtaText,
-                                onClick = {
-                                    host.secondButtonClicked()
-                                    super.dismiss()
-                                }
-                            )
+                    )
+                } else {
+                    BottomSheetTwoButtons(
+                        title = title,
+                        subtitle = description,
+                        onCloseClick = { dismiss() },
+                        headerImageResource = icon?.let {
+                            ImageResource.Local(it)
+                        } ?: ImageResource.None,
+                        button1 = BottomSheetButton(
+                            type = ButtonType.PRIMARY,
+                            text = primaryCtaText,
+                            onClick = {
+                                host.primaryButtonClicked()
+                                super.dismiss()
+                            }
+                        ),
+                        button2 = BottomSheetButton(
+                            type = ButtonType.MINIMAL,
+                            text = secondaryCtaText,
+                            onClick = {
+                                host.secondButtonClicked()
+                                super.dismiss()
+                            }
                         )
-                    }
+                    )
                 }
             }
-        )
-
-        dialog.setOnShowListener {
-            val d = it as BottomSheetDialog
-            val layout =
-                d.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
-            BottomSheetBehavior.from(layout).state = BottomSheetBehavior.STATE_EXPANDED
         }
-        return dialog
     }
 
     companion object {

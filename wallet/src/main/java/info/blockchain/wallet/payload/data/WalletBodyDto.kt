@@ -24,7 +24,7 @@ data class WalletBodyDto(
      * We fallback to -1 if missing
      */
     @SerialName("default_account_idx")
-    val defaultAccountIdx: Int? = MISSING_DEFAULT_INDEX_VALUE,
+    val defaultAccountIdx: Int? = MISSING_DEFAULT_INDEX_VALUE
 ) {
     fun withUpdatedAccounts(accounts: List<Account>): WalletBodyDto =
         this.copy(accounts = accounts)
@@ -37,6 +37,15 @@ data class WalletBodyDto(
         return this.copy(
             accounts = accounts.replace(mAccount, mAccount.updateLabel(label))
         )
+    }
+
+    fun updateAccountsLabel(updatedAccounts: Map<Account, String>): WalletBodyDto {
+        val updatedAccountList = accounts.map { account ->
+            updatedAccounts[account]?.let { label ->
+                account.updateLabel(label)
+            } ?: account
+        }
+        return copy(accounts = updatedAccountList)
     }
 
     fun updateAccountArchivedState(account: Account, archived: Boolean): WalletBodyDto {

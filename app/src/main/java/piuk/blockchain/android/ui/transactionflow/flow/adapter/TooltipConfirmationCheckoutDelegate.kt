@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import piuk.blockchain.android.databinding.ItemCheckoutClickableInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.flow.ConfirmationPropertyKey
@@ -12,7 +13,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCh
 
 class TooltipConfirmationCheckoutDelegate(
     private val mapper: TxConfirmReadOnlyMapperCheckout,
-    private val onTooltipClicked: (TxConfirmationValue) -> Unit,
+    private val onTooltipClicked: (TxConfirmationValue) -> Unit
 ) : AdapterDelegate<TxConfirmationValue> {
     override fun isForViewType(items: List<TxConfirmationValue>, position: Int): Boolean {
         return items[position].confirmation == TxConfirmation.SIMPLE_TOOLTIP
@@ -30,7 +31,9 @@ class TooltipConfirmationCheckoutDelegate(
         holder: RecyclerView.ViewHolder
     ) = (holder as TooltipConfirmationCheckoutItemViewHolder).bind(
         items[position],
-        onTooltipClicked
+        onTooltipClicked,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -39,9 +42,16 @@ private class TooltipConfirmationCheckoutItemViewHolder(
     val mapper: TxConfirmReadOnlyMapperCheckout
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: TxConfirmationValue, onTooltipClicked: (TxConfirmationValue) -> Unit) {
+    fun bind(
+        item: TxConfirmationValue,
+        onTooltipClicked: (TxConfirmationValue) -> Unit,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
+    ) {
         mapper.map(item).let {
             with(binding) {
+                root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
                 clickableItemLabel.text = it[ConfirmationPropertyKey.LABEL] as String
                 clickableItemTitle.text = it[ConfirmationPropertyKey.TITLE] as String
                 clickableItemLabel.setOnClickListener {

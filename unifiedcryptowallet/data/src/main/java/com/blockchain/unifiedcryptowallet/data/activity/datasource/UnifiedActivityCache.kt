@@ -19,10 +19,9 @@ class UnifiedActivityCache(
     fun getActivity(): Flow<List<ActivityItem>> {
         return activityQueries.selectAllActivity()
             .asFlow()
-            .distinctUntilChanged()
             .map {
                 it.executeAsList()
-            }
+            }.distinctUntilChanged()
     }
 
     fun getActivity(txId: String): Flow<ActivityItem?> {

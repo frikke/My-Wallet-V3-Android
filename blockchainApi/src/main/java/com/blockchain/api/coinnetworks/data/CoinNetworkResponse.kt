@@ -1,7 +1,7 @@
 package com.blockchain.api.coinnetworks.data
 
-import com.blockchain.domain.wallet.NetworkType
-import com.blockchain.domain.wallet.STYLE
+import com.blockchain.domain.wallet.PubKeyStyle
+import info.blockchain.balance.NetworkType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -18,9 +18,11 @@ data class CoinNetworkDto(
     @SerialName("explorerUrl")
     val explorerUrl: String,
     @SerialName("nativeAsset")
-    val currency: String,
+    val nativeAsset: String,
+    @SerialName("shortName")
+    val shortName: String,
     @SerialName("networkTicker")
-    val network: String? = null,
+    val networkTicker: String,
     @SerialName("name")
     val name: String,
     @SerialName("type")
@@ -48,7 +50,7 @@ data class CoinTypeDto(
     @SerialName("derivations")
     val derivations: List<DerivationDto>,
     @SerialName("style")
-    val style: STYLE
+    val style: PubKeyStyle
 )
 
 @Serializable

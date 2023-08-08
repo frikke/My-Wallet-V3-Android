@@ -44,7 +44,9 @@ class SupportModelTest {
         whenever(interactor.loadUserInformation()).thenReturn(
             Single.just(
                 UserInfo(
-                    true, userInfo, false
+                    true,
+                    userInfo,
+                    false
                 )
             )
         )

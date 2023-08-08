@@ -8,7 +8,6 @@ class NonCustodialActivitySummaryItemTest {
 
     @Test
     fun `ensure not equal when compared to different type`() {
-
         val activityItem = TestNonCustodialSummaryItem()
         val objectToCompare = Any()
 
@@ -19,7 +18,6 @@ class NonCustodialActivitySummaryItemTest {
 
     @Test
     fun `ensure equals, hashCode and toString work correctly with subtly different objects`() {
-
         val itemOne = TestNonCustodialSummaryItem()
             .apply { note = "note 1" }
 
@@ -33,7 +31,6 @@ class NonCustodialActivitySummaryItemTest {
 
     @Test
     fun `ensure equals, hashCode and toString work correctly with identical objects`() {
-
         val itemOne = TestNonCustodialSummaryItem()
             .apply { note = "note" }
 

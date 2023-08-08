@@ -1,6 +1,5 @@
 package com.blockchain.home.presentation.activity.detail.custodial.mappers
 
-import androidx.annotation.DrawableRes
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.home.presentation.R
@@ -9,8 +8,10 @@ import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.detail.ActivityDetailGroup
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetail
 import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtra
+import com.blockchain.home.presentation.activity.detail.custodial.CustodialActivityDetailExtraKey
 import com.blockchain.home.presentation.activity.list.custodial.mappers.basicTitleStyle
 import com.blockchain.home.presentation.activity.list.custodial.mappers.muted
+import com.blockchain.image.LocalLogo
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
@@ -19,26 +20,26 @@ import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTagStyle
 import com.blockchain.utils.abbreviate
 import com.blockchain.utils.toFormattedString
 
-@DrawableRes internal fun CustodialTransferActivitySummaryItem.iconDetail(): Int {
+internal fun CustodialTransferActivitySummaryItem.iconDetail(): LocalLogo {
     return when (type) {
-        TransactionType.DEPOSIT -> R.drawable.ic_activity_buy_dark
-        TransactionType.WITHDRAWAL -> R.drawable.ic_activity_sell_dark
+        TransactionType.DEPOSIT -> LocalLogo.Buy
+        TransactionType.WITHDRAWAL -> LocalLogo.Sell
     }
 }
 
 internal fun CustodialTransferActivitySummaryItem.title(): TextValue = TextValue.IntResValue(
     value = when (type) {
-        TransactionType.DEPOSIT -> R.string.tx_title_received
-        TransactionType.WITHDRAWAL -> R.string.tx_title_sent
+        TransactionType.DEPOSIT -> com.blockchain.stringResources.R.string.tx_title_received
+        TransactionType.WITHDRAWAL -> com.blockchain.stringResources.R.string.tx_title_withdrawn
     },
-    args = listOf(asset.displayTicker)
+    args = listOf(account.currency.displayTicker)
 )
 
 internal fun CustodialTransferActivitySummaryItem.detailItems(
-    extras: List<CustodialActivityDetailExtra>
+    extras: Map<CustodialActivityDetailExtraKey, CustodialActivityDetailExtra>
 ): List<ActivityDetailGroup> = listOf(
     // deposit ----€10
-    // to/from ---- euro
+    // fee ---- €12
     ActivityDetailGroup(
         title = null,
         itemGroup = listOf(
@@ -47,7 +48,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.amount),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.amount),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -63,7 +64,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_buy_fee),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_buy_fee),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -87,7 +88,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.common_status),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.common_status),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -104,7 +105,9 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                     id = toString(),
                     leading = listOf(
                         ActivityStackView.Text(
-                            value = TextValue.IntResValue(R.string.activity_details_from),
+                            value = TextValue.IntResValue(
+                                com.blockchain.stringResources.R.string.activity_details_from
+                            ),
                             style = basicTitleStyle.muted()
                         )
                     ),
@@ -112,16 +115,18 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                         ActivityStackView.Text(
                             value = when (type) {
                                 TransactionType.DEPOSIT -> {
-                                    if (recipientAddress.isNotBlank()) TextValue.StringValue(
-                                        recipientAddress.abbreviate(
-                                            startLength = SIDE_ABBREVIATE_LENGTH,
-                                            endLength = SIDE_ABBREVIATE_LENGTH
+                                    if (recipientAddress.isNotBlank()) {
+                                        TextValue.StringValue(
+                                            recipientAddress.abbreviate(
+                                                startLength = SIDE_ABBREVIATE_LENGTH,
+                                                endLength = SIDE_ABBREVIATE_LENGTH
+                                            )
                                         )
-                                    )
-                                    else {
+                                    } else {
                                         return@nullableFrom null
                                     }
                                 }
+
                                 TransactionType.WITHDRAWAL -> {
                                     TextValue.StringValue(account.label)
                                 }
@@ -137,7 +142,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                     id = toString(),
                     leading = listOf(
                         ActivityStackView.Text(
-                            value = TextValue.IntResValue(R.string.activity_details_to),
+                            value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_to),
                             style = basicTitleStyle.muted()
                         )
                     ),
@@ -147,6 +152,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                                 TransactionType.DEPOSIT -> {
                                     TextValue.StringValue(account.label)
                                 }
+
                                 TransactionType.WITHDRAWAL -> {
                                     if (recipientAddress.isNotBlank()) {
                                         TextValue.StringValue(
@@ -164,10 +170,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                         )
                     )
                 )
-            },
-            // extra
-            // payment method
-            *extras.map { it.toActivityComponent() }.toTypedArray()
+            }
         )
     ),
     // date ---- 11:38 PM on Aug 1, 2022
@@ -181,7 +184,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.date),
+                        value = TextValue.IntResValue(com.blockchain.stringResources.R.string.date),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -198,7 +201,9 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
                 id = toString(),
                 leading = listOf(
                     ActivityStackView.Text(
-                        value = TextValue.IntResValue(R.string.activity_details_buy_tx_id),
+                        value = TextValue.IntResValue(
+                            com.blockchain.stringResources.R.string.activity_details_buy_tx_id
+                        ),
                         style = basicTitleStyle.muted()
                     )
                 ),
@@ -213,7 +218,7 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
             // copy txid
             ActivityComponent.Button(
                 id = toString(),
-                value = TextValue.IntResValue(R.string.activity_details_copy_tx_id),
+                value = TextValue.IntResValue(com.blockchain.stringResources.R.string.activity_details_copy_tx_id),
                 style = ActivityButtonStyle.Tertiary,
                 action = ActivityButtonAction(
                     type = ActivityButtonAction.ActivityButtonActionType.Copy,
@@ -226,19 +231,22 @@ internal fun CustodialTransferActivitySummaryItem.detailItems(
 
 private fun CustodialTransferActivitySummaryItem.statusValue(): TextValue = TextValue.IntResValue(
     when (state) {
-        TransactionState.COMPLETED -> R.string.activity_details_completed
-        TransactionState.PENDING -> R.string.activity_details_label_confirming
-        TransactionState.FAILED -> R.string.activity_details_label_failed
+        TransactionState.COMPLETED -> com.blockchain.stringResources.R.string.activity_details_completed
+        TransactionState.MANUAL_REVIEW -> com.blockchain.stringResources.R.string.activity_details_label_manual_review
+        TransactionState.PENDING -> com.blockchain.stringResources.R.string.activity_details_label_confirming
+        TransactionState.FAILED -> com.blockchain.stringResources.R.string.activity_details_label_failed
     }
 )
 
 private fun CustodialTransferActivitySummaryItem.statusStyle(): ActivityTagStyle = when (state) {
     TransactionState.COMPLETED -> ActivityTagStyle.Success
+    TransactionState.MANUAL_REVIEW,
     TransactionState.PENDING -> ActivityTagStyle.Info
+
     TransactionState.FAILED -> ActivityTagStyle.Error
 }
 
 internal fun CustodialTransferActivitySummaryItem.buildActivityDetail() = CustodialActivityDetail(
     activity = this,
-    extras = emptyList()
+    extras = emptyMap()
 )

@@ -1,6 +1,8 @@
 package com.blockchain.commonarch.presentation.mvi_v2
 
+import android.annotation.SuppressLint
 import android.os.Parcelable
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +23,7 @@ interface ModelState
 /**
  * Emitted view state for view consumption
  */
+@Stable
 interface ViewState
 
 /**
@@ -34,6 +37,7 @@ interface Intent<TModelState : ModelState> {
  * NavigationEvent represents a navigation event that is triggered by a Model
  */
 interface NavigationEvent
+object EmptyNavEvent : NavigationEvent
 
 /**
  * This interface should be implemented by the class that handles the navigation
@@ -47,11 +51,13 @@ sealed interface ModelConfigArgs {
     object NoArgs : ModelConfigArgs
 }
 
-abstract class MviViewModel<TIntent : Intent<TModelState>,
+abstract class MviViewModel<
+    TIntent : Intent<TModelState>,
     TViewState : ViewState,
     TModelState : ModelState,
     NavEvent : NavigationEvent,
-    TArgs : ModelConfigArgs>(
+    TArgs : ModelConfigArgs
+    >(
     val initialState: TModelState
 ) : ViewModel() {
 
@@ -84,10 +90,10 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
 
     /**
      * Called by the Viewmodel whenever states [modelState] and [viewState] need to get updated.
-     * @param stateUpdate a lambda that generates a new [modelState]
+     * @param newModelState a lambda that generates a new [modelState]
      */
-    protected fun updateState(stateUpdate: (state: TModelState) -> TModelState) {
-        _modelState.value = stateUpdate(modelState)
+    protected fun updateState(newModelState: TModelState.() -> TModelState) {
+        _modelState.value = newModelState(modelState)
     }
 
     /**
@@ -102,29 +108,43 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
     /**
      * [viewState] flow always has a value
      */
-    val viewState: StateFlow<TViewState>
-        get() = _modelState.map {
-            reduce(it)
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, reduce(initialState))
+    val viewState: StateFlow<TViewState> by lazy {
+        _modelState.map {
+            it.reduce()
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            initialState.reduce().also {
+                Timber.e("Reducing initial state $it for ViewModel ${this.javaClass.simpleName}")
+            }
+        )
+    }
 
     /**
      * Method that should be override in every Model created. In this method, base on the latest internal
      * model state, we create a new immutable [viewState]
      * @param state model latest internal state
      */
-    protected abstract fun reduce(state: TModelState): TViewState
+    protected abstract fun TModelState.reduce(): TViewState
 
     /**
      * Called by the UI to feed the model with Intents
      * @param intent the UI originated intent
      */
+    @SuppressLint("BinaryOperationInTimber")
     fun onIntent(intent: TIntent) {
         viewModelScope.launch {
             if (intent.isValidFor(modelState)) {
-                Timber.d("Model: Process Intent ****> : ${intent.javaClass.simpleName}")
+                Timber.d(
+                    "Model ${this@MviViewModel.javaClass.simpleName}:" +
+                        " Process Intent ****> : ${intent.javaClass.simpleName}"
+                )
                 handleIntent(modelState, intent)
             } else {
-                Timber.d("Model: Dropping Intent ****> : ${intent.javaClass.simpleName}")
+                Timber.d(
+                    "Model ${this@MviViewModel.javaClass.simpleName}:" +
+                        " Dropping Intent ****> : ${intent.javaClass.simpleName}"
+                )
             }
         }
     }

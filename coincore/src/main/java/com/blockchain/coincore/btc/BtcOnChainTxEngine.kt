@@ -22,6 +22,7 @@ import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
@@ -49,7 +50,6 @@ import org.bitcoinj.core.Transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.spongycastle.util.encoders.Hex
-import timber.log.Timber
 
 private const val STATE_UTXO = "btc_utxo"
 private const val FEE_OPTIONS = "fee_options"
@@ -124,7 +124,7 @@ class BtcOnChainTxEngine(
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =
         Single.zip(
-            sourceAccount.balanceRx.firstOrError().map { it.total as CryptoValue },
+            sourceAccount.balanceRx().firstOrError().map { it.total as CryptoValue },
             getDynamicFeesPerKb(pendingTx),
             getUnspentApiResponse(btcSource.xpubs)
         ) { total, optionsAndFeesPerKb, coins ->
@@ -143,7 +143,7 @@ class BtcOnChainTxEngine(
         )
 
     private fun getUnspentApiResponse(xpubs: XPubs): Single<List<Utxo>> {
-        return sourceAccount.balanceRx.firstOrError().flatMap {
+        return sourceAccount.balanceRx().firstOrError().flatMap {
             if (it.total.isPositive) {
                 sendDataManager.getUnspentBtcOutputs(xpubs)
                     // If we get here, we should have balance...
@@ -287,7 +287,9 @@ class BtcOnChainTxEngine(
                             pendingTx.feeAmount.toUserFiat(exchangeRates),
                             sourceAsset
                         )
-                    } else null,
+                    } else {
+                        null
+                    },
                     feeLevel = pendingTx.feeSelection.selectedLevel
                 ),
                 TxConfirmationValue.Total(
@@ -302,7 +304,9 @@ class BtcOnChainTxEngine(
                     TxConfirmationValue.TxBooleanConfirmation<Unit>(
                         TxConfirmation.LARGE_TRANSACTION_WARNING
                     )
-                } else null
+                } else {
+                    null
+                }
             )
         )
     }
@@ -467,7 +471,7 @@ class BtcOnChainTxEngine(
     }
 
     override fun doOnTransactionFailed(pendingTx: PendingTx, e: Throwable) {
-        Timber.e("BTC Send failed: $e")
+        Logger.e("BTC Send failed: $e")
         remoteLogger.logException(e)
     }
 
@@ -481,7 +485,7 @@ class BtcOnChainTxEngine(
                 totalSent.toLong()
             )
         } catch (e: Exception) {
-            Timber.e(e)
+            Logger.e(e)
         }
     }
 

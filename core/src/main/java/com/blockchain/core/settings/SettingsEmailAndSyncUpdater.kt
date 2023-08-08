@@ -24,7 +24,7 @@ internal class SettingsEmailAndSyncUpdater(
             fetch = { email().awaitOutcome() },
             until = { email -> email.isVerified },
             timerInSec = timerInSec,
-            retries = retries,
+            retries = retries
         ).map { it.value }
 
     override fun updateEmailAndSync(email: String): Single<Email> =

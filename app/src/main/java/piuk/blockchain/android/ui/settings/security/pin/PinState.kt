@@ -12,7 +12,6 @@ data class PinState(
     val showMobileNotice: MobileNoticeDialog? = null,
     val passwordStatus: PasswordStatus? = null,
     val appUpgradeStatus: AppUpgradeStatus = AppUpgradeStatus(),
-    val progressDialog: ProgressDialogStatus? = null,
     val biometricStatus: BiometricStatus = BiometricStatus(),
     val upgradeWalletStatus: UpgradeWalletStatus? = null,
     val payloadStatus: PayloadStatus = PayloadStatus(),

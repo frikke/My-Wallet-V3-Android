@@ -1,0 +1,10 @@
+apply plugin: 'kotlinx-serialization'
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
+
+dependencies {
+    // android
+    implementation project(':common:interface')
+    implementation project(':unifiedcryptowallet:domain')
+    implementation project(':coincore')
+    implementation project(':core')
+}

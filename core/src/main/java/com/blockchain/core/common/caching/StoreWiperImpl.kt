@@ -6,7 +6,7 @@ import com.blockchain.storedatasource.StoreWiper
 
 class StoreWiperImpl(
     private val inMemoryCacheWiper: InMemoryCacheWiper,
-    private val persistedJsonSqlDelightCacheWiper: PersistedJsonSqlDelightCacheWiper,
+    private val persistedJsonSqlDelightCacheWiper: PersistedJsonSqlDelightCacheWiper
 ) : StoreWiper {
 
     override suspend fun wipe() {

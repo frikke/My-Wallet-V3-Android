@@ -6,6 +6,7 @@ import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
@@ -20,6 +21,7 @@ import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
 import com.blockchain.veriff.VeriffApplicantAndToken
@@ -31,11 +33,13 @@ import kotlinx.coroutines.rx3.asObservable
 
 interface NabuDataManager {
 
-    fun createBasicUser(
+    suspend fun createBasicUser(
         firstName: String,
         lastName: String,
-        dateOfBirth: String,
-    ): Completable
+        dateOfBirth: String
+    ): Outcome<Exception, Unit>
+
+    suspend fun isProfileNameValid(firstName: String, lastName: String): Outcome<Exception, Boolean>
 
     fun requestJwt(): Single<String>
 
@@ -96,7 +100,7 @@ internal class NabuDataManagerImpl(
     private val trust: DigitalTrust,
     private val payloadDataManager: PayloadDataManager,
     private val prefs: SessionPrefs,
-    private val userService: UserService,
+    private val userService: UserService
 ) : NabuDataManager {
 
     private val guid
@@ -164,16 +168,19 @@ internal class NabuDataManagerImpl(
         }.cache()
     }
 
-    override fun createBasicUser(
+    override suspend fun createBasicUser(
         firstName: String,
         lastName: String,
-        dateOfBirth: String,
-    ): Completable =
+        dateOfBirth: String
+    ): Outcome<Exception, Unit> =
         nabuService.createBasicUser(
             firstName,
             lastName,
-            dateOfBirth,
+            dateOfBirth
         )
+
+    override suspend fun isProfileNameValid(firstName: String, lastName: String): Outcome<Exception, Boolean> =
+        nabuService.isProfileNameValid(firstName, lastName)
 
     override fun getAirdropCampaignStatus(): Single<AirdropStatusList> =
         nabuService.getAirdropCampaignStatus()
@@ -213,7 +220,7 @@ internal class NabuDataManagerImpl(
 
     // TODO(aromano): move these to KycService once Othman's PR is merged and remove NabuDataManager dependency on UserService
     override fun submitVeriffVerification(): Completable =
-        userService.getUserFlow(FreshnessStrategy.Cached(false))
+        userService.getUserFlow(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .asObservable()
             .firstOrError()
             .flatMapCompletable { user ->

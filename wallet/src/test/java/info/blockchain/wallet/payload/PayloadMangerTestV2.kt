@@ -1,6 +1,9 @@
 package info.blockchain.wallet.payload
 
 import com.blockchain.AppVersion
+import com.blockchain.api.blockchainApiModule
+import com.blockchain.data.DataResource
+import com.blockchain.testutils.KoinTestRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -13,29 +16,45 @@ import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.AddressCache
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.Options
+import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
+import info.blockchain.wallet.payload.store.PayloadDataStore
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
 import java.util.LinkedList
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.ResponseBody.Companion.toResponseBody
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.serialization.json.Json
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.test.KoinTest
+import org.koin.test.inject
 import org.mockito.MockitoAnnotations
 
-class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
+class PayloadMangerTestV2 : WalletApiMockedResponseTest(), KoinTest {
 
     private val balanceManagerBtc: BalanceManagerBtc = mock()
 
     private val balanceManagerBch: BalanceManagerBch = mock()
     private val walletApi: WalletApi = mock()
+    private val payloadDataStore: PayloadDataStore = mock()
 
     private lateinit var payloadManager: PayloadManager
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            blockchainApiModule
+        )
+    }
+    val json: Json by inject()
+
     @Before fun setup() {
         MockitoAnnotations.openMocks(this)
         doNothing().`when`(balanceManagerBtc).updateAllBalances(any(), any())
         doNothing().`when`(balanceManagerBch).updateAllBalances(any(), any())
         payloadManager = PayloadManager(
             walletApi,
+            payloadDataStore,
+            mock(),
             mock(),
             mock(),
             balanceManagerBtc,
@@ -48,14 +67,16 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
             object : AppVersion {
                 override val appVersion: String
                     get() = "8.18"
-            },
+            }
         )
     }
 
     private fun initializeAndDecryptTestWallet(resourse: String, password: String) {
         val walletBase = loadResourceContent(resourse)
-        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(
-            Single.just(walletBase.toResponseBody("application/json".toMediaTypeOrNull()))
+        whenever(payloadDataStore.stream(any())).thenReturn(
+            flowOf(
+                DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), walletBase))
+            )
         )
         payloadManager.initializeAndDecrypt(
             "any",
@@ -68,24 +89,30 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
     @Test
     fun `initializeAndDecryptV4payload should decrypt the right fields`() {
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
-        assert(payloadManager.payload!!.guid == "4c4ae436-3688-4beb-90ba-8ddeff23f3b9")
-        assert(payloadManager.payload!!.dpasswordhash!!.isEmpty())
+        assert(payloadManager.payload.guid == "4c4ae436-3688-4beb-90ba-8ddeff23f3b9")
+        assert(payloadManager.payload.dpasswordhash!!.isEmpty())
         assert(
-            payloadManager.payload!!.options == Options(
-                pbkdf2Iterations = 5000, feePerKb = 10000, _isHtml5Notifications = false, _logoutTime = 600000
+            payloadManager.payload.options == Options(
+                pbkdf2Iterations = 5000,
+                feePerKb = 10000,
+                _isHtml5Notifications = false,
+                _logoutTime = 600000
             )
         )
-        assert(payloadManager.payload?.importedAddressList!!.isEmpty())
-        assert(payloadManager.payload.isUpgradedToV3 == true)
+        assert(payloadManager.payload.importedAddressList!!.isEmpty())
+        assert(payloadManager.payload.isUpgradedToV3)
         assert(payloadManager.payload?.txNotes == emptyMap<String, String>())
 
         assert(
             payloadManager.payload?.walletBody?.accounts == listOf(
                 AccountV4(
-                    label = "Private Key Wallet", _defaultType = "bech32", _isArchived = false,
+                    label = "Private Key Wallet",
+                    _defaultType = "bech32",
+                    _isArchived = false,
                     derivations = listOf(
                         Derivation(
-                            type = "legacy", purpose = 44,
+                            type = "legacy",
+                            purpose = 44,
                             xpriv = "xprv9yWWrg4pye8RGB4vyjMdsqbrMihwo1Tpu7Kn5sZywYTG2rVBzyJBwoTodBn8SvWWLxt9nR5hL5fmJS5vQ5aBpqksjaDQ4vP8PkwWn6hb113",
                             xpub = "xpub6CVsGBbip1giUf9Q5kteEyYaukYSCUBgGLFNtFybVszEuepLYWcSVbnHUTh5ASY6q2HGf5tJjhmXm7YjssMnKru7TUv1FDU23W5ubBQoMvv",
                             cache = AddressCache(
@@ -95,7 +122,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
                             _addressLabels = emptyList()
                         ),
                         Derivation(
-                            type = "bech32", purpose = 84,
+                            type = "bech32",
+                            purpose = 84,
                             xpriv = "xprv9yDDzgiPtLsELMgwKxQP6URNujTTB3Lyn1MwgGQ2kHDxF6PyXJMazgAcyQsxzgACF7bJd8iwY6jPgDiFvAXdDVEfjjP4a2XpkywY3xp6F3B",
                             xpub = "xpub6CCaQCFHiiRXYqmQRywPTcN7TmHwaW4q9EHYUeoeJckw7tj84qfqYUV6pedgtJi1p7QNLnnn5Gki2R5wR6pYSHWptaPJgD3219iZRd5H5TU",
                             cache = AddressCache(
@@ -107,7 +135,9 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
                     )
                 ),
                 AccountV4(
-                    label = "test", _defaultType = "bech32", _isArchived = false,
+                    label = "test",
+                    _defaultType = "bech32",
+                    _isArchived = false,
                     derivations = listOf(
                         Derivation(
                             type =
@@ -122,7 +152,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
                             _addressLabels = listOf()
                         ),
                         Derivation(
-                            type = "bech32", purpose = 84,
+                            type = "bech32",
+                            purpose = 84,
                             xpriv = "xprv9yDDzgiPtLsEN9B4dsgujWhNKGSdJZz3wrbyNNDYZv64PFpFubG89rq92yztrhyCKUjmeRA6PM5Z2meaZiDN73WSv9rY6QTd3C29M5rcyLG",
                             xpub = "xpub6CCaQCFHiiRXadFXjuDv6ee6sJH7i2huK5XaAkdA8Fd3G49QT8aNhf9ctEmmvNVVPL3jkuwCb47cc9EYv5jMGbkQdFg3E4EE6sdwgTc7c2H",
                             cache = AddressCache(
@@ -134,10 +165,13 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
                     )
                 ),
                 AccountV4(
-                    label = "Tavo Tevas", _defaultType = "bech32", _isArchived = false,
+                    label = "Tavo Tevas",
+                    _defaultType = "bech32",
+                    _isArchived = false,
                     derivations = listOf(
                         Derivation(
-                            type = "legacy", purpose = 44,
+                            type = "legacy",
+                            purpose = 44,
                             xpriv = "xprv9yWWrg4pye8RNb8GWsQijCwC4rbk7i68iQE9qhR2b3Bd8yzy7Q7C23KyBHzXtQfMmoUe11xU1Vg9auNXeLEPNhfMoFAKwCN8eFj46YwJLtw",
                             xpub = "xpub6CVsGBbip1gib5Cjctwj6LsvctSEXAoz5d9ke5pe9Nic1nL7ewRSZqeT2Zy2g2o6Lh5LVeXkNH79TNNEiUGaREqE3BWSJfMYWA65uCrSrqh",
                             cache = AddressCache(
@@ -147,7 +181,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
                             _addressLabels = emptyList()
                         ),
                         Derivation(
-                            type = "bech32", purpose = 84,
+                            type = "bech32",
+                            purpose = 84,
                             xpriv = "xprv9yDDzgiPtLsEQeMAenjKJLUfUBmnwkRDdpU7vV1Y3in16WoZHHi8Xck2U2jCHGGfZ2dFnhpieJNHDvZjHexnVmvi1zhoZ2vAvbPaneHgZQQ",
                             xpub = "xpub6CCaQCFHiiRXd8RdkpGKfURQ2DcHMD9513PiisR9c4JyyK8hpq2P5R4WKJV3FwFR864Rt7kxbrqX9BEKKFWfoN9LArXixCFFfUrv6dArZZK",
                             cache = AddressCache(
@@ -168,12 +203,12 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
             Completable.complete()
         )
         initializeAndDecryptTestWallet("wallet_v3_encrypted.txt", "1234")
-        assert(payloadManager.payload!!.walletBodies!![0].accounts[0] is AccountV3)
-        payloadManager.updateDerivationsForAccounts(payloadManager.payload!!.walletBody!!.accounts).test()
-        assert(payloadManager.payload!!.walletBodies!!.size == 1)
-        assert(payloadManager.payload!!.walletBodies!![0].accounts.size == 1)
-        assert(payloadManager.payload!!.walletBodies!![0].accounts[0] is AccountV4)
-        assert((payloadManager.payload!!.walletBodies!![0].accounts[0] as AccountV4).derivations.size == 2)
+        assert(payloadManager.payload.walletBodies!![0].accounts[0] is AccountV3)
+        payloadManager.updateDerivationsForAccounts(payloadManager.payload.walletBody!!.accounts).test()
+        assert(payloadManager.payload.walletBodies!!.size == 1)
+        assert(payloadManager.payload.walletBodies!![0].accounts.size == 1)
+        assert(payloadManager.payload.walletBodies!![0].accounts[0] is AccountV4)
+        assert((payloadManager.payload.walletBodies!![0].accounts[0] as AccountV4).derivations.size == 2)
     }
 
     @Test
@@ -182,10 +217,10 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
             Completable.complete()
         )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
-        assert(payloadManager.payload!!.walletBodies!![0].accounts[0].label == "Private Key Wallet")
-        payloadManager.updateAccountLabel(payloadManager.payload!!.walletBodies!![0].accounts[0], "Random Label").test()
-        assert(payloadManager.payload!!.walletBodies!![0].accounts[0].label == "Random Label")
-        assert(payloadManager.payload!!.walletBodies!![0].accounts.none { it.label == "Private Key Wallet" })
+        assert(payloadManager.payload.walletBodies!![0].accounts[0].label == "Private Key Wallet")
+        payloadManager.updateAccountLabel(payloadManager.payload.walletBodies!![0].accounts[0], "Random Label").test()
+        assert(payloadManager.payload.walletBodies!![0].accounts[0].label == "Random Label")
+        assert(payloadManager.payload.walletBodies!![0].accounts.none { it.label == "Private Key Wallet" })
     }
 
     @Test
@@ -194,9 +229,9 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
             Completable.complete()
         )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
-        assert(!payloadManager.payload!!.walletBodies!![0].accounts[0].isArchived)
-        payloadManager.updateArchivedAccountState(payloadManager.payload!!.walletBodies!![0].accounts[0], true).test()
-        assert(payloadManager.payload!!.walletBodies!![0].accounts[0].isArchived)
+        assert(!payloadManager.payload.walletBodies!![0].accounts[0].isArchived)
+        payloadManager.updateArchivedAccountState(payloadManager.payload.walletBodies!![0].accounts[0], true).test()
+        assert(payloadManager.payload.walletBodies!![0].accounts[0].isArchived)
     }
 
     @Test
@@ -205,12 +240,12 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
             Completable.complete()
         )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
-        assert(payloadManager.payload!!.walletBodies!![0].mnemonicVerified)
+        assert(payloadManager.payload.walletBodies!![0].mnemonicVerified)
         val responseList = LinkedList<String>()
         responseList.add("HDWallet successfully synced with server")
         mockInterceptor!!.setResponseStringList(responseList)
         payloadManager.updateMnemonicVerified(false).test()
-        assert(!payloadManager.payload!!.walletBodies!![0].mnemonicVerified)
+        assert(!payloadManager.payload.walletBodies!![0].mnemonicVerified)
     }
 
     @Test
@@ -219,8 +254,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
             Completable.complete()
         )
         initializeAndDecryptTestWallet("wallet_v4_encrypted_2.txt", "LivingDome1040")
-        assert(payloadManager.payload!!.walletBodies!![0].defaultAccountIdx == 0)
+        assert(payloadManager.payload.walletBodies!![0].defaultAccountIdx == 0)
         payloadManager.updateDefaultIndex(21).test()
-        assert(payloadManager.payload!!.walletBodies!![0].defaultAccountIdx == 21)
+        assert(payloadManager.payload.walletBodies!![0].defaultAccountIdx == 21)
     }
 }

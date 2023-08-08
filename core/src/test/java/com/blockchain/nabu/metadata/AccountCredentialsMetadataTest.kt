@@ -99,7 +99,6 @@ class AccountCredentialsMetadataTest {
 
     @Test
     fun `when account or legacy metadata haven't been created empty is returned`() {
-
         whenever(
             metadataRepository.load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
         ).thenReturn(
@@ -125,7 +124,6 @@ class AccountCredentialsMetadataTest {
 
     @Test
     fun `when account metadata are invalid but legacy have been created, new metadata should updated correctly`() {
-
         whenever(
             metadataRepository.load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
         ).thenReturn(
@@ -193,13 +191,13 @@ class AccountCredentialsMetadataTest {
         test.assertComplete()
 
         Mockito.verify(metadataRepository).save(
-            metadata, MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
+            metadata,
+            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
         )
     }
 
     @Test
     fun `when corrupted returned for Entry 14 then resync should happen`() {
-
         val metadata = BlockchainAccountCredentialsMetadata(
             userId = "id",
             lifetimeToken = "lifetimeToken",
@@ -218,7 +216,10 @@ class AccountCredentialsMetadataTest {
 
         whenever(
             metadataRepository.saveMetadata(
-                any(), any(), any(), any()
+                any(),
+                any(),
+                any(),
+                any()
             )
         ).thenReturn(
             Completable.complete()
@@ -260,7 +261,10 @@ class AccountCredentialsMetadataTest {
 
         whenever(
             metadataRepository.saveMetadata(
-                any(), any(), any(), any()
+                any(),
+                any(),
+                any(),
+                any()
             )
         ).thenReturn(
             Completable.complete()

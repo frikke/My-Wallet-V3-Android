@@ -20,10 +20,10 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.componentlib.viewextensions.visible
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemSendConfirmXlmMemoBinding
-import piuk.blockchain.android.ui.activity.detail.adapter.INPUT_FIELD_FLAGS
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -50,7 +50,9 @@ class ConfirmXlmMemoItemDelegate<in T>(
         holder: RecyclerView.ViewHolder
     ) = (holder as XlmMemoItemViewHolder).bind(
         items[position] as TxConfirmationValue.Memo,
-        model
+        model,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -68,9 +70,13 @@ private class XlmMemoItemViewHolder(
 
     fun bind(
         item: TxConfirmationValue.Memo,
-        model: TransactionModel
+        model: TransactionModel,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
-        binding.apply {
+        with(binding) {
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
             if (item.isRequired) showExchangeInfo()
 
             confirmDetailsMemoSpinner.onItemSelectedListener = null
@@ -132,8 +138,9 @@ private class XlmMemoItemViewHolder(
     private fun AppCompatSpinner.setupSpinner() {
         val spinnerArrayAdapter: ArrayAdapter<String> =
             ArrayAdapter(
-                context, android.R.layout.simple_spinner_dropdown_item,
-                resources.getStringArray(R.array.xlm_memo_types_manual)
+                context,
+                android.R.layout.simple_spinner_dropdown_item,
+                resources.getStringArray(com.blockchain.stringResources.R.array.xlm_memo_types_manual)
             )
         adapter = spinnerArrayAdapter
     }
@@ -172,24 +179,24 @@ private class XlmMemoItemViewHolder(
         binding.confirmDetailsMemoInput.apply {
             if (selection == TEXT_INDEX) {
                 hint =
-                    context.getString(R.string.send_confirm_memo_text_hint)
+                    context.getString(com.blockchain.stringResources.R.string.send_confirm_memo_text_hint)
                 inputType = InputType.TYPE_CLASS_TEXT
             } else {
                 hint =
-                    context.getString(R.string.send_confirm_memo_id_hint)
+                    context.getString(com.blockchain.stringResources.R.string.send_confirm_memo_id_hint)
                 inputType = InputType.TYPE_CLASS_NUMBER
             }
         }
     }
 
     private fun ItemSendConfirmXlmMemoBinding.showExchangeInfo() {
-        val boldIntro = context.getString(R.string.send_to_exchange_xlm_title)
-        val blurb = context.getString(R.string.send_to_exchange_xlm_blurb)
+        val boldIntro = context.getString(com.blockchain.stringResources.R.string.send_to_exchange_xlm_title)
+        val blurb = context.getString(com.blockchain.stringResources.R.string.send_to_exchange_xlm_blurb)
 
         val map = mapOf("send_memo_link" to Uri.parse(URL_XLM_MIN_BALANCE))
         val link = StringUtils.getStringWithMappedAnnotations(
             context,
-            R.string.send_to_exchange_xlm_link,
+            com.blockchain.stringResources.R.string.send_to_exchange_xlm_link,
             map
         )
 
@@ -199,7 +206,9 @@ private class XlmMemoItemViewHolder(
             .append(link)
 
         sb.setSpan(
-            StyleSpan(Typeface.BOLD), 0, boldIntro.length,
+            StyleSpan(Typeface.BOLD),
+            0,
+            boldIntro.length,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 

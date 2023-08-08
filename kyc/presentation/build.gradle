@@ -1,0 +1,50 @@
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
+apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlinx-serialization'
+
+android {
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {}
+    }
+
+    lintOptions {
+        warningsAsErrors true
+        abortOnError true
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion Versions.composeCompiler
+    }
+
+    namespace 'com.blockchain.kyc.presentation'
+}
+
+dependencies {
+    implementation project(':componentlib')
+    implementation project(':core')
+    implementation project(':commonarch')
+    implementation project(':common:interface')
+    implementation project(':blockchainApi')
+
+    // koin
+    implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
+
+    // Compose
+    implementation Libraries.composeUi
+    implementation Libraries.composeMaterial
+    implementation Libraries.composePreview
+    implementation Libraries.composeNavigation
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
+    implementation Libraries.accompanistNavigationMaterial
+    implementation Libraries.kotlinJson
+}

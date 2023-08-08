@@ -29,14 +29,13 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         // Arrange
         val accountBalance = AccountBalance(
             total = 100.testValue(),
-            dashboardDisplay = 100.testValue(),
             pending = 0.testValue(),
             withdrawable = 100.testValue(),
             exchangeRate = TEST_TO_USER_RATE
         )
 
         val account: CryptoAccount = mock {
-            on { balanceRx }.thenReturn(Observable.just(accountBalance))
+            on { balanceRx() }.thenReturn(Observable.just(accountBalance))
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -46,7 +45,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         )
 
         // Act
-        subject.balanceRx.test()
+        subject.balanceRx().test()
             .assertComplete()
             .assertValue {
                 it.total == accountBalance.total &&
@@ -61,25 +60,23 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         // Arrange
         val accountBalance1 = AccountBalance(
             total = 100.testValue(),
-            dashboardDisplay = 100.testValue(),
             pending = 0.testValue(),
             withdrawable = 100.testValue(),
             exchangeRate = TEST_TO_USER_RATE
         )
 
         val account1: CryptoAccount = mock {
-            on { balanceRx }.thenReturn(Observable.just(accountBalance1))
+            on { balanceRx() }.thenReturn(Observable.just(accountBalance1))
         }
 
         val accountBalance2 = AccountBalance(
             total = 50.testValue(),
-            dashboardDisplay = 50.testValue(),
             pending = 0.testValue(),
             withdrawable = 40.testValue(),
             exchangeRate = TEST_TO_USER_RATE
         )
         val account2: CryptoAccount = mock {
-            on { balanceRx }.thenReturn(Observable.just(accountBalance2))
+            on { balanceRx() }.thenReturn(Observable.just(accountBalance2))
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -89,7 +86,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         )
 
         // Act
-        subject.balanceRx.test()
+        subject.balanceRx().test()
             .assertComplete()
             .assertValueAt(1) {
                 it.total == accountBalance1.total + accountBalance2.total &&

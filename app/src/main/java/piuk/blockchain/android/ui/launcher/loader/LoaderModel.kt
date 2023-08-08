@@ -6,13 +6,11 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.SuperAppMvpPrefs
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.exceptions.CompositeException
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.util.AppUtil
@@ -27,9 +25,7 @@ class LoaderModel(
     private val payloadDataManager: PayloadDataManager,
     private val prerequisites: Prerequisites,
     private val authPrefs: AuthPrefs,
-    private val interactor: LoaderInteractor,
-    private val walletModeService: WalletModeService,
-    private val educationalScreensPrefs: SuperAppMvpPrefs
+    private val interactor: LoaderInteractor
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
@@ -41,7 +37,6 @@ class LoaderModel(
 
             is LoaderIntents.LaunchDashboard -> {
                 launchDashboard(
-                    loginMethod = previousState.loginMethod,
                     data = intent.data,
                     shouldLaunchUiTour = intent.shouldLaunchUiTour,
                     isUserInCowboysPromo = previousState.isUserInCowboysPromo
@@ -64,7 +59,6 @@ class LoaderModel(
         loginMethod: LoginMethod,
         referralCode: String?
     ): Disposable? {
-
         val hasLoginInfo = authPrefs.walletGuid.isNotEmpty() && authPrefs.pinId.isNotEmpty()
 
         return when {
@@ -131,25 +125,12 @@ class LoaderModel(
     }
 
     private fun launchDashboard(
-        loginMethod: LoginMethod,
         data: String?,
         shouldLaunchUiTour: Boolean,
         isUserInCowboysPromo: Boolean
     ) {
         process(
             when {
-
-                // Wallet mode switch enabled
-                // + have not seen educational screen yet
-                // + did not come from signup (already logged in)
-                // -> show educational screen
-                walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
-                    educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
-                    loginMethod == LoginMethod.PIN -> {
-                    LoaderIntents.StartEducationalWalletModeActivity(
-                        data = data
-                    )
-                }
                 isUserInCowboysPromo -> {
                     LoaderIntents.StartMainActivity(data, false)
                 }
@@ -166,7 +147,14 @@ class LoaderModel(
     }
 
     private fun logException(throwable: Throwable) {
-        remoteLogger.logEvent("Startup exception: ${throwable.message}")
-        remoteLogger.logException(throwable)
+        (throwable as? CompositeException)?.let { compositeException ->
+            compositeException.exceptions.forEach {
+                remoteLogger.logEvent("Startup exception Composite Exception: ${it.message}")
+                remoteLogger.logException(it)
+            }
+        } ?: run {
+            remoteLogger.logEvent("Startup exception: ${throwable.message}")
+            remoteLogger.logException(throwable)
+        }
     }
 }

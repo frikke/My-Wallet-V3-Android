@@ -9,9 +9,10 @@ import androidx.compose.runtime.setValue
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.ChevronRight
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.tag.TagViewState
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class DefaultTableRowView @JvmOverloads constructor(
@@ -27,33 +28,30 @@ class DefaultTableRowView @JvmOverloads constructor(
     var tags by mutableStateOf(null as? List<TagViewState>?)
     var endTag by mutableStateOf(null as? TagViewState?)
     var startImageResource: ImageResource by mutableStateOf(ImageResource.None)
-    var endImageResource: ImageResource by mutableStateOf(
-        ImageResource.Local(
-            id = R.drawable.ic_chevron_end,
-            contentDescription = null,
-        )
-    )
+    var endImageResource: ImageResource by mutableStateOf(Icons.ChevronRight)
     var primaryTextColor: ComposeColors by mutableStateOf(ComposeColors.Title)
     var secondaryTextColor: ComposeColors by mutableStateOf(ComposeColors.Body)
 
     @Composable
     override fun Content() {
-        AppTheme {
-            AppSurface {
-                DefaultTableRow(
-                    primaryText = primaryText,
-                    secondaryText = secondaryText,
-                    paragraphText = paragraphText,
-                    onClick = onClick,
-                    tags = tags,
-                    endTag = endTag,
-                    startImageResource = startImageResource,
-                    endImageResource = endImageResource,
-                    primaryTextColor = primaryTextColor.toComposeColor(),
-                    secondaryTextColor = secondaryTextColor.toComposeColor()
-                )
-            }
-        }
+        DefaultTableRow(
+            primaryText = primaryText,
+            secondaryText = secondaryText,
+            paragraphText = paragraphText,
+            onClick = onClick,
+            tags = tags,
+            endTag = endTag,
+            startImageResource = startImageResource,
+            endImageResource = endImageResource.run {
+                if (this is ImageResource.Local) {
+                    withTint(AppColors.body)
+                } else {
+                    this
+                }
+            },
+            primaryTextColor = primaryTextColor.toComposeColor(),
+            secondaryTextColor = secondaryTextColor.toComposeColor()
+        )
     }
 
     fun clearState() {
@@ -66,7 +64,7 @@ class DefaultTableRowView @JvmOverloads constructor(
         startImageResource = ImageResource.None
         endImageResource = ImageResource.Local(
             id = R.drawable.ic_chevron_end,
-            contentDescription = null,
+            contentDescription = null
         )
     }
 }

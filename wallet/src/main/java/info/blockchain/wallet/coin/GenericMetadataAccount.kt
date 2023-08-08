@@ -1,6 +1,7 @@
 package info.blockchain.wallet.coin
 
 import com.blockchain.serialization.JsonSerializableAccount
+import info.blockchain.wallet.LabeledAccount
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import kotlinx.serialization.SerialName
@@ -19,7 +20,7 @@ data class GenericMetadataAccount(
     private val _archived: Boolean? = null,
     @SerialName("xpub")
     private val _xpub: String? = null
-) : JsonSerializableAccount {
+) : JsonSerializableAccount, LabeledAccount {
 
     override val isArchived: Boolean
         get() = _archived ?: false

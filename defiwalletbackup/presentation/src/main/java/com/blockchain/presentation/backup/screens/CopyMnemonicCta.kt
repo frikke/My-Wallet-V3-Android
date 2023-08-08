@@ -16,13 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Green600
 import com.blockchain.componentlib.utils.CopyText
-import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.CopyState
 
 @Composable
@@ -35,7 +35,7 @@ fun CopyMnemonicCta(
 
     if (copyMnemonic) {
         CopyText(
-            label = stringResource(id = R.string.manual_backup_title),
+            label = stringResource(id = com.blockchain.stringResources.R.string.manual_backup_title),
             textToCopy = mnemonic.joinToString(separator = " ")
         )
         mnemonicCopied()
@@ -44,9 +44,9 @@ fun CopyMnemonicCta(
 
     when (copyState) {
         is CopyState.Idle -> {
-            TertiaryButton(
+            MinimalPrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.common_copy),
+                text = stringResource(id = com.blockchain.stringResources.R.string.common_copy),
                 onClick = { copyMnemonic = true }
             )
         }
@@ -57,23 +57,24 @@ fun CopyMnemonicCta(
     }
 }
 
+@Preview
 @Composable
-fun MnemonicCopied() {
+private fun MnemonicCopied() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensionResource(id = R.dimen.very_small_spacing)),
+            .padding(dimensionResource(id = com.blockchain.componentlib.R.dimen.very_small_spacing)),
         horizontalArrangement = Arrangement.Center
     ) {
-        Image(imageResource = ImageResource.Local(R.drawable.ic_check))
+        Image(Icons.Filled.Check.withTint(AppTheme.colors.success))
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
 
         Text(
-            text = stringResource(R.string.manual_backup_copied),
+            text = stringResource(com.blockchain.stringResources.R.string.manual_backup_copied),
             textAlign = TextAlign.Center,
             style = AppTheme.typography.body2,
-            color = Green600
+            color = AppTheme.colors.success
         )
     }
 }

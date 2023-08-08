@@ -6,29 +6,24 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.api.services.ContactPreference
-import com.blockchain.blockchaincard.domain.models.BlockchainCard
-import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
+import com.blockchain.chrome.navigation.SettingsDestination
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.icons.Chat
+import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
-import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.walletconnect.ui.dapps.DappsListFragment
-import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.databinding.ActivitySettingsBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
-import piuk.blockchain.android.ui.blockchaincard.BlockchainCardActivity
-import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
@@ -68,9 +63,10 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
 
         val settingsHomeFragment = SettingsFragment.newInstance()
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
-                binding.settingsContentFrame.id, settingsHomeFragment
+                binding.settingsContentFrame.id,
+                settingsHomeFragment
             )
             .commitNowAllowingStateLoss()
 
@@ -78,6 +74,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
             SettingsDestination.Home -> {
                 // do nothing
             }
+
             SettingsDestination.Account -> goToAccount()
             SettingsDestination.Notifications -> goToNotifications()
             SettingsDestination.Security -> goToSecurity()
@@ -90,7 +87,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
 
     private fun setupToolbar() {
         updateToolbar(
-            toolbarTitle = getString(R.string.toolbar_settings),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.toolbar_settings),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         setupSupportButton()
@@ -99,13 +96,13 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     private fun setupSupportButton() {
         updateToolbarMenuItems(
             listOf(
-                NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_support_chat,
-                    contentDescription = R.string.accessibility_support
-                ) {
-                    analytics.logEvent(AnalyticsEvents.Support)
-                    startActivity(SupportCentreActivity.newIntent(this))
-                }
+                NavigationBarButton.IconResource(
+                    image = Icons.Filled.Chat,
+                    onIconClick = {
+                        analytics.logEvent(AnalyticsEvents.Support)
+                        startActivity(SupportCentreActivity.newIntent(this))
+                    }
+                )
             )
         )
     }
@@ -190,25 +187,8 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         replaceCurrentFragment(DappsListFragment.newInstance())
     }
 
-    override fun goToBlockchainCard(
-        cardProducts: List<BlockchainCardProduct>,
-        cards: List<BlockchainCard>,
-        defaultCard: BlockchainCard?
-    ) {
-        startActivity(
-            BlockchainCardActivity.newIntent(
-                context = this,
-                blockchainCardProducts = cardProducts,
-                blockchainCards = cards,
-                preselectedCard = defaultCard
-            )
-        )
-    }
-
-    override fun goToReferralCode(referral: ReferralInfo.Data) {
-        showBottomSheet(
-            ReferralSheet.newInstance(referral)
-        )
+    override fun goToReferralCode() {
+        showBottomSheet(ReferralSheet.newInstance())
     }
 
     override fun goToGeneralSettings() {
@@ -217,9 +197,11 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
 
     private fun replaceCurrentFragment(newFragment: Fragment) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
-            .replace(
-                binding.settingsContentFrame.id, newFragment, newFragment::class.simpleName
+            .addTransactionAnimation()
+            .add(
+                binding.settingsContentFrame.id,
+                newFragment,
+                newFragment::class.simpleName
             ).addToBackStack(newFragment::class.simpleName)
             .commitAllowingStateLoss()
     }
@@ -245,17 +227,6 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
             Intent(context, SettingsActivity::class.java).apply {
                 putExtra(DEEPLINK_TO_SCREEN, deeplinkToScreen)
             }
-
-        enum class SettingsDestination {
-            Home,
-            Account,
-            Notifications,
-            Security,
-            General,
-            About,
-            CardLinking,
-            BankLinking
-        }
     }
 }
 
@@ -274,30 +245,14 @@ interface SettingsNavigator {
     fun goToKycLimits()
     fun goToPasswordChange()
     fun goToPinChange()
-    fun goToBlockchainCard(
-        cardProducts: List<BlockchainCardProduct>,
-        cards: List<BlockchainCard>,
-        defaultCard: BlockchainCard? = null
-    )
-
     fun goToNotificationPreferencesDetails(preference: ContactPreference)
-    fun goToReferralCode(referral: ReferralInfo.Data)
+    fun goToReferralCode()
     fun goToGeneralSettings()
 }
 
 interface SettingsScreen {
     fun navigator(): SettingsNavigator
 }
-
-interface BankLinkingHost : SlidingModalBottomDialog.Host {
-    fun onBankWireTransferSelected(currency: FiatCurrency)
-    fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction)
-}
-
-data class LinkablePaymentMethods(
-    val currency: FiatCurrency,
-    val linkMethods: List<PaymentMethodType>
-) : java.io.Serializable
 
 data class BankItem(
     val bank: LinkedPaymentMethod.Bank,

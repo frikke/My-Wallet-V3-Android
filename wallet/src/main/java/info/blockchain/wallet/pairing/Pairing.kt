@@ -29,7 +29,9 @@ object Pairing {
         encryptionPassword: String
     ): Array<String> {
         val decryptedPairingCode = AESUtil.decrypt(
-            encryptedPairingCode, encryptionPassword, AESUtil.QR_CODE_PBKDF_2ITERATIONS
+            encryptedPairingCode,
+            encryptionPassword,
+            AESUtil.QR_CODE_PBKDF_2ITERATIONS
         )
             ?: throw Exception("Pairing code decryption failed.")
         val sharedKeyAndPassword =

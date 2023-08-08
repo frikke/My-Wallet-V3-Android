@@ -42,6 +42,8 @@ class TransactionErrorMapper {
                 NabuErrorStatusCodes.Forbidden -> TransactionError.WithdrawalAlreadyPending
                 else -> TransactionError.HttpError(exception)
             }
-        } else throw IllegalStateException("Unknown error type $exception")
+        } else {
+            throw IllegalStateException("Unknown error type $exception")
+        }
     }
 }

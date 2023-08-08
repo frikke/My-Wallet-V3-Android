@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.createwallet
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 
 sealed class WalletCreationAnalytics(
     override val event: String,
@@ -17,7 +17,7 @@ sealed class WalletCreationAnalytics(
         params = mapOf(
             COUNTRY to countryIso,
             STATE to stateIso
-        ).withoutNullValues()
+        ).filterNotNullValues()
     )
 
     class CountrySelectedOnSignUp(

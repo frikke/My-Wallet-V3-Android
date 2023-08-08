@@ -56,5 +56,5 @@ internal fun QuestionnaireContext.toNetwork(): String = when (this) {
 
 private fun QuestionnaireHeader.toNetwork(): QuestionnaireHeaderResponse = QuestionnaireHeaderResponse(
     title = title,
-    description = description,
+    description = description
 )

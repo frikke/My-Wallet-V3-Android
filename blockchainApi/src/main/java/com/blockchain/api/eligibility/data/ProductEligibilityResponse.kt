@@ -9,13 +9,16 @@ class ProductEligibilityResponse(
     val notifications: List<ReasonNotEligibleResponse>,
     val buy: BuyEligibilityResponse?,
     val swap: SwapEligibilityResponse?,
+    val dex: DexEligibilityResponse?,
     val sell: DefaultEligibilityResponse?,
     val useTradingAccount: UseTradingAccountsResponse?,
     val depositFiat: DefaultEligibilityResponse?,
     val depositCrypto: DefaultEligibilityResponse?,
     val depositInterest: DefaultEligibilityResponse?,
     val withdrawFiat: DefaultEligibilityResponse?,
-    val depositStaking: DefaultEligibilityResponse?
+    val depositStaking: DefaultEligibilityResponse?,
+    val kycVerification: DefaultEligibilityResponse?,
+    val depositEarnCC1W: DefaultEligibilityResponse?,
 )
 
 @Serializable
@@ -38,7 +41,7 @@ enum class ReasonNotEligibleReasonResponse {
 
     // SANCTIONS:
     EU_5_SANCTION,
-    EU_8_SANCTION,
+    EU_8_SANCTION
 }
 
 @Serializable
@@ -54,6 +57,12 @@ class SwapEligibilityResponse(
     val enabled: Boolean,
     val maxOrdersCap: Int?, // if null there's no max
     val maxOrdersLeft: Int?, // if null there's infinite orders left
+    val reasonNotEligible: ReasonNotEligibleResponse?
+)
+
+@Serializable
+class DexEligibilityResponse(
+    val enabled: Boolean,
     val reasonNotEligible: ReasonNotEligibleResponse?
 )
 

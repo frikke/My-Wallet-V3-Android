@@ -51,7 +51,7 @@ class ProfileFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateTitleToolbar(getString(R.string.profile_toolbar))
+        updateTitleToolbar(getString(com.blockchain.stringResources.R.string.profile_toolbar))
         setupTierInfo(basicProfileInfo)
         setContactSupport()
     }
@@ -83,7 +83,7 @@ class ProfileFragment :
                         R.drawable.bkgd_profile_circle
                     )
                     text = getString(
-                        R.string.settings_initials,
+                        com.blockchain.stringResources.R.string.settings_initials,
                         basicProfileInfo.firstName.first().uppercase(),
                         basicProfileInfo.lastName.first().uppercase()
                     )
@@ -100,9 +100,9 @@ class ProfileFragment :
             if (userTier != KycTier.BRONZE) {
                 nameRow.apply {
                     visible()
-                    primaryText = getString(R.string.profile_label_name)
+                    primaryText = getString(com.blockchain.stringResources.R.string.profile_label_name)
                     secondaryText = getString(
-                        R.string.common_spaced_strings,
+                        com.blockchain.stringResources.R.string.common_spaced_strings,
                         basicProfileInfo?.firstName?.capitalizeFirstChar().orEmpty(),
                         basicProfileInfo?.lastName?.capitalizeFirstChar().orEmpty()
                     )
@@ -114,7 +114,7 @@ class ProfileFragment :
             contactSupport.visibleIf { userTier != KycTier.BRONZE }
 
             emailRow.apply {
-                primaryText = getString(R.string.profile_label_email)
+                primaryText = getString(com.blockchain.stringResources.R.string.profile_label_email)
                 secondaryText = userInfoSettings?.email.orEmpty()
                 onClick = {
                     navigator().goToUpdateEmailScreen(true)
@@ -122,9 +122,9 @@ class ProfileFragment :
             }
 
             mobileRow.apply {
-                primaryText = getString(R.string.profile_label_mobile)
+                primaryText = getString(com.blockchain.stringResources.R.string.profile_label_mobile)
                 secondaryText = if (userInfoSettings?.mobileWithPrefix.isNullOrEmpty()) {
-                    getString(R.string.profile_mobile_empty)
+                    getString(com.blockchain.stringResources.R.string.profile_mobile_empty)
                 } else {
                     userInfoSettings?.mobileWithPrefix
                 }
@@ -140,10 +140,24 @@ class ProfileFragment :
 
     private fun updateTags(emailVerified: Boolean, mobileVerified: Boolean) {
         val typeEmailTag = if (emailVerified) TagType.Success() else TagType.Warning()
-        val textEmailTag = if (emailVerified) getString(R.string.verified) else getString(R.string.not_verified)
+        val textEmailTag =
+            if (emailVerified) {
+                getString(com.blockchain.stringResources.R.string.verified)
+            } else {
+                getString(
+                    com.blockchain.stringResources.R.string.not_verified
+                )
+            }
 
         val typeMobileTag = if (mobileVerified) TagType.Success() else TagType.Warning()
-        val textMobileTag = if (mobileVerified) getString(R.string.verified) else getString(R.string.not_verified)
+        val textMobileTag =
+            if (mobileVerified) {
+                getString(com.blockchain.stringResources.R.string.verified)
+            } else {
+                getString(
+                    com.blockchain.stringResources.R.string.not_verified
+                )
+            }
 
         with(binding) {
             emailRow.tags = listOf(
@@ -165,7 +179,7 @@ class ProfileFragment :
         val map = mapOf("contact_support" to Uri.parse(PRIVATE_KEY_EXPLANATION))
         val contactSupportText = StringUtils.getStringWithMappedAnnotations(
             requireContext(),
-            R.string.profile_label_support,
+            com.blockchain.stringResources.R.string.profile_label_support,
             map
         ) { onSupportClicked() }
         binding.contactSupport.apply {

@@ -17,6 +17,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.toObservable
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
@@ -25,7 +26,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetFiatFundsDetailBinding
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
@@ -68,7 +68,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                 fundsUserFiatBalance.gone()
             }
             disposables += Singles.zip(
-                account.balanceRx.firstOrError().map { it.total }.flatMap { balance ->
+                account.balanceRx().firstOrError().map { it.total }.flatMap { balance ->
                     exchangeRates.exchangeRateToUserFiat(account.currency).firstOrError().map {
                         it.convert(balance) to balance
                     }
@@ -125,7 +125,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
         firstOrNull { it.action == action && it.state == ActionState.Available } != null
 
     private fun handleWithdrawalChecks() {
-        disposables += account.canWithdrawFunds()
+        disposables += account.canWithdrawFunds().toObservable().firstOrError()
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe {
                 binding.fundsSheetProgress.visible()
@@ -137,7 +137,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                         dismiss()
                         host.startBankTransferWithdrawal(fiatAccount = account)
                     } else {
-                        showErrorSnackbar(R.string.fiat_funds_detail_pending_withdrawal)
+                        showErrorSnackbar(com.blockchain.stringResources.R.string.fiat_funds_detail_pending_withdrawal)
                     }
                 },
                 onError = {
@@ -147,7 +147,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
             )
     }
 
-    private fun showErrorSnackbar(@StringRes error: Int = R.string.common_error) {
+    private fun showErrorSnackbar(@StringRes error: Int = com.blockchain.stringResources.R.string.common_error) {
         BlockchainSnackbar.make(
             binding.root,
             getString(error),

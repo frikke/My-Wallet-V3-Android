@@ -8,6 +8,7 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.theme.ThemeService
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -19,7 +20,8 @@ class SettingsModel(
     mainScheduler: Scheduler,
     private val interactor: SettingsInteractor,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger
+    remoteLogger: RemoteLogger,
+    private val themeService: ThemeService
 ) : MviModel<SettingsState, SettingsIntent>(
     initialState,
     mainScheduler,
@@ -32,15 +34,11 @@ class SettingsModel(
         intent: SettingsIntent
     ): Disposable? =
         when (intent) {
-            is SettingsIntent.InitializeFeatureFlags -> {
-                interactor.initializeFeatureFlags().subscribeBy(
-                    onSuccess = {
-                        process(SettingsIntent.UpdateFeatureFlags(it))
-                    },
-                    onError = {
-                        process(SettingsIntent.UpdateFeatureFlags(FeatureFlagsSet()))
-                    }
-                )
+            is SettingsIntent.LoadTheme -> {
+                themeService.currentTheme().run {
+                    process(SettingsIntent.UpdateTheme(this))
+                }
+                null
             }
             is SettingsIntent.LoadHeaderInformation -> {
                 interactor.getSupportEligibilityAndBasicInfo()
@@ -53,9 +51,10 @@ class SettingsModel(
                                     referralInfo = userDetails.referralInfo
                                 )
                             )
-                        }, onError = {
-                        process(SettingsIntent.UpdateContactSupportEligibility(tier = KycTier.BRONZE))
-                    }
+                        },
+                        onError = {
+                            process(SettingsIntent.UpdateContactSupportEligibility(tier = KycTier.BRONZE))
+                        }
                     )
             }
             is SettingsIntent.LoadPaymentMethods ->
@@ -78,17 +77,22 @@ class SettingsModel(
                 .subscribeBy(
                     onSuccess = { bankTransferInfo ->
                         process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.BankTransfer(bankTransferInfo)))
-                    }, onError = {
-                    when ((it as? NabuApiException)?.getErrorCode()) {
-                        MaxPaymentBankAccounts ->
-                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAccountsReached(it)))
-                        MaxPaymentBankAccountLinkAttempts ->
-                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAttemptsReached(it)))
-                        else ->
-                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkStartFail))
+                    },
+                    onError = {
+                        when ((it as? NabuApiException)?.getErrorCode()) {
+                            MaxPaymentBankAccounts ->
+                                process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAccountsReached(it)))
+                            MaxPaymentBankAccountLinkAttempts ->
+                                process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAttemptsReached(it)))
+                            else ->
+                                process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkStartFail))
+                        }
                     }
-                }
                 )
+            is SettingsIntent.WireTransferSelected -> {
+                process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.WireTransfer(interactor.userSelectedFiat)))
+                null
+            }
             is SettingsIntent.Logout -> interactor.unpairWallet()
                 .subscribeBy(
                     onComplete = {
@@ -104,10 +108,12 @@ class SettingsModel(
                     .subscribeBy(
                         onSuccess = { available ->
                             process(SettingsIntent.UpdateAvailablePaymentMethods(available))
-                        }, onError = {
-                        process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
-                    }
+                        },
+                        onError = {
+                            process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
+                        }
                     )
+            is SettingsIntent.UpdateTheme,
             is SettingsIntent.UserLoggedOut,
             is SettingsIntent.UpdateViewToLaunch,
             is SettingsIntent.ResetViewState,
@@ -116,7 +122,6 @@ class SettingsModel(
             is SettingsIntent.OnBankRemoved,
             is SettingsIntent.ResetErrorState,
             is SettingsIntent.UpdateAvailablePaymentMethods,
-            is SettingsIntent.UpdateErrorState,
-            is SettingsIntent.UpdateFeatureFlags -> null
+            is SettingsIntent.UpdateErrorState -> null
         }.exhaustive
 }

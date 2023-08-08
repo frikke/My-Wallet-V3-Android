@@ -15,7 +15,7 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 class KycTiersStore internal constructor(
-    private val kycApiService: KycApiService,
+    private val kycApiService: KycApiService
 ) : Store<KycTiersDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
@@ -41,7 +41,7 @@ class KycTiersStore internal constructor(
                     }
 
                     KycTierState.fromValue(tiersResponse[KycTier.GOLD.ordinal].state) == KycTierState.Verified -> {
-                        dataAgeMillis > TimeUnit.HOURS.toMillis(1L)
+                        dataAgeMillis > TimeUnit.HOURS.toMillis(10L)
                     }
 
                     else -> {

@@ -1,10 +1,12 @@
 package piuk.blockchain.android.ui.dataremediation
 
 import android.os.Bundle
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,14 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.blockchaincard.R
 import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.controls.OutlinedTextInput
+import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -96,6 +98,9 @@ class QuestionnaireDropdownPickerSheet : ComposeModalBottomDialog() {
             choices = nodes,
             onSelectionClicked = stateMachine::onSelectionClicked,
             onClosePress = {
+                // For ease of use we're also saving the changes when the user clicks the close button, otherwise
+                // the user would have to dismiss the keyboard and press the save button
+                host.selectionChanged(original, questionnaireState.value.filter { it.isChecked })
                 dismiss()
             },
             onSaveClicked = {
@@ -111,7 +116,7 @@ class QuestionnaireDropdownPickerSheet : ComposeModalBottomDialog() {
 
         fun newInstance(
             original: FlatNode.Dropdown,
-            node: TreeNode.SingleSelection,
+            node: TreeNode.SingleSelection
         ): QuestionnaireDropdownPickerSheet =
             QuestionnaireDropdownPickerSheet().apply {
                 arguments = Bundle().apply {
@@ -122,7 +127,7 @@ class QuestionnaireDropdownPickerSheet : ComposeModalBottomDialog() {
 
         fun newInstance(
             original: FlatNode.Dropdown,
-            node: TreeNode.MultipleSelection,
+            node: TreeNode.MultipleSelection
         ): QuestionnaireDropdownPickerSheet =
             QuestionnaireDropdownPickerSheet().apply {
                 arguments = Bundle().apply {
@@ -140,10 +145,11 @@ private fun Screen(
     choices: List<FlatNode.Selection>,
     onSelectionClicked: (FlatNode.Selection) -> Unit,
     onClosePress: () -> Unit,
-    onSaveClicked: () -> Unit,
+    onSaveClicked: () -> Unit
 ) {
     var stateSearchInput by remember { mutableStateOf("") }
 
+    @Suppress("RememberReturnType")
     val stateVisibleChoices: List<FlatNode.Selection> = remember(choices, stateSearchInput) {
         choices.filter { node ->
             node.text.contains(stateSearchInput, ignoreCase = true)
@@ -151,33 +157,28 @@ private fun Screen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
+            .background(AppColors.background, shape = AppTheme.shapes.veryLarge.topOnly())
     ) {
         SheetHeader(
             title = title,
             byline = instructions,
-            onClosePress = onClosePress,
-            shouldShowDivider = false,
+            onClosePress = onClosePress
         )
 
-        val searchInputIcon =
-            if (stateSearchInput.isNotEmpty()) ImageResource.Local(R.drawable.ic_close_circle)
-            else ImageResource.None
-        OutlinedTextInput(
+        CancelableOutlinedSearch(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(
                     top = AppTheme.dimensions.standardSpacing,
                     start = AppTheme.dimensions.standardSpacing,
-                    end = AppTheme.dimensions.standardSpacing,
+                    end = AppTheme.dimensions.standardSpacing
                 ),
-            value = stateSearchInput,
-            label = stringResource(R.string.common_search),
-            onValueChange = { stateSearchInput = it },
-            singleLine = true,
-            focusedTrailingIcon = searchInputIcon,
-            unfocusedTrailingIcon = searchInputIcon,
-            onTrailingIconClicked = { stateSearchInput = "" },
+            onValueChange = {
+                stateSearchInput = it
+            },
+            placeholder = stringResource(com.blockchain.stringResources.R.string.search)
         )
 
         LazyColumn(
@@ -191,6 +192,7 @@ private fun Screen(
                 ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             content = {
+
                 items(
                     items = stateVisibleChoices,
                     key = { it.id },
@@ -209,8 +211,8 @@ private fun Screen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = AppTheme.dimensions.standardSpacing),
-            text = stringResource(R.string.common_save),
-            onClick = onSaveClicked,
+            text = stringResource(com.blockchain.stringResources.R.string.common_save),
+            onClick = onSaveClicked
         )
     }
 }
@@ -223,23 +225,36 @@ private fun ScreenPreview() {
         instructions = "Some instructions",
         choices = listOf(
             FlatNode.Selection(
-                id = "q1-a1", text = "Buy cryptocurrency with cards or bank transfer", depth = 2, isChecked = false,
+                id = "q1-a1",
+                text = "Buy cryptocurrency with cards or bank transfer",
+                depth = 2,
+                isChecked = false,
                 isParentSingleSelection = false
             ),
             FlatNode.Selection(
-                id = "q1-a2", text = "Swap my cryptocurrencies", depth = 2, isChecked = true,
+                id = "q1-a2",
+                text = "Swap my cryptocurrencies",
+                depth = 2,
+                isChecked = true,
                 isParentSingleSelection = false
             ),
             FlatNode.Selection(
-                id = "q1-a3", text = "Send Cryptocurrencies to family or friends", depth = 2, isChecked = false,
+                id = "q1-a3",
+                text = "Send Cryptocurrencies to family or friends",
+                depth = 2,
+                isChecked = false,
                 isParentSingleSelection = false
             ),
             FlatNode.Selection(
-                id = "q1-a4", text = "Online Purchases", depth = 2, isChecked = true, isParentSingleSelection = false
+                id = "q1-a4",
+                text = "Online Purchases",
+                depth = 2,
+                isChecked = true,
+                isParentSingleSelection = false
             )
         ),
         onSelectionClicked = {},
         onClosePress = {},
-        onSaveClicked = {},
+        onSaveClicked = {}
     )
 }

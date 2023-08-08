@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.notificationpreferences
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,8 +18,8 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.settings.notificationpreferences.component.PreferenceLoadingError
 import piuk.blockchain.android.ui.settings.notificationpreferences.component.PreferenceLoadingProgress
 
@@ -32,18 +32,20 @@ fun NotificationPreferenceScreen(
 ) {
     Column(
         modifier = Modifier
-            .background(Color.White)
-            .fillMaxWidth()
+            .background(AppColors.backgroundSecondary)
+            .fillMaxWidth(),
+
     ) {
         Column(
             modifier = Modifier
                 .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.Start
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.settings_notification_preferences_subtitle),
+                text = stringResource(
+                    id = com.blockchain.stringResources.R.string.settings_notification_preferences_subtitle
+                ),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start
@@ -52,9 +54,9 @@ fun NotificationPreferenceScreen(
 
         Spacer(
             modifier = Modifier.padding(
-                start = dimensionResource(id = R.dimen.standard_spacing),
-                end = dimensionResource(id = R.dimen.standard_spacing),
-                bottom = dimensionResource(id = R.dimen.standard_spacing)
+                start = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing),
+                bottom = dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)
             )
         )
 
@@ -66,10 +68,35 @@ fun NotificationPreferenceScreen(
     }
 }
 
+@Composable
+private fun PreferenceList(
+    categories: List<NotificationCategory>,
+    onItemClicked: (preferenceId: Int) -> Unit
+) {
+    Column(
+        Modifier.fillMaxWidth()
+    ) {
+        categories.forEachIndexed { index, item ->
+            DefaultTableRow(
+                primaryText = item.title,
+                secondaryText = item.notificationTypes,
+                onClick = { onItemClicked(index) }
+            )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun PreviewLoading() {
     NotificationPreferenceScreen(NotificationPreferencesViewState.Loading, { }, { }, { })
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewLoadingDark() {
+    PreviewLoading()
 }
 
 @Preview
@@ -84,29 +111,20 @@ private fun PreviewPreferenceList() {
     NotificationPreferenceScreen(NotificationPreferencesViewState.Data(categories), { }, { }, { })
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreferenceList(
-    categories: List<NotificationCategory>,
-    onItemClicked: (preferenceId: Int) -> Unit
-) {
-    Column(
-        Modifier
-            .background(Color.White)
-            .fillMaxWidth()
-    ) {
-        categories.forEachIndexed { index, item ->
-            DefaultTableRow(
-                primaryText = item.title,
-                secondaryText = item.notificationTypes,
-                onClick = { onItemClicked(index) },
-            )
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        }
-    }
+private fun PreviewPreferenceListDark() {
+    PreviewPreferenceList()
 }
 
 @Preview
 @Composable
 private fun ErrorLoadingPreview() {
     NotificationPreferenceScreen(NotificationPreferencesViewState.Error, { }, { }, { })
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ErrorLoadingPreviewDark() {
+    ErrorLoadingPreview()
 }

@@ -40,6 +40,9 @@ fun Currency.asAssetInfoOrThrow(): AssetInfo {
 }
 
 val Currency.isCustodial: Boolean
-    get() = categories.contains(AssetCategory.CUSTODIAL)
+    get() = categories.any {
+        it == AssetCategory.TRADING ||
+            it == AssetCategory.INTEREST
+    }
 
 private const val DEFAULT_ASSET_ORDER_INDEX = 0

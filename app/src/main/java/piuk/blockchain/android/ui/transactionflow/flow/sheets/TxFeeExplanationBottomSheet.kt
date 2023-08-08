@@ -123,35 +123,33 @@ fun TransactionFeeExplanationSheet(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = AppTheme.colors.light,
+                color = AppTheme.colors.background,
                 shape = RoundedCornerShape(
-                    dimensionResource(id = R.dimen.tiny_spacing)
+                    dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                 )
             ),
         horizontalAlignment = Alignment.Start
     ) {
-
         SheetHeader(
             title = title,
             onClosePress = onCloseClick,
-            shouldShowDivider = false
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         SimpleText(
             modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing),
-            text = stringResource(R.string.tx_enter_amount_fee_sheet_description),
+            text = stringResource(com.blockchain.stringResources.R.string.tx_enter_amount_fee_sheet_description),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Start
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)))
 
         TransactionFeeRowItem(
             startingText = stringResource(
-                id = R.string.tx_enter_amount_fee_sheet_total_label,
+                id = com.blockchain.stringResources.R.string.tx_enter_amount_fee_sheet_total_label,
                 displayTicker
             ),
             endingText = totalBalance.toStringWithSymbol(),
@@ -159,7 +157,7 @@ fun TransactionFeeExplanationSheet(
         )
 
         TransactionFeeRowItem(
-            startingText = stringResource(R.string.tx_enter_amount_fee_sheet_fee_label),
+            startingText = stringResource(com.blockchain.stringResources.R.string.tx_enter_amount_fee_sheet_fee_label),
             endingText = estimatedFee.toStringWithSymbol(),
             showBottomDivider = true,
             showFreeBadge = isTransactionFree
@@ -178,7 +176,7 @@ fun TransactionFeeExplanationSheet(
                     horizontal = AppTheme.dimensions.standardSpacing,
                     vertical = AppTheme.dimensions.standardSpacing
                 ),
-            text = stringResource(R.string.common_ok),
+            text = stringResource(com.blockchain.stringResources.R.string.common_ok),
             onClick = onCloseClick
         )
     }
@@ -196,7 +194,6 @@ fun TransactionFeeRowItem(
             .fillMaxWidth()
             .padding(horizontal = AppTheme.dimensions.standardSpacing)
     ) {
-
         SimpleText(
             modifier = Modifier.weight(weight = 1f),
             text = startingText,
@@ -206,7 +203,10 @@ fun TransactionFeeRowItem(
         )
 
         if (showFreeBadge) {
-            SuccessTag(text = stringResource(R.string.common_free), size = TagSize.Primary)
+            SuccessTag(
+                text = stringResource(com.blockchain.stringResources.R.string.common_free),
+                size = TagSize.Primary
+            )
         } else {
             SimpleText(
                 text = endingText,
@@ -218,11 +218,11 @@ fun TransactionFeeRowItem(
     }
 
     if (showBottomDivider) {
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         HorizontalDivider(dividerColor = AppTheme.colors.medium, modifier = Modifier.fillMaxWidth())
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
     }
 }
 

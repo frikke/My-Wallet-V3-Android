@@ -1,5 +1,7 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,19 +31,23 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Red600
+import com.blockchain.componentlib.theme.LargeVerticalSpacer
+import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.extensions.exhaustive
-import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.TOTAL_STEP_COUNT
 import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.utils.replaceInList
+import com.blockchain.walletmode.WalletMode
 import java.util.Locale
 
 private const val STEP_INDEX = 2
@@ -78,9 +84,10 @@ fun VerifyPhraseScreen(
 
     resetVerificationStatus: () -> Unit,
     backOnClick: () -> Unit,
-    nextOnClick: (userMnemonic: List<String>) -> Unit,
+    nextOnClick: (userMnemonic: List<String>) -> Unit
 ) {
     // map to selectable word -> offers selection setting
+    @Suppress("RememberReturnType")
     val selectableMnemonic = remember {
         mnemonic.mapIndexed { index, word ->
             SelectableMnemonicWord(
@@ -107,42 +114,48 @@ fun VerifyPhraseScreen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
-            title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
+            title = stringResource(
+                com.blockchain.stringResources.R.string.backup_phrase_title_steps,
+                STEP_INDEX,
+                TOTAL_STEP_COUNT
+            ),
             onBackButtonClick = backOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
+        TinyVerticalSpacer()
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_spacing)),
+                .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.verify_phrase_title),
+                text = stringResource(id = com.blockchain.stringResources.R.string.verify_phrase_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+            SmallVerticalSpacer()
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.verify_phrase_description),
+                text = stringResource(id = com.blockchain.stringResources.R.string.verify_phrase_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            LargeVerticalSpacer()
 
             MnemonicVerification(userMnemonic, mnemonicVerificationStatus) { selectableWord ->
                 if (isLoading.not()) {
@@ -159,7 +172,9 @@ fun VerifyPhraseScreen(
             }
 
             if (mnemonicVerificationStatus == UserMnemonicVerificationStatus.IDLE) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+                Spacer(
+                    modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
+                )
 
                 MnemonicSelection(randomizedMnemonic) { selectableWord ->
                     if (isLoading.not()) {
@@ -173,7 +188,7 @@ fun VerifyPhraseScreen(
                     }
                 }
             } else {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+                Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
                 VerifyPhraseIncorrect(resetOnClick = {
                     resetWords = true
@@ -197,20 +212,20 @@ fun VerifyPhraseScreen(
 fun VerifyPhraseIncorrect(resetOnClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TertiaryButton(
+        MinimalPrimaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.verify_phrase_incorrect_button),
+            text = stringResource(com.blockchain.stringResources.R.string.verify_phrase_incorrect_button),
             onClick = resetOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         Text(
-            text = stringResource(R.string.verify_phrase_incorrect_message),
+            text = stringResource(com.blockchain.stringResources.R.string.verify_phrase_incorrect_message),
             style = AppTheme.typography.body1,
-            color = Red600,
+            color = AppColors.error,
             textAlign = TextAlign.Center
         )
     }
@@ -220,7 +235,7 @@ fun VerifyPhraseIncorrect(resetOnClick: () -> Unit) {
 fun VerifyPhraseCta(
     allWordsSelected: Boolean,
     isLoading: Boolean,
-    onClick: () -> Unit,
+    onClick: () -> Unit
 ) {
     val state: ButtonState = when {
         allWordsSelected.not() -> ButtonState.Disabled
@@ -230,7 +245,7 @@ fun VerifyPhraseCta(
 
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
-        text = stringResource(R.string.verify),
+        text = stringResource(com.blockchain.stringResources.R.string.verify),
         state = state,
         onClick = onClick
     )
@@ -244,9 +259,9 @@ private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
 }.shuffled().subList(0, 12)
 
-@Preview(name = "Verify Phrase", backgroundColor = 0xFFFFFF, showBackground = true)
+@Preview(name = "Verify Phrase")
 @Composable
-fun PreviewVerifyPhrase() {
+private fun PreviewVerifyPhrase() {
     VerifyPhraseScreen(
         mnemonic = mnemonic,
         isLoading = false,
@@ -258,21 +273,13 @@ fun PreviewVerifyPhrase() {
     )
 }
 
-@Preview(name = "Verify Phrase Loading", backgroundColor = 0xFFFFFF, showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewVerifyPhraseScreenLoading() {
-    VerifyPhraseScreen(
-        mnemonic = mnemonic,
-        isLoading = true,
-        mnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE,
-
-        resetVerificationStatus = {},
-        backOnClick = {},
-        nextOnClick = {}
-    )
+private fun PreviewVerifyPhraseDark() {
+    PreviewVerifyPhrase()
 }
 
-@Preview(name = "Verify Phrase Incorrect", backgroundColor = 0xFFFFFF, showBackground = true)
+@Preview(name = "Verify Phrase Incorrect")
 @Composable
 fun PreviewVerifyPhraseScreenIncorrect() {
     VerifyPhraseScreen(
@@ -286,38 +293,8 @@ fun PreviewVerifyPhraseScreenIncorrect() {
     )
 }
 
-@Preview(name = "Incorrect Phrase Message")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewVerifyPhraseIncorrect() {
-    VerifyPhraseIncorrect {}
-}
-
-@Preview(name = "Verify Phrase Cta - selected:false, loading:false, status:nostatus")
-@Composable
-fun PreviewVerifyPhraseCta_SelectedFalse_LoadingFalse_StatusNoStatus() {
-    VerifyPhraseCta(
-        allWordsSelected = false,
-        isLoading = false,
-        onClick = {}
-    )
-}
-
-@Preview(name = "Verify Phrase Cta - selected:true, loading:false, status:nostatus")
-@Composable
-fun PreviewVerifyPhraseCta_SelectedTrue_LoadingFalse_StatusIncorrect() {
-    VerifyPhraseCta(
-        allWordsSelected = true,
-        isLoading = false,
-        onClick = {}
-    )
-}
-
-@Preview(name = "Verify Phrase Cta - selected:true, loading:true, status:nostatus")
-@Composable
-fun PreviewVerifyPhraseCta_SelectedTrue_LoadingTrue_StatusIncorrect() {
-    VerifyPhraseCta(
-        allWordsSelected = true,
-        isLoading = true,
-        onClick = {}
-    )
+private fun PreviewVerifyPhraseScreenIncorrectDark() {
+    PreviewVerifyPhraseScreenIncorrect()
 }

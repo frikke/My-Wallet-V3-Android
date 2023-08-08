@@ -8,6 +8,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.common.R
 import com.blockchain.common.databinding.ViewEmptyStateBinding
+import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.getResolvedDrawable
 
@@ -20,10 +21,10 @@ class EmptyStateView @JvmOverloads constructor(
     private val binding: ViewEmptyStateBinding = ViewEmptyStateBinding.inflate(LayoutInflater.from(context), this, true)
 
     fun setDetails(
-        @StringRes title: Int = R.string.common_empty_title,
-        @StringRes description: Int = R.string.common_empty_details,
-        @DrawableRes icon: Int = R.drawable.ic_wallet_intro_image,
-        @StringRes ctaText: Int = R.string.common_empty_cta,
+        @StringRes title: Int = com.blockchain.stringResources.R.string.common_empty_title,
+        @StringRes description: Int = com.blockchain.stringResources.R.string.common_empty_details,
+        @DrawableRes icon: Int? = null,
+        @StringRes ctaText: Int = com.blockchain.stringResources.R.string.common_empty_cta,
         contactSupportEnabled: Boolean = false,
         action: () -> Unit,
         onContactSupport: () -> Unit = {}
@@ -31,16 +32,18 @@ class EmptyStateView @JvmOverloads constructor(
         with(binding) {
             viewEmptyTitle.text = context.getString(title)
             viewEmptyDesc.text = context.getString(description)
-            viewEmptyIcon.setImageDrawable(context.getResolvedDrawable(icon))
-            viewEmptyCta.text = context.getString(ctaText)
-            viewEmptyCta.setOnClickListener {
-                action()
+            icon?.let {
+                viewEmptyIcon.setImageDrawable(context.getResolvedDrawable(it))
+            } ?: kotlin.run {
+                viewEmptyIcon.gone()
             }
-            viewEmptySupportCta.visibleIf {
-                contactSupportEnabled
+            viewEmptyCta.apply {
+                text = context.getString(ctaText)
+                onClick = { action() }
             }
-            viewEmptySupportCta.setOnClickListener {
-                onContactSupport()
+            viewEmptySupportCta.apply {
+                visibleIf { contactSupportEnabled }
+                onClick = { onContactSupport() }
             }
         }
     }

@@ -32,11 +32,13 @@ sealed interface BankAliasNavigationEvent : NavigationEvent {
 class BankAliasLinkViewModel(
     private val bankService: BankService,
     private val debounceSearchTimeoutInMillis: Long = SEARCH_TEXT_DEBOUNCE_TIMEOUT
-) : MviViewModel<BankAliasLinkIntent,
+) : MviViewModel<
+    BankAliasLinkIntent,
     BankAliasLinkViewState,
     BankAliasLinkModelState,
     BankAliasNavigationEvent,
-    ModelConfigArgs.NoArgs>(BankAliasLinkModelState()) {
+    ModelConfigArgs.NoArgs
+    >(BankAliasLinkModelState()) {
 
     private val searchText = MutableStateFlow("")
 
@@ -46,7 +48,7 @@ class BankAliasLinkViewModel(
                 .debounce(debounceSearchTimeoutInMillis)
                 .collect { text ->
                     updateState {
-                        it.copy(
+                        copy(
                             alias = text,
                             aliasInfo = null,
                             error = null,
@@ -70,24 +72,22 @@ class BankAliasLinkViewModel(
         }.exhaustive
     }
 
-    override fun reduce(state: BankAliasLinkModelState): BankAliasLinkViewState {
-        return BankAliasLinkViewState(
-            showAliasInput = state.aliasInfo == null && state.error == null,
-            alias = state.alias,
-            aliasInfo = state.aliasInfo,
-            error = state.error,
-            ctaState = when {
-                state.isLoading -> ButtonState.Loading
-                state.alias.orEmpty().length in MIN_ALIAS_LENGTH..MAX_ALIAS_LENGTH -> ButtonState.Enabled
-                else -> ButtonState.Disabled
-            }
-        )
-    }
+    override fun BankAliasLinkModelState.reduce() = BankAliasLinkViewState(
+        showAliasInput = aliasInfo == null && error == null,
+        alias = alias,
+        aliasInfo = aliasInfo,
+        error = error,
+        ctaState = when {
+            isLoading -> ButtonState.Loading
+            alias.orEmpty().length in MIN_ALIAS_LENGTH..MAX_ALIAS_LENGTH -> ButtonState.Enabled
+            else -> ButtonState.Disabled
+        }
+    )
 
     private fun updateAlias(alias: String) {
         if (alias.isEmpty()) {
             updateState {
-                it.copy(
+                copy(
                     alias = alias,
                     aliasInfo = null,
                     error = null,
@@ -102,12 +102,12 @@ class BankAliasLinkViewModel(
     private fun loadBeneficiaryInfo(currency: String, address: String) {
         viewModelScope.launch {
             updateState {
-                it.copy(isLoading = true)
+                copy(isLoading = true)
             }
             bankService.getBeneficiaryInfo(currency = currency, address = address).fold(
                 onSuccess = { aliasInfo ->
                     updateState {
-                        it.copy(
+                        copy(
                             isLoading = false,
                             error = null,
                             aliasInfo = aliasInfo
@@ -124,12 +124,12 @@ class BankAliasLinkViewModel(
     private fun activateBeneficiary(alias: String) {
         viewModelScope.launch {
             updateState {
-                it.copy(isLoading = true)
+                copy(isLoading = true)
             }
             bankService.activateBeneficiary(alias).fold(
                 onSuccess = {
                     updateState {
-                        it.copy(
+                        copy(
                             isLoading = false,
                             error = null
                         )
@@ -148,7 +148,7 @@ class BankAliasLinkViewModel(
         val aliasError = exception.toAliasError()
         if (aliasError is AliasError.ServerSideUxError) {
             updateState {
-                it.copy(
+                copy(
                     isLoading = false,
                     aliasInfo = null,
                     error = exception.toAliasError()
@@ -156,7 +156,7 @@ class BankAliasLinkViewModel(
             }
         } else {
             updateState {
-                it.copy(isLoading = false)
+                copy(isLoading = false)
             }
             navigate(BankAliasNavigationEvent.UnhandledError(aliasError))
         }

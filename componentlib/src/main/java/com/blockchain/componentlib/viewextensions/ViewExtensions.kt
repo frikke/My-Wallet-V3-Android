@@ -18,7 +18,9 @@ import android.widget.FrameLayout
 import androidx.annotation.IntDef
 import androidx.annotation.LayoutRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.R
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
@@ -164,7 +166,6 @@ private class DebouncingOnClickListener(private val onClickListener: (View?) -> 
 }
 
 fun RecyclerView.configureWithPinnedView(pinnedView: View, isViewVisible: Boolean) {
-
     pinnedView.visibleIf { isViewVisible }
     when {
         isViewVisible && this.paddingBottom == 0 -> {
@@ -259,7 +260,8 @@ private fun convertDpToPixel(dp: Float, context: Context): Float {
 fun Context.getAlertDialogPaddedView(view: View?): FrameLayout {
     val frameLayout = FrameLayout(this)
     val params = FrameLayout.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
     )
     val marginInPixels = convertDpToPixel(20f, this).toInt()
     params.setMargins(marginInPixels, 0, marginInPixels, 0)
@@ -332,6 +334,7 @@ fun TextInputEditText.listenForTextChanges(): Flow<CharSequence?> {
             override fun afterTextChanged(s: Editable?) {
                 trySend(s)
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
         }
@@ -341,5 +344,62 @@ fun TextInputEditText.listenForTextChanges(): Flow<CharSequence?> {
         }
     }.onStart {
         emit(text)
+    }
+}
+
+fun View.updateItemBackground(isFirstItemInList: Boolean, isLastItemInList: Boolean) {
+    background = ContextCompat.getDrawable(
+        context,
+        when {
+            isFirstItemInList && isLastItemInList -> {
+                R.drawable.bkgd_white_large_rounding
+            }
+            isFirstItemInList -> {
+                R.drawable.bkgd_white_rounded_top
+            }
+            isLastItemInList -> {
+                R.drawable.bkgd_white_rounded_bottom
+            }
+            else -> {
+                R.drawable.bkgd_white_no_rounding
+            }
+        }
+    )
+
+    setMargins(
+        start = resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.small_spacing),
+        end = resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.small_spacing)
+    )
+}
+
+fun View.updateSelectableItemBackground(
+    isFirstItemInList: Boolean,
+    isLastItemInList: Boolean,
+    isSelected: Boolean
+) {
+    if (isSelected) {
+        background = ContextCompat.getDrawable(
+            context,
+            when {
+                isFirstItemInList && isLastItemInList -> {
+                    R.drawable.bkgd_white_selected_large_rounding
+                }
+                isFirstItemInList -> {
+                    R.drawable.bkgd_white_selected_rounded_top
+                }
+                isLastItemInList -> {
+                    R.drawable.bkgd_white_selected_rounded_bottom
+                }
+                else -> {
+                    R.drawable.bkgd_white_selected_no_rounding
+                }
+            }
+        )
+        setMargins(
+            start = resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.small_spacing),
+            end = resources.getDimensionPixelOffset(com.blockchain.componentlib.R.dimen.small_spacing)
+        )
+    } else {
+        updateItemBackground(isFirstItemInList, isLastItemInList)
     }
 }

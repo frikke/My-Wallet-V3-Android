@@ -156,6 +156,12 @@ public class Wallet {
         return withUpdatedBodiesAndVersion(Collections.singletonList(walletBody), getWrapperVersion());
     }
 
+    public Wallet updateAccountsLabel(Map<Account,String> updateAccounts) {
+        if (getWalletBody() == null) { return this; }
+        WalletBody walletBody = getWalletBody().updateAccountsLabel(updateAccounts);
+        return withUpdatedBodiesAndVersion(Collections.singletonList(walletBody), getWrapperVersion());
+    }
+
     public Wallet updateImportedAddressLabel(ImportedAddress address, String label) {
         if (getWalletBody() == null) { return this; }
 

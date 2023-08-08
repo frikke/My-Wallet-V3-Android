@@ -27,6 +27,9 @@ val payloadScope: Scope
         }
     }
 
+val payloadScopeOrNull: Scope?
+    get() = KoinJavaComponent.getKoin().getScopeOrNull(SCOPE_ID)
+
 inline fun <reified T> KoinComponent.scopedInject(
     qualifier: Qualifier? = null,
     noinline parameters: ParametersDefinition? = null

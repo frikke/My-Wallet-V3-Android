@@ -8,13 +8,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.Analytics
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.presentation.customviews.BlockchainListDividerDecor
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentSimpleBuyYapilyBankSelectBinding
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
-import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.bankAuthEvent
 import piuk.blockchain.android.ui.linkbank.toAnalyticsBankProvider
 import piuk.blockchain.android.ui.linkbank.yapily.adapters.YapilyBanksDelegateAdapter

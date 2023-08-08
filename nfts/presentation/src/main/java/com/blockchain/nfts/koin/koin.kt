@@ -11,12 +11,18 @@ val nftPresentationModule = module {
         viewModel {
             NftCollectionViewModel(
                 coincore = get(),
-                nftService = get()
+                nftService = get(),
+                oneTimeAccountPersistenceService = get()
             )
         }
 
-        viewModel {
-            NftDetailViewModel(nftService = get())
+        viewModel { (nftId: String, address: String, pageKey: String?) ->
+            NftDetailViewModel(
+                nftId = nftId,
+                address = address,
+                pageKey = pageKey,
+                nftService = get()
+            )
         }
     }
 }

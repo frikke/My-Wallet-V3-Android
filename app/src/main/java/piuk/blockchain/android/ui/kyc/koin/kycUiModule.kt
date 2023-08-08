@@ -21,7 +21,6 @@ import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecisionKycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.TiersReentryDecision
-import piuk.blockchain.android.ui.kyc.status.KycStatusPresenter
 import piuk.blockchain.android.ui.kyc.tiersplash.KycTierSplashPresenter
 import piuk.blockchain.android.ui.kyc.veriffsplash.VeriffSplashModel
 
@@ -31,8 +30,8 @@ val kycUiModule = module {
 
         factory {
             TiersReentryDecision(
-                custodialWalletManager = get(),
                 dataRemediationService = get(),
+                userFeaturePermissionService = get()
             )
         }.bind(ReentryDecision::class)
 
@@ -62,7 +61,7 @@ val kycUiModule = module {
                 analytics = get(),
                 nabuDataManager = get(),
                 userService = get(),
-                getUserStore = get(),
+                getUserStore = get()
             )
         }
 
@@ -70,12 +69,9 @@ val kycUiModule = module {
             KycHomeAddressPresenter(
                 nabuDataManager = get(),
                 eligibilityService = get(),
-                userService = get(),
                 nabuUserSync = get(),
-                custodialWalletManager = get(),
                 kycNextStepDecision = get(),
-                analytics = get(),
-                kycTiersStore = get(),
+                kycTiersStore = get()
             )
         }
 
@@ -97,18 +93,10 @@ val kycUiModule = module {
         viewModel {
             VeriffSplashModel(
                 userService = get(),
-                custodialWalletManager = get(),
                 nabuDataManager = get(),
                 kycTiersStore = get(),
                 analytics = get(),
-                sessionPrefs = get(),
-            )
-        }
-
-        factory {
-            KycStatusPresenter(
-                kycStatusHelper = get(),
-                notificationTokenManager = get()
+                sessionPrefs = get()
             )
         }
 
@@ -142,7 +130,8 @@ val kycUiModule = module {
         factory {
             KycLimitsInteractor(
                 limitsDataManager = get(),
-                kycService = get()
+                kycService = get(),
+                userFeaturePermissionService = get()
             )
         }
     }

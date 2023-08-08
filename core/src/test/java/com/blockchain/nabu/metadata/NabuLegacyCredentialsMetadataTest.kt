@@ -46,7 +46,9 @@ class NabuLegacyCredentialsMetadataTest : KoinTest {
         val metadata = json.decodeFromString(NabuLegacyCredentialsMetadata::class.serializer(), data)
         assert(
             metadata == NabuLegacyCredentialsMetadata(
-                "23131232222", "23123", true
+                "23131232222",
+                "23123",
+                true
             )
         )
     }
@@ -61,7 +63,8 @@ class NabuLegacyCredentialsMetadataTest : KoinTest {
         val metadata = json.decodeFromString(NabuLegacyCredentialsMetadata::class.serializer(), data)
         assert(
             metadata == NabuLegacyCredentialsMetadata(
-                userId = "3213", lifetimeToken = "yyyyy11"
+                userId = "3213",
+                lifetimeToken = "yyyyy11"
             )
         )
     }
@@ -76,7 +79,8 @@ class NabuLegacyCredentialsMetadataTest : KoinTest {
         val metadata = json.decodeFromString(NabuLegacyCredentialsMetadata::class.serializer(), data)
         assert(
             metadata == NabuLegacyCredentialsMetadata(
-                "", ""
+                "",
+                ""
             )
         )
     }
@@ -84,7 +88,8 @@ class NabuLegacyCredentialsMetadataTest : KoinTest {
     @Test
     fun `normal  properties should get serilised properly`() {
         val metadata = NabuLegacyCredentialsMetadata(
-            userId = "3213", lifetimeToken = "yyyyy11"
+            userId = "3213",
+            lifetimeToken = "yyyyy11"
         )
         val encoded = json.encodeToString(NabuLegacyCredentialsMetadata::class.serializer(), metadata)
         assert(

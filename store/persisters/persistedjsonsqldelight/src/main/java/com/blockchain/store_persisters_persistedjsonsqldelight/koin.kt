@@ -20,7 +20,7 @@ val storePersistersJsonSqlDelightModule = module {
     factory<SqlDelightStoreIdScopedPersister> { params ->
         SqlDelightStoreIdScopedPersisterImpl(
             storeId = params.get(),
-            storePersisterDataQueries = get(),
+            storePersisterDataQueries = get()
         )
     }
 

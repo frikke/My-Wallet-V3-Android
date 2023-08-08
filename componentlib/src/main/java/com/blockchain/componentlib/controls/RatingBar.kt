@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.controls
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
@@ -17,12 +16,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Star
+import com.blockchain.componentlib.theme.AppColors
+import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun RatingBar(
     count: Int = 5,
-    @DrawableRes imageFilled: Int,
-    @DrawableRes imageOutline: Int,
+    imageFilled: ImageResource.Local,
+    imageOutline: ImageResource.Local,
     initialRating: Int = 0,
     onRatingChanged: (rating: Int) -> Unit
 ) {
@@ -41,14 +44,15 @@ fun RatingBar(
                         rating = index
                         onRatingChanged(rating)
                     },
-                imageResource = ImageResource.Local(
-                    if (index <= rating) imageFilled
-                    else imageOutline
-                )
+                imageResource = if (index <= rating) {
+                    imageFilled
+                } else {
+                    imageOutline
+                }.withSize(AppTheme.dimensions.hugeSpacing)
             )
 
             if (index < range.last) {
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.tiny_spacing)))
+                Spacer(modifier = Modifier.width(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
             }
         }
     }
@@ -57,5 +61,10 @@ fun RatingBar(
 @Preview
 @Composable
 fun PreviewRatingBar() {
-    RatingBar(5, R.drawable.ic_star_filled, R.drawable.ic_star, 3) {}
+    RatingBar(
+        count = 5,
+        imageFilled = Icons.Filled.Star.withTint(AppColors.warningMuted),
+        imageOutline = Icons.Star.withTint(AppColors.muted),
+        initialRating = 3
+    ) {}
 }

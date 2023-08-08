@@ -1,6 +1,7 @@
 package piuk.blockchain.android.kyc
 
 import android.net.Uri
+import com.blockchain.deeplinking.processor.KycLinkState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.notifications.links.PendingLink
 import com.nhaarman.mockitokotlin2.any
@@ -11,8 +12,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import piuk.blockchain.android.BlockchainTestApplication
+import piuk.blockchain.android.FakeCoreClient
+import piuk.blockchain.android.FakeWeb3Wallet
 
-@Config(sdk = [24], application = BlockchainTestApplication::class)
+@Config(sdk = [26], application = BlockchainTestApplication::class, shadows = [FakeCoreClient::class, FakeWeb3Wallet::class])
 @RunWith(RobolectricTestRunner::class)
 class KycDeepLinkHelperTest {
 

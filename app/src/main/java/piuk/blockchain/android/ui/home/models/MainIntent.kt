@@ -2,14 +2,10 @@ package piuk.blockchain.android.ui.home.models
 
 import android.content.Intent
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
-import com.blockchain.walletmode.WalletMode
-import info.blockchain.balance.Currency
 
 sealed class MainIntent : MviIntent<MainState> {
     data class PerformInitialChecks(val deeplinkIntent: Intent) : MainIntent() {
@@ -20,35 +16,11 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    object RefreshTabs : MainIntent() {
-        override fun reduce(oldState: MainState): MainState = oldState
-    }
-
-    class UpdateNavigationTabs(val walletMode: WalletMode) : MainIntent() {
-        override fun reduce(oldState: MainState): MainState =
-            oldState.copy(
-                walletMode = walletMode
-            )
-    }
-
     class ReferralCodeIntent(private val referralState: ReferralState) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
                 referral = referralState
             )
-    }
-
-    class UpdateTabs(private val tabs: List<NavigationItem>, private val selectedTab: NavigationItem) : MainIntent() {
-        override fun reduce(oldState: MainState): MainState =
-            oldState.copy(
-                currentTab = selectedTab,
-                tabs = tabs
-            )
-    }
-
-    class UpdateCurrentTab(private val item: NavigationItem) : MainIntent() {
-        override fun reduce(oldState: MainState): MainState =
-            oldState.copy(currentTab = item)
     }
 
     object ReferralIconClicked : MainIntent() {
@@ -71,10 +43,6 @@ sealed class MainIntent : MviIntent<MainState> {
             oldState.copy(
                 viewToLaunch = view
             )
-    }
-
-    class ValidateAccountAction(val action: AssetAction, val account: BlockchainAccount?) : MainIntent() {
-        override fun reduce(oldState: MainState): MainState = oldState
     }
 
     object UnpairWallet : MainIntent() {
@@ -111,10 +79,6 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    class SwitchWalletMode(val walletMode: WalletMode) : MainIntent() {
-        override fun reduce(oldState: MainState): MainState = oldState
-    }
-
     class UpdateDeepLinkResult(private val deeplinkResult: DeepLinkResult) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
@@ -138,11 +102,10 @@ sealed class MainIntent : MviIntent<MainState> {
     }
 
     class UpdateFlags(
-        private val isStakingEnabled: Boolean,
         private val isEarnEnabled: Boolean
     ) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
-            oldState.copy(isStakingEnabled = isStakingEnabled, isEarnOnNavEnabled = isEarnEnabled)
+            oldState.copy(isEarnOnNavEnabled = isEarnEnabled)
     }
 
     class LaunchTransactionFlowFromDeepLink(val networkTicker: String, val action: AssetAction) : MainIntent() {
@@ -150,10 +113,6 @@ sealed class MainIntent : MviIntent<MainState> {
     }
 
     class SelectRewardsAccountForAsset(val cryptoTicker: String) : MainIntent() {
-        override fun reduce(oldState: MainState): MainState = oldState
-    }
-
-    class SelectStakingAccountForAction(val currency: Currency, val assetAction: AssetAction) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 }

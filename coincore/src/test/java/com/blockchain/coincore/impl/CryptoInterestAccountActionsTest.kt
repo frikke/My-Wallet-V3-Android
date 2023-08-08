@@ -5,14 +5,17 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.data.DataResource
+import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
-import com.blockchain.earn.domain.models.interest.InterestEligibility
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -23,6 +26,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 
@@ -35,8 +39,8 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
 
     @Before
     fun setup() {
-        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
-            .thenReturn(Observable.just(TEST_TO_USER_RATE))
+        whenever(exchangeRates.exchangeRateToUserFiatFlow(TEST_ASSET))
+            .thenReturn(flowOf(DataResource.Data(TEST_TO_USER_RATE)))
     }
 
     @Test
@@ -172,9 +176,8 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         userAccessForFeature: FeatureAccess = FeatureAccess.Granted(),
         accountBalance: CryptoValue = CryptoValue.zero(TEST_ASSET)
     ) {
-
         whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(tier))
-        whenever(userIdentity.userAccessForFeature(Feature.DepositInterest)).thenReturn(
+        whenever(userIdentity.userAccessForFeature(eq(Feature.DepositInterest), any())).thenReturn(
             Single.just(userAccessForFeature)
         )
 
@@ -188,9 +191,9 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         )
 
         whenever(interestService.getEligibilityForAsset(TEST_ASSET)).thenReturn(
-            Single.just(InterestEligibility.Eligible)
+            Single.just(EarnRewardsEligibility.Eligible)
         )
-        whenever(interestService.getBalanceFor(TEST_ASSET))
+        whenever(interestService.getBalanceFor(eq(TEST_ASSET), any()))
             .thenReturn(Observable.just(balance))
     }
 
@@ -199,7 +202,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
             displayTicker = "NOPE",
             networkTicker = "NOPE",
             name = "Not a real thing",
-            categories = setOf(AssetCategory.CUSTODIAL),
+            categories = setOf(AssetCategory.TRADING),
             precisionDp = 8,
             requiredConfirmations = 3,
             colour = "000000"

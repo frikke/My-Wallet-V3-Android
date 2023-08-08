@@ -14,6 +14,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.tablerow.ToggleTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.payloadScope
@@ -43,11 +44,13 @@ fun LocalSettings(
 @Composable
 fun LocalSettingsScreen(state: LocalSettingsViewState, viewModel: LocalSettingsViewModel) {
     AppTheme {
-        AppSurface {
+        AppSurface(color = AppColors.backgroundSecondary) {
             Column(modifier = Modifier.fillMaxSize()) {
                 ToggleTableRow(
-                    primaryText = stringResource(R.string.settings_chart_vibration),
-                    secondaryText = stringResource(R.string.settings_chart_vibration_desc),
+                    primaryText = stringResource(com.blockchain.stringResources.R.string.settings_chart_vibration),
+                    secondaryText = stringResource(
+                        com.blockchain.stringResources.R.string.settings_chart_vibration_desc
+                    ),
                     onCheckedChange = { isChecked ->
                         viewModel.onIntent(LocalSettingsIntent.ToggleChartVibration(isVibrationEnabled = isChecked))
                     },
@@ -61,8 +64,8 @@ fun LocalSettingsScreen(state: LocalSettingsViewState, viewModel: LocalSettingsV
                 HorizontalDivider(dividerColor = AppTheme.colors.medium)
 
                 ToggleTableRow(
-                    primaryText = stringResource(R.string.settings_dust_title),
-                    secondaryText = stringResource(R.string.settings_dust_desc),
+                    primaryText = stringResource(com.blockchain.stringResources.R.string.settings_dust_title),
+                    secondaryText = stringResource(com.blockchain.stringResources.R.string.settings_dust_desc),
                     onCheckedChange = { isChecked ->
                         viewModel.onIntent(LocalSettingsIntent.ToggleSmallBalances(areSmallBalancesEnabled = isChecked))
                     },

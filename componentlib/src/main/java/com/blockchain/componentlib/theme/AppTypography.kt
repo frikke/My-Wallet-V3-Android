@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.theme
 
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -13,9 +12,9 @@ import com.blockchain.componentlib.R
 private val interMedium = FontFamily(Font(R.font.inter_medium, FontWeight.Normal))
 private val interSemiBold = FontFamily(Font(R.font.inter_semi_bold, FontWeight.SemiBold))
 private val interBold = FontFamily(Font(R.font.inter_bold, FontWeight.Bold))
-private val monoFontFeatures = "tnum, lnum, zero, ss01"
+private const val monoFontFeatures = "tnum, lnum, zero, ss01"
+private const val slashedZeroFontFeatures = "zero, ss01"
 
-@OptIn(ExperimentalTextApi::class)
 data class AppTypography(
     val display: TextStyle = TextStyle(
         fontFamily = interSemiBold,
@@ -30,6 +29,18 @@ data class AppTypography(
     val title2: TextStyle = TextStyle(
         fontFamily = interSemiBold,
         fontSize = 24.sp,
+        lineHeight = 32.sp
+    ),
+    val title2Mono: TextStyle = TextStyle(
+        fontFamily = interSemiBold,
+        fontSize = 24.sp,
+        fontFeatureSettings = monoFontFeatures,
+        lineHeight = 32.sp
+    ),
+    val title2SlashedZero: TextStyle = TextStyle(
+        fontFamily = interSemiBold,
+        fontSize = 24.sp,
+        fontFeatureSettings = slashedZeroFontFeatures,
         lineHeight = 32.sp
     ),
     val title3: TextStyle = TextStyle(
@@ -52,6 +63,12 @@ data class AppTypography(
         fontFamily = interMedium,
         fontSize = 16.sp,
         fontFeatureSettings = monoFontFeatures,
+        lineHeight = 24.sp
+    ),
+    val bodySlashedZero: TextStyle = TextStyle(
+        fontFamily = interMedium,
+        fontSize = 16.sp,
+        fontFeatureSettings = slashedZeroFontFeatures,
         lineHeight = 24.sp
     ),
     val body1: TextStyle = TextStyle(
@@ -78,6 +95,12 @@ data class AppTypography(
     val paragraph2: TextStyle = TextStyle(
         fontFamily = interSemiBold,
         fontSize = 14.sp,
+        lineHeight = 20.sp
+    ),
+    val paragraph2SlashedZero: TextStyle = TextStyle(
+        fontFamily = interSemiBold,
+        fontSize = 14.sp,
+        fontFeatureSettings = slashedZeroFontFeatures,
         lineHeight = 20.sp
     ),
     val caption1: TextStyle = TextStyle(
@@ -112,6 +135,12 @@ data class AppTypography(
         fontSize = 10.sp,
         lineHeight = 15.sp
     ),
+    val micro2SlashedZero: TextStyle = TextStyle(
+        fontFamily = interMedium,
+        fontSize = 10.sp,
+        fontFeatureSettings = slashedZeroFontFeatures,
+        lineHeight = 15.sp
+    )
 )
 
 internal val LocalTypography = staticCompositionLocalOf { AppTypography() }

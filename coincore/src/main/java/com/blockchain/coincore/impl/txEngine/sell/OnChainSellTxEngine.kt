@@ -1,6 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.sell
 
-import androidx.annotation.VisibleForTesting
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.FiatAccount
@@ -11,38 +11,53 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.chains.erc20.isErc20
+import com.blockchain.core.TransactionsStore
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.nabu.datamanagers.repositories.swap.CustodialSwapActivityStore
+import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
+import com.blockchain.utils.then
 import info.blockchain.balance.Money
+import info.blockchain.balance.isLayer2Token
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Observables
 
 class OnChainSellTxEngine(
     private val tradingStore: TradingStore,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val engine: OnChainTxEngineBase,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val engine: OnChainTxEngineBase,
+    walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val userIdentity: UserIdentity,
+    userIdentity: UserIdentity,
     quotesEngine: TransferQuotesEngine
 ) : SellTxEngineBase(
-    walletManager, limitsDataManager, userIdentity, quotesEngine
+    walletManager,
+    limitsDataManager,
+    userIdentity,
+    quotesEngine
 ) {
+    private val swapActivityStore: CustodialSwapActivityStore by scopedInject()
+    private val transactionsStore: TransactionsStore by scopedInject()
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(tradingStore)
+        get() = listOf(tradingStore, swapActivityStore, transactionsStore)
+
+    private val balancesCache: Store<BalancesResponse> by scopedInject()
+
+    override fun ensureSourceBalanceFreshness() {
+        balancesCache.markAsStale()
+    }
 
     override val direction: TransferDirection
         get() = TransferDirection.FROM_USERKEY
 
     override val availableBalance: Single<Money>
-        get() = sourceAccount.balanceRx.firstOrError().map {
+        get() = sourceAccount.balanceRx().firstOrError().map {
             it.total
         }
 
@@ -52,11 +67,14 @@ class OnChainSellTxEngine(
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        quotesEngine.getPricedQuote()
+        Observables.combineLatest(
+            quotesEngine.getPriceQuote(),
+            quotesEngine.getSampleDepositAddress().toObservable()
+        )
             .firstOrError()
-            .doOnSuccess { pricedQuote ->
-                engine.startFromQuote(pricedQuote)
-            }.flatMap { quote ->
+            .doOnSuccess { (_, sampleDepositAddress) ->
+                engine.startFromTargetAddress(sampleDepositAddress)
+            }.flatMap { (quote, _) ->
                 engine.doInitialiseTx()
                     .flatMap {
                         updateLimits(target.currency, it, quote)
@@ -96,8 +114,9 @@ class OnChainSellTxEngine(
         }
 
     override fun feeInSourceCurrency(pendingTx: PendingTx): Money =
-        if (sourceAsset.isErc20()) Money.zero(sourceAsset)
-        else pendingTx.feeAmount
+        if (sourceAsset.isLayer2Token) {
+            Money.zero(sourceAsset)
+        } else pendingTx.feeAmount
 
     override fun doValidateAmount(pendingTx: PendingTx): Single<PendingTx> =
         engine.doValidateAmount(pendingTx)
@@ -144,4 +163,8 @@ class OnChainSellTxEngine(
                         engine.doExecute(px, secondPassword).updateOrderStatus(order.id)
                     }
             }
+
+    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
+        super.doPostExecute(pendingTx, txResult)
+            .then { engine.doPostExecute(pendingTx, txResult) }
 }

@@ -7,7 +7,7 @@ data class AutocompleteAddress(
     val titleHighlightRanges: List<IntRange>,
     val description: String,
     val descriptionHighlightRanges: List<IntRange>,
-    val containedAddressesCount: Int?,
+    val containedAddressesCount: Int?
 )
 
 enum class AutocompleteAddressType {

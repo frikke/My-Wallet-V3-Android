@@ -9,6 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
+import com.blockchain.componentlib.alert.CustomEmptyState
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.User
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
@@ -33,11 +36,11 @@ class BlockedDueToNotEligibleSheet : ComposeModalBottomDialog() {
             return ComposeView(requireContext()).apply {
                 setContent {
                     CustomEmptyState(
-                        title = R.string.account_restricted,
-                        description = descriptionResId ?: R.string.feature_not_available,
+                        title = com.blockchain.stringResources.R.string.account_restricted,
+                        description = descriptionResId ?: com.blockchain.stringResources.R.string.feature_not_available,
                         descriptionText = descriptionText,
-                        icon = R.drawable.ic_wallet_intro_image,
-                        ctaText = R.string.contact_support,
+                        icon = Icons.Filled.User,
+                        ctaText = com.blockchain.stringResources.R.string.contact_support,
                         ctaAction = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
                     )
                 }
@@ -49,20 +52,19 @@ class BlockedDueToNotEligibleSheet : ComposeModalBottomDialog() {
     @Composable
     override fun Sheet() {
         BottomSheetTwoButtons(
-            title = getString(R.string.account_restricted),
+            title = getString(com.blockchain.stringResources.R.string.account_restricted),
             showTitleInHeader = true,
             subtitle = descriptionText ?: getString(descriptionResId!!),
-            shouldShowHeaderDivider = false,
             onCloseClick = { dismiss() },
             headerImageResource = null,
             button1 = BottomSheetButton(
                 type = ButtonType.MINIMAL,
-                text = stringResource(R.string.contact_support),
+                text = stringResource(com.blockchain.stringResources.R.string.contact_support),
                 onClick = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
             ),
             button2 = BottomSheetButton(
                 type = ButtonType.PRIMARY,
-                text = stringResource(R.string.common_i_understand),
+                text = stringResource(com.blockchain.stringResources.R.string.common_i_understand),
                 onClick = { dismiss() }
             )
         )
@@ -75,8 +77,11 @@ class BlockedDueToNotEligibleSheet : ComposeModalBottomDialog() {
         fun newInstance(reason: BlockedReason.NotEligible): BlockedDueToNotEligibleSheet =
             BlockedDueToNotEligibleSheet().apply {
                 arguments = Bundle().apply {
-                    if (reason.message != null) putString(ARG_DESCRIPTION_TEXT, reason.message)
-                    else putInt(ARG_DESCRIPTION, R.string.feature_not_available)
+                    if (reason.message != null) {
+                        putString(ARG_DESCRIPTION_TEXT, reason.message)
+                    } else {
+                        putInt(ARG_DESCRIPTION, com.blockchain.stringResources.R.string.feature_not_available)
+                    }
                 }
             }
     }

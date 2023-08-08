@@ -1,9 +1,8 @@
 package piuk.blockchain.android.ui.coinview.domain.model
 
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.NonCustodialAccount
-import com.blockchain.coincore.StakingAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.data.DataResource
 import info.blockchain.balance.Money
@@ -13,22 +12,19 @@ import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
  * Comparator is used to sort the accounts list in [LoadAssetAccountsUseCase]
  */
 class CoinviewAccountDetail(
-    val account: BlockchainAccount,
+    val account: SingleAccount,
     val balance: DataResource<Money>,
-    val isAvailable: Boolean,
-    val isDefault: Boolean = false
-) : Comparable<CoinviewAccountDetail> {
-    override fun compareTo(other: CoinviewAccountDetail): Int {
-        return getAssignedComparatorValue(this).compareTo(getAssignedComparatorValue(other))
-    }
-
-    private fun getAssignedComparatorValue(detailItem: CoinviewAccountDetail): Int {
+    val address: String,
+    val isAvailable: Boolean
+) {
+    fun getIndexedValue(): Int {
         return when {
-            detailItem.account is NonCustodialAccount && detailItem.isDefault -> 0
-            detailItem.account is TradingAccount -> 1
-            detailItem.account is InterestAccount -> 2
-            detailItem.account is StakingAccount -> 3
-            detailItem.account is NonCustodialAccount && detailItem.isDefault.not() -> 4
+            account is NonCustodialAccount && account.isDefault -> 0
+            account is NonCustodialAccount -> 1
+            account is TradingAccount -> 2
+            account is EarnRewardsAccount.Interest -> 3
+            account is EarnRewardsAccount.Staking -> 4
+            account is EarnRewardsAccount.Active -> 5
             else -> Int.MAX_VALUE
         }
     }

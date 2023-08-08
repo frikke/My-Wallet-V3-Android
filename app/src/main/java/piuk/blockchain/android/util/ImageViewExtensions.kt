@@ -12,7 +12,8 @@ import com.blockchain.presentation.getResolvedDrawable
 import info.blockchain.balance.Currency
 import piuk.blockchain.android.R
 
-private const val TINT_ALPHA = 0x26
+private const val TINT_ALPHA_LIGHT = 0x26
+private const val TINT_ALPHA_DARK = 0x50
 
 fun ImageView.setImageDrawable(@DrawableRes res: Int) {
     setImageDrawable(context.getResolvedDrawable(res))
@@ -20,13 +21,17 @@ fun ImageView.setImageDrawable(@DrawableRes res: Int) {
 
 fun ImageView.setAssetIconColoursWithTint(asset: Currency) {
     val main = tryParseColour(asset.colour)
-    val tint = ColorUtils.setAlphaComponent(main, TINT_ALPHA)
+    val tint = ColorUtils.setAlphaComponent(
+        main,
+        if (context.resources.getBoolean(com.blockchain.componentlib.R.bool.isDarkMode)) TINT_ALPHA_DARK
+        else TINT_ALPHA_LIGHT
+    )
     setAssetIconColours(tint, main)
 }
 
 fun ImageView.setAssetIconColoursNoTint(asset: Currency) {
     val main = tryParseColour(asset.colour)
-    val tint = context.getResolvedColor(R.color.white)
+    val tint = context.getResolvedColor(com.blockchain.componentlib.R.color.backgroundSecondary)
     setAssetIconColours(tint, main)
 }
 
@@ -35,21 +40,6 @@ fun ImageView.setAssetIconColours(@ColorInt tintColor: Int, @ColorInt filterColo
     ViewCompat.setBackgroundTintList(this, ColorStateList.valueOf(tintColor))
     setColorFilter(filterColor)
 }
-
-fun ImageView.setTransactionHasFailed() =
-    this.apply {
-        setImageResource(R.drawable.ic_close)
-        val tint = context.getResolvedColor(R.color.red_200)
-        val main = context.getResolvedColor(R.color.red_600)
-        setAssetIconColours(tint, main)
-    }
-
-fun ImageView.setTransactionIsConfirming() =
-    this.apply {
-        setImageResource(R.drawable.ic_tx_confirming)
-        background = null
-        setColorFilter(Color.TRANSPARENT)
-    }
 
 // We fetch the colour codes from the BE and, therefore, we shouldn't trust them
 // to always parse correctly. If we cannot parse it, then fall back to black

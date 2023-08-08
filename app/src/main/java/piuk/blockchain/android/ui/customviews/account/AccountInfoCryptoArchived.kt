@@ -21,7 +21,9 @@ class AccountInfoCryptoArchived @JvmOverloads constructor(
 ) : ConstraintLayout(ctx, attr, defStyle), KoinComponent {
 
     private val binding: ViewAccountCryptoOverviewArchivedBinding = ViewAccountCryptoOverviewArchivedBinding.inflate(
-        LayoutInflater.from(context), this, true
+        LayoutInflater.from(context),
+        this,
+        true
     )
     private val assetResources: AssetResources by inject()
 

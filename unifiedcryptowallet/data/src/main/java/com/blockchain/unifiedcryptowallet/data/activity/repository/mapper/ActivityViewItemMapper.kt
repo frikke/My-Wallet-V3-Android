@@ -7,6 +7,7 @@ internal fun ActivityViewItemDto.toActivityViewItem(): ActivityDataItem? = when 
     is ActivityViewItemDto.Stack -> {
         ActivityDataItem.Stack(
             leadingImage = leadingImage.toActivityIcon(),
+            leadingImageDark = (leadingImageDark ?: leadingImage).toActivityIcon(),
             leading = leading.mapNotNull { it.toStackComponent() },
             trailing = trailing.mapNotNull { it.toStackComponent() }
         )
@@ -17,7 +18,7 @@ internal fun ActivityViewItemDto.toActivityViewItem(): ActivityDataItem? = when 
             ActivityDataItem.Button(
                 value = value,
                 style = style.toButtonStyle(),
-                action = action,
+                action = action
             )
         }
     }

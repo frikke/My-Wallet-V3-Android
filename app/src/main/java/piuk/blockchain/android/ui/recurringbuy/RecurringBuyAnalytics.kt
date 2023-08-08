@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.recurringbuy
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import java.io.Serializable
@@ -66,6 +66,14 @@ sealed class RecurringBuyAnalytics(
         event = AnalyticsNames.RECURRING_BUY_LEARN_MORE_CLICKED.eventName
     )
 
+    class RecurringBuyLearnMoreXSellClicked(
+        override val origin: LaunchOrigin? = null,
+        val dcaTitle: String
+    ) : RecurringBuyAnalytics(
+        event = AnalyticsNames.SUPERAPP_DEFI_DCA_LEARN_MORE_CLICKED.eventName,
+        params = mapOf(MODULE_TITLE to dcaTitle)
+    )
+
     object RecurringBuyViewed : RecurringBuyAnalytics(
         event = AnalyticsNames.RECURRING_BUY_VIEWED.eventName
     )
@@ -88,5 +96,6 @@ sealed class RecurringBuyAnalytics(
         private const val PAYMENT_METHOD = "payment_method"
         const val SELECT_PAYMENT = "SELECT_PAYMENT"
         const val PAYMENT_METHOD_UNAVAILABLE = "PAYMENT_METHOD_UNAVAILABLE"
+        private const val MODULE_TITLE = "module_title"
     }
 }

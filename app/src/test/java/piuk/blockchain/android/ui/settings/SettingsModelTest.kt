@@ -51,7 +51,8 @@ class SettingsModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             remoteLogger = mock(),
-            interactor = interactor
+            interactor = interactor,
+            themeService = mock()
         )
     }
 
@@ -157,7 +158,8 @@ class SettingsModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             remoteLogger = mock(),
-            interactor = interactor
+            interactor = interactor,
+            themeService = mock()
         )
 
         val expectedAvailable = listOf(

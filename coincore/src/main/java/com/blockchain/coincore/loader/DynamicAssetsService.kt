@@ -1,91 +1,54 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DynamicAsset
 import com.blockchain.api.services.DynamicAssetProducts
-import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.data.DataResource
-import com.blockchain.domain.wallet.CoinNetwork
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 
 interface DynamicAssetsService {
     fun availableCryptoAssets(): Single<List<AssetInfo>>
-    fun availableL1Assets(): Single<List<AssetInfo>>
-    fun otherEvmAssets(): Single<List<AssetInfo>>
-    fun allEvmNetworks(): Single<List<EvmNetwork>>
-    fun getEvmNetworkForCurrency(currency: String): Maybe<EvmNetwork>
-    fun otherEvmNetworks(): Single<List<EvmNetwork>>
+    fun allEvmNetworks(): Single<List<CoinNetwork>>
     fun allNetworks(): Flow<DataResource<List<CoinNetwork>>>
 }
 
-internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): AssetInfo =
-    parentChain?.let { chain ->
-        val pChain = evmChains.find { it == chain } ?: kotlin.run {
-            when (chain) {
-                AssetDiscoveryApiService.CELO -> AssetDiscoveryApiService.CELO
-                else -> null
-            }
-        }
-        pChain?.let {
-            CryptoCurrency(
-                displayTicker = displayTicker,
-                networkTicker = networkTicker,
-                name = parentChain?.let {
-                    assetName.forParentTicker(it)
-                } ?: assetName,
-                categories = mapCategories(products),
-                precisionDp = precision,
-                l1chainTicker = pChain,
-                l2identifier = chainIdentifier,
-                requiredConfirmations = minConfirmations,
-                startDate = BTC_START_DATE,
-                colour = mapColour(),
-                logo = logoUrl ?: "", // TODO: Um?
-                isErc20 = parentChain?.let { chain -> evmChains.find { it == chain } != null } ?: false,
-                txExplorerUrlBase = explorerUrl
-            )
-        }
-    } ?: kotlin.run {
-        // if the asset is a native/L1 token
-        CryptoCurrency(
-            displayTicker = displayTicker,
-            networkTicker = networkTicker,
-            name = assetName,
-            categories = mapCategories(products),
-            precisionDp = precision,
-            l1chainTicker = null,
-            l2identifier = chainIdentifier,
-            requiredConfirmations = minConfirmations,
-            startDate = BTC_START_DATE,
-            colour = mapColour(),
-            logo = logoUrl ?: "", // TODO: Um?
-            isErc20 = false,
-            txExplorerUrlBase = explorerUrl
-        )
-    }
+internal fun DynamicAsset.toAssetInfo(networks: List<CoinNetwork>): AssetInfo? {
+    val coinNetwork = if (parentChain != null) {
+        networks.find { network -> network.networkTicker == parentChain }
+    } else networks.find { it.nativeAssetTicker == networkTicker }
 
-private const val BTC_START_DATE = 1282089600L
+    if (coinNetwork == null && hasNonCustodialSupport()) return null
 
-private fun String.forParentTicker(parentChain: String): String {
-    if (parentChain == CryptoCurrency.MATIC && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
-        return this.plus(POLYGON_NETWORK_SUFFIX)
-    }
-    return this
+    return CryptoCurrency(
+        displayTicker = displayTicker,
+        networkTicker = networkTicker,
+        name = assetName,
+        categories = mapCategories(products),
+        precisionDp = precision,
+        l2identifier = chainIdentifier,
+        coinNetwork = coinNetwork,
+        requiredConfirmations = minConfirmations,
+        startDate = BTC_START_DATE,
+        colour = mapColour(),
+        logo = logoUrl ?: "",
+        txExplorerUrlBase = explorerUrl
+    )
 }
 
-private const val POLYGON_NETWORK_SUFFIX = " - Polygon"
+private const val BTC_START_DATE = 1282089600L
 
 private fun mapCategories(products: Set<DynamicAssetProducts>): Set<AssetCategory> =
     products.mapNotNull {
         when (it) {
             DynamicAssetProducts.PrivateKey -> AssetCategory.NON_CUSTODIAL
-            DynamicAssetProducts.CustodialWalletBalance -> AssetCategory.CUSTODIAL
-            DynamicAssetProducts.InterestBalance -> AssetCategory.CUSTODIAL
+            DynamicAssetProducts.CustodialWalletBalance -> AssetCategory.TRADING
+            DynamicAssetProducts.InterestBalance,
+            DynamicAssetProducts.Staking,
+            DynamicAssetProducts.EarnCC1W -> AssetCategory.INTEREST
             DynamicAssetProducts.DynamicSelfCustody -> AssetCategory.DELEGATED_NON_CUSTODIAL
             else -> null
         }
@@ -93,11 +56,7 @@ private fun mapCategories(products: Set<DynamicAssetProducts>): Set<AssetCategor
 
 private const val BLUE_600 = "#0C6CF2"
 private fun DynamicAsset.mapColour(): String =
-    when {
-        colourLookup.containsKey(networkTicker) -> colourLookup[networkTicker] ?: BLUE_600
-        chainIdentifier != null -> CryptoCurrency.ETHER.colour
-        else -> BLUE_600
-    }
+    colourLookup[networkTicker] ?: parentChain?.let { colourLookup[it] ?: BLUE_600 } ?: BLUE_600
 
 private val colourLookup = mapOf(
     "BTC" to "#FF9B22",

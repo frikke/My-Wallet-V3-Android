@@ -198,7 +198,6 @@ class TransactionFlowIntentMapperTest {
 
     @Test
     fun `sell with no defined source account`() {
-
         val assetAction = AssetAction.Sell
         val passwordRequired = false
 
@@ -278,7 +277,6 @@ class TransactionFlowIntentMapperTest {
 
     @Test(expected = IllegalStateException::class)
     fun `fiat withdraw with no defined source`() {
-
         val assetAction = AssetAction.FiatWithdraw
         val passwordRequired = false
 

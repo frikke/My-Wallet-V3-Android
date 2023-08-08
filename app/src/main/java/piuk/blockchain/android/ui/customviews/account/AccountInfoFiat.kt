@@ -55,7 +55,7 @@ class AccountInfoFiat @JvmOverloads constructor(
             icon.setIcon(account.currency)
             assetSubtitle.text = account.currency.networkTicker
 
-            compositeDisposable += account.balanceRx.firstOrError().map { it.total }
+            compositeDisposable += account.balanceRx().firstOrError().map { it.total }
                 .flatMap { balance ->
                     exchangeRates.exchangeRateToUserFiat(account.currency).firstOrError().map { exchangeRate ->
                         balance to exchangeRate.convert(balance)

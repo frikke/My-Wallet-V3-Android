@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -57,7 +57,7 @@ class ProfileActivity :
 
     override fun goToUpdateEmailScreen(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(R.id.content_frame, UpdateEmailFragment.newInstance(), UpdateEmailFragment::class.simpleName)
             .apply {
                 if (addToBackStack) {
@@ -69,7 +69,7 @@ class ProfileActivity :
 
     override fun goToUpdatePhoneScreen(addToBackStack: Boolean) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(R.id.content_frame, UpdatePhoneFragment.newInstance(), UpdatePhoneFragment::class.simpleName)
             .apply {
                 if (addToBackStack) {

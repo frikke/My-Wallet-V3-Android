@@ -1,5 +1,7 @@
 package piuk.blockchain.android.rating.presentaion.composable
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,13 +16,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.controls.RatingBar
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Star
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey600
-import com.blockchain.componentlib.theme.Grey900
 import piuk.blockchain.android.rating.presentaion.AppRatingIntents
 import piuk.blockchain.android.rating.presentaion.AppRatingViewModel
 import piuk.blockchain.android.rating.presentaion.R
@@ -29,7 +31,7 @@ import piuk.blockchain.android.rating.presentaion.R
 fun AppRatingStars(viewModel: AppRatingViewModel) {
     AppRatingStarsScreen(
         onSubmit = { rating -> viewModel.onIntent(AppRatingIntents.StarsSubmitted(rating)) },
-        onCanceled = { viewModel.onIntent(AppRatingIntents.RatingCanceled) },
+        onCanceled = { viewModel.onIntent(AppRatingIntents.RatingCanceled) }
     )
 }
 
@@ -45,59 +47,66 @@ fun AppRatingStarsScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(AppColors.backgroundSecondary)
             .padding(
-                start = dimensionResource(R.dimen.standard_spacing),
-                top = dimensionResource(R.dimen.standard_spacing),
-                end = dimensionResource(R.dimen.standard_spacing),
-                bottom = dimensionResource(R.dimen.small_spacing)
+                start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                top = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                bottom = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            modifier = Modifier.size(dimensionResource(R.dimen.size_medium)),
-            imageResource = ImageResource.Local(R.drawable.ic_favorite_filled)
+            imageResource = Icons.Filled.Star.withTint(AppColors.warningMuted)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
 
         Text(
             style = AppTheme.typography.body2,
-            color = Grey900,
+            color = AppColors.title,
             textAlign = TextAlign.Center,
-            text = stringResource(R.string.app_rating_title)
+            text = stringResource(com.blockchain.stringResources.R.string.app_rating_title)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         Text(
             style = AppTheme.typography.paragraph1,
-            color = Grey600,
+            color = AppColors.body,
             textAlign = TextAlign.Center,
-            text = stringResource(R.string.app_rating_description)
+            text = stringResource(com.blockchain.stringResources.R.string.app_rating_description)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
         RatingBar(
-            imageFilled = R.drawable.ic_favorite_filled,
-            imageOutline = R.drawable.ic_favorite_outline,
+            imageFilled = Icons.Filled.Star.withTint(AppColors.warningMuted),
+            imageOutline = Icons.Star.withTint(AppColors.muted),
             onRatingChanged = { rating ->
                 onSubmit(rating)
             }
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
+        Spacer(modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.large_spacing)))
 
-        SmallMinimalButton(
-            text = stringResource(R.string.common_cancel),
+        PrimaryButton(
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(com.blockchain.stringResources.R.string.common_cancel),
             onClick = onCanceled,
             state = ButtonState.Enabled
         )
     }
 }
 
-@Preview(name = "Full Screen", showBackground = true)
+@Preview
 @Composable
 fun PreviewAppRatingStarsScreen() {
     AppRatingStarsScreen({}, {})
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAppRatingStarsScreenDark() {
+    PreviewAppRatingStarsScreen()
 }

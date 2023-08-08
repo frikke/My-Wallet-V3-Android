@@ -8,12 +8,12 @@ import com.blockchain.core.chains.erc20.data.domain.toStore
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.mapData
 import com.blockchain.outcome.map
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
-import com.blockchain.store.mapData
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.utils.rxSingleOutcome
 import java.util.Calendar
@@ -23,7 +23,7 @@ import kotlinx.serialization.Serializable
 
 class Erc20L2Store(
     private val evmService: NonCustodialEvmService,
-    private val ethDataManager: EthDataManager,
+    private val ethDataManager: EthDataManager
 ) : KeyedStore<Erc20L2Store.Key, Erc20L2BalancesStore> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
         storeId = STORE_ID,

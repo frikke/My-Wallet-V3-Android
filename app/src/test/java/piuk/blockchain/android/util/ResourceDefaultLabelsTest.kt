@@ -6,18 +6,17 @@ import com.nhaarman.mockitokotlin2.mock
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.resources.AssetResources
 
 class ResourceDefaultLabelsTest {
 
     private val resources: Resources = mock {
-        on { getString(R.string.default_crypto_non_custodial_wallet_label) }.thenReturn("Private Key")
+        on {
+            getString(com.blockchain.stringResources.R.string.default_v2_crypto_non_custodial_wallet_label)
+        }.thenReturn("Private Key")
     }
 
-    private val assetResources: AssetResources = mock()
-
     private val defaultLabels: DefaultLabels =
-        ResourceDefaultLabels(resources, assetResources)
+        ResourceDefaultLabels(resources)
 
     @Test
     fun `btc default label`() {

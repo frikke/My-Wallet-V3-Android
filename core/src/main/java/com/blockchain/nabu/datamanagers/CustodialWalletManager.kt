@@ -4,34 +4,36 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.domain.common.model.Seconds
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.transactions.CustodialTransactionState
+import com.blockchain.domain.transactions.TransferDirection
+import com.blockchain.domain.wiretransfer.WireTransferDetails
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.nabu.models.data.RecurringBuy
-import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
-import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 
-enum class OrderState {
+enum class OrderState : CustodialTransactionState {
     UNKNOWN,
     UNINITIALISED,
     INITIALISED,
@@ -55,6 +57,7 @@ enum class OrderState {
 }
 
 interface CustodialWalletManager {
+    @Deprecated("use flow SimpleBuyService::getSupportedBuySellCryptoCurrencies")
     fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair>>
 
     fun fetchFiatWithdrawFeeAndMinLimit(
@@ -78,32 +81,23 @@ interface CustodialWalletManager {
         stateAction: String? = null
     ): Single<BuySellOrder>
 
-    fun createRecurringBuyOrder(
-        recurringBuyRequestBody: RecurringBuyRequestBody
-    ): Single<RecurringBuyOrder>
-
     fun createWithdrawOrder(
         amount: Money,
         bankId: String
     ): Completable
 
-    fun getCustodialFiatTransactions(
-        fiatCurrency: FiatCurrency,
-        product: Product,
-        type: String? = null
-    ): Single<List<FiatTransaction>>
-
     fun getCustodialCryptoTransactions(
+        freshnessStrategy: FreshnessStrategy,
         asset: AssetInfo,
         product: Product,
         type: String? = null
-    ): Single<List<CryptoTransaction>>
+    ): Observable<List<CryptoTransaction>>
 
-    fun getBankAccountDetails(
+    fun getWireTransferDetails(
         currency: FiatCurrency
-    ): Single<BankAccount>
+    ): Single<WireTransferDetails>
 
-    fun getCustodialAccountAddress(asset: Currency): Single<String>
+    fun getCustodialAccountAddress(product: Product, asset: Currency): Single<String>
 
     @Deprecated("use flow isCurrencyAvailableForTrading - remove when CoinView is migrated")
     fun isCurrencyAvailableForTradingLegacy(
@@ -112,20 +106,14 @@ interface CustodialWalletManager {
 
     fun isCurrencyAvailableForTrading(
         assetInfo: AssetInfo,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
     ): Flow<DataResource<Boolean>>
 
     fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>>
 
-    @Deprecated("use flow isAssetSupportedForSwap")
-    fun isAssetSupportedForSwapLegacy(
+    fun isAssetSupportedForSwap(
         assetInfo: AssetInfo
     ): Single<Boolean>
-
-    fun isAssetSupportedForSwap(
-        assetInfo: AssetInfo,
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
-    ): Flow<DataResource<Boolean>>
 
     fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>
 
@@ -133,13 +121,13 @@ interface CustodialWalletManager {
 
     fun getAllOutstandingOrders(): Single<List<BuySellOrder>>
 
-    fun getAllOrdersFor(asset: AssetInfo): Single<BuyOrderList>
+    fun getAllOrdersFor(freshnessStrategy: FreshnessStrategy, asset: AssetInfo): Observable<BuyOrderList>
 
     fun getBuyOrder(orderId: String): Single<BuySellOrder>
 
     fun deleteBuyOrder(orderId: String): Completable
 
-    fun transferFundsToWallet(amount: CryptoValue, fee: CryptoValue, walletAddress: String): Single<String>
+    fun transferFundsToWallet(amount: Money, fee: Money, walletAddress: String): Single<String>
 
     // For test/dev
     fun cancelAllPendingOrders(): Completable
@@ -159,15 +147,13 @@ interface CustodialWalletManager {
     ): Single<BuySellOrder>
 
     fun getSupportedFundsFiats(
-        fiatCurrency: FiatCurrency = selectedFiatcurrency
+        fiatCurrency: FiatCurrency = selectedFiatcurrency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(
+            RefreshStrategy.ForceRefresh
+        )
     ): Flow<List<FiatCurrency>>
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
-
-    @Deprecated("use SddService")
-    fun isSimplifiedDueDiligenceEligible(): Single<Boolean>
-
-    fun fetchSimplifiedDueDiligenceUserState(): Single<SimplifiedDueDiligenceUserState>
 
     fun createCustodialOrder(
         direction: TransferDirection,
@@ -176,6 +162,12 @@ interface CustodialWalletManager {
         destinationAddress: String? = null,
         refundAddress: String? = null
     ): Single<CustodialOrder>
+
+    fun pollForCustodialOrderCompletion(
+        orderId: String,
+        pollEvery: Seconds = 1,
+        pollTimes: Int = 5,
+    ): Single<Boolean>
 
     fun createPendingDeposit(
         crypto: AssetInfo,
@@ -195,8 +187,9 @@ interface CustodialWalletManager {
 
     fun getCustodialActivityForAsset(
         cryptoCurrency: AssetInfo,
-        directions: Set<TransferDirection>
-    ): Single<List<TradeTransactionItem>>
+        directions: Set<TransferDirection>,
+        freshnessStrategy: FreshnessStrategy
+    ): Observable<List<TradeTransactionItem>>
 
     fun updateOrder(
         id: String,
@@ -206,18 +199,24 @@ interface CustodialWalletManager {
     fun executeCustodialTransfer(amount: Money, origin: Product, destination: Product): Completable
 
     val selectedFiatcurrency: FiatCurrency
-
-    fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy>
-
-    fun cancelRecurringBuy(recurringBuyId: String): Completable
 }
 
 data class PaymentAttributes(
+    val paymentId: String?,
     val authorisationUrl: String?,
-    val cardAttributes: CardAttributes = CardAttributes.Empty
+    val cardAttributes: CardAttributes = CardAttributes.Empty,
+    val needCvv: Boolean = false
 ) {
     val isCardPayment: Boolean by lazy {
         cardAttributes != CardAttributes.Empty
+    }
+
+    val cardPaymentState: CardPaymentState? by lazy {
+        when (cardAttributes) {
+            is CardAttributes.Provider -> cardAttributes.paymentState
+            is CardAttributes.EveryPay -> cardAttributes.paymentState
+            is CardAttributes.Empty -> null
+        }
     }
 }
 
@@ -370,13 +369,22 @@ enum class TransactionType {
     WITHDRAWAL
 }
 
-enum class TransactionState {
+enum class TransactionState : CustodialTransactionState {
     COMPLETED,
     PENDING,
-    FAILED
+    MANUAL_REVIEW,
+    FAILED;
+
+    val isFinalised: Boolean
+        get() = when (this) {
+            COMPLETED,
+            FAILED -> true
+            PENDING,
+            MANUAL_REVIEW -> false
+        }
 }
 
-enum class CustodialOrderState {
+enum class CustodialOrderState : CustodialTransactionState {
     CREATED,
     PENDING_CONFIRMATION,
     PENDING_LEDGER,
@@ -423,13 +431,6 @@ data class BuySellPair(
 data class BuySellLimits(private val min: BigInteger, private val max: BigInteger) {
     fun minLimit(currency: Currency): Money = Money.fromMinor(currency, min)
     fun maxLimit(currency: Currency): Money = Money.fromMinor(currency, max)
-}
-
-enum class TransferDirection {
-    ON_CHAIN, // from non-custodial to non-custodial
-    FROM_USERKEY, // from non-custodial to custodial
-    TO_USERKEY, // from custodial to non-custodial - not in use currently
-    INTERNAL; // from custodial to custodial
 }
 
 data class BankAccount(val details: List<BankDetail>)
@@ -493,7 +494,8 @@ enum class Product {
     SELL,
     SAVINGS,
     TRADE,
-    STAKING
+    STAKING,
+    EARN_CC1W
 }
 
 data class TransferQuote(
@@ -505,24 +507,6 @@ data class TransferQuote(
     val staticFee: Money,
     val sampleDepositAddress: String
 )
-
-data class CurrencyPair(val source: Currency, val destination: Currency) {
-
-    val rawValue: String
-        get() = listOf(source.networkTicker, destination.networkTicker).joinToString("-")
-
-    companion object {
-        fun fromRawPair(
-            rawValue: String,
-            assetCatalogue: AssetCatalogue
-        ): CurrencyPair? {
-            val parts = rawValue.split("-")
-            val source: Currency = assetCatalogue.fromNetworkTicker(parts[0]) ?: return null
-            val destination: Currency = assetCatalogue.fromNetworkTicker(parts[1]) ?: return null
-            return CurrencyPair(source, destination)
-        }
-    }
-}
 
 data class PriceTier(
     val volume: Money,
@@ -553,14 +537,4 @@ data class CustodialOrder(
     val createdAt: Date,
     val inputMoney: Money,
     val outputMoney: Money
-)
-
-data class SimplifiedDueDiligenceUserState(
-    val isVerified: Boolean,
-    val stateFinalised: Boolean
-)
-
-data class RecurringBuyOrder(
-    val state: RecurringBuyState = RecurringBuyState.UNINITIALISED,
-    val id: String? = null,
 )

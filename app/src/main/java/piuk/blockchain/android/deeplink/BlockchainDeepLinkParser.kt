@@ -1,6 +1,7 @@
 package piuk.blockchain.android.deeplink
 
 import android.net.Uri
+import com.blockchain.deeplinking.processor.BlockchainLinkState
 import piuk.blockchain.android.kyc.ignoreFragment
 
 class BlockchainDeepLinkParser {
@@ -75,20 +76,4 @@ class BlockchainDeepLinkParser {
         const val RECEIVE_URL = "/open/receive"
         const val SEND_URL = "/open/send"
     }
-}
-
-sealed class BlockchainLinkState {
-    object NoUri : BlockchainLinkState()
-    object Swap : BlockchainLinkState()
-    object Activities : BlockchainLinkState()
-    object Interest : BlockchainLinkState()
-    object TwoFa : BlockchainLinkState()
-    object VerifyEmail : BlockchainLinkState()
-    object SetupFingerprint : BlockchainLinkState()
-    object Receive : BlockchainLinkState()
-    object Send : BlockchainLinkState()
-    data class Buy(val ticker: String? = null) : BlockchainLinkState()
-    data class Sell(val ticker: String? = null) : BlockchainLinkState()
-    data class KycCampaign(val campaignType: String) : BlockchainLinkState()
-    data class SimpleBuy(val ticker: String) : BlockchainLinkState()
 }

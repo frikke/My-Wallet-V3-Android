@@ -1,5 +1,6 @@
 package com.blockchain.commonarch.presentation.mvi_v2.compose
 
+import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.layout.ColumnScope
@@ -12,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.fragment.app.Fragment
@@ -21,15 +21,15 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.createGraph
 import androidx.navigation.get
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
 import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -49,7 +49,7 @@ interface ComposeNavigationRouter<TNavEvent : NavigationEvent> : NavigationRoute
     fun replaceCurrentFragment(@IdRes containerViewId: Int, fragment: Fragment, addToBackStack: Boolean = true) {
         (navController.context as? BlockchainActivity)?.supportFragmentManager
             ?.beginTransaction()
-            ?.addAnimationTransaction()
+            ?.addTransactionAnimation()
             ?.replace(containerViewId, fragment, fragment::class.simpleName)
             ?.apply {
                 if (addToBackStack) {
@@ -90,7 +90,6 @@ fun <TNavEvent : NavigationEvent> MviBottomSheetNavHost(
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
-
     LaunchedEffect(key1 = Unit) {
         navEvents.collectLatest { navigationEvent ->
             navigationRouter.route(navigationEvent)
@@ -103,11 +102,11 @@ fun <TNavEvent : NavigationEvent> MviBottomSheetNavHost(
     ModalBottomSheetLayout(
         bottomSheetNavigator = bottomSheetNavigator,
         sheetShape = RoundedCornerShape(
-            topEnd = dimensionResource(R.dimen.small_spacing),
-            topStart = dimensionResource(R.dimen.small_spacing)
+            topEnd = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing),
+            topStart = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
         ),
-        sheetBackgroundColor = AppTheme.colors.background,
-        scrimColor = AppTheme.colors.overlay
+        sheetBackgroundColor = AppTheme.colors.backgroundSecondary,
+        scrimColor = AppTheme.colors.scrim
     ) {
         NavHost(
             navigationRouter.navController,
@@ -138,7 +137,6 @@ fun <TNavEvent : NavigationEvent> MviFragmentNavHost(
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
-
     LaunchedEffect(key1 = Unit) {
         navEvents.collectLatest { navigationEvent ->
             navigationRouter.route(navigationEvent)
@@ -173,12 +171,21 @@ fun NavGraphBuilder.composable(
     )
 }
 
-fun NavHostController.navigate(destination: ComposeNavigationDestination) {
-    navigate(destination = destination, args = listOf())
+fun NavHostController.navigate(
+    destination: ComposeNavigationDestination,
+    builder: (NavOptionsBuilder.() -> Unit)? = null
+) {
+    navigate(destination = destination, args = listOf(), builder = builder)
 }
 
-fun NavHostController.navigate(destination: ComposeNavigationDestination, args: List<NavArgument>) {
-    navigate(destination.routeWithArgs(args))
+fun NavHostController.navigate(
+    destination: ComposeNavigationDestination,
+    args: List<NavArgument>,
+    builder: (NavOptionsBuilder.() -> Unit)? = null
+) {
+    builder?.let {
+        navigate(destination.routeWithArgs(args), it)
+    } ?: navigate(destination.routeWithArgs(args))
 }
 
 fun NavHostController.printBackStackToConsole() {
@@ -195,10 +202,11 @@ fun NavGraphBuilder.bottomSheet(
     deepLinks: List<NavDeepLink> = emptyList(),
     content: @Composable ColumnScope.(backstackEntry: NavBackStackEntry) -> Unit
 ) {
+
     addDestination(
         BottomSheetNavigator.Destination(
-            provider[BottomSheetNavigator::class],
-            content
+            navigator = provider[BottomSheetNavigator::class],
+            content = content
         ).apply {
             this.route = navigationEvent.route
             arguments.forEach { (argumentName, argument) ->
@@ -213,35 +221,15 @@ fun NavGraphBuilder.bottomSheet(
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialNavigationApi::class)
 @Composable
-private fun rememberBottomSheetNavigator(
+fun rememberBottomSheetNavigator(
     animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
-    skipHalfExpanded: Boolean = true,
+    skipHalfExpanded: Boolean = true
 ): BottomSheetNavigator {
     val sheetState = rememberModalBottomSheetState(
-        ModalBottomSheetValue.Hidden,
-        animationSpec
+        initialValue = ModalBottomSheetValue.Hidden,
+        animationSpec = animationSpec,
+        skipHalfExpanded = skipHalfExpanded
     )
-
-    if (skipHalfExpanded) {
-        LaunchedEffect(sheetState) {
-            snapshotFlow { sheetState.isAnimationRunning }
-                .collectLatest {
-                    with(sheetState) {
-                        val isOpening =
-                            currentValue == ModalBottomSheetValue.Hidden &&
-                                targetValue == ModalBottomSheetValue.HalfExpanded
-
-                        val isClosing = currentValue == ModalBottomSheetValue.Expanded &&
-                            targetValue == ModalBottomSheetValue.HalfExpanded
-
-                        when {
-                            isOpening -> animateTo(ModalBottomSheetValue.Expanded)
-                            isClosing -> animateTo(ModalBottomSheetValue.Hidden)
-                        }
-                    }
-                }
-        }
-    }
 
     return remember(sheetState) {
         BottomSheetNavigator(sheetState = sheetState)
@@ -251,3 +239,7 @@ private fun rememberBottomSheetNavigator(
 data class NavArgument(val key: String, val value: Any)
 
 fun String.wrappedArg() = "{$this}"
+
+fun Bundle.getComposeArgument(key: String) = getString(key)?.let {
+    if (it == key.wrappedArg()) null else it
+}

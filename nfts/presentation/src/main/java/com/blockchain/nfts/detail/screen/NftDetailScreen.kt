@@ -1,8 +1,7 @@
 package com.blockchain.nfts.detail.screen
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,15 +10,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,51 +25,79 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.MinimalButton
-import com.blockchain.componentlib.expandables.ExpandableItemBordered
+import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.expandables.ExpandableItem
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.lazylist.roundedCornersItems
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
 import com.blockchain.componentlib.sheets.SheetNub
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey700
-import com.blockchain.componentlib.theme.UltraLight
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.data.DataResource
+import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.R
 import com.blockchain.nfts.detail.NftDetailIntent
 import com.blockchain.nfts.detail.NftDetailViewModel
 import com.blockchain.nfts.detail.NftDetailViewState
+import com.blockchain.nfts.detail.navigation.NftDetailNavigationEvent
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
 import com.blockchain.nfts.domain.models.NftTrait
-
-private const val COLUMN_COUNT = 2
+import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.getViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
-fun NftDetail(viewModel: NftDetailViewModel) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+fun NftDetail(
+    nftId: String,
+    address: String,
+    pageKey: String?,
+    viewModel: NftDetailViewModel = getViewModel(
+        scope = payloadScope,
+        key = nftId,
+        parameters = { parametersOf(nftId, address, pageKey) }
+    )
+) {
+    DisposableEffect(key1 = viewModel) {
+        viewModel.onIntent(NftDetailIntent.LoadData)
+        onDispose { }
     }
-    val viewState: NftDetailViewState? by stateFlowLifecycleAware.collectAsState(null)
 
-    viewState?.let { state ->
-        NftDetailScreen(
-            state.nftAsset,
-            onExternalViewClick = { nftAsset ->
-                viewModel.onIntent(NftDetailIntent.ExternalViewRequested(nftAsset))
-            }
-        )
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
+    LaunchedEffect(key1 = viewModel) {
+        navEventsFlowLifecycleAware.collectLatest { event ->
+            when (event) {
+                is NftDetailNavigationEvent.ExternalView -> {
+                    context.openUrl(event.url)
+                }
+            }
+        }
+    }
+
+    val viewState: NftDetailViewState by viewModel.viewState.collectAsStateLifecycleAware()
+    NftDetailScreen(
+        viewState.nftAsset,
+        onExternalViewClick = { nftAsset ->
+            viewModel.onIntent(NftDetailIntent.ExternalViewRequested(nftAsset))
+        }
+    )
 }
 
 @Composable
@@ -81,32 +105,8 @@ fun NftDetailScreen(
     nftAsset: DataResource<NftAsset?>,
     onExternalViewClick: (NftAsset) -> Unit
 ) {
-    when (nftAsset) {
-        DataResource.Loading -> {
-        }
-
-        is DataResource.Error -> {
-            nftAsset.error.printStackTrace()
-        }
-
-        is DataResource.Data -> {
-            nftAsset.data?.let {
-                NftDetailDataScreen(
-                    nftAsset = it,
-                    onExternalViewClick = { onExternalViewClick(it) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun NftDetailDataScreen(
-    nftAsset: NftAsset,
-    onExternalViewClick: () -> Unit
-) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().background(AppColors.background)
     ) {
         Box(
             modifier = Modifier
@@ -116,31 +116,52 @@ fun NftDetailDataScreen(
             SheetNub(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
         }
 
-        LazyVerticalGrid(
-            modifier = Modifier.fillMaxWidth(),
-            columns = GridCells.Fixed(count = COLUMN_COUNT),
-            contentPadding = PaddingValues(
-                start = AppTheme.dimensions.smallSpacing,
-                top = AppTheme.dimensions.verySmallSpacing,
-                end = AppTheme.dimensions.smallSpacing,
-                bottom = AppTheme.dimensions.standardSpacing
-            ),
-            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
-            horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
-        ) {
-            item(span = { GridItemSpan(COLUMN_COUNT) }) {
-                NftBasicInfo(
-                    nftAsset = nftAsset,
-                    onExternalViewClick = onExternalViewClick
+        (nftAsset as? DataResource.Data)?.data?.let {
+            NftDetailDataScreen(
+                nftAsset = it,
+                onExternalViewClick = { onExternalViewClick(it) }
+            )
+        }
+    }
+}
+
+@Composable
+fun NftDetailDataScreen(
+    nftAsset: NftAsset,
+    onExternalViewClick: () -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(
+            start = AppTheme.dimensions.smallSpacing,
+            top = AppTheme.dimensions.verySmallSpacing,
+            end = AppTheme.dimensions.smallSpacing,
+            bottom = AppTheme.dimensions.standardSpacing
+        )
+    ) {
+        item {
+            NftBasicInfo(
+                nftAsset = nftAsset,
+                onExternalViewClick = onExternalViewClick
+            )
+        }
+
+        if (nftAsset.traits.isNotEmpty()) {
+            item {
+                Text(
+                    text = stringResource(com.blockchain.stringResources.R.string.nft_properties),
+                    style = AppTheme.typography.body2,
+                    color = AppTheme.colors.body
                 )
+
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
             }
 
-            items(
-                items = nftAsset.traits,
-                itemContent = { trait ->
-                    NftTrait(trait)
-                }
-            )
+            roundedCornersItems(
+                items = nftAsset.traits
+            ) { trait ->
+                NftTrait(trait)
+            }
         }
     }
 }
@@ -153,18 +174,18 @@ fun NftBasicInfo(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Card(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(elevation = 16.dp),
             elevation = 0.dp,
-            backgroundColor = Color.White,
-            shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
+            color = Color.White,
+            shape = AppTheme.shapes.large
         ) {
             AsyncMediaItem(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)),
+                    .clip(AppTheme.shapes.large),
                 url = nftAsset.imageUrl,
                 fallbackUrlType = UrlType.GIF,
                 contentScale = ContentScale.FillWidth,
@@ -175,9 +196,9 @@ fun NftBasicInfo(
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
-        MinimalButton(
+        MinimalPrimaryButton(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.nft_cta_view),
+            text = stringResource(com.blockchain.stringResources.R.string.nft_cta_view),
             icon = ImageResource.Local(
                 R.drawable.ic_external,
                 colorFilter = ColorFilter.tint(AppTheme.colors.primary),
@@ -194,55 +215,50 @@ fun NftBasicInfo(
             color = AppTheme.colors.title
         )
 
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+
         NftCreator(creator = nftAsset.creator)
 
-        ExpandableItemBordered(
-            title = stringResource(R.string.nft_description),
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
+
+        ExpandableItem(
+            title = stringResource(com.blockchain.stringResources.R.string.nft_description),
             text = nftAsset.description,
             numLinesVisible = 2,
-            textButtonToExpand = stringResource(R.string.coinview_expandable_button),
-            textButtonToCollapse = stringResource(R.string.coinview_collapsable_button)
+            textButtonToExpand = stringResource(com.blockchain.stringResources.R.string.coinview_expandable_button),
+            textButtonToCollapse = stringResource(com.blockchain.stringResources.R.string.coinview_collapsable_button)
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
     }
 }
 
 @Composable
 fun NftCreator(creator: NftCreator) {
-    val verifiedIconPadding = 2.5.dp
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = AppTheme.dimensions.smallSpacing),
+            .background(AppTheme.colors.backgroundSecondary, AppTheme.shapes.large)
+            .padding(AppTheme.dimensions.smallSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier.size(
-                AppTheme.dimensions.hugeSpacing + verifiedIconPadding // 2.5 extra to account for verified icon
-            )
-        ) {
-            Image(
-                imageResource = ImageResource.Remote(
-                    url = creator.imageUrl,
-                    shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall),
-                    size = 40.dp
+        CustomStackedIcon(
+            icon = if (true) {
+                StackedIcon.SmallTag(
+                    main = ImageResource.Remote(creator.imageUrl),
+                    tag = ImageResource.Local(R.drawable.ic_verified)
                 )
-            )
+            } else {
+                StackedIcon.SingleIcon(ImageResource.Remote(creator.imageUrl))
+            },
+            iconBackground = AppTheme.colors.backgroundSecondary,
+            size = AppTheme.dimensions.standardSpacing,
+            iconShape = AppTheme.shapes.medium
+        )
 
-            if (creator.isVerified) {
-                Image(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd),
-                    imageResource = ImageResource.Local(R.drawable.ic_verified)
-                )
-            }
-        }
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
-
-        Column(modifier = Modifier.padding(bottom = verifiedIconPadding)) { // 2.5 extra to account for verified icon
+        Column {
             Text(
                 text = creator.name,
                 style = AppTheme.typography.paragraph2,
@@ -252,9 +268,9 @@ fun NftCreator(creator: NftCreator) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
             Text(
-                text = stringResource(R.string.nft_creator),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_creator),
                 style = AppTheme.typography.caption1,
-                color = Grey700
+                color = AppTheme.colors.body
             )
         }
     }
@@ -265,36 +281,21 @@ fun NftTrait(trait: NftTrait) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = UltraLight,
-                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall)
-            )
-            .border(
-                width = AppTheme.dimensions.borderSmall,
-                color = AppTheme.colors.medium,
-                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall)
-            )
-            .padding(
-                start = AppTheme.dimensions.tinySpacing,
-                end = AppTheme.dimensions.tinySpacing,
-                top = AppTheme.dimensions.tinySpacing,
-                bottom = AppTheme.dimensions.smallSpacing,
-            )
+            .background(color = AppTheme.colors.backgroundSecondary)
+            .padding(AppTheme.dimensions.smallSpacing)
     ) {
         Text(
             text = trait.name,
-            style = AppTheme.typography.caption1,
-            color = AppTheme.colors.primaryMuted
+            style = AppTheme.typography.paragraph2,
+            color = AppTheme.colors.title
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
         Text(
             text = trait.value,
-            style = AppTheme.typography.paragraph1,
-            color = AppTheme.colors.primary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            style = AppTheme.typography.caption1,
+            color = AppTheme.colors.body
         )
     }
 }
@@ -303,7 +304,7 @@ fun NftTrait(trait: NftTrait) {
 // PREVIEWS
 // ///////////////
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewNftCollectionScreen_Data() {
     NftDetailScreen(
@@ -321,9 +322,20 @@ fun PreviewNftCollectionScreen_Data() {
                     name = "Kyotoangels",
                     isVerified = true
                 ),
-                traits = listOf()
+                traits = listOf(
+                    NftTrait("name1", "value"),
+                    NftTrait("name2", "value"),
+                    NftTrait("name3", "value"),
+                    NftTrait("name4", "value")
+                )
             )
         ),
         {}
     )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNftCollectionScreen_DataDark() {
+    PreviewNftCollectionScreen_Data()
 }

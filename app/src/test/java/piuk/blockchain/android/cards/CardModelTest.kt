@@ -3,6 +3,9 @@ package piuk.blockchain.android.cards
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
+import com.blockchain.api.payments.data.CardTokenIdResponse
+import com.blockchain.api.services.PaymentsService
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
@@ -13,6 +16,9 @@ import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.outcome.Outcome
+import com.blockchain.payments.vgs.VgsCardTokenizerService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.serializers.BigDecimalSerializer
@@ -26,6 +32,8 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
+import io.mockk.coEvery
+import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Calendar
@@ -53,6 +61,9 @@ class CardModelTest {
     private val cardActivator: CardActivator = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val sbPrefs: SimpleBuyPrefs = mock()
+    private val vgsCardTokenizerService: VgsCardTokenizerService = mock()
+    private val paymentsService: PaymentsService = mockk(relaxed = true)
+    private val vgsFeatureFlag: FeatureFlag = mock()
 
     val json = Json {
         explicitNulls = false
@@ -120,7 +131,10 @@ class CardModelTest {
             cardActivator = cardActivator,
             currencyPrefs = currencyPrefs,
             prefs = sbPrefs,
-            json = json
+            json = json,
+            vgsCardTokenizerService = vgsCardTokenizerService,
+            paymentsService = paymentsService,
+            vgsFeatureFlag = vgsFeatureFlag
         )
     }
 
@@ -136,7 +150,8 @@ class CardModelTest {
 
         val cardId = "1234"
         val cardToBeActivated = CardToBeActivated(
-            Partner.CARDPROVIDER, cardId
+            Partner.CARDPROVIDER,
+            cardId
         )
 
         whenever(interactor.addNewCard(any(), any(), any())).thenReturn(Single.just(cardToBeActivated))
@@ -243,7 +258,8 @@ class CardModelTest {
         val exitLink = "exitLink"
         val completeCardActivation: CompleteCardActivation =
             CompleteCardActivation.EverypayCompleteCardActivationDetails(
-                paymentLink, exitLink
+                paymentLink,
+                exitLink
             )
 
         whenever(cardActivator.activateCard(cardData, cardId)).thenReturn(Single.just(completeCardActivation))
@@ -326,6 +342,22 @@ class CardModelTest {
     }
 
     @Test
+    fun `check card status with beneficiaryId polls for card`() {
+        val beneficiaryId = "beneficiaryId"
+        val returnedIntent = CardIntent.CardUpdated(mock())
+        whenever(interactor.pollForCardStatus(beneficiaryId)).thenReturn(Single.just(returnedIntent))
+
+        val test = model.state.test()
+        model.process(CardIntent.CheckCardStatus(beneficiaryId))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRequestStatus == CardRequestStatus.Loading
+        }
+    }
+
+    @Test
     fun `check card status succeeds with active card`() {
         val card = PaymentMethod.Card(
             cardId = "123",
@@ -345,7 +377,7 @@ class CardModelTest {
         )
 
         val test = model.state.test()
-        model.process(CardIntent.CheckCardStatus)
+        model.process(CardIntent.CheckCardStatus())
 
         test.assertValueAt(0) {
             it == defaultState
@@ -378,7 +410,7 @@ class CardModelTest {
         )
 
         val test = model.state.test()
-        model.process(CardIntent.CheckCardStatus)
+        model.process(CardIntent.CheckCardStatus())
 
         test.assertValueAt(0) {
             it == defaultState
@@ -399,7 +431,7 @@ class CardModelTest {
         )
 
         val test = model.state.test()
-        model.process(CardIntent.CheckCardStatus)
+        model.process(CardIntent.CheckCardStatus())
 
         test.assertValueAt(0) {
             it == defaultState
@@ -430,13 +462,15 @@ class CardModelTest {
     fun `when card rejection state returns always rejected then state is updated`() {
         val binNumber = "1234"
         val expectedResult = CardRejectionState.AlwaysRejected(
-            errorId = "errorId",
-            title = "title",
-            description = "description",
-            actions = emptyList(),
-            iconUrl = null,
-            statusIconUrl = null,
-            analyticsCategories = emptyList()
+            ServerSideUxErrorInfo(
+                id = "errorId",
+                title = "title",
+                description = "description",
+                actions = emptyList(),
+                iconUrl = "",
+                statusUrl = "",
+                categories = emptyList()
+            )
         )
         whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
             Single.just(expectedResult)
@@ -447,7 +481,7 @@ class CardModelTest {
 
         test.assertValueAt(0) {
             it == defaultState
-        }.assertValueAt(1) {
+        }.assertValueAt(2) {
             it.cardRejectionState == expectedResult
         }
     }
@@ -456,13 +490,15 @@ class CardModelTest {
     fun `when card rejection state returns sometimes rejected then state is updated`() {
         val binNumber = "1234"
         val expectedResult = CardRejectionState.MaybeRejected(
-            errorId = "errorId",
-            title = "title",
-            description = "description",
-            actions = emptyList(),
-            iconUrl = null,
-            statusIconUrl = null,
-            analyticsCategories = emptyList()
+            ServerSideUxErrorInfo(
+                id = "errorId",
+                title = "title",
+                description = "description",
+                actions = emptyList(),
+                iconUrl = "",
+                statusUrl = "",
+                categories = emptyList()
+            )
         )
         whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
             Single.just(expectedResult)
@@ -473,7 +509,7 @@ class CardModelTest {
 
         test.assertValueAt(0) {
             it == defaultState
-        }.assertValueAt(1) {
+        }.assertValueAt(2) {
             it.cardRejectionState == expectedResult
         }
     }
@@ -491,7 +527,7 @@ class CardModelTest {
 
         test.assertValueAt(0) {
             it == defaultState
-        }.assertValueAt(1) {
+        }.assertValueAt(2) {
             it.cardRejectionState == expectedResult
         }
     }
@@ -509,7 +545,28 @@ class CardModelTest {
         test.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
+            it.isCardRejectionStateLoading && it.bin == binNumber && it.cardRejectionState == null
+        }.assertValueAt(2) {
             it.cardRejectionState is CardRejectionState.NotRejected
+        }
+    }
+
+    @Test
+    fun `when card tokenizer data is retrieved then state shows tokenization info`() {
+        val vgsFeatureFlagEnabled = true
+        val cardTokenIdResponse = CardTokenIdResponse("tokenId", "publicKey")
+        whenever(vgsFeatureFlag.enabled).thenReturn(Single.just(vgsFeatureFlagEnabled))
+        coEvery { paymentsService.getCardTokenId() } returns Outcome.Success(cardTokenIdResponse)
+
+        val test = model.state.test()
+        model.process(CardIntent.CheckTokenizer)
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(2) {
+            it.cardTokenId == cardTokenIdResponse.cardTokenId &&
+                it.vaultId == cardTokenIdResponse.vgsVaultId &&
+                it.isVgsEnabled == vgsFeatureFlagEnabled
         }
     }
 }

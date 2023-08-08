@@ -13,23 +13,25 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.makeExternalAssetAddress
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
+import com.blockchain.domain.trade.model.QuotePrice
+import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.utils.thenSingle
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.Money
 import info.blockchain.balance.asFiatCurrencyOrThrow
 import io.reactivex.rxjava3.core.Completable
@@ -40,6 +42,10 @@ import java.math.RoundingMode
 const val QUOTE_SUB = "quote_sub"
 private val PendingTx.quoteSub: Disposable?
     get() = (this.engineState[QUOTE_SUB] as? Disposable)
+
+const val QUOTE_SUB_AMOUNT = "quote_sub_amount"
+private val PendingTx.quoteSubAmount: Money?
+    get() = (this.engineState[QUOTE_SUB_AMOUNT] as? Money)
 
 abstract class QuotedEngine(
     protected val quotesEngine: TransferQuotesEngine,
@@ -62,7 +68,7 @@ abstract class QuotedEngine(
     protected fun updateLimits(
         fiat: Currency,
         pendingTx: PendingTx,
-        pricedQuote: PricedQuote
+        quotePrice: QuotePrice
     ): Single<PendingTx> =
         limitsDataManager.getLimits(
             outputCurrency = sourceAsset,
@@ -79,7 +85,7 @@ abstract class QuotedEngine(
             sourceAccountType = direction.sourceAccountType(),
             targetAccountType = direction.targetAccountType()
         ).map { limits ->
-            onLimitsForTierFetched(limits, pendingTx, pricedQuote)
+            onLimitsForTierFetched(limits, pendingTx, quotePrice)
         }
 
     protected val pair: CurrencyPair
@@ -98,7 +104,7 @@ abstract class QuotedEngine(
     protected abstract fun onLimitsForTierFetched(
         limits: TxLimits,
         pendingTx: PendingTx,
-        pricedQuote: PricedQuote
+        quotePrice: QuotePrice
     ): PendingTx
 
     protected fun Single<PendingTx>.clearConfirmations(): Single<PendingTx> =
@@ -106,18 +112,20 @@ abstract class QuotedEngine(
             it.quoteSub?.dispose()
             it.copy(
                 txConfirmations = emptyList(),
-                engineState = it.engineState.toMutableMap().apply { remove(QUOTE_SUB) }.toMap()
+                engineState = it.engineState.toMutableMap().apply {
+                    remove(QUOTE_SUB)
+                    remove(QUOTE_SUB_AMOUNT)
+                }.toMap()
             )
         }
 
-    override fun start(
+    override fun doAfterOnStart(
         sourceAccount: BlockchainAccount,
         txTarget: TransactionTarget,
         exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger
     ) {
-        super.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
-        quotesEngine.start(direction, pair)
+        quotesEngine.start(productType, direction, pair)
     }
 
     protected fun Single<PendingTx>.updateQuotePrice(): Single<PendingTx> =
@@ -129,7 +137,7 @@ abstract class QuotedEngine(
         startQuotesFetchingIfNotStarted(pendingTx)
 
     private fun startQuotesFetching(): Disposable =
-        quotesEngine.getPricedQuote().doOnNext {
+        quotesEngine.getQuote().doOnNext {
             refreshConfirmations(true)
         }.emptySubscribe()
 
@@ -138,7 +146,22 @@ abstract class QuotedEngine(
             if (pendingTx.quoteSub == null) {
                 pendingTx.copy(
                     engineState = pendingTx.engineState.copyAndPut(
-                        QUOTE_SUB, startQuotesFetching()
+                        QUOTE_SUB,
+                        startQuotesFetching()
+                    ).copyAndPut(
+                        QUOTE_SUB_AMOUNT,
+                        pendingTx.amount
+                    )
+                )
+            } else if (pendingTx.quoteSubAmount != pendingTx.amount) {
+                pendingTx.quoteSub?.dispose()
+                pendingTx.copy(
+                    engineState = pendingTx.engineState.copyAndPut(
+                        QUOTE_SUB,
+                        startQuotesFetching()
+                    ).copyAndPut(
+                        QUOTE_SUB_AMOUNT,
+                        pendingTx.amount
                     )
                 )
             } else {
@@ -151,12 +174,12 @@ abstract class QuotedEngine(
         quotesEngine.stop()
     }
 
-    protected fun OnChainTxEngineBase.startFromQuote(quote: PricedQuote) {
+    protected fun OnChainTxEngineBase.startFromTargetAddress(sampleDepositAddress: String) {
         start(
             sourceAccount = this@QuotedEngine.sourceAccount,
             txTarget = makeExternalAssetAddress(
                 asset = this@QuotedEngine.sourceAsset as AssetInfo,
-                address = quote.transferQuote.sampleDepositAddress
+                address = sampleDepositAddress
             ),
             exchangeRates = this@QuotedEngine.exchangeRates
         )
@@ -205,20 +228,21 @@ abstract class QuotedEngine(
         } ?: throw IllegalStateException("Method only support cryptovalues")
 }
 
-private fun TransferDirection.sourceAccountType(): AssetCategory {
+private fun TransferDirection.sourceAccountType(): String {
     return when (this) {
         TransferDirection.FROM_USERKEY,
-        TransferDirection.ON_CHAIN -> AssetCategory.NON_CUSTODIAL
+        TransferDirection.ON_CHAIN -> NON_CUSTODIAL_LIMITS_ACCOUNT
+
         TransferDirection.INTERNAL,
-        TransferDirection.TO_USERKEY -> AssetCategory.CUSTODIAL
+        TransferDirection.TO_USERKEY -> CUSTODIAL_LIMITS_ACCOUNT
     }
 }
 
-private fun TransferDirection.targetAccountType(): AssetCategory {
+private fun TransferDirection.targetAccountType(): String {
     return when (this) {
         TransferDirection.TO_USERKEY,
-        TransferDirection.ON_CHAIN -> AssetCategory.NON_CUSTODIAL
+        TransferDirection.ON_CHAIN -> NON_CUSTODIAL_LIMITS_ACCOUNT
         TransferDirection.INTERNAL,
-        TransferDirection.FROM_USERKEY -> AssetCategory.CUSTODIAL
+        TransferDirection.FROM_USERKEY -> CUSTODIAL_LIMITS_ACCOUNT
     }
 }

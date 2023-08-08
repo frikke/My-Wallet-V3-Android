@@ -3,7 +3,7 @@ package com.blockchain.store
 import kotlinx.coroutines.flow.Flow
 
 interface Persister {
-    fun read(key: String?): Flow<PersisterData?>
+    fun read(key: String?, logs: Boolean = false): Flow<PersisterData?>
     suspend fun write(data: PersisterData)
 
     /**

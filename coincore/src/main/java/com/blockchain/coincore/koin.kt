@@ -1,41 +1,54 @@
 package com.blockchain.coincore
 
+import com.blockchain.DefiWalletReceiveAddressService
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
+import com.blockchain.coincore.eth.Erc20DataManagerImpl
 import com.blockchain.coincore.eth.EthAsset
+import com.blockchain.coincore.eth.GasFeeCalculator
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.BackendNotificationUpdater
+import com.blockchain.coincore.impl.CoinAddressesStore
+import com.blockchain.coincore.impl.DefiWalletReceiveAddressRepository
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.HotWalletService
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.coincore.loader.ActiveBalancesStore
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.CoinNetworksStore
+import com.blockchain.coincore.loader.CustodialAssetsStore
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
+import com.blockchain.coincore.loader.EthErc20sStore
+import com.blockchain.coincore.loader.HistoricActiveBalancesRepository
+import com.blockchain.coincore.loader.L1CoinsStore
 import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
-import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetStore
+import com.blockchain.coincore.loader.OtherNetworksErc20sStore
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
-import com.blockchain.koin.coinNetworksFeatureFlag
-import com.blockchain.koin.ethLayerTwoFeatureFlag
+import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.chains.ethereum.EvmNetworksService
+import com.blockchain.koin.activeRewardsBalanceStore
+import com.blockchain.koin.dynamicEthHotWalletAddressFeatureFlag
+import com.blockchain.koin.interestBalanceStore
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
-import com.blockchain.koin.unifiedBalancesFlag
+import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
+import com.blockchain.koin.stakingBalanceStore
+import com.blockchain.logging.Logger
 import com.blockchain.unifiedcryptowallet.domain.balances.CoinNetworksService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val coincoreModule = module {
 
     scope(payloadScopeQualifier) {
-
         scoped {
             BtcAsset(
                 payloadManager = get(),
@@ -79,7 +92,6 @@ val coincoreModule = module {
                 walletPrefs = get(),
                 labels = get(),
                 notificationUpdater = get(),
-                assetCatalogue = lazy { get() },
                 formatUtils = get(),
                 addressResolver = get()
             )
@@ -95,13 +107,14 @@ val coincoreModule = module {
                 currencyPrefs = get(),
                 remoteLogger = get(),
                 bankService = get(),
-                walletModeService = get(),
-                ethLayerTwoFF = get(ethLayerTwoFeatureFlag)
+                walletModeService = get()
             )
         }
         scoped {
             NetworkAccountsRepository(
-                coincore = get()
+                coincore = get(),
+                assetCatalogue = get(),
+                coinsNetworksRepository = get(),
             )
         }.bind(NetworkAccountsService::class)
 
@@ -120,12 +133,12 @@ val coincoreModule = module {
                 nonCustodialAssets = ncAssets.toSet(), // All the non custodial L1s that we support
                 assetCatalogue = get(),
                 payloadManager = get(),
+                historicActiveBalancesRepository = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 unifiedBalancesService = lazy { get() },
                 tradingService = get(),
                 interestService = get(),
-                ethDataManager = get(),
                 remoteLogger = get(),
                 labels = get(),
                 walletPreferences = get(),
@@ -134,18 +147,15 @@ val coincoreModule = module {
                 selfCustodyService = get(),
                 ethHotWalletAddressResolver = get(),
                 custodialWalletManager = get(),
-                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
                 stakingService = get(),
-                unifiedBalancesFeatureFlag = get(unifiedBalancesFlag),
-                coinNetworksEnabledFlag = get(coinNetworksFeatureFlag),
-                kycService = get(),
-                walletModeService = get()
+                currencyPrefs = get(),
+                activeRewardsService = get()
             )
         }.bind(AssetLoader::class)
 
         scoped {
             HotWalletService(
-                walletApi = get()
+                walletOptionsStore = get()
             )
         }
 
@@ -155,7 +165,10 @@ val coincoreModule = module {
 
         scoped {
             EthHotWalletAddressResolver(
-                hotWalletService = get()
+                hotWalletService = get(),
+                nabuService = get(),
+                logger = Logger,
+                dynamicEthHotWalletAddressFF = get(dynamicEthHotWalletAddressFeatureFlag)
             )
         }
 
@@ -163,7 +176,7 @@ val coincoreModule = module {
             TxProcessorFactory(
                 bitPayManager = get(),
                 exchangeRates = get(),
-                interestBalanceStore = get(),
+                interestBalanceStore = get(interestBalanceStore),
                 interestService = get(),
                 tradingStore = get(),
                 walletManager = get(),
@@ -171,7 +184,7 @@ val coincoreModule = module {
                 ethMessageSigner = get(),
                 limitsDataManager = get(),
                 walletPrefs = get(),
-                quotesEngine = get(),
+                quotesEngineFactory = get(),
                 analytics = get(),
                 fees = get(),
                 ethDataManager = get(),
@@ -180,8 +193,10 @@ val coincoreModule = module {
                 withdrawLocksRepository = get(),
                 plaidFeatureFlag = get(plaidFeatureFlag),
                 swapTransactionsStore = get(),
-                stakingBalanceStore = get(),
-                stakingService = get()
+                stakingBalanceStore = get(stakingBalanceStore),
+                stakingService = get(),
+                activeRewardsBalanceStore = get(activeRewardsBalanceStore),
+                activeRewardsService = get()
             )
         }
 
@@ -194,14 +209,55 @@ val coincoreModule = module {
 
         scoped {
             BackendNotificationUpdater(
+                coinAddressesStore = get(),
+                json = get()
+            )
+        }
+
+        scoped {
+            CoinAddressesStore(
                 prefs = get(),
-                walletApi = get(),
-                json = get(),
+                walletApi = get()
+            )
+        }
+
+        scoped {
+            ActiveBalancesStore(
+                currencyPrefs = get(),
+                selfCustodyService = get()
+            )
+        }
+
+        scoped {
+            HistoricActiveBalancesRepository(activeBalancesStore = get())
+        }
+
+        scoped {
+            DefiWalletReceiveAddressRepository(
+                coincore = get(),
+                assetCatalogue = get()
+            )
+        }.bind(DefiWalletReceiveAddressService::class)
+
+        scoped {
+            Erc20DataManagerImpl(
+                ethDataManager = get(),
+                historyCallCache = get()
+            )
+        }.bind(Erc20DataManager::class)
+
+        factory {
+            TransferQuotesEngine.Factory(
+                quotesProvider = get(),
+                custodialWalletManager = get(),
+                brokerageDataManager = get(),
+                tradeDataService = get(),
+                sellSwapBrokerageQuoteFF = get(sellSwapBrokerageQuoteFeatureFlag)
             )
         }
 
         factory {
-            TransferQuotesEngine(quotesProvider = get())
+            GasFeeCalculator()
         }
 
         factory {
@@ -219,6 +275,10 @@ val coincoreModule = module {
                 assetCatalogue = get()
             )
         }.bind(TrendingPairsProvider::class)
+
+        scoped<OneTimeAccountPersistenceService> {
+            OneTimeAccountPersistenceRepository
+        }
     }
 
     single {
@@ -230,28 +290,20 @@ val coincoreModule = module {
 
     single {
         UniversalDynamicAssetRepository(
-            dominantL1Assets = setOf(
-                CryptoCurrency.BTC,
-                CryptoCurrency.BCH,
-                CryptoCurrency.ETHER,
-                CryptoCurrency.XLM
-            ),
-            discoveryService = get(),
+            coinNetworksStore = get(),
+            otherErc20sStore = get(),
+            ethErc20sStore = get(),
+            l1CoinsStore = get(),
             l2sDynamicAssetRepository = get(),
-            coinNetworksStore = get()
+            custodialAssetsStore = get()
         )
     }.bind(DynamicAssetsService::class)
 
     single {
         NonCustodialL2sDynamicAssetRepository(
-            discoveryService = get(),
-            l2Store = get(),
-            layerTwoFeatureFlag = lazy { get(ethLayerTwoFeatureFlag) },
-            coinNetworksFeatureFlag = lazy { get(coinNetworksFeatureFlag) },
-            evmNetworksService = lazy { payloadScope.get() },
             coinNetworksStore = get()
         )
-    }
+    }.bind(EvmNetworksService::class)
 
     single {
         CoinNetworksStore(
@@ -260,7 +312,25 @@ val coincoreModule = module {
     }
 
     single {
-        NonCustodialL2sDynamicAssetStore(
+        L1CoinsStore(
+            discoveryService = get()
+        )
+    }
+
+    single {
+        CustodialAssetsStore(
+            discoveryService = get()
+        )
+    }
+
+    single {
+        EthErc20sStore(
+            discoveryService = get()
+        )
+    }
+
+    single {
+        OtherNetworksErc20sStore(
             discoveryService = get()
         )
     }

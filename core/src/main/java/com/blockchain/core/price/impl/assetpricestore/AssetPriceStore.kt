@@ -6,10 +6,11 @@ import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.map
-import com.blockchain.store.firstOutcome
 import info.blockchain.balance.Currency
 import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap
@@ -23,7 +24,7 @@ internal typealias SupportedTickerList = List<String>
 
 internal class AssetPriceStore(
     private val cache: AssetPriceStoreCache,
-    private val supportedTickersStore: SupportedTickersStore,
+    private val supportedTickersStore: SupportedTickersStore
 ) {
 
     private val quoteTickerToCurrentPrices = ConcurrentHashMap<String, List<AssetPriceRecord>>()
@@ -31,23 +32,25 @@ internal class AssetPriceStore(
         private set
 
     internal suspend fun warmSupportedTickersCache(): Outcome<Exception, Unit> =
-        supportedTickersStore.stream(FreshnessStrategy.Fresh)
+        supportedTickersStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .firstOutcome()
             .doOnSuccess { tickerGroup ->
                 fiatQuoteTickers = tickerGroup.fiatQuoteTickers
             }
-            .map { @Suppress("RedundantUnitExpression") Unit }
+            .map {
+                @Suppress("RedundantUnitExpression")
+                Unit
+            }
 
     internal fun getCurrentPriceForAsset(
         base: Currency,
-        quote: Currency,
-        freshnessStrategy: FreshnessStrategy
+        quote: Currency
     ): Flow<DataResource<AssetPriceRecord>> =
         if (base.networkTicker == quote.networkTicker) {
             flowOf(createEqualityRecordResponse(base.networkTicker, quote.networkTicker))
         } else {
             cache.stream(
-                freshnessStrategy.withKey(
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
                     AssetPriceStoreCache.Key.GetAllCurrent(quote.networkTicker)
                 )
             ).onEach { response ->
@@ -60,16 +63,16 @@ internal class AssetPriceStore(
 
     internal fun getYesterdayPriceForAsset(
         base: Currency,
-        quote: Currency,
-        freshnessStrategy: FreshnessStrategy
+        quote: Currency
     ): Flow<DataResource<AssetPriceRecord>> =
         if (base.networkTicker == quote.networkTicker) {
             flowOf(createEqualityRecordResponse(base.networkTicker, quote.networkTicker))
         } else {
             cache.stream(
-                freshnessStrategy.withKey(
-                    AssetPriceStoreCache.Key.GetAllYesterday(quote.networkTicker)
-                )
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+                    .withKey(
+                        AssetPriceStoreCache.Key.GetAllYesterday(quote.networkTicker)
+                    )
             ).findAssetOrError(base, quote)
                 .distinctUntilChanged()
         }
@@ -77,10 +80,9 @@ internal class AssetPriceStore(
     internal fun getHistoricalPriceForAsset(
         base: Currency,
         quote: Currency,
-        timeSpan: HistoricalTimeSpan,
-        freshnessStrategy: FreshnessStrategy
+        timeSpan: HistoricalTimeSpan
     ): Flow<DataResource<List<AssetPriceRecord>>> = cache.stream(
-        freshnessStrategy.withKey(
+        FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
             AssetPriceStoreCache.Key.GetHistorical(base, quote.networkTicker, timeSpan)
         )
     )
@@ -105,8 +107,9 @@ internal class AssetPriceStore(
                     val assetPrice = response.data.find {
                         it.base == base.networkTicker && it.quote == quote.networkTicker
                     }
-                    if (assetPrice != null) DataResource.Data(assetPrice)
-                    else DataResource.Error(AssetPriceNotFoundException(base, quote))
+                    if (assetPrice != null) {
+                        DataResource.Data(assetPrice)
+                    } else DataResource.Error(AssetPriceNotFoundException(base, quote))
                 }
                 is DataResource.Error -> response
                 is DataResource.Loading -> response

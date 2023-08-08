@@ -4,13 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/background"
     tools:context=".ui.transfer.AccountSelectorFragment">
 
     <piuk.blockchain.android.ui.customviews.account.AccountList
         android:id="@+id/account_selector_account_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:paddingBottom="@dimen/standard_spacing"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

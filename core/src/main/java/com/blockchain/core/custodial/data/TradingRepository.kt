@@ -5,13 +5,14 @@ import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.store.getDataOrThrow
-import com.blockchain.store.mapData
+import com.blockchain.data.getDataOrThrow
+import com.blockchain.data.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
 
@@ -47,7 +48,13 @@ internal class TradingRepository(
 
     override fun getActiveAssets(refreshStrategy: FreshnessStrategy): Flow<Set<Currency>> {
         return getBalancesFlow(refreshStrategy)
-            .map { it.keys }
+            .map { it.keys }.catch {
+                emit(emptySet())
+            }
+    }
+
+    override fun markAsStale() {
+        tradingStore.markAsStale()
     }
 }
 
@@ -56,7 +63,6 @@ private fun TradingBalanceResponseDto.toTradingAccountBalance(currency: Currency
         total = Money.fromMinor(currency, total.toBigInteger()),
         withdrawable = Money.fromMinor(currency, withdrawable.toBigInteger()),
         pending = Money.fromMinor(currency, pending.toBigInteger()),
-        dashboardDisplay = Money.fromMinor(currency, mainBalanceToDisplay.toBigInteger()),
         hasTransactions = true
     )
 
@@ -65,5 +71,4 @@ private fun zeroBalance(currency: Currency): TradingAccountBalance =
         total = Money.zero(currency),
         withdrawable = Money.zero(currency),
         pending = Money.zero(currency),
-        dashboardDisplay = Money.zero(currency),
     )

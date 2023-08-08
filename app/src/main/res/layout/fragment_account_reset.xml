@@ -7,11 +7,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:focusable="true"
+    android:background="@color/backgroundSecondary"
     android:clickable="true"
-    android:background="@color/white"
+    android:focusable="true"
     android:visibility="gone"
-    tools:visibility="visible" >
+    tools:visibility="visible">
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/back_button"
@@ -21,95 +21,95 @@
         android:layout_marginTop="@dimen/standard_spacing"
         android:background="@android:color/transparent"
         android:padding="@dimen/tiny_spacing"
+        android:tint="@color/body"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_arrow_back_blue" />
+        app:srcCompat="@drawable/arrow_left_off" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/vertical_guideline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.35"
-        />
+        app:layout_constraintGuide_percent="0.35" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/reset_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/vertical_guideline"
-        app:layout_constraintBottom_toTopOf="@+id/reset_account_label"
         android:background="@drawable/ic_reset_round"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/reset_account_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/vertical_guideline" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/reset_account_label"
+        style="@style/Text.Semibold.Centered.20"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Text.Semibold.Centered.20"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/reset_image"
-        app:layout_constraintBottom_toTopOf="@+id/reset_account_desc"
-        android:text="@string/reset_account_title"
         android:layout_marginStart="@dimen/huge_spacing"
-        android:layout_marginEnd="@dimen/huge_spacing"
         android:layout_marginTop="@dimen/standard_spacing"
-        />
+        android:layout_marginEnd="@dimen/huge_spacing"
+        android:text="@string/reset_account_title"
+        android:textColor="@color/title"
+        app:layout_constraintBottom_toTopOf="@+id/reset_account_desc"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reset_image" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/reset_account_desc"
+        style="@style/Text.Light.Centered.14"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Text.Light.Centered.14"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/reset_account_label"
-        app:layout_constraintBottom_toTopOf="@+id/reset_button"
-        android:text="@string/reset_account_description_1"
         android:layout_marginStart="@dimen/huge_spacing"
-        android:layout_marginEnd="@dimen/huge_spacing"
         android:layout_marginTop="@dimen/tiny_spacing"
+        android:layout_marginEnd="@dimen/huge_spacing"
         android:paddingStart="@dimen/medium_spacing"
         android:paddingEnd="@dimen/medium_spacing"
-        />
+        android:text="@string/reset_account_description_1"
+        android:textColor="@color/body"
+        app:layout_constraintBottom_toTopOf="@+id/reset_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reset_account_label" />
 
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/reset_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/CtaButton.Blue"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/reset_account_desc"
-        app:layout_constraintBottom_toTopOf="@+id/retry_button"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginTop="@dimen/epic_spacing"
         android:layout_marginBottom="@dimen/tiny_spacing"
-        android:text="@string/reset_account_cta" />
+        android:text="@string/reset_account_cta"
+        app:layout_constraintBottom_toTopOf="@+id/retry_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reset_account_desc" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/retry_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/CtaButton.White"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/reset_button"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginTop="@dimen/tiny_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
-        android:text="@string/retry_recovery_phrase_cta" />
+        android:text="@string/retry_recovery_phrase_cta"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reset_button" />
 
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        tools:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,8 @@
 package com.blockchain.unifiedcryptowallet.domain.wallet
 
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.wallet.PubKeyStyle
 import com.blockchain.koin.payloadScope
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
@@ -61,7 +63,10 @@ class CryptoNetworkWallet(
 
     override val networkBalance: Flow<DataResource<NetworkBalance>>
         get() =
-            balancesService.balanceForWallet(this@CryptoNetworkWallet)
+            balancesService.balanceForWallet(
+                this@CryptoNetworkWallet,
+                FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+            )
 
     override val label: String
         get() = _label ?: defaultLabels.getAllNonCustodialWalletsLabel()
@@ -70,7 +75,7 @@ class CryptoNetworkWallet(
         PublicKey(
             address = it,
             descriptor = config.descriptor,
-            style = config.style,
+            style = config.style
         )
     }
 }

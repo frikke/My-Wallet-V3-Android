@@ -8,6 +8,10 @@ import com.blockchain.core.eligibility.mapper.toDomain
 import com.blockchain.core.eligibility.mapper.toNetwork
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.firstOutcome
+import com.blockchain.data.mapData
+import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
@@ -17,8 +21,6 @@ import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
-import com.blockchain.store.firstOutcome
-import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
 
 class EligibilityRepository(
@@ -40,9 +42,10 @@ class EligibilityRepository(
             .map { states -> states.map(StateResponse::toDomain) }
 
     override suspend fun getProductEligibilityLegacy(
-        product: EligibleProduct
+        product: EligibleProduct,
+        freshnessStrategy: FreshnessStrategy
     ): Outcome<Exception, ProductEligibility> =
-        getProductEligibility(product).firstOutcome()
+        getProductEligibility(product, freshnessStrategy).firstOutcome()
 
     override fun getProductEligibility(
         product: EligibleProduct,
@@ -51,12 +54,17 @@ class EligibilityRepository(
         return productsEligibilityStore.stream(freshnessStrategy)
             .mapData { eligibility ->
                 eligibility.products[product] ?: ProductEligibility.asEligible(product)
+            }.onErrorReturn {
+                if (product == EligibleProduct.USE_CUSTODIAL_ACCOUNTS) {
+                    ProductEligibility.asEligible(product)
+                } else {
+                    ProductEligibility.asNotEligible(product)
+                }
             }
     }
 
-    override suspend fun getMajorProductsNotEligibleReasons():
-        Outcome<Exception, List<ProductNotEligibleReason>> =
-        productsEligibilityStore.stream(FreshnessStrategy.Cached(false))
+    override suspend fun getMajorProductsNotEligibleReasons(): Outcome<Exception, List<ProductNotEligibleReason>> =
+        productsEligibilityStore.stream(FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
             .firstOutcome()
             .map { data -> data.majorProductsNotEligibleReasons }
 }

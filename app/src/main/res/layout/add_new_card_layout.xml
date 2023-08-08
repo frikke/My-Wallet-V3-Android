@@ -26,7 +26,7 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/payment_method_title"
         style="@style/Text.Semibold.16"
-        android:textColor="@color/grey_900"
+        android:textColor="@color/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_spacing"
@@ -42,11 +42,10 @@
         style="@style/Text.Light.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_spacing"
         android:layout_marginTop="2dp"
         android:text="@string/buy_small_amounts"
-        android:textColor="@color/grey_900"
-        app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
+        android:textColor="@color/title"
+        app:layout_constraintStart_toStartOf="@+id/payment_method_title"
         app:layout_constraintTop_toBottomOf="@+id/payment_method_title" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -54,13 +53,12 @@
         style="@style/Text.Light.12"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_spacing"
-        android:textColor="@color/grey_600"
+        android:textColor="@color/body"
         android:layout_marginTop="2dp"
         android:layout_marginEnd="@dimen/standard_spacing"
         android:text="@string/instantly_buy_crypto_with_card"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
+        app:layout_constraintStart_toStartOf="@+id/payment_method_title"
         app:layout_constraintTop_toBottomOf="@+id/payment_method_availability" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -74,16 +72,13 @@
         app:layout_constraintTop_toTopOf="@+id/payment_method_title"
         app:srcCompat="@drawable/ic_arrow_down" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <com.blockchain.componentlib.tag.TagView
         android:id="@+id/badge"
-        style="@style/Text.Semibold.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/small_spacing"
-        android:background="@drawable/payment_method_badge_background"
-        android:text="@string/most_popular"
-        android:textColor="@color/green_500"
         app:layout_constraintStart_toStartOf="@+id/instructions"
-        app:layout_constraintTop_toBottomOf="@+id/instructions" />
+        app:layout_constraintTop_toBottomOf="@+id/instructions"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

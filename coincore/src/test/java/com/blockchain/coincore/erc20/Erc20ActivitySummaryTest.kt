@@ -1,9 +1,9 @@
 package com.blockchain.coincore.erc20
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -45,7 +45,7 @@ class Erc20ActivitySummaryTest {
         )
 
         val subject = Erc20ActivitySummaryItem(
-            asset = ERC20_TOKEN,
+            currency = ERC20_TOKEN,
             event = erc20HistoryEvent,
             accountHash = toAccount,
             erc20DataManager = erc20DataManager,
@@ -73,7 +73,7 @@ class Erc20ActivitySummaryTest {
         )
 
         val subject = Erc20ActivitySummaryItem(
-            asset = ERC20_TOKEN,
+            currency = ERC20_TOKEN,
             event = erc20HistoryEvent,
             accountHash = fromAccount,
             erc20DataManager = erc20DataManager,
@@ -101,7 +101,7 @@ class Erc20ActivitySummaryTest {
         )
 
         val subject = Erc20ActivitySummaryItem(
-            asset = ERC20_TOKEN,
+            currency = ERC20_TOKEN,
             event = erc20HistoryEvent,
             accountHash = fromAccount,
             erc20DataManager = erc20DataManager,
@@ -133,7 +133,7 @@ class Erc20ActivitySummaryTest {
         )
 
         val subject = Erc20ActivitySummaryItem(
-            asset = ERC20_TOKEN,
+            currency = ERC20_TOKEN,
             event = erc20HistoryEvent,
             accountHash = fromAccount,
             erc20DataManager = erc20DataManager,
@@ -176,7 +176,7 @@ class Erc20ActivitySummaryTest {
         )
 
         val subject = Erc20ActivitySummaryItem(
-            asset = ERC20_TOKEN,
+            currency = ERC20_TOKEN,
             event = erc20HistoryEvent,
             accountHash = fromAccount,
             erc20DataManager = erc20DataManager,
@@ -206,11 +206,10 @@ class Erc20ActivitySummaryTest {
             displayTicker = "DUMMY",
             networkTicker = "DUMMY",
             name = "Dummies",
-            categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+            categories = setOf(AssetCategory.TRADING, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
             requiredConfirmations = 5,
-            colour = "#123456",
-            isErc20 = true
+            colour = "#123456"
         )
     }
 }

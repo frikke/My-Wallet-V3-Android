@@ -10,9 +10,9 @@ import androidx.core.content.ContextCompat
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.DialogSheetKycLimitsUpgradeNowBinding
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 
 class KycLimitsUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycLimitsUpgradeNowBinding>() {
 
@@ -43,11 +43,16 @@ class KycLimitsUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycLimitsUp
                 clickableSilver.setOnClickListener(null)
             }
 
-            val goldInfo1 = getString(R.string.kyc_limits_upgrade_now_gold_info_1)
-            val goldInfo2 = getString(R.string.kyc_limits_upgrade_now_gold_info_2)
+            val goldInfo1 = getString(com.blockchain.stringResources.R.string.kyc_limits_upgrade_now_gold_info_1)
+            val goldInfo2 = getString(com.blockchain.stringResources.R.string.kyc_limits_upgrade_now_gold_info_2)
             textGoldInfo.text = SpannableString("$goldInfo1 $goldInfo2").apply {
                 setSpan(
-                    ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.feature_limits_light_grey)),
+                    ForegroundColorSpan(
+                        ContextCompat.getColor(
+                            requireContext(),
+                            com.blockchain.common.R.color.feature_limits_light_grey
+                        )
+                    ),
                     length - goldInfo2.length,
                     length,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -55,25 +60,28 @@ class KycLimitsUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycLimitsUp
             }
 
             textGoldState.setBackgroundResource(
-                if (isGoldPending) R.drawable.bkgd_blue_100_rounded
-                else R.drawable.bkgd_green_100_rounded
+                if (isGoldPending) {
+                    R.drawable.bkgd_blue_100_rounded
+                } else R.drawable.bkgd_green_100_rounded
             )
             textGoldState.setTextColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    if (isGoldPending) R.color.blue_600
-                    else R.color.green_600
+                    if (isGoldPending) {
+                        com.blockchain.common.R.color.blue_600
+                    } else com.blockchain.common.R.color.green_600
                 )
             )
             textGoldState.setText(
-                if (isGoldPending) R.string.kyc_limits_upgrade_now_tier_state_under_review
-                else R.string.most_popular
+                if (isGoldPending) {
+                    com.blockchain.stringResources.R.string.kyc_limits_upgrade_now_tier_state_under_review
+                } else com.blockchain.stringResources.R.string.most_popular
             )
         }
     }
 
     private fun launchKyc() {
-        KycNavHostActivity.start(requireContext(), CampaignType.None)
+        KycNavHostActivity.start(requireContext(), KycEntryPoint.Other)
         dismiss()
     }
 

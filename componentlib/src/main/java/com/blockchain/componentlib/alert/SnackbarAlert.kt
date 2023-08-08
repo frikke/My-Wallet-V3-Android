@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.alert
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -12,20 +11,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.icons.Alert
+import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.Error
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue400
-import com.blockchain.componentlib.theme.Dark800
-import com.blockchain.componentlib.theme.Green400
-import com.blockchain.componentlib.theme.Orange400
-import com.blockchain.componentlib.theme.Red400
+
+private val bgColorLight = Color(0XFF20242C)
+private val bgColorDark = Color(0XFF000000)
+private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark else bgColorLight
 
 @Composable
 fun SnackbarAlert(
@@ -35,35 +37,28 @@ fun SnackbarAlert(
     type: SnackbarType = SnackbarType.Info
 ) {
 
-    val backgroundColour = if (!isSystemInDarkTheme()) {
-        Dark800
-    } else {
-        Color.Black
-    }
-
     val icon = when (type) {
-        SnackbarType.Success -> R.drawable.ic_success
-        SnackbarType.Error -> R.drawable.ic_error
-        SnackbarType.Warning -> R.drawable.ic_warning
+        SnackbarType.Success -> Icons.Filled.Check.withTint(AppColors.success)
+        SnackbarType.Error -> Icons.Filled.Alert.withTint(AppColors.error)
+        SnackbarType.Warning -> Icons.Filled.Error.withTint(AppColors.warning)
         SnackbarType.Info -> null
     }
 
     val textColour = when (type) {
-        SnackbarType.Success -> Green400
-        SnackbarType.Error -> Red400
-        SnackbarType.Warning -> Orange400
+        SnackbarType.Success -> AppColors.success
+        SnackbarType.Error -> AppColors.error
+        SnackbarType.Warning -> AppColors.warning
         SnackbarType.Info -> Color.White
     }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColour)
+            .background(bgColor)
             // prevents click throughs to views underneath the snack bar
             .clickable(true, onClick = {})
-            .padding(horizontal = AppTheme.dimensions.smallSpacing, vertical = 14.dp),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing, vertical = 14.dp)
     ) {
-
         icon?.let {
             Image(
                 modifier = Modifier
@@ -71,8 +66,7 @@ fun SnackbarAlert(
                     .padding(
                         end = AppTheme.dimensions.verySmallSpacing
                     ),
-                painter = painterResource(id = icon),
-                contentDescription = null
+                imageResource = icon
             )
         }
 
@@ -97,7 +91,7 @@ fun SnackbarAlert(
                     },
                 style = AppTheme.typography.paragraph2,
                 textAlign = TextAlign.End,
-                color = Blue400,
+                color = AppColors.primary
             )
         }
     }

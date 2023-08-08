@@ -10,14 +10,13 @@ import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
+import com.blockchain.data.firstOutcome
+import com.blockchain.data.mapData
+import com.blockchain.data.mapError
+import com.blockchain.data.toObservable
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.asObservable
-import com.blockchain.store.firstOutcome
-import com.blockchain.store.mapData
-import com.blockchain.store.mapError
 import com.blockchain.utils.rxCompletableOutcome
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCatalogue
@@ -53,18 +52,18 @@ internal class ExchangeRatesDataManagerImpl(
         fiat: Currency
     ): Single<AssetPriceRecord> =
         rxSingleOutcome {
-            priceStore.getCurrentPriceForAsset(asset, fiat, FreshnessStrategy.Fresh).firstOutcome()
+            priceStore.getCurrentPriceForAsset(asset, fiat)
+                .firstOutcome()
         }
 
     override fun exchangeRate(
         fromAsset: Currency,
-        toAsset: Currency,
-        freshnessStrategy: FreshnessStrategy
+        toAsset: Currency
     ): Flow<DataResource<ExchangeRate>> {
         val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
         val base = if (shouldInverse) toAsset else fromAsset
         val quote = if (shouldInverse) fromAsset else toAsset
-        return priceStore.getCurrentPriceForAsset(base, quote, freshnessStrategy)
+        return priceStore.getCurrentPriceForAsset(base, quote)
             .mapData {
                 ExchangeRate(
                     from = base,
@@ -82,26 +81,27 @@ internal class ExchangeRatesDataManagerImpl(
         val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
         val base = if (shouldInverse) toAsset else fromAsset
         val quote = if (shouldInverse) fromAsset else toAsset
-        return priceStore.getCurrentPriceForAsset(base, quote, FreshnessStrategy.Cached(forceRefresh = true))
-            .asObservable().map {
+        return priceStore.getCurrentPriceForAsset(base, quote)
+            .toObservable().map {
                 ExchangeRate(
                     from = base,
                     to = quote,
                     rate = it.rate
                 )
             }.map {
-                if (shouldInverse)
+                if (shouldInverse) {
                     it.inverse()
-                else it
+                } else {
+                    it
+                }
             }
     }
 
     override fun exchangeRateToUserFiat(
-        fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy
+        fromAsset: Currency
     ): Observable<ExchangeRate> =
-        priceStore.getCurrentPriceForAsset(fromAsset, userFiat, freshnessStrategy)
-            .asObservable()
+        priceStore.getCurrentPriceForAsset(fromAsset, userFiat)
+            .toObservable()
             .map {
                 ExchangeRate(
                     from = fromAsset,
@@ -111,14 +111,12 @@ internal class ExchangeRatesDataManagerImpl(
             }
 
     override fun exchangeRateToUserFiatFlow(
-        fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy
+        fromAsset: Currency
     ): Flow<DataResource<ExchangeRate>> {
         return priceStore
             .getCurrentPriceForAsset(
                 base = fromAsset,
-                quote = userFiat,
-                freshnessStrategy = freshnessStrategy
+                quote = userFiat
             )
             .mapData {
                 ExchangeRate(
@@ -140,7 +138,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getLastCryptoToFiatRate(
         sourceCrypto: AssetInfo,
-        targetFiat: FiatCurrency,
+        targetFiat: FiatCurrency
     ): ExchangeRate {
         return when (targetFiat) {
             userFiat -> getLastCryptoToUserFiatRate(sourceCrypto)
@@ -150,7 +148,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getLastFiatToCryptoRate(
         sourceFiat: FiatCurrency,
-        targetCrypto: AssetInfo,
+        targetCrypto: AssetInfo
     ): ExchangeRate {
         return when (sourceFiat) {
             userFiat -> getLastCryptoToUserFiatRate(targetCrypto).inverse()
@@ -160,7 +158,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     private fun getCryptoToFiatRate(
         sourceCrypto: AssetInfo,
-        targetFiat: FiatCurrency,
+        targetFiat: FiatCurrency
     ): ExchangeRate {
         val priceRate = priceStore.getCachedAssetPrice(sourceCrypto, targetFiat).rate
         return ExchangeRate(
@@ -203,7 +201,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getHistoricRate(
         fromAsset: Currency,
-        secSinceEpoch: Long,
+        secSinceEpoch: Long
     ): Single<ExchangeRate> {
         return assetPriceService.getHistoricPrices(
             baseTickers = setOf(fromAsset.networkTicker),
@@ -219,20 +217,18 @@ internal class ExchangeRatesDataManagerImpl(
     }
 
     override fun getPricesWith24hDeltaLegacy(
-        fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy
+        fromAsset: Currency
     ): Observable<Prices24HrWithDelta> =
-        getPricesWith24hDeltaLegacy(fromAsset, userFiat, freshnessStrategy)
+        getPricesWith24hDeltaLegacy(fromAsset, userFiat)
 
     override fun getPricesWith24hDeltaLegacy(
         fromAsset: Currency,
-        fiat: Currency,
-        freshnessStrategy: FreshnessStrategy
+        fiat: Currency
     ): Observable<Prices24HrWithDelta> = Observable.combineLatest(
-        priceStore.getCurrentPriceForAsset(fromAsset, fiat, freshnessStrategy)
-            .asObservable(),
-        priceStore.getYesterdayPriceForAsset(fromAsset, fiat, freshnessStrategy)
-            .asObservable()
+        priceStore.getCurrentPriceForAsset(fromAsset, fiat)
+            .toObservable(),
+        priceStore.getYesterdayPriceForAsset(fromAsset, fiat)
+            .toObservable()
     ) { current, yesterday ->
         Prices24HrWithDelta(
             delta24h = current.getPriceDelta(yesterday),
@@ -251,19 +247,16 @@ internal class ExchangeRatesDataManagerImpl(
     }
 
     override fun getPricesWith24hDelta(
-        fromAsset: Currency,
-        freshnessStrategy: FreshnessStrategy
+        fromAsset: Currency
     ): Flow<DataResource<Prices24HrWithDelta>> {
         return combine(
             priceStore.getCurrentPriceForAsset(
                 base = fromAsset,
-                quote = userFiat,
-                freshnessStrategy = freshnessStrategy
+                quote = userFiat
             ),
             priceStore.getYesterdayPriceForAsset(
                 base = fromAsset,
-                quote = userFiat,
-                freshnessStrategy = freshnessStrategy
+                quote = userFiat
             )
         ) { currentPrice, yesterdayPrice ->
             combineDataResources(currentPrice, yesterdayPrice) { currentPriceData, yesterdayPriceData ->
@@ -288,20 +281,18 @@ internal class ExchangeRatesDataManagerImpl(
     override fun getHistoricPriceSeries(
         asset: Currency,
         span: HistoricalTimeSpan,
-        now: Calendar,
-        freshnessStrategy: FreshnessStrategy
+        now: Calendar
     ): Flow<DataResource<HistoricalRateList>> {
         require(asset.startDate != null)
-        return priceStore.getHistoricalPriceForAsset(asset, userFiat, span, freshnessStrategy)
+        return priceStore.getHistoricalPriceForAsset(asset, userFiat, span)
             .mapData { prices -> prices.map { it.toHistoricalRate() } }
             .mapError { AssetPriceNotFoundException(asset.networkTicker, userFiat.networkTicker) }
     }
 
     override fun get24hPriceSeries(
-        asset: Currency,
-        freshnessStrategy: FreshnessStrategy
+        asset: Currency
     ): Flow<DataResource<HistoricalRateList>> =
-        priceStore.getHistoricalPriceForAsset(asset, userFiat, HistoricalTimeSpan.DAY, freshnessStrategy)
+        priceStore.getHistoricalPriceForAsset(asset, userFiat, HistoricalTimeSpan.DAY)
             .mapData { prices -> prices.map { it.toHistoricalRate() } }
             .mapError { AssetPriceNotFoundException(asset.networkTicker, userFiat.networkTicker) }
 

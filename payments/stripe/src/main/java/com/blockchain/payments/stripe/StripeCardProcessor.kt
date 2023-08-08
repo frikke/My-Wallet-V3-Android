@@ -70,7 +70,7 @@ class StripeCardProcessor(
     private fun CardBillingAddress.toStripeAddress() =
         Address(
             city = city,
-            country = country,
+            country = countryCode,
             line1 = addressLine1,
             line2 = addressLine2,
             postalCode = postalCode,

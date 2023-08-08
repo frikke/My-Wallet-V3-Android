@@ -1,41 +1,38 @@
 package piuk.blockchain.android.walletmode
 
+import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.total
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.data.combineDataResources
+import com.blockchain.data.mapData
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Money
-import info.blockchain.balance.total
+import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.rx3.asFlow
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 
 class WalletModeBalanceRepository(
-    private val walletModeService: WalletModeService,
     private val balanceStore: WalletModeBalanceCache,
-    private val currencyPrefs: CurrencyPrefs,
+    private val coincore: Coincore,
+    private val currencyPrefs: CurrencyPrefs
 ) : WalletModeBalanceService {
 
-    override fun balanceFor(walletMode: WalletMode): Flow<DataResource<Money>> {
-        return getBalance(walletMode, FreshnessStrategy.Cached(forceRefresh = false))
+    override fun balanceFor(walletMode: WalletMode, freshnessStrategy: FreshnessStrategy): Flow<DataResource<Money>> {
+        return getBalance(walletMode, freshnessStrategy)
     }
 
-    override fun totalBalance(): Flow<DataResource<Money>> {
-        val balances = walletModeService.availableModes().map { walletMode ->
-            balanceFor(walletMode)
-        }
-
-        return combine(balances) { balancesArray ->
-            combineDataResources(balancesArray.toList()) { balancesList ->
-                balancesList.total()
-            }
-        }
+    override fun totalBalance(freshnessStrategy: FreshnessStrategy): Flow<DataResource<Money>> {
+        return coincore.allActiveWallets(freshnessStrategy).flatMap {
+            it.balanceRx(freshnessStrategy)
+        }.map {
+            DataResource.Data(it.total) as DataResource<Money>
+        }.onErrorResumeNext {
+            Observable.just(DataResource.Error(it as Exception))
+        }.asFlow()
     }
 
     override fun getBalanceWithFailureState(

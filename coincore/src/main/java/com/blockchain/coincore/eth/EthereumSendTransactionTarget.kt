@@ -14,11 +14,10 @@ class EthereumSendTransactionTarget(
     val dAppLogoURL: String,
     private val transaction: EthereumJsonRpcTransaction,
     val method: Method,
+    override val asset: AssetInfo = CryptoCurrency.ETHER,
     override val onTxCompleted: (TxResult) -> Completable,
     override val onTxCancelled: () -> Completable
 ) : WalletConnectTarget {
-    override val asset: AssetInfo
-        get() = CryptoCurrency.ETHER
     override val label: String
         get() = dAppName
     override val isDomain: Boolean = false

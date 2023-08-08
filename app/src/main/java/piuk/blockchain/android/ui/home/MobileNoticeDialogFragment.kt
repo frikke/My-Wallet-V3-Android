@@ -8,13 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.annotations.CommonCode
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.MobileNoticeDialogBinding
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 
 @CommonCode("One of many almost identical bottom dialogs")
-class MobileNoticeDialogFragment : BottomSheetDialogFragment() {
+class MobileNoticeDialogFragment : ThemedBottomSheetFragment() {
 
     private var _binding: MobileNoticeDialogBinding? = null
     private val binding: MobileNoticeDialogBinding
@@ -25,7 +25,7 @@ class MobileNoticeDialogFragment : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val contextThemeWrapper = ContextThemeWrapper(activity, R.style.AppTheme)
+        val contextThemeWrapper = ContextThemeWrapper(activity, com.blockchain.common.R.style.AppTheme)
         val themedInflater = inflater.cloneInContext(contextThemeWrapper)
         _binding = MobileNoticeDialogBinding.inflate(themedInflater, container, false)
         return binding.root

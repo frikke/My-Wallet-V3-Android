@@ -9,14 +9,14 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import piuk.blockchain.android.R
 
 @Composable
 fun ColumnScope.UserIcon(
     modifier: Modifier = Modifier,
     @DrawableRes iconRes: Int,
-    @DrawableRes statusIconRes: Int? = null,
+    @DrawableRes statusIconRes: Int? = null
 ) {
     ConstraintLayout(modifier) {
         val (userIconRef, statusIconRef) = createRefs()
@@ -29,13 +29,13 @@ fun ColumnScope.UserIcon(
             },
             imageResource = ImageResource.LocalWithBackground(
                 id = iconRes,
-                iconTintColour = R.color.white,
-                backgroundColour = R.color.blue_600,
+                iconColor = AppColors.background,
+                backgroundColor = AppTheme.colors.primary,
                 alpha = 1f,
                 size = AppTheme.dimensions.epicSpacing,
                 iconSize = AppTheme.dimensions.hugeSpacing,
-                shape = RoundedCornerShape(24.dp),
-            ),
+                shape = RoundedCornerShape(24.dp)
+            )
         )
 
         if (statusIconRes != null) {
@@ -48,8 +48,8 @@ fun ColumnScope.UserIcon(
                 },
                 imageResource = ImageResource.Local(
                     id = statusIconRes,
-                    size = AppTheme.dimensions.hugeSpacing,
-                ),
+                    size = AppTheme.dimensions.hugeSpacing
+                )
             )
         }
     }

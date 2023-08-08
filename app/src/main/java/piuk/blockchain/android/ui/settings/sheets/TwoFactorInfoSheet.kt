@@ -33,7 +33,7 @@ class TwoFactorInfoSheet : SlidingModalBottomDialog<BottomSheetTwoFactorInfoBind
     override fun initControls(binding: BottomSheetTwoFactorInfoBinding) {
         with(binding) {
             sheetHeader.apply {
-                title = getString(R.string.security_two_fa_title)
+                title = getString(com.blockchain.stringResources.R.string.security_two_fa_title)
                 onClosePress = {
                     this@TwoFactorInfoSheet.dismiss()
                 }
@@ -42,25 +42,32 @@ class TwoFactorInfoSheet : SlidingModalBottomDialog<BottomSheetTwoFactorInfoBind
             when (sheetMode) {
                 TwoFaSheetMode.ENABLE -> {
                     ctaEnable.apply {
-                        text = getString(R.string.security_two_fa_sheet_cta_enable)
+                        text = getString(com.blockchain.stringResources.R.string.security_two_fa_sheet_cta_enable)
                         onClick = {
                             this@TwoFactorInfoSheet.dismiss()
                             host.onEnableSMSTwoFa()
                         }
                     }
-                    twoFaBlurb.text = getString(R.string.security_two_fa_sheet_blurb)
+                    twoFaBlurb.text = getString(com.blockchain.stringResources.R.string.security_two_fa_sheet_blurb)
                 }
+
                 TwoFaSheetMode.DISABLE_ON_WEB -> {
                     ctaEnable.gone()
-                    twoFaBlurb.text = getString(R.string.security_two_fa_disable_on_web_blurb)
+                    twoFaBlurb.text =
+                        getString(com.blockchain.stringResources.R.string.security_two_fa_disable_on_web_blurb)
                 }
             }
 
             ctaOther.apply {
                 icon = ImageResource.Local(R.drawable.ic_open_in_external, "")
                 text = when (sheetMode) {
-                    TwoFaSheetMode.ENABLE -> getString(R.string.security_two_fa_sheet_cta_other)
-                    TwoFaSheetMode.DISABLE_ON_WEB -> getString(R.string.security_two_fa_disable_on_web_cta)
+                    TwoFaSheetMode.ENABLE -> getString(
+                        com.blockchain.stringResources.R.string.security_two_fa_sheet_cta_other
+                    )
+
+                    TwoFaSheetMode.DISABLE_ON_WEB -> getString(
+                        com.blockchain.stringResources.R.string.security_two_fa_disable_on_web_cta
+                    )
                 }
                 onClick = {
                     this@TwoFactorInfoSheet.dismiss()

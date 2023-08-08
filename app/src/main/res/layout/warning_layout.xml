@@ -23,7 +23,7 @@
         android:id="@+id/warning_message"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/tiny_spacing"
-        android:textColor="@color/orange_800"
+        android:textColor="@color/warning"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/icon"

@@ -11,7 +11,7 @@ import kotlinx.serialization.json.Json
 
 class GooglePayViewUtils(
     private val paymentsClient: PaymentsClient,
-    private val json: Json,
+    private val json: Json
 ) {
     fun requestPayment(googlePayRequest: GooglePayRequest, activity: Activity) {
         val request = PaymentDataRequest.fromJson(json.encodeToString(googlePayRequest))
@@ -20,7 +20,8 @@ class GooglePayViewUtils(
         // AutoResolveHelper to wait for the user interacting with it. Once completed,
         // onActivityResult will be called with the result.
         AutoResolveHelper.resolveTask(
-            paymentsClient.loadPaymentData(request), activity,
+            paymentsClient.loadPaymentData(request),
+            activity,
             GooglePayResponseInterceptor.GOOGLE_PAY_REQUEST_CODE
         )
     }

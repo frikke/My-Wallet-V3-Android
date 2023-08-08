@@ -111,8 +111,10 @@ data class TokenAccountKey(
 enum class TransactionState {
     @SerialName("pending")
     PENDING,
+
     @SerialName("replaced")
     REPLACED,
+
     @SerialName("confirmed")
     CONFIRMED
 }

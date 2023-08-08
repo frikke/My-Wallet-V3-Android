@@ -1,6 +1,6 @@
 package com.blockchain.coincore.impl.txEngine.staking
 
-import androidx.annotation.VisibleForTesting
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
@@ -15,25 +15,24 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
 import com.blockchain.earn.domain.service.StakingService
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.koin.scopedInject
+import com.blockchain.store.Store
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class StakingDepositOnChainTxEngine(
-    private val stakingBalanceStore: StakingBalanceStore,
+    private val stakingBalanceStore: FlushableDataSource,
     stakingService: StakingService,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val onChainEngine: OnChainTxEngineBase,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager
+    private val onChainEngine: OnChainTxEngineBase
 ) : StakingBaseEngine(stakingService) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(stakingBalanceStore)
+        get() = listOf(stakingBalanceStore, paymentTransactionHistoryStore)
+
+    private val balancesCache: Store<BalancesResponse> by scopedInject()
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)
@@ -48,14 +47,17 @@ class StakingDepositOnChainTxEngine(
         // onChainEngine.assertInputsValid()
     }
 
-    override fun start(
+    override fun doAfterOnStart(
         sourceAccount: BlockchainAccount,
         txTarget: TransactionTarget,
         exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger
     ) {
-        super.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
         onChainEngine.start(sourceAccount, txTarget, exchangeRates, refreshTrigger)
+    }
+
+    override fun ensureSourceBalanceFreshness() {
+        balancesCache.markAsStale()
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =

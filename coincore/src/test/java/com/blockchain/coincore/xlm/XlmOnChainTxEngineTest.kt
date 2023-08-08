@@ -32,14 +32,13 @@ import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
-import timber.log.Timber
 
 class XlmOnChainTxEngineTest : CoincoreTestBase() {
 
     private val xlmDataManager: XlmDataManager = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock {
-        on { isXlmAddressExchange(TARGET_ADDRESS) }.thenReturn(false)
-        on { isXlmAddressExchange(TARGET_EXCHANGE_ADDRESS) }.thenReturn(true)
+        on { isXlmAddressExchange(TARGET_ADDRESS) }.thenReturn(Single.just(false))
+        on { isXlmAddressExchange(TARGET_EXCHANGE_ADDRESS) }.thenReturn(Single.just(true))
     }
     private val xlmFeesFetcher: XlmFeesFetcher = mock {
         on { operationFee(FeeType.Regular) }.thenReturn(Single.just(FEE_REGULAR))
@@ -218,7 +217,6 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
         subject.doInitialiseTx()
             .test()
             .assertValue {
-                Timber.d("$it")
                 it.amount == CryptoValue.zero(ASSET) &&
                     it.totalBalance == CryptoValue.zero(ASSET) &&
                     it.availableBalance == CryptoValue.zero(ASSET) &&
@@ -302,7 +300,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(xlmFeesFetcher).operationFee(FeeType.Regular)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -475,7 +473,6 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
             .assertComplete()
             .assertNoErrors()
             .assertValue {
-                val v = 100
                 it.amount == inputAmount &&
                     it.totalBalance == totalBalance &&
                     it.availableBalance == expectedAvailable &&
@@ -489,14 +486,13 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<XlmCryptoWalletAccount> {
             on { currency }.thenReturn(ASSET)
-            on { balanceRx }.thenReturn(
+            on { balanceRx() }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,
-                        dashboardDisplay = totalBalance,
                         withdrawable = availableBalance,
                         pending = CryptoValue.zero(ASSET),
-                        exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency),
+                        exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)
                     )
                 )
             )

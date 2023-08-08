@@ -28,14 +28,17 @@ class PasswordChangeModel(
         when (intent) {
             is PasswordChangeIntent.UpdatePassword ->
                 interactor.checkPasswordValidity(
-                    intent.currentPassword, intent.newPassword, intent.newPasswordConfirmation
+                    intent.currentPassword,
+                    intent.newPassword,
+                    intent.newPasswordConfirmation
                 ).subscribeBy(
                     onSuccess = {
                         process(it)
-                    }, onError = {
-                    Timber.e("Error updating passwords: $it")
-                    process(PasswordChangeIntent.UpdateErrorState(PasswordChangeError.UNKNOWN_ERROR))
-                }
+                    },
+                    onError = {
+                        Timber.e("Error updating passwords: $it")
+                        process(PasswordChangeIntent.UpdateErrorState(PasswordChangeError.UNKNOWN_ERROR))
+                    }
                 )
             PasswordChangeIntent.ResetErrorState,
             PasswordChangeIntent.ResetViewState,

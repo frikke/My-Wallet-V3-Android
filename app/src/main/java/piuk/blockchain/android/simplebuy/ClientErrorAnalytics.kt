@@ -3,12 +3,12 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.api.NabuApiException
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 import java.io.Serializable
 
 sealed class ClientErrorAnalytics(
     override val event: String,
-    override val params: Map<String, Serializable> = emptyMap(),
+    override val params: Map<String, Serializable> = emptyMap()
 ) : AnalyticsEvent {
 
     class ClientLogError(
@@ -34,7 +34,7 @@ sealed class ClientErrorAnalytics(
             "network_error_id" to nabuApiException?.getId(),
             "network_error_type" to nabuApiException?.getErrorType()?.type,
             "categories" to categories.joinToString(",")
-        ).withoutNullValues()
+        ).filterNotNullValues()
     )
 
     companion object {
@@ -45,6 +45,7 @@ sealed class ClientErrorAnalytics(
         const val ACTION_BUY = "BUY"
         const val ACTION_SELL = "SELL"
         const val ACTION_SWAP = "SWAP"
+        const val ACTION_DEPOSIT = "DEPOSIT"
         const val ACTION_UNKNOWN = "UNKNOWN"
 
         const val OOPS_ERROR = "OOPS_ERROR"

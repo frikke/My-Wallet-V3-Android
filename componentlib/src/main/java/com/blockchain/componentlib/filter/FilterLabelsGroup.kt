@@ -12,10 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,33 +55,39 @@ fun LabeledFiltersGroup(
 fun LabeledFilter(labelFilteredState: LabeledFilterState, selectedItem: MutableState<LabeledFilterState>) {
     if (labelFilteredState.text == selectedItem.value.text) {
         SelectedFilter(text = labelFilteredState.text)
-    } else
+    } else {
         UnSelectedFilter(
             item = labelFilteredState,
             selectedItem = selectedItem
         )
+    }
 }
 
 @Composable
 fun SelectedFilter(text: String) {
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(size = dimensionResource(R.dimen.small_spacing)))
+            .clip(RoundedCornerShape(size = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
             .background(
                 AppTheme.colors.primary
             )
-            .padding(horizontal = AppTheme.dimensions.tinySpacing, vertical = AppTheme.dimensions.smallestSpacing)
+            .padding(
+                horizontal = AppTheme.dimensions.tinySpacing,
+                vertical = AppTheme.dimensions.smallestSpacing
+            )
             .clickable(
                 onClick = {}
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(imageResource = ImageResource.Local(R.drawable.ic_check_light))
-        Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.minuscule_spacing)))
+        Spacer(
+            modifier = Modifier.width(width = dimensionResource(com.blockchain.componentlib.R.dimen.minuscule_spacing))
+        )
         Text(
             text = text,
             style = AppTheme.typography.body1,
-            color = AppTheme.colors.background
+            color = AppTheme.colors.backgroundSecondary
         )
     }
 }
@@ -92,11 +96,12 @@ fun SelectedFilter(text: String) {
 fun UnSelectedFilter(item: LabeledFilterState, selectedItem: MutableState<LabeledFilterState>) {
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(size = dimensionResource(R.dimen.small_spacing)))
-            .background(
-                AppTheme.colors.light
+            .clip(RoundedCornerShape(size = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
+            .background(Color.White)
+            .padding(
+                horizontal = AppTheme.dimensions.verySmallSpacing,
+                vertical = AppTheme.dimensions.smallestSpacing
             )
-            .padding(horizontal = AppTheme.dimensions.verySmallSpacing, vertical = AppTheme.dimensions.smallestSpacing)
             .clickable(
                 onClick = {
                     item.onSelected()
@@ -193,5 +198,5 @@ enum class FilterState {
 class LabeledFilterState(
     val text: String,
     val onSelected: (() -> Unit),
-    val state: FilterState,
+    val state: FilterState
 )

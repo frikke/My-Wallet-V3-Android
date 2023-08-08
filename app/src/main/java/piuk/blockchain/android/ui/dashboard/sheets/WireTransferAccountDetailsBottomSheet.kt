@@ -1,19 +1,25 @@
 package piuk.blockchain.android.ui.dashboard.sheets
 
-import android.net.Uri
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.compose.material.Surface
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
+import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.presentation.koin.scopedInject
@@ -29,18 +35,16 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetLinkBankAccountBinding
-import piuk.blockchain.android.simplebuy.BankDetailField
 import piuk.blockchain.android.simplebuy.CopyFieldListener
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.linkBankFieldCopied
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
-import piuk.blockchain.android.urllinks.MODULAR_TERMS_AND_CONDITIONS
 import piuk.blockchain.android.util.StringUtils
 
 class WireTransferAccountDetailsBottomSheet :
     SlidingModalBottomDialog<DialogSheetLinkBankAccountBinding>(),
-    QuestionnaireSheet.Host {
+    QuestionnaireSheetHost {
 
     private val compositeDisposable = CompositeDisposable()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
@@ -78,14 +82,15 @@ class WireTransferAccountDetailsBottomSheet :
                     fetchAndDisplayAccountDetails()
                 },
                 onError = {
-                    renderErrorUi()
+                    val uxError = (it as? NabuApiException)?.getServerSideErrorInfo()
+                    renderErrorUi(uxError)
                     binding.loading.gone()
                 }
             )
     }
 
     private fun fetchAndDisplayAccountDetails() {
-        compositeDisposable += custodialWalletManager.getBankAccountDetails(fiatCurrency)
+        compositeDisposable += custodialWalletManager.getWireTransferDetails(fiatCurrency)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe {
                 binding.fragmentContainer.gone()
@@ -94,14 +99,25 @@ class WireTransferAccountDetailsBottomSheet :
             .subscribeBy(
                 onSuccess = { bankAccount ->
                     binding.loading.gone()
-                    binding.containerBankDetails.visible()
-                    binding.bankDetails.initWithBankDetailsAndAmount(
-                        bankAccount.details.map {
-                            BankDetailField(it.title, it.value, it.isCopyable, it.tooltip)
-                        },
-                        copyListener
-                    )
-                    configureUi(fiatCurrency)
+                    binding.composeView.visible()
+                    binding.composeView.setContent {
+                        Surface(
+                            modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
+                            color = Color.Transparent
+                        ) {
+                            WireTransferAccountDetailsScreen(
+                                isForLink = isForLink,
+                                currency = fiatCurrency.networkTicker,
+                                details = bankAccount,
+                                backClicked = {
+                                    dismiss()
+                                },
+                                onEntryCopied = { entry ->
+                                    copyListener.onFieldCopied(entry.title)
+                                }
+                            )
+                        }
+                    }
 
                     analytics.logEvent(
                         linkBankEventWithCurrency(
@@ -112,7 +128,8 @@ class WireTransferAccountDetailsBottomSheet :
                 },
                 onError = {
                     binding.loading.gone()
-                    renderErrorUi()
+                    val uxError = (it as? NabuApiException)?.getServerSideErrorInfo()
+                    renderErrorUi(uxError)
                     analytics.logEvent(
                         linkBankEventWithCurrency(
                             SimpleBuyAnalytics.WIRE_TRANSFER_LOADING_ERROR,
@@ -134,58 +151,22 @@ class WireTransferAccountDetailsBottomSheet :
         }
     }
 
-    private fun renderErrorUi() {
+    private fun renderErrorUi(uxError: ServerSideUxErrorInfo?) {
         with(binding) {
-            bankDetailsError.errorContainer.visible()
-            bankDetailsError.errorButton.setOnClickListener {
-                dismiss()
-            }
-            title.gone()
-            subtitle.gone()
-            bankDetails.gone()
-            bankTransferOnly.gone()
-            processingTime.gone()
-            bankDepositInstruction.gone()
-        }
-    }
-
-    private fun configureUi(fiatCurrency: FiatCurrency) {
-        with(binding) {
-            if (fiatCurrency.networkTicker == "GBP") {
-                val linksMap = mapOf<String, Uri>(
-                    "modular_terms_and_conditions" to Uri.parse(MODULAR_TERMS_AND_CONDITIONS)
-                )
-                bankDepositInstruction.text =
-                    stringUtils.getStringWithMappedAnnotations(
-                        R.string.by_depositing_funds_terms_and_conds,
-                        linksMap,
-                        requireActivity()
-                    )
-                bankDepositInstruction.movementMethod = LinkMovementMethod.getInstance()
-            } else {
-                bankDepositInstruction.gone()
-            }
-
-            processingTime.updateSubtitle(
-                when (fiatCurrency.networkTicker) {
-                    "GBP" -> getString(R.string.processing_time_subtitle_gbp)
-                    "USD" -> getString(R.string.processing_time_subtitle_usd)
-                    "ARS" -> getString(R.string.processing_time_subtitle_ars)
-                    else -> getString(R.string.processing_time_subtitle_eur)
+            bankDetailsError.apply {
+                errorContainer.visible()
+                errorButton.apply {
+                    text = getString(com.blockchain.stringResources.R.string.common_ok)
+                    onClick = {
+                        dismiss()
+                    }
                 }
-            )
-            title.text = if (isForLink) {
-                getString(R.string.add_bank_with_currency, fiatCurrency)
-            } else {
-                getString(R.string.deposit_currency, fiatCurrency)
+                errorTitle.text = uxError?.title ?: getString(com.blockchain.stringResources.R.string.common_oops_bank)
+                errorMessage.text = uxError?.description ?: getString(
+                    com.blockchain.stringResources.R.string.unable_to_load_bank_details
+                )
             }
-            subtitle.text = if (fiatCurrency == FiatCurrency.Dollars) {
-                getString(R.string.wire_transfer)
-            } else {
-                getString(R.string.bank_transfer)
-            }
-            bankTransferOnly.visible()
-            processingTime.visible()
+            composeView.gone()
         }
     }
 
@@ -198,11 +179,14 @@ class WireTransferAccountDetailsBottomSheet :
         override fun onFieldCopied(field: String) {
             analytics.logEvent(linkBankFieldCopied(field, fiatCurrency.networkTicker))
             BlockchainSnackbar.make(
-                view = dialog?.window?.decorView ?: binding.root,
+                view = binding.root,
                 message = if (field.isNotEmpty()) {
-                    String.format(getString(R.string.simple_buy_copied_to_clipboard), field)
+                    String.format(
+                        getString(com.blockchain.stringResources.R.string.simple_buy_copied_to_clipboard),
+                        field
+                    )
                 } else {
-                    getString(R.string.copied_to_clipboard)
+                    getString(com.blockchain.stringResources.R.string.copied_to_clipboard)
                 },
                 duration = Snackbar.LENGTH_SHORT,
                 type = SnackbarType.Success
@@ -225,11 +209,11 @@ class WireTransferAccountDetailsBottomSheet :
         private const val FIAT_CURRENCY = "FIAT_CURRENCY_KEY"
         private const val IS_FOR_LINK = "IS_FOR_LINK"
 
-        fun newInstance(fiatAccount: FiatAccount) =
+        fun newInstance(fiatAccount: FiatAccount, isForLink: Boolean) =
             WireTransferAccountDetailsBottomSheet().apply {
                 arguments = Bundle().apply {
-                    putSerializable(FIAT_CURRENCY, fiatAccount.currency as FiatCurrency)
-                    putBoolean(IS_FOR_LINK, !fiatAccount.isFunded)
+                    putSerializable(FIAT_CURRENCY, fiatAccount.currency)
+                    putBoolean(IS_FOR_LINK, isForLink)
                 }
             }
 

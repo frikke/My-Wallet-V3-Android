@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:id="@+id/item_account_parent"
     android:orientation="vertical"
-    android:paddingStart="@dimen/standard_spacing"
-    android:paddingEnd="@dimen/standard_spacing"
+    android:paddingStart="@dimen/small_spacing"
+    android:paddingEnd="@dimen/small_spacing"
     android:paddingTop="@dimen/very_small_spacing"
     android:paddingBottom="@dimen/very_small_spacing">
 

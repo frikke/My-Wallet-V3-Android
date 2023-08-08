@@ -47,7 +47,12 @@ class LandingPresenterTest {
     fun setUp() {
         subject =
             LandingPresenter(
-                environmentSettings, prefs, onboardingPrefs, rootUtil, apiStatus, assetCatalogue,
+                environmentSettings,
+                prefs,
+                onboardingPrefs,
+                rootUtil,
+                apiStatus,
+                assetCatalogue,
                 exchangeRatesDataManager
             )
     }

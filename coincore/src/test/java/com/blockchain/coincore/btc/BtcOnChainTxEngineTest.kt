@@ -303,7 +303,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount, atLeastOnce()).balanceRx
+        verify(sourceAccount, atLeastOnce()).balanceRx()
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
         verify(feeManager).btcFeeOptions
@@ -425,7 +425,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount, atLeastOnce()).balanceRx
+        verify(sourceAccount, atLeastOnce()).balanceRx()
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
         verify(feeManager).btcFeeOptions
@@ -550,7 +550,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount, atMost(2)).xpubs
-        verify(sourceAccount, atLeastOnce()).balanceRx
+        verify(sourceAccount, atLeastOnce()).balanceRx()
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
         verify(feeManager).btcFeeOptions
@@ -789,7 +789,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
 
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount, atLeastOnce()).balanceRx
+        verify(sourceAccount, atLeastOnce()).balanceRx()
         verify(sourceAccount, atMost(2)).xpubs
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
@@ -939,7 +939,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
 
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount, atLeastOnce()).balanceRx
+        verify(sourceAccount, atLeastOnce()).balanceRx()
         verify(sourceAccount, atMost(2)).xpubs
         verify(btcDataManager, atMost(2)).getAddressOutputType(TARGET_ADDRESS)
         verify(btcDataManager, atLeastOnce()).getXpubFormatOutputType(XPub.Format.LEGACY)
@@ -975,11 +975,10 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balanceRx }.thenReturn(
+        on { balanceRx() }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
-                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

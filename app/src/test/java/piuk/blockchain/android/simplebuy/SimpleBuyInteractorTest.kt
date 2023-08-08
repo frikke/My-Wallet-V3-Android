@@ -1,9 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
-import com.blockchain.analytics.Analytics
-import com.blockchain.banking.BankPartnerCallbackProvider
-import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.Coincore
+import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.kyc.domain.KycService
@@ -11,17 +9,21 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
-import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.coreandroid.remoteconfig.RemoteConfigRepository
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.trade.TradeDataService
+import com.blockchain.domain.trade.model.QuickFillRoundingData
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
+import com.blockchain.nabu.datamanagers.CardAttributes
+import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
@@ -34,21 +36,21 @@ import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
-import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
-import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 
 class SimpleBuyInteractorTest {
 
@@ -57,12 +59,8 @@ class SimpleBuyInteractorTest {
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val limitsDataManager: LimitsDataManager = mock()
     private val withdrawLocksRepository: WithdrawLocksRepository = mock()
-    private val analytics: Analytics = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
     private val simpleBuyService: SimpleBuyService = mock()
-    private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
-    private val coincore: Coincore = mock()
-    private val userIdentity: UserIdentity = mock()
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val cardProcessors: Map<CardAcquirer, CardProcessor> = mock()
     private val cancelOrderUseCase: CancelOrderUseCase = mock()
@@ -71,10 +69,9 @@ class SimpleBuyInteractorTest {
     private val cardService: CardService = mock()
     private val paymentMethodService: PaymentMethodService = mock()
     private val paymentsRepository: PaymentsRepository = mock()
-    private val rbFrequencySuggestion: FeatureFlag = mock()
     private val rbExperimentFF: FeatureFlag = mock()
     private val remoteConfigRepository: RemoteConfigRepository = mock()
-    private val tradeDataService: TradeDataService = mock()
+    private val tradeDataService: TradeDataService = mockk()
     private val buyQuoteRefreshFF: FeatureFlag = mock()
     private val plaidFF: FeatureFlag = mock()
     private val cardPaymentAsyncFF: FeatureFlag = mock()
@@ -84,6 +81,8 @@ class SimpleBuyInteractorTest {
     private val brokerageDataManager: BrokerageDataManager = mock()
     private val simpleBuyPrefs: SimpleBuyPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
+    private val recurringBuyService: RecurringBuyService = mock()
+    private val dismissRecorder: DismissRecorder = mock()
     private val eligibilityService: EligibilityService = mock {
         onBlocking { getStatesList(any(), any()) }.thenReturn(
             Outcome.Success(
@@ -95,7 +94,13 @@ class SimpleBuyInteractorTest {
             )
         )
     }
-    private val quickFillRoundingService: QuickFillRoundingService = mock()
+
+    @get:Rule
+    val initSchedulers = rxInit {
+        mainTrampoline()
+        ioTrampoline()
+        computationTrampoline()
+    }
 
     @Before
     fun setup() {
@@ -104,12 +109,8 @@ class SimpleBuyInteractorTest {
             kycService = kycService,
             custodialWalletManager = custodialWalletManager,
             limitsDataManager = limitsDataManager,
-            coincore = coincore,
-            userIdentity = userIdentity,
             simpleBuyService = simpleBuyService,
             bankLinkingPrefs = bankLinkingPrefs,
-            analytics = analytics,
-            exchangeRatesDataManager = exchangeRatesDataManager,
             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
             cardProcessors = cardProcessors,
             cancelOrderUseCase = cancelOrderUseCase,
@@ -124,24 +125,22 @@ class SimpleBuyInteractorTest {
             cardPaymentAsyncFF = cardPaymentAsyncFF,
             buyQuoteRefreshFF = buyQuoteRefreshFF,
             plaidFF = plaidFF,
-            rbFrequencySuggestionFF = rbFrequencySuggestion,
             rbExperimentFF = rbExperimentFF,
             remoteConfigRepository = remoteConfigRepository,
-            tradeDataService = tradeDataService,
             feynmanEnterAmountFF = feynmanEnterAmountScreenFF,
             feynmanCheckoutFF = feynmanCheckoutScreenFF,
-            quickFillRoundingService = quickFillRoundingService,
+            tradeDataService = tradeDataService,
             brokerageDataManager = brokerageDataManager,
-            improvedPaymentUxFF = improvedPaymentUxFF
+            improvedPaymentUxFF = improvedPaymentUxFF,
+            recurringBuyService = recurringBuyService,
+            dismissRecorder = dismissRecorder
         )
 
-        whenever(quickFillRoundingService.getQuickFillRoundingForAction(AssetAction.Buy)).thenReturn(
-            Single.just(
-                listOf(
-                    QuickFillRoundingData.BuyRoundingData(2, 10),
-                    QuickFillRoundingData.BuyRoundingData(2, 50),
-                    QuickFillRoundingData.BuyRoundingData(2, 100)
-                )
+        coEvery { tradeDataService.getQuickFillRoundingForBuy() } returns Outcome.Success(
+            listOf(
+                QuickFillRoundingData.BuyRoundingData(2, 10),
+                QuickFillRoundingData.BuyRoundingData(2, 50),
+                QuickFillRoundingData.BuyRoundingData(2, 100)
             )
         )
     }
@@ -158,7 +157,11 @@ class SimpleBuyInteractorTest {
         val defaultAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(50))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == defaultAmount &&
@@ -168,8 +171,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -185,7 +187,11 @@ class SimpleBuyInteractorTest {
         val prefilledAmount = if (defaultAmount < minAmount) minAmount else defaultAmount
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == prefilledAmount &&
@@ -194,8 +200,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -211,15 +216,18 @@ class SimpleBuyInteractorTest {
         val prefilledAmount = if (defaultAmount > maxAmount) maxAmount else defaultAmount
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == prefilledAmount &&
                 it.second?.maxAmount == maxAmount
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -232,7 +240,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
@@ -242,8 +254,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(800))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -256,7 +267,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == maxAmount &&
@@ -264,8 +279,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons.isEmpty()
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -278,7 +292,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == minAmount &&
@@ -287,12 +305,11 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
-    fun `when third quick fill button over payment limit then last is not returned`() {
+    fun `when third quick fill button over payment limit then last is not returned`() = runTest {
         whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("50")
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
@@ -301,7 +318,11 @@ class SimpleBuyInteractorTest {
         val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, false, FiatValue.zero(FiatCurrency.Dollars)
+            limits,
+            assetCode,
+            fiatCurrency,
+            false,
+            FiatValue.zero(FiatCurrency.Dollars)
         ).test()
         test.assertValue {
             it.first == limits.minAmount &&
@@ -311,8 +332,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -326,7 +346,11 @@ class SimpleBuyInteractorTest {
 
         val prepopulatedAmount = Money.fromMajor(FiatCurrency.Dollars, BigDecimal(50))
         val test = subject.getPrefillAndQuickFillAmounts(
-            limits, assetCode, fiatCurrency, true, prepopulatedAmount
+            limits,
+            assetCode,
+            fiatCurrency,
+            true,
+            prepopulatedAmount
         ).test()
 
         test.assertValue {
@@ -338,8 +362,7 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
 
-        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
-        verifyNoMoreInteractions(quickFillRoundingService)
+        coVerify(exactly = 1) { tradeDataService.getQuickFillRoundingForBuy() }
     }
 
     @Test
@@ -359,7 +382,7 @@ class SimpleBuyInteractorTest {
         whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(false))
         whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
 
-        subject.pollForOrderStatus(ORDER_ID).test()
+        subject.pollForOrderStatus(ORDER_ID, false, false).test()
             .assertComplete()
             .assertValue { it.value == order }
     }
@@ -371,7 +394,7 @@ class SimpleBuyInteractorTest {
         whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(false))
         whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
 
-        subject.pollForOrderStatus(ORDER_ID).test()
+        subject.pollForOrderStatus(ORDER_ID, false, false).test()
             .assertComplete()
             .assertValue { it.value == order }
     }
@@ -383,35 +406,44 @@ class SimpleBuyInteractorTest {
         whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(false))
         whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
 
-        subject.pollForOrderStatus(ORDER_ID).test()
+        subject.pollForOrderStatus(ORDER_ID, false, false).test()
             .assertComplete()
             .assertValue { it.value == order }
     }
 
     @Test
-    fun `pollForOrderStatus for PAYMENT_CARD should finish when attributes are returned`() {
+    fun `pollForOrderStatus should finish when needCvv is TRUE`() {
         val order: BuySellOrder = mock()
-        val attributes: PaymentAttributes = mock()
+        val attributes = PaymentAttributes(
+            paymentId = null,
+            authorisationUrl = null,
+            cardAttributes = CardAttributes.Empty,
+            needCvv = true
+        )
         whenever(order.attributes).thenReturn(attributes)
         whenever(order.paymentMethodType).thenReturn(PaymentMethodType.PAYMENT_CARD)
         whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(true))
         whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
 
-        subject.pollForOrderStatus(ORDER_ID).test()
+        subject.pollForOrderStatus(ORDER_ID, false, false).test()
             .assertComplete()
             .assertValue { it.value == order }
     }
 
     @Test
-    fun `pollForOrderStatus for GOOGLE_PAY should finish when attributes are returned`() {
+    fun `pollForOrderStatus should finish when cardPaymentState is WAITING_FOR_3DS`() {
         val order: BuySellOrder = mock()
-        val attributes: PaymentAttributes = mock()
+        val attributes = PaymentAttributes(
+            paymentId = null,
+            authorisationUrl = null,
+            cardAttributes = CardAttributes.EveryPay("", CardPaymentState.WAITING_FOR_3DS)
+        )
         whenever(order.attributes).thenReturn(attributes)
-        whenever(order.paymentMethodType).thenReturn(PaymentMethodType.GOOGLE_PAY)
+        whenever(order.paymentMethodType).thenReturn(PaymentMethodType.PAYMENT_CARD)
         whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(true))
         whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
 
-        subject.pollForOrderStatus(ORDER_ID).test()
+        subject.pollForOrderStatus(ORDER_ID, false, false).test()
             .assertComplete()
             .assertValue { it.value == order }
     }

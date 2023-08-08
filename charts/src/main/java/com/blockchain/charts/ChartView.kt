@@ -189,26 +189,32 @@ class ChartView : FrameLayout {
             lineChart.highlightValue(0f, -1)
         }
 
-        val firstDataset = getLineDataSet(firstEntries, R.color.colorPrimary, mode, selectedEntry)
-        val secondDataset = getLineDataSet(secondEntries, R.color.colorScrub, mode, selectedEntry)
+        val dataSetColor = if ((entries.firstOrNull()?.y ?: 0F) <= (entries.lastOrNull()?.y ?: 0F)) {
+            R.color.colorPositive
+        } else {
+            R.color.colorNegative
+        }
+
+        val firstDataset = getLineDataSet(firstEntries, dataSetColor, mode, selectedEntry)
+        val secondDataset = getLineDataSet(secondEntries, dataSetColor, mode, selectedEntry)
 
         lineChart.data = LineData(
             firstDataset,
             secondDataset
         )
 
-        if (selectedEntry == null) {
-            val highestEntry = entries.maxByOrNull { it.y }
-            val lowestEntry = entries.minByOrNull { it.y }
-            if (lowestEntry != null && highestEntry != null && lowestEntry != highestEntry) {
-                lineChart.highlightValues(
-                    arrayOf(
-                        TroughHighlight(fiatSymbol, lowestEntry.x, lowestEntry.y, 0),
-                        PeakHighlight(fiatSymbol, highestEntry.x, highestEntry.y, 0)
-                    )
-                )
-            }
-        }
+//        if (selectedEntry == null) {
+//            val highestEntry = entries.maxByOrNull { it.y }
+//            val lowestEntry = entries.minByOrNull { it.y }
+//            if (lowestEntry != null && highestEntry != null && lowestEntry != highestEntry) {
+//                lineChart.highlightValues(
+//                    arrayOf(
+//                        TroughHighlight(fiatSymbol, lowestEntry.x, lowestEntry.y, 0),
+//                        PeakHighlight(fiatSymbol, highestEntry.x, highestEntry.y, 0)
+//                    )
+//                )
+//            }
+//        }
 
         if (isChartLive) {
             entries.forEach {
@@ -235,7 +241,7 @@ class ChartView : FrameLayout {
     ): LineDataSet {
         return LineDataSet(entries, null).apply {
             color = ContextCompat.getColor(context, colorRes)
-            lineWidth = 2f
+            lineWidth = 3f
             this.mode = mode
             setDrawValues(false)
             setDrawCircles(false)
@@ -246,8 +252,7 @@ class ChartView : FrameLayout {
             setDrawVerticalHighlightIndicator(selectedEntry != null)
             highlightLineWidth = 1f
             highLightColor = ContextCompat.getColor(context, R.color.colorText)
-            setDrawFilled(true)
-            fillDrawable = ContextCompat.getDrawable(context, R.drawable.chart_background)
+            setDrawFilled(false)
         }
     }
 

@@ -20,9 +20,6 @@ abstract class Money : Serializable, Comparable<Money> {
     abstract val isPositive: Boolean
     abstract val maxDecimalPlaces: Int
 
-    // Dust is defined as a positive balance with a fiat value of under 1 cent/penny (eg: < $0.01)
-    abstract fun isDust(): Boolean
-
     /**
      * Where a Money type can store more decimal places than is necessary,
      * this property can be used to limit it for user input and display.
@@ -141,14 +138,14 @@ abstract class Money : Serializable, Comparable<Money> {
 
         fun fromMinor(currency: Currency, value: BigInteger): Money =
             when (currency) {
-                is CryptoCurrency -> CryptoValue.fromMinor(currency, value)
+                is AssetInfo -> CryptoValue.fromMinor(currency, value)
                 is FiatCurrency -> FiatValue.fromMinor(currency, value)
                 else -> throw IllegalArgumentException("Unsupported type")
             }
 
         fun fromMajor(currency: Currency, value: BigDecimal): Money =
             when (currency) {
-                is CryptoCurrency -> CryptoValue.fromMajor(currency, value)
+                is AssetInfo -> CryptoValue.fromMajor(currency, value)
                 is FiatCurrency -> FiatValue.fromMajor(currency, value)
                 else -> throw IllegalArgumentException("Unsupported type")
             }
@@ -171,8 +168,9 @@ fun Money?.percentageDelta(previous: Money?): Double =
     }
 
 fun Iterable<Money>.total(): Money {
-    if (!iterator().hasNext())
+    if (!iterator().hasNext()) {
         throw IndexOutOfBoundsException("Can't sum an empty list")
+    }
     return reduce { a, v -> a + v }
 }
 

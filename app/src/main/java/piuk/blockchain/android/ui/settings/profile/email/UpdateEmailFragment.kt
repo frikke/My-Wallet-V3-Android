@@ -33,7 +33,7 @@ class UpdateEmailFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        this.updateTitleToolbar(getString(R.string.profile_toolbar_email))
+        this.updateTitleToolbar(getString(com.blockchain.stringResources.R.string.profile_toolbar_email))
         binding.updateEmail.buttonState = ButtonState.Disabled
     }
 
@@ -49,14 +49,18 @@ class UpdateEmailFragment :
 
         if (newState.error == EmailError.SaveEmailError) {
             BlockchainSnackbar.make(
-                binding.root, getString(R.string.profile_update_error_email), type = SnackbarType.Error
+                binding.root,
+                getString(com.blockchain.stringResources.R.string.profile_update_error_email),
+                type = SnackbarType.Error
             ).show()
             model.process(EmailIntent.ClearErrors)
         }
 
         if (newState.error == EmailError.ResendEmailError) {
             BlockchainSnackbar.make(
-                binding.root, getString(R.string.profile_update_error_resend_email), type = SnackbarType.Error
+                binding.root,
+                getString(com.blockchain.stringResources.R.string.profile_update_error_resend_email),
+                type = SnackbarType.Error
             ).show()
             model.process(EmailIntent.ClearErrors)
         }
@@ -75,8 +79,8 @@ class UpdateEmailFragment :
         val newEmailAddress = binding.email.value
         return if (!formatChecker.isValidEmailAddress(newEmailAddress)) {
             binding.email.apply {
-                state = TextInputState.Error(getString(R.string.invalid_email))
-                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
+                state = TextInputState.Error(getString(com.blockchain.stringResources.R.string.invalid_email))
+                trailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_alert, null)
             }
             false
         } else {
@@ -91,7 +95,7 @@ class UpdateEmailFragment :
     private fun updateUI(isEmailVerified: Boolean, emailValue: String) {
         with(binding) {
             email.apply {
-                labelText = context.getString(R.string.profile_label_email)
+                labelText = context.getString(com.blockchain.stringResources.R.string.profile_label_email)
                 singleLine = true
                 inputType = KeyboardType.Text
                 value = emailValue
@@ -106,12 +110,12 @@ class UpdateEmailFragment :
             changeStateCta(binding.email.value, emailValue)
             verifyEmailBtn.visibleIf { !isEmailVerified }
             verifyEmailBtn.apply {
-                text = getString(R.string.profile_verify_email)
+                text = getString(com.blockchain.stringResources.R.string.profile_verify_email)
                 onClick = { onVerifyEmailClicked() }
             }
 
             updateEmail.apply {
-                text = getString(R.string.profile_update)
+                text = getString(com.blockchain.stringResources.R.string.profile_update)
                 onClick = {
                     if (isValidEmailAddress()) {
                         model.process(EmailIntent.SaveEmail(binding.email.value))
@@ -132,7 +136,12 @@ class UpdateEmailFragment :
         Intent(Intent.ACTION_MAIN).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             addCategory(Intent.CATEGORY_APP_EMAIL)
-            startActivity(Intent.createChooser(this, getString(R.string.security_centre_email_check)))
+            startActivity(
+                Intent.createChooser(
+                    this,
+                    getString(com.blockchain.stringResources.R.string.security_centre_email_check)
+                )
+            )
         }
     }
 
@@ -142,9 +151,9 @@ class UpdateEmailFragment :
     }
 
     private fun showDialogEmailVerification() {
-        AlertDialog.Builder(requireContext(), R.style.AlertDialogStyle)
-            .setTitle(R.string.verify)
-            .setMessage(R.string.verify_email_notice)
+        AlertDialog.Builder(requireContext(), com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.verify)
+            .setMessage(com.blockchain.stringResources.R.string.verify_email_notice)
             .setCancelable(true)
             .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.dismiss() }
             .setPositiveButton(android.R.string.ok) { _, _ -> checkEmail() }

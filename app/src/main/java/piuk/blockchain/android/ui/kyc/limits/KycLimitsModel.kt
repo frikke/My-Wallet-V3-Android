@@ -30,25 +30,40 @@ class KycLimitsModel(
     }
 
     private fun fetchLimitsAndTiers() = Singles.zip(
-        interactor.fetchLimits(),
-        interactor.fetchHighestApprovedTier(),
-        interactor.fetchIsKycRejected()
+        Singles.zip(
+            interactor.fetchLimits(),
+            interactor.fetchHighestApprovedTier()
+        ),
+        Singles.zip(
+            interactor.fetchIsKycRejected(),
+            interactor.fetchIsEligibleToKyc()
+        )
     ).subscribeBy(
-        onSuccess = { (limits, highestApprovedTier, isKycDenied) ->
+        onSuccess = { (limitsAndHighestApprovedTier, isKycDeniedAndIsEligibleToKyc) ->
+            val (limits, highestApprovedTier) = limitsAndHighestApprovedTier
+            val (isKycDenied, isEligibleToKyc) = isKycDeniedAndIsEligibleToKyc
             val header =
-                if (isKycDenied) Header.MAX_TIER_REACHED
-                else when (highestApprovedTier) {
-                    KycTier.BRONZE -> Header.NEW_KYC
-                    KycTier.SILVER -> Header.UPGRADE_TO_GOLD
-                    KycTier.GOLD -> Header.MAX_TIER_REACHED
+                if (!isEligibleToKyc) {
+                    Header.MAX_TIER_REACHED
+                } else if (isKycDenied) {
+                    Header.MAX_TIER_REACHED
+                } else {
+                    when (highestApprovedTier) {
+                        KycTier.BRONZE -> Header.NEW_KYC
+                        KycTier.SILVER -> Header.UPGRADE_TO_GOLD
+                        KycTier.GOLD -> Header.MAX_TIER_REACHED
+                    }
                 }
 
             val currentKycTierRow =
-                if (isKycDenied) CurrentKycTierRow.HIDDEN
-                else when (highestApprovedTier) {
-                    KycTier.BRONZE -> CurrentKycTierRow.HIDDEN
-                    KycTier.SILVER -> CurrentKycTierRow.SILVER
-                    KycTier.GOLD -> CurrentKycTierRow.GOLD
+                if (isKycDenied) {
+                    CurrentKycTierRow.HIDDEN
+                } else {
+                    when (highestApprovedTier) {
+                        KycTier.BRONZE -> CurrentKycTierRow.HIDDEN
+                        KycTier.SILVER -> CurrentKycTierRow.SILVER
+                        KycTier.GOLD -> CurrentKycTierRow.GOLD
+                    }
                 }
             process(KycLimitsIntent.LimitsAndTiersFetched(limits, header, currentKycTierRow))
         },
@@ -60,8 +75,11 @@ class KycLimitsModel(
     private fun fetchIsGoldPendingAndNavigate() =
         interactor.fetchIsGoldKycPending().subscribeBy(
             onSuccess = { isGoldPending ->
-                if (isGoldPending) process(KycLimitsIntent.OpenUpgradeNowSheet(isGoldPending))
-                else process(KycLimitsIntent.NavigateToKyc)
+                if (isGoldPending) {
+                    process(KycLimitsIntent.OpenUpgradeNowSheet(isGoldPending))
+                } else {
+                    process(KycLimitsIntent.NavigateToKyc)
+                }
             },
             onError = {
                 process(KycLimitsIntent.FetchTiersFailed(it))

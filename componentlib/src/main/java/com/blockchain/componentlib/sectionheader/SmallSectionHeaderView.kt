@@ -6,8 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
 class SmallSectionHeaderView @JvmOverloads constructor(
@@ -20,11 +18,7 @@ class SmallSectionHeaderView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        AppTheme {
-            AppSurface {
-                SmallSectionHeader(title)
-            }
-        }
+        SmallSectionHeader(title)
     }
 
     fun clearState() {

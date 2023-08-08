@@ -4,27 +4,25 @@ import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
+import com.blockchain.theme.Theme
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 
 sealed class SettingsIntent : MviIntent<SettingsState> {
-
-    object InitializeFeatureFlags : SettingsIntent() {
-        override fun reduce(oldState: SettingsState): SettingsState = oldState
-    }
-
-    class UpdateFeatureFlags(
-        private val featureFlagSet: FeatureFlagsSet
-    ) : SettingsIntent() {
-        override fun reduce(oldState: SettingsState): SettingsState =
-            oldState.copy(featureFlagsSet = featureFlagSet)
-    }
-
     object LoadHeaderInformation : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
     }
 
     object LoadPaymentMethods : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
+    }
+
+    object LoadTheme : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState = oldState
+    }
+
+    data class UpdateTheme(val theme: Theme) : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState =
+            oldState.copy(theme = theme)
     }
 
     class UpdateContactSupportEligibility(
@@ -61,6 +59,10 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
     }
 
     object AddLinkBankSelected : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState = oldState
+    }
+
+    object WireTransferSelected : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
     }
 

@@ -142,7 +142,7 @@ class KycCountrySelectionPresenterTest {
         subject.onRegionSelected(countryDisplayModel)
         // Assert
         verify(eligibilityService).getStatesList("US", GetRegionScope.None)
-        verify(view).continueFlow(countryCode, "US-AL", "California")
+        verify(view).continueFlow(countryCode, "US-AL")
     }
 
     @Test
@@ -162,7 +162,7 @@ class KycCountrySelectionPresenterTest {
         subject.onRegionSelected(countryDisplayModel)
         // Assert
         verify(eligibilityService).getCountriesList(GetRegionScope.None)
-        verify(view).continueFlow(countryCode, null, null)
+        verify(view).continueFlow(countryCode, null)
     }
 
     @Test

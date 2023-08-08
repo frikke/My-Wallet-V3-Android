@@ -19,8 +19,11 @@ class ViewfinderReticle @JvmOverloads constructor(
 ) : View(context, attrs) {
 
     private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val maskColour: Int = ContextCompat.getColor(context, R.color.qr_viewfinder_bg)
-    private val reticleColor: Int = ContextCompat.getColor(context, R.color.qr_viewfinder_reticle_outline)
+    private val maskColour: Int = ContextCompat.getColor(context, com.blockchain.common.R.color.qr_viewfinder_bg)
+    private val reticleColor: Int = ContextCompat.getColor(
+        context,
+        com.blockchain.common.R.color.qr_viewfinder_reticle_outline
+    )
 
     private var targetRect: Rect = Rect()
     internal fun setTargetRect(r: Rect) {

@@ -33,7 +33,6 @@ class AssetPriceServiceTest {
 
     @Test
     fun `getSupportedCurrencies returns asset lists`() {
-
         val symbolBtc = PriceSymbolDto(
             code = TEST_CRYPTO_BTC,
             ticker = TEST_CRYPTO_BTC,
@@ -269,7 +268,6 @@ class AssetPriceServiceTest {
 
     @Test
     fun `getHistoricPriceSince() correctly returns a list of prices`() {
-
         val timestamp1 = 1000001L
         val timestamp2 = 1000001L
         val timestamp3 = 1000001L

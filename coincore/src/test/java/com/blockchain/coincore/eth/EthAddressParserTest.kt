@@ -4,25 +4,22 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Single
+import org.junit.Before
 import org.junit.Test
 
 @Suppress("LocalVariableName", "SimplifyBooleanWithConstants")
 class EthAddressParserTest : CoincoreTestBase() {
     private val ethDataManager: EthDataManager = mock()
-    private val l1BalanceStore: L1BalanceStore = mock()
     private val feeDataManager: FeeDataManager = mock()
-    private val assetCatalogue: Lazy<AssetCatalogue> = mock()
     private val walletPrefs: WalletStatusPrefs = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
     private val labels: DefaultLabels = mock()
@@ -30,16 +27,21 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val formatUtils: FormatUtilities = mock()
     private val addressResolver: EthHotWalletAddressResolver = mock()
 
-    private val subject = EthAsset(
-        ethDataManager = ethDataManager,
-        feeDataManager = feeDataManager,
-        assetCatalogue = assetCatalogue,
-        walletPrefs = walletPrefs,
-        notificationUpdater = notificationUpdater,
-        labels = labels,
-        formatUtils = formatUtils,
-        addressResolver = addressResolver
-    )
+    private lateinit var subject: EthAsset
+
+    @Before
+    fun setup() {
+        initMocks()
+        subject = EthAsset(
+            ethDataManager = ethDataManager,
+            feeDataManager = feeDataManager,
+            walletPrefs = walletPrefs,
+            notificationUpdater = notificationUpdater,
+            labels = labels,
+            formatUtils = formatUtils,
+            addressResolver = addressResolver
+        )
+    }
 
     @Test
     fun `raw address is parsed OK`() {

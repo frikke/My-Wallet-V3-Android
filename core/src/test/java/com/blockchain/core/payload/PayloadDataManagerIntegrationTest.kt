@@ -1,6 +1,9 @@
 package com.blockchain.core.payload
 
 import com.blockchain.AppVersion
+import com.blockchain.api.blockchainApiModule
+import com.blockchain.data.DataResource
+import com.blockchain.testutils.KoinTestRule
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -16,24 +19,31 @@ import info.blockchain.wallet.payload.PayloadManager
 import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.AddressCache
 import info.blockchain.wallet.payload.data.Derivation
+import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
+import info.blockchain.wallet.payload.store.PayloadDataStore
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.ResponseBody.Companion.toResponseBody
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.serialization.json.Json
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.test.KoinTest
+import org.koin.test.inject
 
 /**
  * ð
  */
-class PayloadDataManagerIntegrationTest {
+class PayloadDataManagerIntegrationTest : KoinTest {
     private val walletApi: WalletApi = mock()
+    private val payloadDataStore: PayloadDataStore = mock()
     private val payloadManager = spy(
         PayloadManager(
             walletApi,
+            payloadDataStore,
+            mock(),
             mock(),
             mock(),
             mock(),
@@ -63,6 +73,14 @@ class PayloadDataManagerIntegrationTest {
         mainTrampoline()
     }
 
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            blockchainApiModule
+        )
+    }
+    val json: Json by inject()
+
     @Before
     fun setup() {
         val fetchWalletDataResponse =
@@ -89,21 +107,21 @@ class PayloadDataManagerIntegrationTest {
                     "317a3903d86b6dea9b\",\"war_checksum\":\"1b3fdc8d8c5439f0\",\"language\":\"en\",\"symbol_btc\":{\"symbol\":\"BTC\",\"code\":\"BTC\",\"symbolAp" +
                     "pearsAfter\":true,\"name\":\"Bitcoin\",\"local\":false,\"conversion\":100000000.00000000},\"storage_token\":\"c1e11432bc156344c55e21a207" +
                     "03d1c4\",\"sync_pubkeys\":false}"
-                ).toResponseBody(
-                "application/json".toMediaTypeOrNull()
-            )
+                )
 
         whenever(walletApi.updateWallet(any(), any(), any(), any(), any(), any(), any())).thenReturn(
             Completable.complete()
         )
-        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(Single.just(fetchWalletDataResponse))
+        whenever(payloadDataStore.stream(any())).thenReturn(
+            flowOf(DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), fetchWalletDataResponse)))
+        )
 
         subject = PayloadDataManager(
             payloadService,
             mock(),
             mock(),
             payloadManager,
-            mock(),
+            mock()
         )
     }
 
@@ -124,10 +142,12 @@ class PayloadDataManagerIntegrationTest {
         subject.payloadChecksum `should be equal to` "1db6acfcce7fdcb2780dd5a7b6f8c7e32ff50702a8c851317a3903d86b6dea9b"
         subject.defaultAccount `should be equal to` AccountV4(
             label = "Private Key Wallet",
-            _defaultType = "bech32", _isArchived = null,
+            _defaultType = "bech32",
+            _isArchived = null,
             derivations = listOf(
                 Derivation(
-                    type = "legacy", purpose = 44,
+                    type = "legacy",
+                    purpose = 44,
                     xpriv = "xprv9y8noc7G5TnerpABXnnX5rUvKaEG1bUsAGnK8tHGZM33tF4x2CpZe69FH8aXoAEBRf5yDELSxhz6C76XB49BNrfoujBE91dtfk3rxhgJa7j",
                     xpub = "xpub6C89D7e9uqLx5JEedpKXSzResc4kR4CiXVhuwGgt7ga2m3Q6Zk8pBtTj8PHhTwezeptj6TpwL8i72FgMHrwoSmynfnEaoeGxHZq5DyFK6Lo",
                     cache = AddressCache(
@@ -137,7 +157,8 @@ class PayloadDataManagerIntegrationTest {
                     _addressLabels = null
                 ),
                 Derivation(
-                    type = "bech32", purpose = 84,
+                    type = "bech32",
+                    purpose = 84,
                     xpriv = "xprv9yCt31fSgZ2LUZ36xEwqryrjqGn19naBDe8wXh3Cg93sjPsT8zMcRbb42imnGL86FhjNkDD3ACmf6a2wFSqtJQqf5Ncjfj9k7oNGcUXrxH3",
                     xpub = "xpub6CCESXCLWvadh37a4GUrE7oUPJcVZFJ2as4YL5SpEUarcCCbgXfryPuXszwJRd3Mo7hsZgeMAtVKybeJwFmVkdTzdLv9cAintb8ymK38j1U",
                     cache = AddressCache(
@@ -171,11 +192,11 @@ class PayloadDataManagerIntegrationTest {
                     "bol_btc\":{\"symbol\":\"BTC\",\"code\":\"BTC\",\"symbolAppearsAfter\":true,\"name\":\"Bitcoin\",\"local\":false,\"conversion\":100000000.00" +
                     "000000},\"sync_pubkeys\":false}\n" +
                     ""
-                ).toResponseBody(
-                "application/json".toMediaTypeOrNull()
-            )
+                )
 
-        whenever(walletApi.fetchWalletData(any(), any(), any())).thenReturn(Single.just(fetchWalletV2DataResponse))
+        whenever(payloadDataStore.stream(any())).thenReturn(
+            flowOf(DataResource.Data(json.decodeFromString(WalletBaseDto.serializer(), fetchWalletV2DataResponse)))
+        )
         val test = subject.initializeAndDecrypt(
             sharedKey = "38f39fad-fd5d-449a-85e9-adcc84fffcf1",
             guid = "fa311856-db2a-4939-b6c3-9b5a05eda5b5",

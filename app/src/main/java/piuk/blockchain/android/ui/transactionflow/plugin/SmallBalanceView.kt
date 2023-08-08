@@ -38,7 +38,9 @@ class SmallBalanceView @JvmOverloads constructor(
         this.customiser = customiser
         this.analytics = analytics
 
-        binding.useMax.gone()
+        with(binding.useMax) {
+            gone()
+        }
     }
 
     override fun update(state: TransactionState) {
@@ -67,10 +69,10 @@ class SmallBalanceView @JvmOverloads constructor(
     private fun updateSendMax(state: TransactionState) =
         with(binding.useMax) {
             text = customiser.enterAmountMaxButton(state)
-            visibleIf { !customiser.shouldDisableInput(state.errorState) }
-            setOnClickListener {
+            onClick = {
                 analytics.onMaxClicked(state)
                 model.process(TransactionIntent.UseMaxSpendable)
             }
+            visibleIf { !customiser.shouldDisableInput(state.errorState) }
         }
 }

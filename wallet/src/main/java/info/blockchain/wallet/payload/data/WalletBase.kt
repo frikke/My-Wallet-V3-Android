@@ -101,7 +101,8 @@ class WalletBase constructor(private val walletBaseDto: WalletBaseDto) {
 
     fun withDecryptedPayload(password: String): WalletBase {
         return WalletBase(
-            walletBaseDto, decryptPayload(password)
+            walletBaseDto,
+            decryptPayload(password)
         )
     }
 
@@ -147,6 +148,10 @@ class WalletBase constructor(private val walletBaseDto: WalletBaseDto) {
             return withWalletBody(wallet.updateImportedAddressLabel(jsonSerializableAccount, label))
         }
         throw UnsupportedOperationException("Cannot update label of " + jsonSerializableAccount.javaClass.name)
+    }
+
+    fun withUpdatedAccountsLabel(accounts: Map<Account, String>): WalletBase {
+        return withWalletBody(wallet.updateAccountsLabel(accounts))
     }
 
     fun withUpdatedAccountState(account: JsonSerializableAccount?, isArchived: Boolean): WalletBase {

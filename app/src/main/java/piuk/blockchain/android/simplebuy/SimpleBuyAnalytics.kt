@@ -6,7 +6,7 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.extensions.withoutNullValues
+import com.blockchain.extensions.filterNotNullValues
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -64,7 +64,7 @@ enum class SimpleBuyAnalytics(override val event: String, override val params: M
     WIRE_TRANSFER_LOADING_ERROR("sb_link_bank_loading_error"),
     WIRE_TRANSFER_SCREEN_SHOWN("sb_link_bank_screen_shown"),
 
-    ACH_SUCCESS("sb_ach_success");
+    ACH_SUCCESS("sb_ach_success")
 }
 
 fun PaymentMethod.toAnalyticsString(): String =
@@ -195,7 +195,7 @@ class BuyMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent 
         } else {
             null
         }
-    ).withoutNullValues()
+    ).filterNotNullValues()
 }
 
 class DepositMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent {
@@ -207,7 +207,7 @@ class DepositMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEv
         } else {
             null
         }
-    ).withoutNullValues()
+    ).filterNotNullValues()
 }
 
 class WithdrawMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent {
@@ -219,7 +219,7 @@ class WithdrawMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsE
         } else {
             null
         }
-    ).withoutNullValues()
+    ).filterNotNullValues()
 }
 
 object BuyAssetScreenViewedEvent : AnalyticsEvent {
@@ -228,11 +228,11 @@ object BuyAssetScreenViewedEvent : AnalyticsEvent {
 }
 
 class BuyAssetSelectedEvent(
-    type: String,
+    type: String
 ) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_ASSET_SELECTED.eventName
     override val params: Map<String, String> = mapOf(
-        "type" to type,
+        "type" to type
     )
 }
 
@@ -283,7 +283,7 @@ class BuyAmountScreenNextClicked(
         "input_currency" to inputAmount.currencyCode,
         "output_currency" to outputCurrency,
         "payment_method" to paymentMethod.name
-    ).withoutNullValues()
+    ).filterNotNullValues()
 }
 
 object BuyCheckoutScreenViewedEvent : AnalyticsEvent {
@@ -327,7 +327,7 @@ class BuySellViewedEvent(private val type: BuySellViewType? = null) : AnalyticsE
     override val params: Map<String, Serializable>
         get() = mapOf(
             "type" to type?.toAnalyticsString()
-        ).withoutNullValues()
+        ).filterNotNullValues()
 }
 
 class BuySellClicked(
@@ -339,7 +339,7 @@ class BuySellClicked(
     override val params: Map<String, Serializable>
         get() = mapOf(
             "type" to type?.toAnalyticsString()
-        ).withoutNullValues()
+        ).filterNotNullValues()
 }
 
 private fun BuySellViewType.toAnalyticsString(): String =

@@ -3,17 +3,17 @@ package com.blockchain.api.services
 import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.brokerage.data.BrokerageQuoteResponse
 import com.blockchain.api.brokerage.data.QuoteRequestBody
-import io.reactivex.rxjava3.core.Single
+import com.blockchain.outcome.Outcome
 
 class BrokerageService internal constructor(private val api: BrokerageApi) {
 
-    fun fetchQuote(
+    suspend fun fetchQuote(
         pair: String,
         inputValue: String,
         profile: String,
         paymentMethod: String,
         paymentMethodId: String?
-    ): Single<BrokerageQuoteResponse> =
+    ): Outcome<Exception, BrokerageQuoteResponse> =
         api.fetchQuote(
             quoteRequestBody = QuoteRequestBody(
                 inputValue = inputValue,

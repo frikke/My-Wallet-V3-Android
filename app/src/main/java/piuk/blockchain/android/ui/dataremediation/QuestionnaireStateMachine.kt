@@ -49,7 +49,7 @@ class QuestionnaireStateMachine {
         if (parentTreeNode is TreeNode.SingleSelection) {
             parentTreeNode.children
                 .filterIsInstance<TreeNode.Selection>()
-                .forEach { it.isChecked = it.id == newChoicesIds.first() }
+                .forEach { it.isChecked = it.id == newChoicesIds.firstOrNull() }
         } else if (parentTreeNode is TreeNode.MultipleSelection) {
             parentTreeNode.children
                 .filterIsInstance<TreeNode.Selection>()
@@ -123,8 +123,9 @@ class QuestionnaireStateMachine {
                 // ignore the first node, which is the one that we already know the index of
                 if (index == 0) return@forEachIndexed
                 // we use the depth to find the changed node children
-                if (node.depth > depth) endOfCurrentChildrenIndex = index
-                else hasReachedEndOfChildren = true
+                if (node.depth > depth) {
+                    endOfCurrentChildrenIndex = index
+                } else hasReachedEndOfChildren = true
             }
             val numberOfNodesToRemove = (indexOfFirst..(endOfCurrentChildrenIndex + indexOfFirst)).count()
 
@@ -301,7 +302,7 @@ sealed class FlatNode(
         override val depth: Int,
         val input: String,
         val hint: String,
-        val regex: Regex?,
+        val regex: Regex?
     ) : FlatNode(id, text, depth)
 
     @Parcelize
@@ -349,7 +350,7 @@ sealed class TreeNode(
         override val children: List<TreeNode>,
         var input: String,
         val hint: String,
-        val regex: Regex?,
+        val regex: Regex?
     ) : TreeNode(id, text, children)
 
     @Parcelize

@@ -3,10 +3,12 @@ package piuk.blockchain.android.ui.coinview.presentation.composable
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,43 +27,47 @@ import com.blockchain.charts.ChartEntry
 import com.blockchain.charts.ChartView
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.CardAlert
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.charts.Balance
 import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.charts.SparkLineHistoricalRate
 import com.blockchain.componentlib.control.TabLayoutLive
 import com.blockchain.componentlib.system.LoadingChart
-import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.system.ShimmerLoadingBox
+import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.previewAnalytics
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.impl.toDatePattern
+import com.blockchain.data.DataResource
 import com.github.mikephil.charting.data.Entry
+import java.time.Period
 import kotlin.random.Random
 import org.koin.androidx.compose.get
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewAnalytics
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
+import piuk.blockchain.android.ui.coinview.presentation.PriceIntervalText
 
 @Composable
 fun AssetPrice(
-    data: CoinviewPriceState,
+    data: DataResource<CoinviewPriceState>,
     assetTicker: String,
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
     onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit
 ) {
     when (data) {
-        CoinviewPriceState.Loading -> {
+        DataResource.Loading -> {
             AssetPriceInfoLoading()
         }
 
-        CoinviewPriceState.Error -> {
+        is DataResource.Error -> {
             AssetPriceError()
         }
 
-        is CoinviewPriceState.Data -> {
+        is DataResource.Data -> {
             AssetPriceInfoData(
-                data = data,
+                data = data.data,
                 assetTicker = assetTicker,
                 onChartEntryHighlighted = onChartEntryHighlighted,
                 resetPriceInformation = resetPriceInformation,
@@ -72,8 +79,25 @@ fun AssetPrice(
 
 @Composable
 fun AssetPriceInfoLoading() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        ShimmerLoadingTableRow(showIconLoader = false)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = AppTheme.dimensions.smallSpacing),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ShimmerLoadingBox(
+            Modifier
+                .height(AppTheme.dimensions.largeSpacing)
+                .width(100.dp)
+        )
+
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+        ShimmerLoadingBox(
+            Modifier
+                .height(AppTheme.dimensions.mediumSpacing)
+                .width(200.dp)
+        )
 
         LoadingChart()
     }
@@ -82,30 +106,38 @@ fun AssetPriceInfoLoading() {
 @Composable
 fun AssetPriceInfoData(
     analytics: Analytics = get(),
-    data: CoinviewPriceState.Data,
+    data: CoinviewPriceState,
     assetTicker: String,
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
     onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
+
         Balance(
-            title = stringResource(R.string.coinview_price_label, data.assetName),
+            modifier = Modifier.fillMaxWidth(),
             price = data.price,
             percentageChangeData = PercentageChangeData(
                 priceChange = data.priceChange,
-                percentChange = data.percentChange,
-                interval = stringResource(data.intervalName)
-            ),
-            endIcon = ImageResource.Remote(url = data.assetLogo, shape = CircleShape)
+                valueChange = data.valueChange,
+                interval = when (data.intervalText) {
+                    PriceIntervalText.Empty -> stringResource(id = com.blockchain.stringResources.R.string.empty)
+                    is PriceIntervalText.TimeSpanText -> data.intervalText.historicalTimeSpan.text()
+                    is PriceIntervalText.CustomPeriod -> data.intervalText.period.text()
+                }
+            )
         )
 
         when (data.chartData) {
-            CoinviewPriceState.Data.CoinviewChartState.Loading -> {
+            CoinviewPriceState.CoinviewChartState.Loading -> {
                 LoadingChart()
             }
 
-            is CoinviewPriceState.Data.CoinviewChartState.Data -> {
+            is CoinviewPriceState.CoinviewChartState.Data -> {
                 ContentChart(
                     analytics = analytics,
                     assetTicker = assetTicker,
@@ -139,13 +171,38 @@ fun AssetPriceInfoData(
     }
 }
 
+@Composable
+private fun Period.text(): String {
+    return when {
+        years > 0 -> pluralStringResource(id = com.blockchain.stringResources.R.plurals.years_ago, count = years, years)
+        months > 0 -> pluralStringResource(
+            id = com.blockchain.stringResources.R.plurals.months_ago, count = months, months
+        )
+        days > 0 -> pluralStringResource(id = com.blockchain.stringResources.R.plurals.days_ago, count = days, days)
+        else -> stringResource(id = com.blockchain.stringResources.R.string.empty)
+    }
+}
+
+@Composable
+private fun HistoricalTimeSpan.text(): String {
+    return when (this) {
+        HistoricalTimeSpan.DAY -> stringResource(id = com.blockchain.stringResources.R.string.coinview_price_day)
+        HistoricalTimeSpan.WEEK -> stringResource(id = com.blockchain.stringResources.R.string.coinview_price_week)
+        HistoricalTimeSpan.MONTH ->
+            stringResource(id = com.blockchain.stringResources.R.string.coinview_price_month)
+
+        HistoricalTimeSpan.YEAR -> stringResource(id = com.blockchain.stringResources.R.string.coinview_price_year)
+        HistoricalTimeSpan.ALL_TIME -> stringResource(id = com.blockchain.stringResources.R.string.coinview_price_all)
+    }
+}
+
 @StringRes private fun HistoricalTimeSpan.toSimpleName(): Int {
     return when (this) {
-        HistoricalTimeSpan.DAY -> R.string.coinview_chart_tab_day
-        HistoricalTimeSpan.WEEK -> R.string.coinview_chart_tab_week
-        HistoricalTimeSpan.MONTH -> R.string.coinview_chart_tab_month
-        HistoricalTimeSpan.YEAR -> R.string.coinview_chart_tab_year
-        HistoricalTimeSpan.ALL_TIME -> R.string.coinview_chart_tab_all
+        HistoricalTimeSpan.DAY -> com.blockchain.stringResources.R.string.coinview_chart_tab_day
+        HistoricalTimeSpan.WEEK -> com.blockchain.stringResources.R.string.coinview_chart_tab_week
+        HistoricalTimeSpan.MONTH -> com.blockchain.stringResources.R.string.coinview_chart_tab_month
+        HistoricalTimeSpan.YEAR -> com.blockchain.stringResources.R.string.coinview_chart_tab_year
+        HistoricalTimeSpan.ALL_TIME -> com.blockchain.stringResources.R.string.coinview_chart_tab_all
     }
 }
 
@@ -159,8 +216,8 @@ fun AssetPriceError() {
         contentAlignment = Alignment.Center
     ) {
         CardAlert(
-            title = stringResource(R.string.coinview_chart_load_error_title),
-            subtitle = stringResource(R.string.coinview_chart_load_error_subtitle),
+            title = stringResource(com.blockchain.stringResources.R.string.coinview_chart_load_error_title),
+            subtitle = stringResource(com.blockchain.stringResources.R.string.coinview_chart_load_error_subtitle),
             alertType = AlertType.Warning,
             isBordered = true,
             isDismissable = false
@@ -176,8 +233,7 @@ fun LoadingChart() {
                 override val timestamp: Long = it.toLong()
                 override val rate: Double = Random.nextDouble(50.0, 150.0)
             }
-        },
-        loadingText = stringResource(R.string.coinview_chart_loading)
+        }
     )
 }
 
@@ -189,7 +245,7 @@ fun ContentChart(
     chartData: List<ChartEntry>,
     selectedTimeSpan: HistoricalTimeSpan,
     onChartEntryHighlighted: (Entry) -> Unit,
-    resetPriceInformation: () -> Unit,
+    resetPriceInformation: () -> Unit
 ) {
     var isInteractingWithChart by remember { mutableStateOf(false) }
 
@@ -249,22 +305,23 @@ private fun HistoricalTimeSpan.toTimeInterval(): CoinViewAnalytics.Companion.Tim
 @Preview
 @Composable
 fun PreviewAssetPrice_Loading() {
-    AssetPrice(CoinviewPriceState.Loading, assetTicker = "ETH", {}, {}, {})
+    AssetPrice(DataResource.Loading, assetTicker = "ETH", {}, {}, {})
 }
 
 @Preview
 @Composable
 fun PreviewAssetPrice_Data() {
-    AssetPrice(
-        CoinviewPriceState.Data(
+    AssetPriceInfoData(
+        previewAnalytics,
+        CoinviewPriceState(
             assetName = "Ethereum",
             assetLogo = "logo//",
             fiatSymbol = "€",
             price = "$4,570.27",
             priceChange = "$969.25",
-            percentChange = 5.58,
-            intervalName = R.string.coinview_price_day,
-            chartData = CoinviewPriceState.Data.CoinviewChartState.Data(
+            valueChange = ValueChange.fromValue(5.58),
+            intervalText = PriceIntervalText.CustomPeriod(Period.of(2022, 2, 4)),
+            chartData = CoinviewPriceState.CoinviewChartState.Data(
                 listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f))
             ),
             selectedTimeSpan = HistoricalTimeSpan.DAY

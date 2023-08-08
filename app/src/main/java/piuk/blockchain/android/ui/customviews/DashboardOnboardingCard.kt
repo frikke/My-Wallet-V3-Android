@@ -24,6 +24,10 @@ class DashboardOnboardingCard @JvmOverloads constructor(
     fun setCompleteSteps(completeSteps: Int) {
         binding.progressSteps.setProgress((completeSteps.toFloat() / totalSteps.toFloat()) * 100f)
         binding.textSteps.text =
-            context.getString(R.string.dashboard_onboarding_steps_counter, completeSteps, totalSteps)
+            context.getString(
+                com.blockchain.stringResources.R.string.dashboard_onboarding_steps_counter,
+                completeSteps,
+                totalSteps
+            )
     }
 }

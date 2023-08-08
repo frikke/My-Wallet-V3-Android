@@ -59,7 +59,6 @@ class GooglePayResponseInterceptorImpl constructor(
 
     private fun handlePaymentSuccess(paymentData: PaymentData) {
         job = CoroutineScope(coroutineContext + exceptionHandler).launch {
-
             val response = paymentDataMapper.getPaymentDataResponse(paymentData)
 
             withContext(Dispatchers.Main) {

@@ -2,16 +2,24 @@ package piuk.blockchain.android.cards
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
+import com.blockchain.api.services.PaymentsService
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.payments.vgs.VgsCardTokenizerService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.utils.rxSingleOutcome
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
+import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -28,6 +36,9 @@ class CardModel(
     private val cardActivator: CardActivator,
     private val json: Json,
     val environmentConfig: EnvironmentConfig,
+    private val vgsFeatureFlag: FeatureFlag,
+    private val vgsCardTokenizerService: VgsCardTokenizerService,
+    private val paymentsService: PaymentsService,
     remoteLogger: RemoteLogger
 ) : MviModel<CardState, CardIntent>(
     initialState = prefs.cardState()?.run {
@@ -40,14 +51,50 @@ class CardModel(
 
     override fun performAction(previousState: CardState, intent: CardIntent): Disposable? =
         when (intent) {
+            is CardIntent.CheckTokenizer -> checkTokenizer()
+            is CardIntent.SubmitVgsCardInfo -> submitVgsCardInfo()
             is CardIntent.AddNewCard -> handleAddNewCard(intent, previousState)
             is CardIntent.ActivateCard -> activateCard(intent)
-            is CardIntent.CheckCardStatus -> checkCardStatus(previousState)
+            is CardIntent.CheckCardStatus -> checkCardStatus(previousState, intent.vgsBeneficiaryId)
             CardIntent.LoadLinkedCards -> loadLinkedCards()
-            is CardIntent.CheckProviderFailureRate -> checkCardFailureRate(intent.cardNumber)
+            is CardIntent.CheckProviderFailureRate -> checkCardFailureRate(intent.bin)
             is CardIntent.LoadListOfUsStates -> loadListOfUsStates()
             else -> null
         }
+
+    private fun submitVgsCardInfo(): Disposable =
+        rxSingle { vgsCardTokenizerService.submit() }
+            .subscribeBy(
+                onSuccess = {
+                    process(CardIntent.VgsCardInfoReceived(it))
+                },
+                onError = {
+                    Timber.e(it, "Unable to decode beneficiaryId.")
+                    process(CardIntent.ShowCardCreationError)
+                }
+            )
+
+    private fun checkTokenizer() =
+        vgsFeatureFlag.enabled.flatMap { enabled ->
+            if (enabled) {
+                rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) { paymentsService.getCardTokenId() }
+                    .map { response ->
+                        CardIntent.TokenizerLoaded(
+                            isVgsEnabled = true,
+                            cardTokenId = response.cardTokenId,
+                            vaultId = response.vgsVaultId
+                        )
+                    }.onErrorReturn {
+                        CardIntent.TokenizerLoaded(isVgsEnabled = true)
+                    }
+            } else {
+                Single.just(CardIntent.TokenizerLoaded(isVgsEnabled = false))
+            }
+        }.subscribeBy(
+            onSuccess = { tokenizerLoadedIntent ->
+                process(tokenizerLoadedIntent)
+            }
+        )
 
     private fun checkCardFailureRate(binNumber: String) =
         interactor.checkNewCardRejectionRate(binNumber)
@@ -170,8 +217,8 @@ class CardModel(
         }
     }
 
-    private fun checkCardStatus(previousState: CardState) = interactor.pollForCardStatus(
-        previousState.cardId
+    private fun checkCardStatus(previousState: CardState, vgsBeneficiaryId: String?) = interactor.pollForCardStatus(
+        vgsBeneficiaryId ?: previousState.cardId
             ?: throw IllegalStateException("No card ID was provided")
     )
         .doOnSubscribe {

@@ -63,7 +63,8 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         assertEquals(10000, summary[0].fee.toLong())
         assertEquals(1436437493, summary[0].time)
         assertEquals(
-            "04734caac4e2ae7feba9b74fb8d2c145db9ea9651487371c4d741428f8f5a24b", summary[0].hash
+            "04734caac4e2ae7feba9b74fb8d2c145db9ea9651487371c4d741428f8f5a24b",
+            summary[0].hash
         )
     }
 
@@ -104,12 +105,14 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         assertEquals(10000, summary[0].fee.toLong())
         assertEquals(1452868237, summary[0].time)
         assertEquals(
-            "34c22edb3466708b974a7549d5b3cb51e05d4444f74d2a1b41484f8711dffd04", summary[0].hash
+            "34c22edb3466708b974a7549d5b3cb51e05d4444f74d2a1b41484f8711dffd04",
+            summary[0].hash
         )
 
         assertEquals(5, subject.getNextChangeAddressIndex(dormantXpub).toLong())
         assertEquals(
-            10, subject.getNextReceiveAddressIndex(dormantXpub, ArrayList()).toLong()
+            10,
+            subject.getNextReceiveAddressIndex(dormantXpub, ArrayList()).toLong()
         )
 
         assertTrue(subject.isOwnHDAddress("1CAAzobQ2UrE4QUR3HJrkZs8UFA8wi5wwQ"))
@@ -130,7 +133,7 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         val xpubs1 = XPubs(XPub(address = dormantAddress, derivation = XPub.Format.LEGACY))
         val xpubs2 = XPubs(XPub(address = dormantXpub, derivation = XPub.Format.LEGACY))
 
-        /* List<TransactionSummary> summary =*/
+        // List<TransactionSummary> summary =
         val summary = subject.getAccountTransactions(
             all = listOf(xpubs1, xpubs2),
             onlyShow = null,
@@ -147,7 +150,8 @@ class MultiAddressFactoryTest : MockedResponseTest() {
         assertEquals(10000, summary[0].fee.toLong())
         assertEquals(1452868237, summary[0].time)
         assertEquals(
-            "34c22edb3466708b974a7549d5b3cb51e05d4444f74d2a1b41484f8711dffd04", summary[0].hash
+            "34c22edb3466708b974a7549d5b3cb51e05d4444f74d2a1b41484f8711dffd04",
+            summary[0].hash
         )
 
         assertTrue(subject.isOwnHDAddress("1CAAzobQ2UrE4QUR3HJrkZs8UFA8wi5wwQ"))
@@ -161,7 +165,6 @@ class MultiAddressFactoryTest : MockedResponseTest() {
 
     @Test
     fun getMultiAddress_MoreCases() {
-
         val xpub1 =
             "xpub6Bx1J3neE11W2XpvKRFQVwWpZFsDfnRkLJ2V4JjPWNRD" +
                 "XbRvZrwnytbSbBng2F1fRejxkMWAi6fYJuAJrGg6TP8Key4jvs9YqpVo5LJ8jSk"
@@ -184,7 +187,9 @@ class MultiAddressFactoryTest : MockedResponseTest() {
                 XPubs(XPub(address = address, derivation = XPub.Format.LEGACY))
             ),
             null,
-            100, 0, 0
+            100,
+            0,
+            0
         )
 
         assertEquals(7, summary.size.toLong())

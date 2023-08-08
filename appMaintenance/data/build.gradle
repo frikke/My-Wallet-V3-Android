@@ -9,6 +9,10 @@ android {
         warningsAsErrors true
         abortOnError true
     }
+
+    android {
+        namespace 'piuk.blockchain.android.maintenance.data'
+    }
 }
 
 dependencies {

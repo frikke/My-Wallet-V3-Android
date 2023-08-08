@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.UnlockHigherLimitsLayoutBinding
-import piuk.blockchain.android.sdd.SDDAnalytics
+import piuk.blockchain.android.kyc.KycAnalytics
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.VerifyIdentityIconedBenefitItem
 
@@ -39,36 +39,41 @@ class UnlockHigherLimitsBottomSheet : SlidingModalBottomDialog<UnlockHigherLimit
         compositeDisposable += kycService.getTiersLegacy().map {
             it.tierForLevel(KycTier.GOLD).kycLimits?.dailyLimit?.let { dailyLimit ->
                 dailyLimit.toStringWithSymbol()
-            } ?: getString(R.string.empty)
-        }.onErrorReturn { getString(R.string.empty) }
+            } ?: getString(com.blockchain.stringResources.R.string.empty)
+        }.onErrorReturn { getString(com.blockchain.stringResources.R.string.empty) }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onSuccess = { limit ->
                 binding.unlockMoreView.initWithBenefits(
                     benefits = listOf(
                         VerifyIdentityIconedBenefitItem(
-                            title = getString(R.string.cash_accounts),
-                            subtitle = getString(R.string.cash_accounts_description),
+                            title = getString(com.blockchain.stringResources.R.string.cash_accounts),
+                            subtitle = getString(com.blockchain.stringResources.R.string.cash_accounts_description),
                             icon = R.drawable.ic_cash
                         ),
                         VerifyIdentityIconedBenefitItem(
-                            title = getString(R.string.link_a_bank),
-                            subtitle = getString(R.string.link_a_bank_description),
+                            title = getString(com.blockchain.stringResources.R.string.link_a_bank),
+                            subtitle = getString(com.blockchain.stringResources.R.string.link_a_bank_description),
                             icon = R.drawable.ic_bank_details
                         ),
                         VerifyIdentityIconedBenefitItem(
-                            title = getString(R.string.earn_rewards),
-                            subtitle = getString(R.string.earn_rewards_description),
+                            title = getString(com.blockchain.stringResources.R.string.earn_rewards),
+                            subtitle = getString(com.blockchain.stringResources.R.string.earn_rewards_description),
                             icon = R.drawable.ic_interest
                         )
                     ),
-                    title = getString(R.string.unlock_gold_level_trading),
-                    description = if (limit.isNotEmpty()) getString(
-                        R.string.verify_your_identity_limits_1, limit
-                    ) else getString(R.string.empty),
+                    title = getString(com.blockchain.stringResources.R.string.unlock_gold_level_trading),
+                    description = if (limit.isNotEmpty()) {
+                        getString(
+                            com.blockchain.stringResources.R.string.verify_your_identity_limits_1,
+                            limit
+                        )
+                    } else {
+                        getString(com.blockchain.stringResources.R.string.empty)
+                    },
                     icon = R.drawable.ic_gold_square,
                     primaryButton = ButtonOptions(
                         true,
-                        getString(R.string.apply_and_unlock)
+                        getString(com.blockchain.stringResources.R.string.apply_and_unlock)
                     ) {
                         dismiss()
                         host.unlockHigherLimits()
@@ -77,6 +82,6 @@ class UnlockHigherLimitsBottomSheet : SlidingModalBottomDialog<UnlockHigherLimit
                 )
             }, onError = {})
 
-        analytics.logEvent(SDDAnalytics.UPGRADE_TO_GOLD_SEEN)
+        analytics.logEvent(KycAnalytics.UPGRADE_TO_GOLD_SEEN)
     }
 }

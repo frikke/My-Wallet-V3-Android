@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -30,14 +31,14 @@ class IntroHeaderView @JvmOverloads constructor(
 
         attributes?.let {
             val title = it.getString(R.styleable.IntroHeaderView_intro_header_title)
-            val label = it.getString(R.styleable.IntroHeaderView_intro_header_label)
             val icon = it.getDrawable(R.styleable.IntroHeaderView_intro_header_icon)
+            val background = it.getDrawable(R.styleable.IntroHeaderView_intro_header_background)
             val showSeparator = it.getBoolean(R.styleable.IntroHeaderView_intro_header_separator, true)
 
             with(binding) {
                 introHeaderTitle.text = title
-                introHeaderLabel.text = label
                 introHeaderIcon.setImageDrawable(icon)
+                introHeaderParent.background = background
                 introHeaderSeparator.visibleIf { showSeparator }
             }
             attributes.recycle()
@@ -48,12 +49,14 @@ class IntroHeaderView @JvmOverloads constructor(
         @StringRes title: Int,
         @StringRes label: Int,
         @DrawableRes icon: Int,
+        @ColorRes background: Int = com.blockchain.componentlib.R.color.backgroundSecondary,
         showSeparator: Boolean = true
     ) {
         with(binding) {
             introHeaderTitle.text = context.getString(title)
             introHeaderLabel.text = context.getString(label)
             introHeaderIcon.setImageDrawable(context.getResolvedDrawable(icon))
+            introHeaderParent.background = context.getResolvedDrawable(background)
             introHeaderSeparator.visibleIf { showSeparator }
         }
     }

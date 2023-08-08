@@ -5,8 +5,8 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.outcome.Outcome
 import com.blockchain.testutils.USD
 import info.blockchain.balance.CryptoCurrency
@@ -44,11 +44,12 @@ class AssetPriceStoreTest {
 
     @Test
     fun `getCurrentPriceForAsset should request asset price records from store and cache them locally`() = runTest {
-        subject.getCurrentPriceForAsset(BTC, USD, FreshnessStrategy.Cached(false)).test {
+        subject.getCurrentPriceForAsset(BTC, USD).test {
             verify {
                 cache.stream(
                     KeyedFreshnessStrategy.Cached(
-                        AssetPriceStoreCache.Key.GetAllCurrent(USD.networkTicker), forceRefresh = false
+                        AssetPriceStoreCache.Key.GetAllCurrent(USD.networkTicker),
+                        RefreshStrategy.RefreshIfStale
                     )
                 )
             }
@@ -66,7 +67,7 @@ class AssetPriceStoreTest {
     @Test
     fun `getCurrentPriceForAsset should request cache and filter for the requested asset and emit Data if found`() =
         runTest {
-            subject.getCurrentPriceForAsset(BTC, USD, FreshnessStrategy.Cached(false)).test {
+            subject.getCurrentPriceForAsset(BTC, USD).test {
                 cacheFlow.emit(DataResource.Loading)
                 assertEquals(DataResource.Loading, awaitItem())
                 cacheFlow.emit(DataResource.Data(RECORDS_LIST))
@@ -78,7 +79,7 @@ class AssetPriceStoreTest {
     @Test
     fun `getCurrentPriceForAsset should request cache and filter for the requested asset and emit Error if not found`() =
         runTest {
-            subject.getCurrentPriceForAsset(BTC, USD, FreshnessStrategy.Cached(false)).test {
+            subject.getCurrentPriceForAsset(BTC, USD).test {
                 cacheFlow.emit(DataResource.Data(listOf(RECORD_ETH_USD)))
                 assertEquals(DataResource.Error(AssetPriceNotFoundException(BTC, USD)), awaitItem())
                 expectNoEvents()
@@ -87,7 +88,7 @@ class AssetPriceStoreTest {
 
     @Test
     fun `getCurrentPriceForAsset should filter out repeated equal emissions`() = runTest {
-        subject.getCurrentPriceForAsset(BTC, USD, FreshnessStrategy.Cached(false)).test {
+        subject.getCurrentPriceForAsset(BTC, USD).test {
             cacheFlow.emit(DataResource.Data(RECORDS_LIST))
             assertEquals(DataResource.Data(RECORD_BTC_USD), awaitItem())
             cacheFlow.emit(DataResource.Data(RECORDS_LIST))
@@ -98,11 +99,12 @@ class AssetPriceStoreTest {
     @Test
     fun `getYesterdayPriceForAsset should request cache and filter for the requested asset and emit Data if found`() =
         runTest {
-            subject.getYesterdayPriceForAsset(BTC, USD, FreshnessStrategy.Cached(false)).test {
+            subject.getYesterdayPriceForAsset(BTC, USD).test {
                 verify {
                     cache.stream(
                         KeyedFreshnessStrategy.Cached(
-                            AssetPriceStoreCache.Key.GetAllYesterday(USD.networkTicker), forceRefresh = false
+                            AssetPriceStoreCache.Key.GetAllYesterday(USD.networkTicker),
+                            RefreshStrategy.RefreshIfStale
                         )
                     )
                 }
@@ -117,7 +119,7 @@ class AssetPriceStoreTest {
     @Test
     fun `getYesterdayPriceForAsset should request cache and filter for the requested asset and emit Error if not found`() =
         runTest {
-            subject.getYesterdayPriceForAsset(BTC, USD, FreshnessStrategy.Cached(false)).test {
+            subject.getYesterdayPriceForAsset(BTC, USD).test {
                 cacheFlow.emit(DataResource.Data(listOf(RECORD_ETH_USD)))
                 assertEquals(DataResource.Error(AssetPriceNotFoundException(BTC, USD)), awaitItem())
                 expectNoEvents()
@@ -126,7 +128,7 @@ class AssetPriceStoreTest {
 
     @Test
     fun `getYesterdayPriceForAsset should filter out repeated equal emissions`() = runTest {
-        subject.getYesterdayPriceForAsset(BTC, USD, FreshnessStrategy.Cached(false)).test {
+        subject.getYesterdayPriceForAsset(BTC, USD).test {
             cacheFlow.emit(DataResource.Data(RECORDS_LIST))
             assertEquals(DataResource.Data(RECORD_BTC_USD), awaitItem())
             cacheFlow.emit(DataResource.Data(RECORDS_LIST))
@@ -136,7 +138,7 @@ class AssetPriceStoreTest {
 
     @Test
     fun `getHistoricalPriceForAsset should request cache and return the first Success or Failure result`() = runTest {
-        subject.getHistoricalPriceForAsset(BTC, USD, HistoricalTimeSpan.WEEK, FreshnessStrategy.Cached(false)).test {
+        subject.getHistoricalPriceForAsset(BTC, USD, HistoricalTimeSpan.WEEK).test {
             cacheFlow.emit(DataResource.Loading)
             assertEquals(DataResource.Loading, awaitItem())
             cacheFlow.emit(DataResource.Data(RECORDS_HISTORICAL))
@@ -144,7 +146,7 @@ class AssetPriceStoreTest {
         }
 
         cacheFlow.resetReplayCache()
-        subject.getHistoricalPriceForAsset(BTC, USD, HistoricalTimeSpan.WEEK, FreshnessStrategy.Cached(false)).test {
+        subject.getHistoricalPriceForAsset(BTC, USD, HistoricalTimeSpan.WEEK).test {
             val error = RuntimeException("some message")
             cacheFlow.emit(DataResource.Error(error))
             assertEquals(DataResource.Error(error), awaitItem())
@@ -166,28 +168,28 @@ class AssetPriceStoreTest {
             quote = "USD",
             rate = 2.0.toBigDecimal(),
             fetchedAt = 1L,
-            marketCap = 0.0,
+            marketCap = 0.0
         )
         private val RECORD_ETH_USD = AssetPriceRecord(
             base = "ETH",
             quote = "USD",
             rate = 2.0.toBigDecimal(),
             fetchedAt = 1L,
-            marketCap = 0.0,
+            marketCap = 0.0
         )
         private val RECORD_BTC_EUR = AssetPriceRecord(
             base = "BTC",
             quote = "EUR",
             rate = 1.5.toBigDecimal(),
             fetchedAt = 2L,
-            marketCap = 0.0,
+            marketCap = 0.0
         )
         private val RECORD_ETH_EUR = AssetPriceRecord(
             base = "ETH",
             quote = "EUR",
             rate = 1.5.toBigDecimal(),
             fetchedAt = 2L,
-            marketCap = 0.0,
+            marketCap = 0.0
         )
         private val RECORDS_LIST = listOf(
             RECORD_ETH_EUR,
@@ -201,21 +203,21 @@ class AssetPriceStoreTest {
                 quote = "USD",
                 rate = 2.0.toBigDecimal(),
                 fetchedAt = 10L,
-                marketCap = 0.0,
+                marketCap = 0.0
             ),
             AssetPriceRecord(
                 base = "BTC",
                 quote = "USD",
                 rate = 1.8.toBigDecimal(),
                 fetchedAt = 20L,
-                marketCap = 0.0,
+                marketCap = 0.0
             ),
             AssetPriceRecord(
                 base = "BTC",
                 quote = "USD",
                 rate = 1.6.toBigDecimal(),
                 fetchedAt = 30L,
-                marketCap = 0.0,
+                marketCap = 0.0
             )
         )
     }

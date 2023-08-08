@@ -1,0 +1,16 @@
+apply plugin: 'kotlinx-serialization'
+apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
+android {
+    namespace 'com.blockchain.payments.vgs'
+}
+dependencies {
+
+    implementation project(':common:interface')
+    implementation project(':common:domain')
+    implementation project(':payments:core')
+
+    implementation Libraries.vgs
+
+    implementation Libraries.kotlinCoroutines
+    implementation Libraries.kotlinJson
+}

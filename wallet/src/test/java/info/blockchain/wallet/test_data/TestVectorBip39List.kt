@@ -20,6 +20,7 @@ class TestVectorBip39List {
         val jsonBuilder = Json {
             ignoreUnknownKeys = true
         }
+
         @JvmStatic
         fun fromJson(json: String): TestVectorBip39List {
             return jsonBuilder.decodeFromString(json)

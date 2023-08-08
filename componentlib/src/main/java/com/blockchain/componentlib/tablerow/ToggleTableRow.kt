@@ -9,10 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.control.PrimarySwitch
-import com.blockchain.componentlib.control.SuccessSwitch
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
@@ -23,8 +20,7 @@ private fun ToggleTableRow(
     secondaryText: String = "",
     isChecked: Boolean = false,
     enabled: Boolean = true,
-    toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     FlexibleTableRow(
         paddingValues = paddingValues,
@@ -45,22 +41,11 @@ private fun ToggleTableRow(
             }
         },
         contentEnd = {
-            when (toggleTableRowType) {
-                ToggleTableRowType.Primary -> {
-                    PrimarySwitch(
-                        isChecked = isChecked,
-                        onCheckChanged = onCheckedChange,
-                        enabled = enabled,
-                    )
-                }
-                ToggleTableRowType.Success -> {
-                    SuccessSwitch(
-                        isChecked = isChecked,
-                        onCheckChanged = onCheckedChange,
-                        enabled = enabled,
-                    )
-                }
-            }
+            PrimarySwitch(
+                isChecked = isChecked,
+                onCheckChanged = onCheckedChange,
+                enabled = enabled
+            )
         },
         backgroundColor = backgroundColor
     )
@@ -73,22 +58,21 @@ fun ToggleTableRow(
     secondaryText: String = "",
     isChecked: Boolean = false,
     enabled: Boolean = true,
-    toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     ToggleTableRow(
         paddingValues = PaddingValues(
-            start = dimensionResource(R.dimen.standard_spacing),
-            end = 18.dp, // Switch has a built-in padding and we need to consider it for the screen padding
-            top = dimensionResource(R.dimen.medium_spacing),
-            bottom = dimensionResource(R.dimen.medium_spacing),
+            start = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing),
+            // Switch has a built-in padding and we need to consider it for the screen padding
+            end = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
+            top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+            bottom = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
         ),
         onCheckedChange = onCheckedChange,
         primaryText = primaryText,
         secondaryText = secondaryText,
         isChecked = isChecked,
         enabled = enabled,
-        toggleTableRowType = toggleTableRowType,
         backgroundColor = backgroundColor
     )
 }
@@ -96,18 +80,18 @@ fun ToggleTableRow(
 @Composable
 fun FlexibleToggleTableRow(
     paddingValues: PaddingValues = PaddingValues(
-        start = dimensionResource(R.dimen.standard_spacing),
-        end = 18.dp, // Switch has a built-in padding and we need to consider it for the screen padding
-        top = dimensionResource(R.dimen.medium_spacing),
-        bottom = dimensionResource(R.dimen.medium_spacing),
+        start = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing),
+        // Switch has a built-in padding and we need to consider it for the screen padding
+        end = dimensionResource(com.blockchain.componentlib.R.dimen.very_small_spacing),
+        top = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
+        bottom = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
     ),
     onCheckedChange: (isChecked: Boolean) -> Unit,
     primaryText: String,
     secondaryText: String = "",
     isChecked: Boolean = false,
     enabled: Boolean = true,
-    toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.backgroundSecondary
 ) {
     ToggleTableRow(
         paddingValues = paddingValues,
@@ -116,12 +100,9 @@ fun FlexibleToggleTableRow(
         secondaryText = secondaryText,
         isChecked = isChecked,
         enabled = enabled,
-        toggleTableRowType = toggleTableRowType,
         backgroundColor = backgroundColor
     )
 }
-
-enum class ToggleTableRowType { Primary, Success }
 
 @Preview
 @Composable

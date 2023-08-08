@@ -11,17 +11,11 @@ import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
 import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
 import com.blockchain.api.coinnetworks.data.CoinNetworkDto
 import com.blockchain.api.coinnetworks.data.CoinTypeDto
-import com.blockchain.domain.wallet.NetworkType
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.flatMap
-import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
-import com.blockchain.utils.rxMaybeOutcome
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
-import io.reactivex.rxjava3.core.Maybe
+import info.blockchain.balance.NetworkType
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -33,6 +27,8 @@ enum class DynamicAssetProducts {
     HWS, // HotWalletService supports it
     CustodialWalletBalance, // Can have a custodial/simplebuy balance of this currency
     InterestBalance, // Can have an interest balance
+    EarnCC1W, // Can have an active rewards
+    Staking, // Can have an interest balance
     DynamicSelfCustody
 }
 
@@ -62,7 +58,10 @@ data class DynamicAsset(
     val chainIdentifier: String? = null,
     @SerialName("explorerUrl")
     val explorerUrl: String? = null
-)
+) {
+    fun hasNonCustodialSupport(): Boolean =
+        products.any { it == DynamicAssetProducts.DynamicSelfCustody || it == DynamicAssetProducts.PrivateKey }
+}
 
 data class DetailedAssetInformation(
     val description: String,
@@ -83,11 +82,15 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    fun getErc20Assets(): Single<DynamicAssetList> =
-        api.getErc20Currencies()
-            .map { dto ->
-                dto.currencies.mapNotNull { it.toDynamicAsset(listOf(CryptoCurrency.ETHER.networkTicker)) }
-            }
+    fun getEthErc20s(): Single<DynamicAssetList> =
+        api.getEthErc20s().map { dto ->
+            dto.currencies.mapNotNull { it.toDynamicAsset() }
+        }
+
+    fun getOtherNetworksErc20s(): Single<DynamicAssetList> =
+        api.getOtherErc20s().map { dto ->
+            dto.currencies.mapNotNull { it.toDynamicAsset() }
+        }
 
     fun getCustodialAssets(): Single<DynamicAssetList> =
         api.getCustodialCurrencies()
@@ -95,39 +98,11 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    suspend fun getL1Coins(): Outcome<Exception, DynamicAssetList> =
+    fun getL1Coins(): Single<DynamicAssetList> =
         api.getL1Coins()
             .map { dto ->
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
-
-    fun otherEvmNetworks(): Single<List<CoinNetworkDto>> {
-        return supportedEvmNetworks().map {
-            // TODO(dtverdota): remove this once Ethereum is moved to be a dynamic L1EvmAsset from the hard-coded
-            // Cryptocurrency.ETHER object
-            it.filter { coinNetwork -> coinNetwork.network != CryptoCurrency.ETHER.networkTicker }
-        }
-    }
-
-    fun supportedEvmNetworks(): Single<List<CoinNetworkDto>> {
-        return rxSingle {
-            coinNetworkApi.getCoinNetworks().map { response ->
-                response.networks.filter { coinNetwork ->
-                    coinNetwork.type == NetworkType.EVM
-                }
-            }.getOrDefault(emptyList())
-        }
-    }
-
-    fun getEvmNetworkForCurrency(currency: String): Maybe<CoinNetworkDto> {
-        return rxMaybeOutcome {
-            coinNetworkApi.getCoinNetworks().map { response ->
-                response.networks.first { coinNetwork ->
-                    coinNetwork.type == NetworkType.EVM && coinNetwork.currency == currency
-                }
-            }
-        }
-    }
 
     suspend fun allNetworks(): Outcome<Exception, List<CoinNetworkDto>> =
         coinNetworkApi.getCoinNetworks()
@@ -140,25 +115,11 @@ class AssetDiscoveryApiService internal constructor(
             response.types.filter { it.type != NetworkType.NOT_SUPPORTED }
         }
 
-    suspend fun getL2AssetsForEVM(evmTickers: List<String>): Outcome<Exception, DynamicAssetList> =
-        api.getL2CurrenciesForL1()
-            .flatMap { dto ->
-                try {
-                    Outcome.Success(dto.currencies.mapNotNull { it.toDynamicAsset(evmTickers) })
-                } catch (ex: Exception) {
-                    Outcome.Failure(ex)
-                }
-            }
-
     suspend fun getAssetInformation(assetTicker: String): Outcome<Exception, AssetInformationDto> =
         api.getAssetInfo(assetTicker)
 
-    // TODO(dtverdota): these methods for mapping DynamicCurrency to DynamicAsset needs to be extracted
-    // to respect single responsibility and local reasoning
-    private fun DynamicCurrency.toDynamicAsset(evmNetworks: List<String> = emptyList()): DynamicAsset? =
+    private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
         when {
-            coinType is Erc20Asset &&
-                !evmNetworks.contains(coinType.parentChain) -> null
             coinType is CeloTokenAsset && coinType.parentChain != CELO -> null
             coinType is UnsupportedAsset -> null
             else -> DynamicAsset(
@@ -167,8 +128,7 @@ class AssetDiscoveryApiService internal constructor(
                 displayTicker = displaySymbol,
                 isFiat = coinType is FiatAsset,
                 precision = precision,
-                products = if (networkSymbol == "STX") {
-                    // TODO(dtverdota): Remove once added on BE
+                products = if (networkSymbol == "STX" || networkSymbol == "SOL") {
                     makeProductSet(products).plus(DynamicAssetProducts.DynamicSelfCustody)
                 } else {
                     makeProductSet(products)
@@ -176,11 +136,7 @@ class AssetDiscoveryApiService internal constructor(
                 logoUrl = coinType.logoUrl,
                 websiteUrl = coinType.websiteUrl,
                 minConfirmations = when (coinType) {
-                    is Erc20Asset -> if (evmNetworks.contains(coinType.parentChain)) {
-                        ERC20_CONFIRMATIONS
-                    } else {
-                        throw IllegalStateException("Unknown parent chain")
-                    }
+                    is Erc20Asset -> ERC20_CONFIRMATIONS
                     is CoinAsset -> coinType.minConfirmations
                     is CeloTokenAsset -> CELO_CONFIRMATIONS
                     else -> 0

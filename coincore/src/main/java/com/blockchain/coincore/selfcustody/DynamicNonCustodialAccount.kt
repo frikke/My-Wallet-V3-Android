@@ -1,6 +1,5 @@
 package com.blockchain.coincore.selfcustody
 
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
@@ -12,10 +11,6 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.wallet.CoinType
 import com.blockchain.domain.wallet.PubKeyStyle
-import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.flatMap
-import com.blockchain.outcome.getOrDefault
-import com.blockchain.outcome.getOrThrow
 import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
@@ -23,21 +18,20 @@ import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Money
+import info.blockchain.balance.NetworkType
 import info.blockchain.wallet.dynamicselfcustody.DynamicHDAccount
-import info.blockchain.wallet.keys.SigningKey
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.math.BigDecimal
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.rx3.rxSingle
+import java.math.BigInteger
+import org.bitcoinj.core.ECKey
+import org.bitcoinj.core.Sha256Hash
+import org.bitcoinj.core.Utils
 import org.spongycastle.util.encoders.Hex
 
 class DynamicNonCustodialAccount(
     val payloadManager: PayloadDataManager,
     assetInfo: AssetInfo,
-    coinType: CoinType,
+    val coinType: CoinType,
     override val addressResolver: AddressResolver,
     private val nonCustodialService: NonCustodialService,
     override val exchangeRates: ExchangeRatesDataManager,
@@ -49,43 +43,26 @@ class DynamicNonCustodialAccount(
         ?: throw IllegalStateException("Unsupported Coin Configuration!")
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() = rxSingle { getReceiveAddress() }
+        get() = rxSingleOutcome { getReceiveAddress() }
 
     private suspend fun getReceiveAddress() = nonCustodialService.getAddresses(listOf(currency.networkTicker))
-        .getOrThrow().find {
-            it.pubKey == String(Hex.encode(internalAccount.address.pubKey)) && it.default
-        }?.let { nonCustodialDerivedAddress ->
-            DynamicNonCustodialAddress(
-                address = nonCustodialDerivedAddress.address,
-                asset = currency
-            )
-        } ?: throw IllegalStateException("Couldn't derive receive address for ${currency.networkTicker}")
+        .map {
+            it.find {
+                it.pubKey == xpubAddress && it.default
+            }?.let { nonCustodialDerivedAddress ->
+                DynamicNonCustodialAddress(
+                    address = nonCustodialDerivedAddress.address,
+                    asset = currency
+                )
+            } ?: throw IllegalStateException("Couldn't derive receive address for ${currency.networkTicker}")
+        }
 
     override val isArchived: Boolean = false
 
     override val isDefault: Boolean = true
 
-    override val activity: Single<ActivitySummaryList> = rxSingleOutcome {
-        val accountAddress = getReceiveAddress()
-        nonCustodialService.getTransactionHistory(
-            currency = currency.networkTicker,
-            contractAddress = currency.l2identifier
-        )
-            .map { history ->
-                history.map { item ->
-                    DynamicActivitySummaryItem(
-                        asset = currency,
-                        event = item,
-                        accountAddress = accountAddress.address,
-                        exchangeRates = exchangeRates,
-                        account = this@DynamicNonCustodialAccount
-                    )
-                }
-            }
-    }
-
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
-        DynamicOnChanTxEngine(
+        DynamicOnChainTxEngine(
             nonCustodialService = nonCustodialService,
             walletPreferences = walletPreferences,
             requireSecondPassword = false,
@@ -103,44 +80,37 @@ class DynamicNonCustodialAccount(
     override fun setAsDefault(): Completable = Completable.complete()
 
     override val xpubAddress: String
-        get() = internalAccount.bitcoinSerializedBase58Address
+        get() = if (coinType.network == NetworkType.SOL || coinType.network == NetworkType.XLM) {
+            String(Hex.encode(internalAccount.bip39PubKey))
+        } else {
+            String(Hex.encode(internalAccount.address.pubKey))
+        }
 
     override val hasStaticAddress: Boolean = false
 
-    fun getSigningKey(): SigningKey {
-        return internalAccount.signingKey
-    }
-
-    override fun getOnChainBalance(): Observable<out Money> = rxSingle {
-        // Check if we are subscribed to the given currency.
-        val subscriptions = nonCustodialService.getSubscriptions().first().getOrDefault(emptyList())
-
-        if (subscriptions.contains(currency.networkTicker)) {
-            // Get the balance if we found the currency in the subscriptions
-            getBalance().getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))
+    fun signedRawPreImage(unsignedPreImage: String): String {
+        return if (coinType.network == NetworkType.SOL || coinType.network == NetworkType.XLM) {
+            Utils.HEX.encode(internalAccount.signWithBip39Key(Utils.HEX.decode(unsignedPreImage)))
         } else {
-            // If not, we need to subscribe. However if the list of subscriptions is empty then it's the first time
-            // we're calling this endpoint. In that case we also need to authenticate.
-            subscribeToBalance().flatMap {
-                getBalance()
-            }.getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))
+            getSignature(unsignedPreImage, internalAccount.signingKey.toECKey())
         }
     }
-        .toObservable()
 
-    private suspend fun getBalance() = nonCustodialService.getBalances(listOf(currency.networkTicker))
-        .map { accountBalances ->
-            accountBalances.firstOrNull { it.networkTicker == currency.networkTicker }?.let { balance ->
-                Money.fromMinor(currency, balance.amount)
-            } ?: Money.fromMajor(currency, BigDecimal.ZERO)
-        }
+    private fun getSignature(unsignedPreImage: String, signingKey: ECKey): String {
+        val hash = Sha256Hash.wrap(unsignedPreImage)
+        val resultSignature = signingKey.sign(hash)
+        val r = resultSignature.r.toPaddedHexString()
+        val s = resultSignature.s.toPaddedHexString()
+        val v = "0${signingKey.findRecoveryId(hash, resultSignature)}"
+        return r + s + v
+    }
 
-    private suspend fun subscribeToBalance(): Outcome<Exception, Boolean> =
-        nonCustodialService.subscribe(
-            currency = currency.networkTicker,
-            label = label,
-            addresses = listOf(String(Hex.encode(internalAccount.address.pubKey)))
-        )
+    private fun BigInteger.toPaddedHexString(): String {
+        val radix = 16 // For digit to character conversion (digit to hexadecimal in this case)
+        val desiredLength = 64
+        val padChar = '0'
+        return toString(radix).padStart(desiredLength, padChar)
+    }
 
     override val index: Int
         get() = 0
@@ -148,9 +118,9 @@ class DynamicNonCustodialAccount(
     override suspend fun publicKey(): List<PublicKey> =
         listOf(
             PublicKey(
-                address = String(Hex.encode(internalAccount.address.pubKey)),
+                address = xpubAddress,
                 descriptor = DEFAULT_ADDRESS_DESCRIPTOR,
-                style = PubKeyStyle.SINGLE,
+                style = PubKeyStyle.SINGLE
             )
         )
 }

@@ -4,10 +4,10 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.OneTimeAccountPersistenceService
 import com.blockchain.coincore.ReceiveAddress
-import com.blockchain.coincore.SingleAccount
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.nfts.OPENSEA_URL
@@ -16,8 +16,10 @@ import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftAssetsPage
 import com.blockchain.nfts.domain.service.NftService
 import com.blockchain.testutils.CoroutineTestRule
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -40,12 +42,13 @@ class NftCollectionViewModelTest {
 
     private val coincore = mockk<Coincore>()
     private val nftService = mockk<NftService>()
+    private val oneTimeAccountPersistenceService = mockk<OneTimeAccountPersistenceService>()
 
     private lateinit var viewModel: NftCollectionViewModel
 
     private val asset = mockk<CryptoAsset>()
     private val accountGroup = mockk<AccountGroup>()
-    private val singleAccount = mockk<SingleAccount>()
+    private val singleAccount = mockk<CryptoAccount>()
     private val receiveAddress = mockk<ReceiveAddress>()
     private val address = "address"
 
@@ -55,9 +58,10 @@ class NftCollectionViewModelTest {
 
     @Before
     fun setUp() {
-        viewModel = NftCollectionViewModel(coincore, nftService)
+        viewModel = NftCollectionViewModel(coincore, nftService, oneTimeAccountPersistenceService)
 
         every { coincore[any<String>()] } returns asset
+        every { oneTimeAccountPersistenceService.saveAccount(any()) } just Runs
         every { asset.accountGroup(any()) } returns Maybe.just(accountGroup)
         every { accountGroup.accounts } returns listOf(singleAccount)
         every { singleAccount.receiveAddress } returns Single.just(receiveAddress)
@@ -72,9 +76,9 @@ class NftCollectionViewModelTest {
 
         coEvery { nftService.getNftCollectionForAddress(any(), any(), any()) } returns dataResource
 
-        viewModel.viewState.test {
-            viewModel.viewCreated(ModelConfigArgs.NoArgs)
+        viewModel.onIntent(NftCollectionIntent.LoadData())
 
+        viewModel.viewState.test {
             // first loading - should be loading
             dataResource.emit(DataResource.Loading)
             awaitItem().run {
@@ -108,12 +112,12 @@ class NftCollectionViewModelTest {
 
     @Test
     fun `WHEN ShowReceiveAddress is called, THEN ShowReceiveAddress nav should be called`() = runTest {
-        viewModel.navigationEventFlow.test {
-            viewModel.viewCreated(ModelConfigArgs.NoArgs)
+        viewModel.onIntent(NftCollectionIntent.LoadData())
 
+        viewModel.navigationEventFlow.test {
             viewModel.onIntent(NftCollectionIntent.ShowReceiveAddress)
             awaitItem().run {
-                assertEquals(NftCollectionNavigationEvent.ShowReceiveAddress(singleAccount), this)
+                assertEquals(NftCollectionNavigationEvent.ShowReceiveAddress, this)
             }
         }
     }
@@ -131,9 +135,9 @@ class NftCollectionViewModelTest {
     @Test
     fun `WHEN ShowDetail is called, THEN ShowDetail nav should be called`() = runTest {
         val nftId = "nftId"
-        viewModel.navigationEventFlow.test {
-            viewModel.viewCreated(ModelConfigArgs.NoArgs)
+        viewModel.onIntent(NftCollectionIntent.LoadData())
 
+        viewModel.navigationEventFlow.test {
             viewModel.onIntent(NftCollectionIntent.ShowDetail(nftId, nextPageKey))
             awaitItem().run {
                 assertEquals(NftCollectionNavigationEvent.ShowDetail(nftId, nextPageKey, address), this)

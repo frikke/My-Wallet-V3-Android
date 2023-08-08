@@ -1,35 +1,56 @@
 package com.blockchain.presentation.backup.screens
 
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.MinimalButton
+import androidx.compose.ui.unit.dp
+import com.blockchain.analytics.Analytics
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.MinimalPrimaryButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.icon.SmallTagIcon
+import com.blockchain.componentlib.icons.Alert
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Lock
+import com.blockchain.componentlib.icons.withBackground
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.StandardVerticalSpacer
+import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.presentation.R
+import com.blockchain.presentation.backup.BackupAnalyticsEvents
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import com.blockchain.walletmode.WalletMode
+import org.koin.androidx.compose.get
 
 @Composable
-fun SkipBackup(viewModel: BackupPhraseViewModel) {
+fun SkipBackup(
+    viewModel: BackupPhraseViewModel,
+    analytics: Analytics = get()
+) {
     SkipBackupScreen(
         backOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = false)) },
-        skipOnClick = { viewModel.onIntent(BackupPhraseIntent.SkipBackup) },
+        skipOnClick = {
+            viewModel.onIntent(BackupPhraseIntent.SkipBackup)
+            analytics.logEvent(BackupAnalyticsEvents.BackupSkipClicked)
+        },
         backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) }
     )
 }
@@ -38,60 +59,72 @@ fun SkipBackup(viewModel: BackupPhraseViewModel) {
 fun SkipBackupScreen(
     backOnClick: () -> Unit,
     skipOnClick: () -> Unit,
-    backUpNowOnClick: () -> Unit,
+    backUpNowOnClick: () -> Unit
 ) {
-
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar(
-            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            modeColor = ModeBackgroundColor.Override(WalletMode.NON_CUSTODIAL),
+            title = stringResource(com.blockchain.stringResources.R.string.backup_phrase_title_secure_wallet),
             onBackButtonClick = backOnClick
         )
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_spacing)),
+                .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.weight(1F))
 
-            Image(
-                imageResource = ImageResource.Local(R.drawable.ic_backup_warning)
+            SmallTagIcon(
+                icon = StackedIcon.SmallTag(
+                    main = Icons.Filled.Lock
+                        .withTint(AppColors.backgroundSecondary)
+                        .withBackground(backgroundColor = AppColors.explorer, iconSize = 58.dp, backgroundSize = 88.dp),
+                    tag = Icons.Filled.Alert
+                        .withTint(AppColors.warning),
+                ),
+                iconBackground = AppColors.backgroundSecondary,
+                mainIconSize = 88.dp,
+                tagIconSize = 44.dp,
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
+            StandardVerticalSpacer()
 
-            Text(
-                text = stringResource(R.string.skip_backup_title),
-                style = AppTheme.typography.subheading,
-                color = Grey900,
+            SimpleText(
+                text = stringResource(com.blockchain.stringResources.R.string.skip_backup_title),
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+            TinyVerticalSpacer()
 
-            Text(
-                text = stringResource(R.string.skip_backup_description),
-                style = AppTheme.typography.body1,
-                textAlign = TextAlign.Center,
-                color = Grey900,
+            SimpleText(
+                text = stringResource(com.blockchain.stringResources.R.string.skip_backup_description),
+                style = ComposeTypographies.Body1,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
             )
 
             Spacer(modifier = Modifier.weight(2F))
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.skip_backup_cta_skip),
+                text = stringResource(id = com.blockchain.stringResources.R.string.skip_backup_cta_skip),
                 onClick = skipOnClick
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
-            MinimalButton(
+            MinimalPrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.skip_backup_cta_backup),
+                text = stringResource(id = com.blockchain.stringResources.R.string.skip_backup_cta_backup),
                 onClick = backUpNowOnClick
             )
         }
@@ -104,6 +137,12 @@ fun SkipBackupScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewSkipBackupScreen() {
+private fun PreviewSkipBackupScreen() {
     SkipBackupScreen(backOnClick = {}, skipOnClick = {}, backUpNowOnClick = {})
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewSkipBackupScreenDark() {
+    PreviewSkipBackupScreen()
 }

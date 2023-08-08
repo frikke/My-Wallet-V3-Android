@@ -94,7 +94,7 @@ class NabuApiException constructor(
     private val path: String?,
     private val id: String?,
     private val serverSideUxError: ServerSideUxErrorInfo?
-) : RuntimeException(message) {
+) : RuntimeException(message), java.io.Serializable {
 
     private constructor(message: String, code: Int) : this(
         message = message,

@@ -5,5 +5,5 @@ data class RefreshBankInfo(
     val id: String,
     val linkToken: String,
     val linkUrl: String,
-    val tokenExpiresAt: String,
+    val tokenExpiresAt: String
 )

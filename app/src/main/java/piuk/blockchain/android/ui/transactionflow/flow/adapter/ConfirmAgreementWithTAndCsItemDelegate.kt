@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemSendConfirmAgreementCheckboxBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -33,27 +34,33 @@ class ConfirmAgreementWithTAndCsItemDelegate<in T>(
         holder: RecyclerView.ViewHolder
     ) = (holder as AgreementItemViewHolder).bind(
         items[position] as TxConfirmationValue.TxBooleanConfirmation<Unit>,
-        model
+        model,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
 private class AgreementItemViewHolder(private val binding: ItemSendConfirmAgreementCheckboxBinding) :
     RecyclerView.ViewHolder(binding.root) {
+
     fun bind(
         item: TxConfirmationValue.TxBooleanConfirmation<Unit>,
-        model: TransactionModel
+        model: TransactionModel,
+        isFirstItemInList: Boolean,
+        isLastItemInList: Boolean
     ) {
-
         val linksMap = mapOf<String, Uri>(
             "interest_tos" to Uri.parse(INTEREST_TERMS_OF_SERVICE),
             "interest_pp" to Uri.parse(INTEREST_PRIVACY_POLICY)
         )
 
         with(binding) {
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
             confirmDetailsCheckboxText.apply {
                 text = StringUtils.getStringWithMappedAnnotations(
                     binding.root.context,
-                    R.string.send_confirmation_rewards_tos_pp,
+                    com.blockchain.stringResources.R.string.send_confirmation_rewards_tos_pp,
                     linksMap
                 )
                 movementMethod = LinkMovementMethod.getInstance()

@@ -8,7 +8,6 @@ import java.util.EnumSet
 import timber.log.Timber
 
 fun parseDecodeHints(intent: Intent): Map<DecodeHintType, Any> {
-
     intent.extras?.let { extras ->
         if (extras.isEmpty) {
             return mapOf()
@@ -44,7 +43,6 @@ fun parseDecodeFormats(
     productBarcodeFormats: Collection<BarcodeFormat>,
     oneDBarcodeFormats: Collection<BarcodeFormat>
 ): Collection<BarcodeFormat> {
-
     val scanFormats: List<String>? = intent.getStringExtra(QrScanIntents.FORMATS)?.split(",")
     val decodeMode = intent.getStringExtra(QrScanIntents.MODE)
     val barcodeFormats = EnumSet.noneOf(BarcodeFormat::class.java)

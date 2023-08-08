@@ -1,5 +1,6 @@
 package com.blockchain.defiwalletbackup.data.repository
 
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.defiwalletbackup.domain.errors.BackupPhraseError
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
@@ -17,21 +18,23 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class BackupPhraseServiceTest {
-    private val payloadManager = mockk<WalletPayloadService>()
+    private val walletPayloadService = mockk<WalletPayloadService>()
     private val backupWallet = mockk<BackupWallet>()
     private val walletStatusPrefs = mockk<WalletStatusPrefs>()
+    private val payloadManager = mockk<PayloadDataManager>()
 
     private val backupPhraseService: BackupPhraseService = BackupPhraseRepository(
-        walletPayloadService = payloadManager,
+        walletPayloadService = walletPayloadService,
         backupWallet = backupWallet,
-        walletStatusPrefs = walletStatusPrefs
+        walletStatusPrefs = walletStatusPrefs,
+        payloadManager = payloadManager
     )
 
     private val mnemonic = listOf("A", "B")
 
     @Test
     fun `GIVEN phrase backed up, WHEN isBackedUp is called, THEN true should be returned`() {
-        every { payloadManager.isBackedUp } returns true
+        every { walletPayloadService.isBackedUp } returns true
 
         val result = backupPhraseService.isBackedUp()
 
@@ -40,7 +43,7 @@ class BackupPhraseServiceTest {
 
     @Test
     fun `GIVEN phrase not backed up, WHEN isBackedUp is called, THEN false should be returned`() {
-        every { payloadManager.isBackedUp } returns false
+        every { walletPayloadService.isBackedUp } returns false
 
         val result = backupPhraseService.isBackedUp()
 
@@ -69,7 +72,7 @@ class BackupPhraseServiceTest {
     @Test
     fun `GIVEN sync successful, WHEN confirmRecoveryPhraseBackedUp is called, THEN Success should be returned`() =
         runTest {
-            every { payloadManager.updateMnemonicVerified(true) } returns Completable.complete()
+            every { walletPayloadService.updateMnemonicVerified(true) } returns Completable.complete()
             every { walletStatusPrefs.lastBackupTime = any() } just Runs
 
             val result = backupPhraseService.confirmRecoveryPhraseBackedUp()
@@ -80,7 +83,7 @@ class BackupPhraseServiceTest {
     @Test
     fun `GIVEN sync unsuccessful, WHEN confirmRecoveryPhraseBackedUp is called, THEN Failure BackupConfirmationError should be returned`() =
         runTest {
-            every { payloadManager.updateMnemonicVerified(true) } returns Completable.error(Exception())
+            every { walletPayloadService.updateMnemonicVerified(true) } returns Completable.error(Exception())
 
             val result = backupPhraseService.confirmRecoveryPhraseBackedUp()
 

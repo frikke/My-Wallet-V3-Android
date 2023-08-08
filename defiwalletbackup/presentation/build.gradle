@@ -6,16 +6,17 @@ android {
         warningsAsErrors true
         abortOnError true
     }
+    namespace 'com.blockchain.presentation'
 }
 
 dependencies {
     implementation project(':defiwalletbackup:domain')
     implementation project(':commonarch')
     implementation project(':componentlib')
+    implementation project(':componentlib-icons')
     implementation project(':analytics:domain')
     implementation project(':common:interface')
     implementation project(':core')
-
     // Compose
     implementation Libraries.accompanistFlowLayout
     implementation Libraries.composeUiPoolingContainer

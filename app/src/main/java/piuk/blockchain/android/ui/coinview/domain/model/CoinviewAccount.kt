@@ -2,15 +2,12 @@ package piuk.blockchain.android.ui.coinview.domain.model
 
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.data.DataResource
 import info.blockchain.balance.Money
 
 sealed interface CoinviewAccounts {
     val accounts: List<CoinviewAccount>
-
-    data class Universal(
-        override val accounts: List<CoinviewAccount.Universal>
-    ) : CoinviewAccounts
 
     data class Custodial(
         override val accounts: List<CoinviewAccount.Custodial>
@@ -26,24 +23,10 @@ sealed interface CoinviewAccount {
     val isEnabled: Boolean
     val account: BlockchainAccount
     val cryptoBalance: DataResource<Money>
-    val fiatBalance: DataResource<Money>
+    val fiatBalance: DataResource<Money?>
 
     val isClickable: Boolean
         get() = cryptoBalance is DataResource.Data && fiatBalance is DataResource.Data
-
-    /**
-     * Universal mode
-     * Should support all types of accounts: custodial, non custodial, interest
-     */
-    data class Universal(
-        override val filter: AssetFilter,
-        override val isEnabled: Boolean,
-        override val account: BlockchainAccount,
-        override val cryptoBalance: DataResource<Money>,
-        override val fiatBalance: DataResource<Money>,
-        val interestRate: Double,
-        val stakingRate: Double
-    ) : CoinviewAccount
 
     /**
      * Brokerage mode
@@ -54,7 +37,7 @@ sealed interface CoinviewAccount {
             override val isEnabled: Boolean,
             override val account: BlockchainAccount,
             override val cryptoBalance: DataResource<Money>,
-            override val fiatBalance: DataResource<Money>
+            override val fiatBalance: DataResource<Money?>
         ) : Custodial {
             override val filter: AssetFilter = AssetFilter.Trading
         }
@@ -63,7 +46,7 @@ sealed interface CoinviewAccount {
             override val isEnabled: Boolean,
             override val account: BlockchainAccount,
             override val cryptoBalance: DataResource<Money>,
-            override val fiatBalance: DataResource<Money>,
+            override val fiatBalance: DataResource<Money?>,
             val interestRate: Double
         ) : Custodial {
             override val filter: AssetFilter = AssetFilter.Interest
@@ -73,10 +56,20 @@ sealed interface CoinviewAccount {
             override val isEnabled: Boolean,
             override val account: BlockchainAccount,
             override val cryptoBalance: DataResource<Money>,
-            override val fiatBalance: DataResource<Money>,
+            override val fiatBalance: DataResource<Money?>,
             val stakingRate: Double
         ) : Custodial {
             override val filter: AssetFilter = AssetFilter.Staking
+        }
+
+        data class ActiveRewards(
+            override val isEnabled: Boolean,
+            override val account: BlockchainAccount,
+            override val cryptoBalance: DataResource<Money>,
+            override val fiatBalance: DataResource<Money?>,
+            val activeRewardsRate: Double
+        ) : Custodial {
+            override val filter: AssetFilter = AssetFilter.ActiveRewards
         }
     }
 
@@ -84,31 +77,32 @@ sealed interface CoinviewAccount {
      * Defi mode
      */
     data class PrivateKey(
-        override val account: BlockchainAccount,
+        override val account: SingleAccount,
         override val cryptoBalance: DataResource<Money>,
-        override val fiatBalance: DataResource<Money>,
-        override val isEnabled: Boolean
+        override val fiatBalance: DataResource<Money?>,
+        override val isEnabled: Boolean,
+        val address: String
     ) : CoinviewAccount {
         override val filter: AssetFilter = AssetFilter.NonCustodial
     }
 }
 
 fun CoinviewAccount.isTradingAccount(): Boolean {
-    return this is CoinviewAccount.Custodial.Trading ||
-        (this is CoinviewAccount.Universal && filter == AssetFilter.Trading)
+    return this is CoinviewAccount.Custodial.Trading
 }
 
 fun CoinviewAccount.isInterestAccount(): Boolean {
-    return this is CoinviewAccount.Custodial.Interest ||
-        (this is CoinviewAccount.Universal && filter == AssetFilter.Interest)
+    return this is CoinviewAccount.Custodial.Interest
 }
 
 fun CoinviewAccount.isStakingAccount(): Boolean {
-    return this is CoinviewAccount.Custodial.Staking ||
-        (this is CoinviewAccount.Universal && filter == AssetFilter.Staking)
+    return this is CoinviewAccount.Custodial.Staking
+}
+
+fun CoinviewAccount.isActiveRewardsAccount(): Boolean {
+    return this is CoinviewAccount.Custodial.ActiveRewards
 }
 
 fun CoinviewAccount.isPrivateKeyAccount(): Boolean {
-    return this is CoinviewAccount.PrivateKey ||
-        (this is CoinviewAccount.Universal && filter == AssetFilter.NonCustodial)
+    return this is CoinviewAccount.PrivateKey
 }

@@ -7,5 +7,7 @@ data class PaymentMethodTypeWithEligibility(
     val currency: FiatCurrency,
     val type: PaymentMethodType,
     val limits: PaymentLimits,
-    val cardFundSources: List<String>? = null
+    val cardFundSources: List<String>?,
+    // optional since only ACH will support it initially, if null then we assume all capabilities are present
+    val capabilities: List<PaymentMethodTypeCapability>?
 )

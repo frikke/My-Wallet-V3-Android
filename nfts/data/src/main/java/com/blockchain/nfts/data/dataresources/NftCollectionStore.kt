@@ -32,7 +32,7 @@ class NftCollectionStore(
     @Serializable
     data class Key(
         val address: String,
-        val pageKey: String?,
+        val pageKey: String?
     )
 
     override fun invalidate(param: Key) {

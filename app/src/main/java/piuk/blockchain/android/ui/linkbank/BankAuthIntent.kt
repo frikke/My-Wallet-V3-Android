@@ -1,6 +1,9 @@
 package piuk.blockchain.android.ui.linkbank
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.domain.paymentmethods.model.BankAuthError
+import com.blockchain.domain.paymentmethods.model.BankAuthSource
+import com.blockchain.domain.paymentmethods.model.BankLinkingProcessState
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType

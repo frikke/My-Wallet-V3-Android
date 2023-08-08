@@ -43,7 +43,7 @@ const val WALLET_STATUS_URL = "https://www.blockchain-status.com"
 const val ORDER_PRICE_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061672651"
 const val PRIVATE_KEY_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061675191"
 const val NETWORK_FEE_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360000939903-Transaction-fees"
-const val NETWORK_ERC20_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061258732"
+const val NETWORK_ERC20_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061672651-Wallet-Pricing"
 const val EXCHANGE_SWAP_RATE_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061672651"
 const val CHECKOUT_PRICE_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061672651"
 const val CHECKOUT_REFUND_POLICY = "https://support.blockchain.com/hc/en-us/articles/4417063009172"
@@ -78,8 +78,6 @@ const val URL_RUSSIA_SANCTIONS_EU8 =
 const val URL_CREDIT_CARD_FAILURES = "https://support.blockchain.com/hc/en-us/articles/5154350610716"
 
 const val MULTICHAIN_LEARN_MORE = "https://support.blockchain.com/hc/en-us/articles/6416326056092"
-
-const val URL_JOIN_BLOCKCHAIN_CARD_WAITLIST = "https://www.blockchain.com/card"
 
 const val ETH_STAKING_CONSIDERATIONS = "https://ethereum.org/staking/"
 

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundSecondary"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/kyc_country_selection_header"
+            android:textColor="@color/title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -25,6 +27,7 @@
             style="@style/KycFlowMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/body"
             android:text="@string/kyc_phone_number_message"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -56,11 +59,11 @@
 
         <Button
             android:id="@+id/button_kyc_phone_number_next"
-            style="@style/CtaButton.Blue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:enabled="false"
+            android:textColor="@color/primary"
             android:text="@string/kyc_profile_next"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

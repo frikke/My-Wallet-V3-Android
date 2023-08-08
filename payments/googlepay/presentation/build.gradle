@@ -1,6 +1,8 @@
 apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
-
+android {
+    namespace 'com.blockchain.payments.googlepay'
+}
 dependencies {
     implementation project(':common:interface')
     api project(':payments:googlepay:domain')

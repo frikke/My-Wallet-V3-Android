@@ -5,6 +5,7 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.TxConfirmationValue
@@ -65,10 +66,11 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
                             )
                         )
                     else -> {
-                        /*NO-OP*/
+                        // NO-OP
                     }
                 }
             },
+            coroutineScope = lifecycleScope
         )
     }
 
@@ -87,8 +89,12 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
             itemAnimator = null
         }
         model.process(TransactionIntent.ValidateTransaction)
+        model.process(TransactionIntent.FetchConfirmationRates)
         model.process(TransactionIntent.LoadImprovedPaymentUxFeatureFlag)
         model.process(TransactionIntent.LoadDepositTerms)
+        if (assetAction == AssetAction.ActiveRewardsWithdraw || assetAction == AssetAction.StakingWithdraw) {
+            model.process(TransactionIntent.LoadRewardsWithdrawalUnbondingDays)
+        }
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxFlowConfirmBinding =

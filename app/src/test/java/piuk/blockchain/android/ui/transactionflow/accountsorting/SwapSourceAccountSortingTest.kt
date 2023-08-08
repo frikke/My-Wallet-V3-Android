@@ -2,10 +2,6 @@ package piuk.blockchain.android.ui.transactionflow.accountsorting
 
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.logging.MomentEvent
-import com.blockchain.logging.MomentLogger
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -21,7 +17,6 @@ class SwapSourceAccountSortingTest {
     private val assetListOrderingFF: FeatureFlag = mock()
     private val defaultAccountsSorting: DefaultAccountsSorting = mock()
     private val sellAccountsSorting: SellAccountsSorting = mock()
-    private val momentLogger: MomentLogger = mock()
 
     private lateinit var subject: SwapSourceAccountsSorting
 
@@ -31,11 +26,7 @@ class SwapSourceAccountSortingTest {
             assetListOrderingFF = assetListOrderingFF,
             dashboardAccountsSorter = defaultAccountsSorting,
             sellAccountsSorting = sellAccountsSorting,
-            momentLogger = momentLogger
         )
-
-        doNothing().whenever(momentLogger).startEvent(any())
-        doNothing().whenever(momentLogger).endEvent(any(), any())
     }
 
     @Test
@@ -47,10 +38,8 @@ class SwapSourceAccountSortingTest {
         subject.sorter().invoke(list).test()
 
         verify(defaultAccountsSorting).sorter()
-        verify(momentLogger).startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
         verifyNoMoreInteractions(defaultAccountsSorting)
         verifyNoMoreInteractions(sellAccountsSorting)
-        verifyNoMoreInteractions(momentLogger)
     }
 
     @Test
@@ -60,10 +49,7 @@ class SwapSourceAccountSortingTest {
 
         val list = listOf<SingleAccount>()
         subject.sorter().invoke(list).test()
-
         verify(sellAccountsSorting).sorter()
-        verify(momentLogger).startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
         verifyNoMoreInteractions(defaultAccountsSorting)
-        verifyNoMoreInteractions(momentLogger)
     }
 }

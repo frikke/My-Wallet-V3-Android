@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.data.toObservable
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -12,17 +13,14 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
-import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
-import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.ui.home.CredentialsWiper
@@ -36,10 +34,9 @@ class SettingsInteractor internal constructor(
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
     private val currencyPrefs: CurrencyPrefs,
     private val referralService: ReferralService,
-    private val nabuUserIdentity: NabuUserIdentity,
-    private val dustBalancesFF: FeatureFlag
+    private val nabuUserIdentity: NabuUserIdentity
 ) {
-    private val userSelectedFiat: FiatCurrency
+    val userSelectedFiat: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
 
     fun getSupportEligibilityAndBasicInfo(): Single<UserDetails> {
@@ -53,11 +50,8 @@ class SettingsInteractor internal constructor(
     }
 
     private fun getReferralData(): Single<ReferralInfo> {
-        return rxSingle {
-            referralService.fetchReferralData()
-                .getOrDefault(ReferralInfo.NotAvailable)
-        }
-            .onErrorResumeWith { ReferralInfo.NotAvailable }
+        return referralService.fetchReferralData().toObservable().firstOrError()
+            .onErrorResumeWith { Single.just(ReferralInfo.NotAvailable) }
     }
 
     fun unpairWallet(): Completable = Completable.fromAction {
@@ -127,8 +121,7 @@ class SettingsInteractor internal constructor(
         getAvailablePaymentMethodsTypesUseCase(
             GetAvailablePaymentMethodsTypesUseCase.Request(
                 currency = fiatCurrency,
-                onlyEligible = true,
-                fetchSddLimits = false
+                onlyEligible = true
             )
         ).map { available ->
             val allowedTypes = listOf(
@@ -147,7 +140,7 @@ class SettingsInteractor internal constructor(
     private fun getLinkedBanks(
         fiatCurrency: FiatCurrency,
         available: List<AvailablePaymentMethodType>,
-        limits: PaymentLimits,
+        limits: PaymentLimits
     ): Single<List<BankItem>> =
         bankService.getLinkedBanks()
             .map { banks ->
@@ -176,9 +169,4 @@ class SettingsInteractor internal constructor(
         isEligible = true,
         cardRejectionState = cardRejectionState
     )
-
-    fun initializeFeatureFlags(): Single<FeatureFlagsSet> =
-        dustBalancesFF.enabled.map { dustBalancesEnabled ->
-            FeatureFlagsSet(dustBalancesEnabled)
-        }
 }

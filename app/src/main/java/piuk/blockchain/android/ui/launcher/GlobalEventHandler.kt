@@ -4,6 +4,8 @@ import android.app.Application
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.net.Uri
+import androidx.core.net.toUri
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
@@ -11,47 +13,67 @@ import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.deeplinking.processor.DeepLinkResult
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.MaybeSubject
-import piuk.blockchain.android.R
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.rx3.asObservable
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
-import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import timber.log.Timber
 
 class GlobalEventHandler(
     private val application: Application,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
+    private val walletConnectV2Service: WalletConnectV2Service,
     private val deeplinkRedirector: DeeplinkRedirector,
     private val destinationArgs: DestinationArgs,
     private val notificationManager: NotificationManager,
     private val analytics: Analytics,
-    private val stakingFF: FeatureFlag
+    private val homeActivityLauncher: HomeActivityLauncher
 ) {
     private val compositeDisposable = CompositeDisposable()
 
     fun init() {
-        compositeDisposable.clear()
+
+        clear()
+
         compositeDisposable += walletConnectServiceAPI.userEvents.subscribe { event ->
             startTransactionFlowForSigning(event)
         }
+
+        compositeDisposable += walletConnectV2Service.userEvents.distinctUntilChanged().asObservable().subscribe {
+            Timber.d("New WalletConnectV2 User Event ${it.javaClass.simpleName}")
+            startTransactionFlowForSigning(it)
+        }
+
+        compositeDisposable += walletConnectV2Service.dappRedirectEvents
+            .distinctUntilChanged()
+            .asObservable()
+            .subscribe {
+                Timber.d("New WalletConnectV2 Dapp Redirect Event: $it")
+                openUri(it.toUri())
+            }
 
         compositeDisposable += deeplinkRedirector.deeplinkEvents
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { deeplinkResult ->
                 navigateToDeeplinkDestination(deeplinkResult)
             }
+    }
+
+    fun clear() {
+        compositeDisposable.clear()
     }
 
     private fun navigateToDeeplinkDestination(deeplinkResult: DeepLinkResult) {
@@ -63,7 +85,7 @@ class GlobalEventHandler(
             } else {
                 Timber.d("deeplink: Starting main activity with pending destination")
                 application.startActivity(
-                    MainActivity.newIntent(
+                    homeActivityLauncher.newIntent(
                         context = application,
                         pendingDestination = deeplinkResult.destination
                     )
@@ -77,27 +99,12 @@ class GlobalEventHandler(
         when (destination) {
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
-                    subject.flatMapSingle {
-                        stakingFF.enabled.map {
-                            subject.onSuccess(
-                                if (it) {
-                                    CoinViewActivityV2.newIntent(
-                                        context = application,
-                                        asset = assetInfo,
-                                        recurringBuyId = destination.recurringBuyId,
-                                        originScreen = LaunchOrigin.NOTIFICATION.name
-                                    )
-                                } else {
-                                    CoinViewActivity.newIntent(
-                                        context = application,
-                                        asset = assetInfo,
-                                        originScreen = LaunchOrigin.NOTIFICATION.name,
-                                        recurringBuyId = destination.recurringBuyId
-                                    )
-                                }
-                            )
-                        }
-                    }
+                    CoinViewActivity.newIntent(
+                        context = application,
+                        asset = assetInfo,
+                        recurringBuyId = destination.recurringBuyId,
+                        originScreen = LaunchOrigin.NOTIFICATION.name
+                    )
                 } ?: run {
                     subject.onError(
                         Exception("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
@@ -129,6 +136,7 @@ class GlobalEventHandler(
                                 TransactionFlowActivity.newIntent(
                                     context = application,
                                     sourceAccount = account,
+                                    origin = "DeeplinkAssetSendDestination",
                                     action = AssetAction.Send
                                 )
                             )
@@ -146,7 +154,7 @@ class GlobalEventHandler(
 
             is Destination.ActivityDestination -> {
                 subject.onSuccess(
-                    MainActivity.newIntent(
+                    homeActivityLauncher.newIntent(
                         context = application,
                         pendingDestination = destination
                     )
@@ -183,8 +191,8 @@ class GlobalEventHandler(
                         text = notificationPayload.body,
                         pendingIntent = pendingIntentFinal,
                         id = NotificationsUtil.ID_BACKGROUND_NOTIFICATION,
-                        appName = R.string.app_name,
-                        colorRes = R.color.primary_navy_medium,
+                        appName = com.blockchain.stringResources.R.string.app_name,
+                        colorRes = com.blockchain.common.R.color.primary_navy_medium,
                         source = "GlobalEventHandler: $destination"
                     )
                 }
@@ -200,8 +208,19 @@ class GlobalEventHandler(
             application,
             sourceAccount = event.source,
             target = event.target,
-            action = AssetAction.Sign
+            action = when (event) {
+                is WalletConnectUserEvent.SignTransaction,
+                is WalletConnectUserEvent.SignMessage -> AssetAction.Sign
+                is WalletConnectUserEvent.SendTransaction -> AssetAction.Send
+            },
+            origin = "startTransactionFlowForSigning WC"
         )
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        application.startActivity(intent)
+    }
+
+    private fun openUri(uri: Uri) {
+        val intent = Intent(Intent.ACTION_VIEW, uri)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         application.startActivity(intent)
     }

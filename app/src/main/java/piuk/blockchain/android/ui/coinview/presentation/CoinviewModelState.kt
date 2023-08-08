@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
 import com.blockchain.api.services.DetailedAssetInformation
-import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
-import com.blockchain.data.dataOrDefault
+import com.blockchain.data.dataOrElse
 import com.blockchain.data.map
+import com.blockchain.news.NewsArticle
 import com.blockchain.walletmode.WalletMode
 import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
@@ -23,9 +23,12 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewRecurringBuys
  * @property interactiveAssetPrice - price and price change information, used when user is interacting with the chart
  */
 data class CoinviewModelState(
-    val walletMode: WalletMode,
+    val walletMode: WalletMode? = null,
 
     val asset: CryptoAsset? = null,
+
+    // kyc rejected
+    val isKycRejected: Boolean = false,
 
     // price
     val isChartDataLoading: Boolean = false,
@@ -48,11 +51,17 @@ data class CoinviewModelState(
     // asset info
     val assetInfo: DataResource<DetailedAssetInformation> = DataResource.Loading,
 
+    // news
+    val newsArticles: DataResource<List<NewsArticle>> = DataResource.Loading,
+
+    // alerts
+    val alert: CoinviewPillAlert = CoinviewPillAlert.None,
+
     // errors
     val error: CoinviewError = CoinviewError.None,
 
     // deeplinks
-    val recurringBuyId: String? = null,
+    val recurringBuyId: String? = null
 ) : ModelState {
     val isTradeableAsset: Boolean?
         get() = (assetDetail as? DataResource.Data)?.data?.let { it is CoinviewAssetDetail.Tradeable }
@@ -62,10 +71,6 @@ data class CoinviewModelState(
 
     /**
      * Returns the first account that is:
-     *
-     * * Universal trading or defi
-     *
-     * *OR*
      *
      * * Cutodial trading (i.e. interest is not actionable)
      *
@@ -87,21 +92,27 @@ data class CoinviewModelState(
 
         return with((assetDetail.data as CoinviewAssetDetail.Tradeable).accounts) {
             accounts.firstOrNull { account ->
-                val isUniversalTradingDefiAccount = account is CoinviewAccount.Universal &&
-                    (account.filter == AssetFilter.Trading || account.filter == AssetFilter.NonCustodial)
                 val isTradingAccount = account is CoinviewAccount.Custodial.Trading
                 val isPrivateKeyAccount = account is CoinviewAccount.PrivateKey
 
                 val isValidBalance = if (isPositiveBalanceRequired) {
-                    account.cryptoBalance.map { it.isPositive }.dataOrDefault(false)
+                    account.cryptoBalance.map { it.isPositive }.dataOrElse(false)
                 } else {
                     true
                 }
 
-                (isUniversalTradingDefiAccount || isTradingAccount || isPrivateKeyAccount) && isValidBalance
-            } ?: error("No actionable account found - maybe a quick action is active when it should be disabled")
+                (isTradingAccount || isPrivateKeyAccount) && isValidBalance
+            } ?: error(
+                "No actionable account found - maybe a quick action is active when it should be disabled -- " +
+                    "or you're expecting a zero balance account if so make sure isPositiveBalanceRequired = false "
+            )
         }
     }
+}
+
+sealed interface CoinviewPillAlert {
+    object WatchlistAdded : CoinviewPillAlert
+    object None : CoinviewPillAlert
 }
 
 sealed interface CoinviewError {

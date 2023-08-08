@@ -1,39 +1,40 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.toImageResource
 import com.blockchain.componentlib.utils.value
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
+import com.blockchain.data.DataResource
+import com.blockchain.domain.swap.SwapOption
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
+import piuk.blockchain.android.ui.coinview.presentation.logo
+import piuk.blockchain.android.ui.coinview.presentation.name
 
 @Composable
 fun BottomQuickActions(
-    data: CoinviewBottomQuickActionsState,
-    onQuickActionClick: (CoinviewQuickActionState) -> Unit
+    assetTicker: String,
+    data: DataResource<List<CoinviewQuickAction>>,
+    onQuickActionClick: (CoinviewQuickAction) -> Unit
 ) {
     when (data) {
-        CoinviewBottomQuickActionsState.NotSupported -> {
-            Empty()
-        }
+        DataResource.Loading,
+        is DataResource.Error -> Empty()
 
-        CoinviewBottomQuickActionsState.Loading -> {
-            BottomQuickActionLoading()
-        }
-
-        is CoinviewBottomQuickActionsState.Data -> {
+        is DataResource.Data -> {
             BottomQuickActionData(
+                assetTicker = assetTicker,
                 data = data,
                 onQuickActionClick = onQuickActionClick
             )
@@ -42,142 +43,75 @@ fun BottomQuickActions(
 }
 
 @Composable
-fun BottomQuickActionLoading() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Separator()
-
+fun BottomQuickActionData(
+    assetTicker: String,
+    data: DataResource.Data<List<CoinviewQuickAction>>,
+    onQuickActionClick: (CoinviewQuickAction) -> Unit
+) {
+    if (data.data.isEmpty()) {
+        Empty()
+    } else {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.mediumSpacing)
+                .background(
+                    color = AppColors.backgroundSecondary,
+                    shape = RoundedCornerShape(
+                        topStart = AppTheme.dimensions.borderRadiiMedium,
+                        topEnd = AppTheme.dimensions.borderRadiiMedium
+                    )
+                )
+                .padding(AppTheme.dimensions.smallSpacing)
         ) {
-            SecondaryButton(
-                modifier = Modifier.weight(1F),
-                text = "",
-                state = ButtonState.Loading,
-                onClick = {}
-            )
+            data.data.forEachIndexed { index, action ->
+                SecondaryButton(
+                    modifier = Modifier.weight(1F),
+                    text = action.name(assetTicker).value(),
+                    icon = action.logo().toImageResource().withTint(AppColors.backgroundSecondary),
+                    state = if (action.enabled) ButtonState.Enabled else ButtonState.Disabled,
+                    onClick = { onQuickActionClick(action) }
+                )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-
-            SecondaryButton(
-                modifier = Modifier.weight(1F),
-                text = "",
-                state = ButtonState.Loading,
-                onClick = {}
-            )
-        }
-    }
-}
-
-@Composable
-fun BottomQuickActionData(
-    data: CoinviewBottomQuickActionsState.Data,
-    onQuickActionClick: (CoinviewQuickActionState) -> Unit
-) {
-    val atLeastOneButton =
-        data.start !is CoinviewQuickActionState.None || data.end !is CoinviewQuickActionState.None
-
-    if (atLeastOneButton) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Separator()
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(AppTheme.dimensions.mediumSpacing)
-            ) {
-                val showSpacer =
-                    data.start !is CoinviewQuickActionState.None && data.end !is CoinviewQuickActionState.None
-
-                if (data.start !is CoinviewQuickActionState.None) {
-                    SecondaryButton(
-                        modifier = Modifier.weight(1F),
-                        text = data.start.name.value(),
-                        icon = ImageResource.Local(
-                            data.start.logo.value,
-                            colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                            size = AppTheme.dimensions.standardSpacing
-                        ),
-                        state = if (data.start.enabled) ButtonState.Enabled else ButtonState.Disabled,
-                        onClick = { onQuickActionClick(data.start) }
-                    )
-                }
-
-                if (showSpacer) {
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-                }
-
-                if (data.end !is CoinviewQuickActionState.None) {
-                    SecondaryButton(
-                        modifier = Modifier.weight(1F),
-                        text = data.end.name.value(),
-                        icon = ImageResource.Local(
-                            data.end.logo.value,
-                            colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                            size = AppTheme.dimensions.standardSpacing
-                        ),
-                        state = if (data.end.enabled) ButtonState.Enabled else ButtonState.Disabled,
-                        onClick = { onQuickActionClick(data.end) }
-                    )
+                if (index < data.data.lastIndex) {
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                 }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
-fun PreviewBottomQuickActions_Loading() {
+fun PreviewBottomQuickActions_Data_2() {
     BottomQuickActions(
-        CoinviewBottomQuickActionsState.Loading, {}
+        assetTicker = "ETH",
+        data = DataResource.Data(
+            listOf(CoinviewQuickAction.Send(), CoinviewQuickAction.Receive(false))
+        ),
+        onQuickActionClick = {}
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
-fun PreviewBottomQuickActions_Data_Enabled() {
+fun PreviewBottomQuickActions_Data_1() {
     BottomQuickActions(
-        CoinviewBottomQuickActionsState.Data(
-            start = CoinviewQuickActionState.Send(true),
-            end = CoinviewQuickActionState.Receive(true)
+        assetTicker = "ETH",
+        data = DataResource.Data(
+            listOf(CoinviewQuickAction.Get(swapOption = SwapOption.BcdcSwap))
         ),
-        {}
+        onQuickActionClick = {}
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0XFFF0F2F7)
 @Composable
-fun PreviewBottomQuickActions_Data_Disabled() {
+fun PreviewQuickActionsBottom_Data_0() {
     BottomQuickActions(
-        CoinviewBottomQuickActionsState.Data(
-            start = CoinviewQuickActionState.Buy(false),
-            end = CoinviewQuickActionState.Sell(false)
+        assetTicker = "ETH",
+        data = DataResource.Data(
+            listOf()
         ),
-        {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewQuickActionsBottom_Data_1None() {
-    BottomQuickActions(
-        CoinviewBottomQuickActionsState.Data(
-            start = CoinviewQuickActionState.None,
-            end = CoinviewQuickActionState.Sell(false)
-        ),
-        {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewQuickActionsBottom_Data_None() {
-    BottomQuickActions(
-        CoinviewBottomQuickActionsState.Data(
-            start = CoinviewQuickActionState.None,
-            end = CoinviewQuickActionState.None
-        ),
-        {}
+        onQuickActionClick = {}
     )
 }

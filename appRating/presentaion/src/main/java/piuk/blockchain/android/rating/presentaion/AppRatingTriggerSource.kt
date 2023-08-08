@@ -6,7 +6,8 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 enum class AppRatingTriggerSource(val value: String) : ModelConfigArgs.ParcelableArgs {
     DASHBOARD("DASHBOARD"),
-    BUY("BUY");
+    BUY("BUY"),
+    SETTINGS("SETTINGS");
 
     companion object {
         const val ARGS_KEY = "AppRatingArgs"

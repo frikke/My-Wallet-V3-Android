@@ -13,6 +13,7 @@ import org.junit.Test
 class CryptoCurrencyFormatterTest {
 
     val locale = Locale.US
+
     @Before
     fun setLocale() {
         Locale.setDefault(locale)
@@ -134,7 +135,8 @@ class CryptoCurrencyFormatterTest {
         val formatWithUnit =
             { wei: Long ->
                 CryptoValue(
-                    CryptoCurrency.ETHER, wei.toBigInteger()
+                    CryptoCurrency.ETHER,
+                    wei.toBigInteger()
                 ).formatWithUnit(locale, precision = FormatPrecision.Full)
             }
         formatWithUnit(1L) `should be equal to` "0.000000000000000001 ETH"
@@ -178,8 +180,8 @@ class CryptoCurrencyFormatterTest {
     fun `format in another locale`() {
         0.ether().format(Locale.FRANCE) `should be equal to` "0"
         1.ether().format(Locale.FRANCE) `should be equal to` "1,0"
-        10_000.ether().format(Locale.FRANCE) `should be equal to` "10\u00a0000,0"
-        100_000_000.ether().format(Locale.FRANCE) `should be equal to` "100\u00a0000\u00a0000,0"
+        10_000.ether().format(Locale.FRANCE) `should be equal to` "10 000,0"
+        100_000_000.ether().format(Locale.FRANCE) `should be equal to` "100 000 000,0"
     }
 
     @Test

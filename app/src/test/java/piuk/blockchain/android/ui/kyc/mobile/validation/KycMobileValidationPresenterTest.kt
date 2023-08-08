@@ -73,7 +73,7 @@ class KycMobileValidationPresenterTest {
             context = QuestionnaireContext.TIER_TWO_VERIFICATION,
             nodes = listOf(
                 QuestionnaireNode.Selection("s1", "text1", emptyList(), false),
-                QuestionnaireNode.Selection("s2", "text2", emptyList(), false),
+                QuestionnaireNode.Selection("s2", "text2", emptyList(), false)
             ),
             isMandatory = true
         )

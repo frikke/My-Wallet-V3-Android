@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.control
 
+import android.content.res.Configuration
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -24,11 +25,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.icons.Check
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Red000
-import com.blockchain.componentlib.theme.Red900
 
 @Composable
 fun Checkbox(
@@ -36,16 +36,15 @@ fun Checkbox(
     onCheckChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
-
     val checkboxCheckedFillColor = AppTheme.colors.primary
     val checkboxCheckedBorderColor = AppTheme.colors.primary
 
     val checkboxUncheckedFillColor = AppTheme.colors.light
     val checkboxUncheckedBorderColor = AppTheme.colors.medium
 
-    val checkboxErrorFillColor = if (isDarkTheme) Red900 else Red000
+    val checkboxErrorFillColor = AppTheme.colors.errorLight
     val checkboxErrorBorderColor = AppTheme.colors.error
 
     val checkboxFillColor by remember(
@@ -94,8 +93,8 @@ fun Checkbox(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(
                             bounded = false,
-                            radius = dimensionResource(R.dimen.standard_spacing),
-                        ),
+                            radius = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+                        )
                     ) {
                         onCheckChanged(
                             when (state) {
@@ -109,23 +108,20 @@ fun Checkbox(
                     this
                 }
             }
-            .size(dimensionResource(R.dimen.standard_spacing))
+            .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
             .background(
                 color = animateColorAsState(targetValue = checkboxBorderColor).value,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.smallest_spacing)),
+                shape = RoundedCornerShape(dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
             )
             .padding(2.dp)
             .background(
                 color = animateColorAsState(targetValue = checkboxFillColor).value,
-                shape = RoundedCornerShape(2.dp),
+                shape = RoundedCornerShape(2.dp)
             ),
         contentAlignment = Alignment.Center
     ) {
         Image(
-            imageResource = ImageResource.Local(
-                id = if (isDarkTheme) R.drawable.ic_check_dark else R.drawable.ic_check_light,
-                contentDescription = null,
-            ),
+            imageResource = Icons.Check.withTint(AppColors.titleSecondary),
             modifier = Modifier.alpha(
                 animateFloatAsState(targetValue = checkboxAlpha).value
             )
@@ -137,56 +133,67 @@ enum class CheckboxState {
     Checked, Unchecked, Error
 }
 
-@Preview(name = "Not checked", group = "Checkbox")
+@Preview
 @Composable
 private fun CheckboxPreview_NotChecked() {
-    AppTheme {
-        AppSurface {
-            Checkbox(
-                state = CheckboxState.Unchecked,
-                onCheckChanged = {},
-            )
-        }
-    }
+    Checkbox(
+        state = CheckboxState.Unchecked,
+        onCheckChanged = {}
+    )
 }
 
-@Preview(name = "Checked", group = "Checkbox")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun CheckboxPreview_NotCheckedDark() {
+    CheckboxPreview_NotChecked()
+}
+
+@Preview
 @Composable
 private fun CheckboxPreview_IsChecked() {
-    AppTheme {
-        AppSurface {
-            Checkbox(
-                state = CheckboxState.Checked,
-                onCheckChanged = {},
-            )
-        }
-    }
+    Checkbox(
+        state = CheckboxState.Checked,
+        onCheckChanged = {}
+    )
 }
 
-@Preview(name = "Not checked not enabled", group = "Checkbox")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun CheckboxPreview_IsCheckedDark() {
+    CheckboxPreview_IsChecked()
+}
+
+@Preview
+@Composable
+private fun CheckboxPreview_Error() {
+    Checkbox(
+        state = CheckboxState.Error,
+        onCheckChanged = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun CheckboxPreview_ErrorDark() {
+    CheckboxPreview_Error()
+}
+
+@Preview
 @Composable
 private fun CheckboxPreview_NotChecked_NotEnabled() {
-    AppTheme {
-        AppSurface {
-            Checkbox(
-                state = CheckboxState.Unchecked,
-                onCheckChanged = {},
-                enabled = false,
-            )
-        }
-    }
+    Checkbox(
+        state = CheckboxState.Unchecked,
+        onCheckChanged = {},
+        enabled = false
+    )
 }
 
-@Preview(name = "Checked not enabled", group = "Checkbox")
+@Preview
 @Composable
 private fun CheckboxPreview_IsChecked_NotEnabled() {
-    AppTheme {
-        AppSurface {
-            Checkbox(
-                state = CheckboxState.Checked,
-                onCheckChanged = {},
-                enabled = false,
-            )
-        }
-    }
+    Checkbox(
+        state = CheckboxState.Checked,
+        onCheckChanged = {},
+        enabled = false
+    )
 }

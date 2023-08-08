@@ -6,6 +6,7 @@ android {
         warningsAsErrors true
         abortOnError true
     }
+    namespace 'com.blockchain.earn'
 }
 
 dependencies {
@@ -15,6 +16,7 @@ dependencies {
     implementation project(':commonarch')
     implementation project(':componentlib')
     implementation project(':common:interface')
+    implementation project(':componentlib-icons')
     implementation project(':common:presentation')
     implementation project(':analytics:domain')
     implementation project(':core')
@@ -25,10 +27,17 @@ dependencies {
     implementation Libraries.accompanistFlowLayout
     implementation Libraries.composeUiPoolingContainer
     implementation Libraries.accompanistSwipeRefresh
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
+    implementation Libraries.composeUiUtil
 
     // Rx
     implementation Libraries.rxJava
     implementation Libraries.rxjava3Coroutines
     implementation Libraries.rxAndroid
     implementation Libraries.rxKotlin
+
+    // Kotlin
+    implementation Libraries.kotlinImmutableCollections
+
 }

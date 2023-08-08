@@ -10,14 +10,14 @@ data class VeriffSplashModelState(
     val isLoading: Boolean = true,
     val supportedDocuments: SortedSet<SupportedDocuments> = sortedSetOf(),
     val error: VeriffSplashError? = null,
-    val continueButtonState: ButtonState = ButtonState.Disabled,
+    val continueButtonState: ButtonState = ButtonState.Disabled
 ) : ModelState
 
 data class VeriffSplashViewState(
     val isLoading: Boolean,
     val supportedDocuments: SortedSet<SupportedDocuments>,
     val error: VeriffSplashError?,
-    val continueButtonState: ButtonState,
+    val continueButtonState: ButtonState
 ) : ViewState
 
 sealed class VeriffSplashError {

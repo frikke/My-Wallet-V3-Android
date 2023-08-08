@@ -1,12 +1,17 @@
 package com.blockchain.analytics
 
 import com.blockchain.analytics.events.LaunchOrigin
+import io.reactivex.rxjava3.core.Completable
 import java.io.Serializable
 
 interface Analytics {
     fun logEvent(analyticsEvent: AnalyticsEvent)
     fun logEventOnce(analyticsEvent: AnalyticsEvent)
     fun logEventOnceForSession(analyticsEvent: AnalyticsEvent)
+}
+
+interface AnalyticsSettings {
+    fun flush(): Completable
 }
 
 interface UserAnalytics {
@@ -17,6 +22,7 @@ interface UserAnalytics {
         const val KYC_LEVEL = "kyc_level"
         const val KYC_UPDATED_DATE = "kyc_updated_date"
         const val WALLET_ID = "wallet_id"
+        const val NABU_USER_ID = "nabu_user_id"
         const val KYC_CREATION_DATE = "kyc_creation_date"
         const val EMAIL_VERIFIED = "email_verified"
         const val TWOFA_ENABLED = "two_fa_enabled"

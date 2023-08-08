@@ -1,266 +1,182 @@
 package com.blockchain.home.presentation.dashboard.composable
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.system.ShimmerLoadingCard
-import com.blockchain.componentlib.system.ShimmerLoadingTableRow
-import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
-import com.blockchain.componentlib.tablerow.ValueChange
+import com.blockchain.componentlib.basic.MaskableText
+import com.blockchain.componentlib.icons.Alert
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.QuestionOff
+import com.blockchain.componentlib.lazylist.paddedItem
+import com.blockchain.componentlib.lazylist.paddedRoundedCornersItems
+import com.blockchain.componentlib.tablerow.MaskableBalanceChangeTableRow
+import com.blockchain.componentlib.tablerow.TableRowHeader
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey700
-import com.blockchain.componentlib.utils.clickableNoEffect
-import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
-import com.blockchain.data.DataResource
 import com.blockchain.data.map
-import com.blockchain.home.presentation.SectionSize
-import com.blockchain.home.presentation.allassets.AssetsIntent
-import com.blockchain.home.presentation.allassets.AssetsViewModel
-import com.blockchain.home.presentation.allassets.AssetsViewState
-import com.blockchain.home.presentation.allassets.CryptoAssetState
+import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.home.presentation.allassets.CustodialAssetState
 import com.blockchain.home.presentation.allassets.FiatAssetState
-import com.blockchain.home.presentation.allassets.composable.CryptoAssetsList
-import com.blockchain.koin.payloadScope
-import info.blockchain.balance.FiatCurrency.Companion.Dollars
+import com.blockchain.home.presentation.allassets.HomeAsset
+import com.blockchain.home.presentation.allassets.HomeCryptoAsset
+import com.blockchain.home.presentation.allassets.NonCustodialAssetState
+import com.blockchain.home.presentation.allassets.composable.BalanceWithFiatAndCryptoBalance
+import com.blockchain.home.presentation.allassets.composable.BalanceWithPriceChange
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun HomeAssets(
-    viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
-    openAllAssets: () -> Unit
+private fun FundLocksData(
+    total: Money,
+    onClick: () -> Unit
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    val viewState: AssetsViewState by viewModel.viewState.collectAsStateLifecycleAware()
-
-    DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
-        onDispose { }
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.onIntent(AssetsIntent.LoadFilters)
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
-    HomeAssetsScreen(
-        cryptoAssets = viewState.cryptoAssets,
-        onSeeAllCryptoAssetsClick = openAllAssets,
-        fiatAssets = viewState.fiatAssets,
-    )
-}
-
-@Composable
-fun HomeAssetsScreen(
-    cryptoAssets: DataResource<List<CryptoAssetState>>,
-    onSeeAllCryptoAssetsClick: () -> Unit,
-    fiatAssets: DataResource<List<FiatAssetState>>
-) {
-    Column(
+    Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing)
+            .clickable(onClick = onClick),
+        backgroundColor = AppTheme.colors.backgroundSecondary,
+        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+        elevation = 0.dp
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = stringResource(R.string.ma_home_assets_title),
-                style = AppTheme.typography.body2,
-                color = Grey700
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                modifier = Modifier.clickableNoEffect(onSeeAllCryptoAssetsClick),
-                text = stringResource(R.string.see_all),
+                text = stringResource(com.blockchain.stringResources.R.string.funds_locked_warning_title),
                 style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.primary,
+                color = AppTheme.colors.muted
             )
-        }
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
-        when (cryptoAssets) {
-            DataResource.Loading -> {
-                ShimmerLoadingCard()
-            }
-            is DataResource.Error -> {
-                // todo
-            }
-            is DataResource.Data -> {
-                if (cryptoAssets.data.isNotEmpty()) {
-                    CryptoAssetsList(cryptoAssets = cryptoAssets.data)
-                }
-            }
-        }
+            Image(Icons.QuestionOff.withTint(AppColors.muted).withSize(14.dp))
 
-        when (fiatAssets) {
-            DataResource.Loading -> {
-                ShimmerLoadingTableRow()
-                ShimmerLoadingTableRow()
-            }
-            is DataResource.Error -> {
-                // todo
-            }
-            is DataResource.Data -> {
-                if (fiatAssets.data.isNotEmpty()) {
-                    Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-                    Card(
-                        backgroundColor = AppTheme.colors.background,
-                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                        elevation = 0.dp
-                    ) {
-                        Column {
-                            fiatAssets.data.forEachIndexed { index, fiatAsset ->
-                                BalanceChangeTableRow(
-                                    name = fiatAsset.name,
-                                    value = fiatAsset.balance.map {
-                                        it.toStringWithSymbol()
-                                    },
-                                    contentStart = {
-                                        Image(
-                                            imageResource = ImageResource.Remote(fiatAsset.icon[0]),
-                                            modifier = Modifier
-                                                .align(Alignment.CenterVertically)
-                                                .size(dimensionResource(R.dimen.standard_spacing)),
-                                            defaultShape = CircleShape
-                                        )
-                                    },
-                                    onClick = {
-                                    }
-                                )
+            Spacer(modifier = Modifier.weight(1F))
 
-                                if (index < fiatAssets.data.lastIndex) {
-                                    Divider()
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            MaskableText(
+                text = total.toStringWithSymbol(),
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.muted
+            )
         }
     }
 }
 
-@Preview(backgroundColor = 0xFF272727)
-@Composable
-fun PreviewHomeAccounts() {
-    HomeAssetsScreen(
-        cryptoAssets = DataResource.Data(
-            listOf(
-                CryptoAssetState(
-                    icon = listOf(""),
-                    name = "Ethereum",
-                    balance = DataResource.Data(Money.fromMajor(Dollars, 128.toBigDecimal())),
-                    change = DataResource.Data(ValueChange.Up(3.94)),
-                    fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 112328.toBigDecimal()))
-                ),
-                CryptoAssetState(
-                    icon = listOf(""),
-                    name = "Bitcoin",
-                    balance = DataResource.Loading,
-                    change = DataResource.Loading,
-                    fiatBalance = DataResource.Loading
-                ),
-                CryptoAssetState(
-                    icon = listOf(""),
-                    name = "Solana",
-                    balance = DataResource.Data(Money.fromMajor(Dollars, 555.28.toBigDecimal())),
-                    change = DataResource.Data(ValueChange.Down(2.32)),
-                    fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 1.28.toBigDecimal()))
-                )
+internal fun LazyListScope.homeAssets(
+    locks: FundsLocks?,
+    data: List<HomeAsset>,
+    assetOnClick: (AssetInfo) -> Unit,
+    openCryptoAssets: () -> Unit,
+    fundsLocksOnClick: (FundsLocks) -> Unit,
+    openFiatActionDetail: (String) -> Unit,
+    showWarning: Boolean = false,
+    warningOnClick: () -> Unit = {}
+) {
+    paddedItem(
+        paddingValues = {
+            PaddingValues(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                top = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.tinySpacing
             )
-        ),
-        fiatAssets = DataResource.Data(
-            listOf(
-                FiatAssetState(
-                    icon = listOf(""),
-                    name = "US Dollar",
-                    balance = DataResource.Data(Money.fromMajor(Dollars, 123.28.toBigDecimal())),
-                ),
-                FiatAssetState(
-                    icon = listOf(""),
-                    name = "Euro",
-                    balance = DataResource.Loading,
-                )
-            )
-        ),
-        onSeeAllCryptoAssetsClick = {},
-    )
-}
+        }
+    ) {
+        val showSeeAll = data.filterIsInstance<HomeCryptoAsset>().isNotEmpty()
+        TableRowHeader(
+            title = stringResource(com.blockchain.stringResources.R.string.ma_home_assets_title),
+            icon = Icons.Filled.Alert.withTint(AppColors.dark).takeIf { showWarning },
+            iconOnClick = warningOnClick,
+            actionTitle = stringResource(com.blockchain.stringResources.R.string.see_all).takeIf { showSeeAll },
+            actionOnClick = openCryptoAssets.takeIf { showSeeAll }
+        )
+    }
 
-@Preview(backgroundColor = 0xFF272727)
-@Composable
-fun PreviewHomeAccounts_Loading() {
-    HomeAssetsScreen(
-        cryptoAssets = DataResource.Loading,
-        fiatAssets = DataResource.Loading,
-        onSeeAllCryptoAssetsClick = {},
-    )
-}
-
-@Preview(backgroundColor = 0xFF272727)
-@Composable
-fun PreviewHomeAccounts_LoadingFiat() {
-    HomeAssetsScreen(
-        cryptoAssets = DataResource.Data(
-            listOf(
-                CryptoAssetState(
-                    icon = listOf(""),
-                    name = "Ethereum",
-                    balance = DataResource.Data(Money.fromMajor(Dollars, 306.28.toBigDecimal())),
-                    change = DataResource.Data(ValueChange.Up(3.94)),
-                    fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 306.28.toBigDecimal()))
-                ),
-                CryptoAssetState(
-                    icon = listOf(""),
-                    name = "Bitcoin",
-                    balance = DataResource.Loading,
-                    change = DataResource.Loading,
-                    fiatBalance = DataResource.Loading
-                ),
-                CryptoAssetState(
-                    icon = listOf(""),
-                    name = "Solana",
-                    balance = DataResource.Data(Money.fromMajor(Dollars, 306.28.toBigDecimal())),
-                    change = DataResource.Data(ValueChange.Down(2.32)),
-                    fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 306.28.toBigDecimal()))
+    locks?.let {
+        paddedItem(
+            paddingValues = {
+                PaddingValues(
+                    start = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing,
+                    bottom = AppTheme.dimensions.tinySpacing
                 )
+            }
+        ) {
+            FundLocksData(
+                total = locks.onHoldTotalAmount,
+                onClick = { fundsLocksOnClick(it) }
             )
-        ),
-        fiatAssets = DataResource.Loading,
-        onSeeAllCryptoAssetsClick = {},
-    )
+        }
+    }
+
+    paddedRoundedCornersItems(
+        items = data.filterIsInstance<CustodialAssetState>(),
+        key = { state -> state.asset.networkTicker },
+        paddingValues = {
+            PaddingValues(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.smallSpacing
+            )
+        }
+    ) {
+        BalanceWithPriceChange(
+            cryptoAsset = it,
+            onAssetClick = assetOnClick
+        )
+    }
+
+    paddedRoundedCornersItems(
+        items = data.filterIsInstance<NonCustodialAssetState>(),
+        key = { state -> state.asset.networkTicker },
+        paddingValues = {
+            PaddingValues(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.smallSpacing
+            )
+        }
+    ) {
+        BalanceWithFiatAndCryptoBalance(
+            cryptoAsset = it,
+            onAssetClick = assetOnClick
+        )
+    }
+
+    paddedRoundedCornersItems(
+        items = data.filterIsInstance<FiatAssetState>(),
+        key = { state -> state.account.currency.networkTicker },
+        paddingValues = {
+            PaddingValues(
+                start = AppTheme.dimensions.smallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.smallSpacing
+            )
+        }
+    ) {
+        MaskableBalanceChangeTableRow(
+            name = it.name,
+            value = it.balance.map { money ->
+                money.toStringWithSymbol()
+            },
+            imageResource = ImageResource.Remote(it.icon[0]),
+            onClick = {
+                openFiatActionDetail(it.account.currency.networkTicker)
+            }
+        )
+    }
 }

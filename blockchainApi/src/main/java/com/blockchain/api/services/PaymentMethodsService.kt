@@ -7,6 +7,7 @@ import com.blockchain.api.paymentmethods.models.DepositTermsRequestBody
 import com.blockchain.api.paymentmethods.models.LinkWithAliasRequestBody
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.api.paymentmethods.models.UpdateCvvRequestBody
 import com.blockchain.api.payments.data.Attributes
 import com.blockchain.api.payments.data.BankTransferPaymentBody
 import com.blockchain.api.payments.data.CreateLinkBankRequestBody
@@ -26,19 +27,16 @@ class PaymentMethodsService internal constructor(
 ) {
 
     /**
-     * Returns a list of the available payment methods. [shouldFetchSddLimits] if true, then the responded
-     * payment methods will contain the limits for SDD user. We use this argument only if we want to get back
-     * these limits. To achieve back-words compatibility with the other platforms we had to use
+     * Returns a list of the available payment methods.
+     * To achieve back-words compatibility with the other platforms we had to use
      * a flag called visible (instead of not returning the corresponding payment methods at all.
      * Any payment method with the flag visible=false should be discarded.
      */
     fun getAvailablePaymentMethodsTypes(
         currency: String,
-        tier: Int?,
         eligibleOnly: Boolean
     ): Single<List<PaymentMethodResponse>> = api.getAvailablePaymentMethodsTypes(
         currency,
-        tier,
         eligibleOnly
     ).map {
         it.filter { paymentMethod -> paymentMethod.visible }
@@ -65,6 +63,10 @@ class PaymentMethodsService internal constructor(
     fun getCardDetails(
         cardId: String
     ) = api.getCardDetails(cardId)
+
+    suspend fun getCardDetailsCo(
+        cardId: String
+    ) = api.getCardDetailsCo(cardId)
 
     fun deleteCard(cardId: String) = api.deleteCard(cardId)
 
@@ -188,6 +190,11 @@ class PaymentMethodsService internal constructor(
     ) = api.checkNewCardRejectionState(
         binNumber = binNumber
     )
+
+    suspend fun updateCvv(
+        paymentId: String,
+        cvv: String
+    ) = api.updateCvv(UpdateCvvRequestBody(paymentId = paymentId, cvv = cvv))
 
     private fun getLocalisedErrorIfEnabled(): String? =
         if (environmentConfig.isRunningInDebugMode() && remoteConfigPrefs.brokerageErrorsEnabled) {

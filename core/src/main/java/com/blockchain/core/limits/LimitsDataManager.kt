@@ -9,7 +9,6 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
@@ -23,8 +22,8 @@ interface LimitsDataManager {
         outputCurrency: Currency,
         sourceCurrency: Currency,
         targetCurrency: Currency,
-        sourceAccountType: AssetCategory,
-        targetAccountType: AssetCategory,
+        sourceAccountType: String,
+        targetAccountType: String,
         legacyLimits: Single<LegacyLimits>
     ): Single<TxLimits>
 
@@ -34,20 +33,20 @@ interface LimitsDataManager {
 class LimitsDataManagerImpl(
     private val limitsService: TxLimitsService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val assetCatalogue: AssetCatalogue,
+    private val assetCatalogue: AssetCatalogue
 ) : LimitsDataManager {
 
     override fun getLimits(
         outputCurrency: Currency,
         sourceCurrency: Currency,
         targetCurrency: Currency,
-        sourceAccountType: AssetCategory,
-        targetAccountType: AssetCategory,
+        sourceAccountType: String,
+        targetAccountType: String,
         legacyLimits: Single<LegacyLimits>
     ): Single<TxLimits> {
-
         val legacyLimitsToOutputCurrency = legacyLimits.toOutputCurrency(
-            outputCurrency, exchangeRatesDataManager
+            outputCurrency,
+            exchangeRatesDataManager
         )
 
         return Single.zip(
@@ -56,8 +55,8 @@ class LimitsDataManagerImpl(
                 outputCurrency = outputCurrency.networkTicker,
                 sourceCurrency = sourceCurrency.networkTicker,
                 targetCurrency = targetCurrency.networkTicker,
-                sourceAccountType = sourceAccountType.name,
-                targetAccountType = targetAccountType.name
+                sourceAccountType = sourceAccountType,
+                targetAccountType = targetAccountType
             )
         ) { legacyLimits, crossborderLimits ->
             val maxLegacyLimit = legacyLimits.max
@@ -66,6 +65,7 @@ class LimitsDataManagerImpl(
                 maxCrossborderLimit != null && maxLegacyLimit != null -> TxLimit.Limited(
                     Money.min(maxLegacyLimit, maxCrossborderLimit)
                 )
+
                 maxLegacyLimit != null -> TxLimit.Limited(maxLegacyLimit)
                 maxCrossborderLimit != null -> TxLimit.Limited(maxCrossborderLimit)
                 else -> TxLimit.Unlimited
@@ -152,11 +152,15 @@ class LimitsDataManagerImpl(
                         object : LegacyLimits {
                             override val min: Money
                                 get() = legacy.min.toOutputCryptoCurrency(
-                                    outputCurrency, exchangeRate, RoundingMode.CEILING
+                                    outputCurrency,
+                                    exchangeRate,
+                                    RoundingMode.CEILING
                                 )
                             override val max: Money?
                                 get() = legacy.max?.toOutputCryptoCurrency(
-                                    outputCurrency, exchangeRate, RoundingMode.FLOOR
+                                    outputCurrency,
+                                    exchangeRate,
+                                    RoundingMode.FLOOR
                                 )
                         }
                     }
@@ -179,6 +183,7 @@ private fun Money.toOutputCryptoCurrency(
 ) = when {
     outputAsset == null ||
         outputAsset.networkTicker == this.currencyCode -> this
+
     this is FiatValue -> exchangeRate.inverse(roundingMode, outputAsset.precisionDp).convert(this)
     else -> throw IllegalStateException("Conversion cannot be performed.")
 }
@@ -195,6 +200,7 @@ private fun FeatureLimitResponse.toFeatureWithLimit(assetCatalogue: AssetCatalog
             val limit = Money.fromMinor(currency, apiMoney.value.toBigInteger())
             FeatureLimit.Limited(TxPeriodicLimit(limit, txPeriod, true))
         }
+
         else -> FeatureLimit.Disabled
     }
 
@@ -238,6 +244,9 @@ sealed class TxLimit(private val _amount: Money?) {
             else -> throw IllegalStateException("Requesting value of an infinitive limit")
         }
 }
+
+const val CUSTODIAL_LIMITS_ACCOUNT = "CUSTODIAL"
+const val NON_CUSTODIAL_LIMITS_ACCOUNT = "NON_CUSTODIAL"
 
 data class TxLimits(
     val min: TxLimit.Limited,

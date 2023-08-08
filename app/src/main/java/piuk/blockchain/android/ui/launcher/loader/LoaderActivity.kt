@@ -7,29 +7,26 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.chrome.MultiAppActivity
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.superappRedesignFeatureFlag
 import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
-import piuk.blockchain.android.ui.educational.walletmodes.EducationalWalletModeActivity
-import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailVerificationFragment
-import piuk.blockchain.android.ui.launcher.LauncherActivityV2
+import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.AppUtil
 
@@ -47,16 +44,17 @@ class LoaderActivity :
 
     override val alwaysDisableScreenshots: Boolean = true
 
+    override val statusbarColor = ModeBackgroundColor.Current
+
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
-    private val superappRedesignFF: FeatureFlag by inject(superappRedesignFeatureFlag)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
+
+        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = true)
 
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false
@@ -67,14 +65,10 @@ class LoaderActivity :
 
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
-            is LoadingStep.Launcher -> startSingleActivity(LauncherActivityV2::class.java)
+            is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoadingStep.RequestPin -> onRequestPin()
             // These below should always come only after a ProgressStep.FINISH has been emitted
             is LoadingStep.EmailVerification -> launchEmailVerification()
-            is LoadingStep.EducationalWalletMode -> launchEducationalWalletMode(
-                data = loaderStep.data,
-                isUserInCowboysPromo = newState.isUserInCowboysPromo
-            )
             is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
             else -> {
                 // do nothing
@@ -91,15 +85,15 @@ class LoaderActivity :
             }
             ProgressStep.LOADING_PRICES -> {
                 updateProgressVisibility(true)
-                updateProgressText(R.string.loading_prices)
+                updateProgressText(com.blockchain.stringResources.R.string.loading_prices)
             }
             ProgressStep.SYNCING_ACCOUNT -> {
                 updateProgressVisibility(true)
-                updateProgressText(R.string.syncing_account)
+                updateProgressText(com.blockchain.stringResources.R.string.syncing_account)
             }
             ProgressStep.DECRYPTING_WALLET -> {
                 updateProgressVisibility(true)
-                updateProgressText(R.string.decrypting_wallet)
+                updateProgressText(com.blockchain.stringResources.R.string.decrypting_wallet)
             }
             ProgressStep.FINISH -> {
                 updateProgressVisibility(false)
@@ -120,8 +114,8 @@ class LoaderActivity :
                 binding.root,
                 getString(
                     when (newState.toastType) {
-                        ToastType.INVALID_PASSWORD -> R.string.invalid_password
-                        ToastType.UNEXPECTED_ERROR -> R.string.unexpected_error
+                        ToastType.INVALID_PASSWORD -> com.blockchain.stringResources.R.string.invalid_password
+                        ToastType.UNEXPECTED_ERROR -> com.blockchain.stringResources.R.string.unexpected_error
                     }
                 ),
                 type = SnackbarType.Error
@@ -131,12 +125,12 @@ class LoaderActivity :
 
     override fun onEmailEntryFragmentUpdated(showSkipButton: Boolean, buttonAction: () -> Unit) =
         updateToolbar(
-            getString(R.string.security_check),
-            if (showSkipButton) {
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.security_check),
+            menuItems = if (showSkipButton) {
                 listOf(
                     NavigationBarButton.TextWithColorInt(
-                        getString(R.string.common_skip),
-                        R.color.blue_600,
+                        getString(com.blockchain.stringResources.R.string.common_skip),
+                        com.blockchain.componentlib.R.color.primary,
                         buttonAction
                     )
                 )
@@ -171,33 +165,14 @@ class LoaderActivity :
         )
     }
 
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
+
     private fun onStartMainActivity(mainData: String?, shouldLaunchUiTour: Boolean) {
-        superappRedesignFF.enabled.subscribe { isEnabled ->
-            startActivity(
-                if (isEnabled) {
-                    MultiAppActivity.newIntent(
-                        context = this
-                    )
-                } else {
-                    MainActivity.newIntent(
-                        context = this,
-                        intentData = mainData,
-                        shouldLaunchUiTour = shouldLaunchUiTour,
-                        shouldBeNewTask = true
-                    )
-                }
-            )
-
-            finish()
-        }
-    }
-
-    private fun launchEducationalWalletMode(isUserInCowboysPromo: Boolean, data: String?) {
         startActivity(
-            EducationalWalletModeActivity.newIntent(
+            homeActivityLauncher.newIntent(
                 context = this,
-                data = data,
-                redirectToCowbowsPromo = isUserInCowboysPromo
+                intentData = mainData,
+                shouldBeNewTask = true
             )
         )
         finish()
@@ -206,6 +181,7 @@ class LoaderActivity :
     private fun launchEmailVerification() {
         binding.progress.gone()
         binding.contentFrame.visible()
+        binding.toolbar.navigationToolbar.gone()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
         if (supportFragmentManager.findFragmentById(R.id.content_frame) !is KycEmailVerificationFragment) {
             supportFragmentManager.beginTransaction()
@@ -220,11 +196,11 @@ class LoaderActivity :
 
     private fun showMetadataNodeFailure() {
         if (!isFinishing) {
-            AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.metadata_load_failure)
-                .setPositiveButton(R.string.retry) { _, _ -> onRequestPin() }
-                .setNegativeButton(R.string.exit) { _, _ -> finish() }
+            AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+                .setTitle(com.blockchain.stringResources.R.string.app_name)
+                .setMessage(com.blockchain.stringResources.R.string.metadata_load_failure)
+                .setPositiveButton(com.blockchain.stringResources.R.string.retry) { _, _ -> onRequestPin() }
+                .setNegativeButton(com.blockchain.stringResources.R.string.exit) { _, _ -> finish() }
                 .setCancelable(false)
                 .setOnDismissListener {
                     model.process(LoaderIntents.HideMetadataNodeFailure)
@@ -236,7 +212,7 @@ class LoaderActivity :
 
     private fun showSecondPasswordDialog() {
         val editText = AppCompatEditText(this)
-        editText.setHint(R.string.password)
+        editText.setHint(com.blockchain.stringResources.R.string.password)
         editText.inputType =
             InputType.TYPE_CLASS_TEXT or
             InputType.TYPE_TEXT_VARIATION_PASSWORD or
@@ -244,9 +220,9 @@ class LoaderActivity :
 
         val frameLayout = getAlertDialogPaddedView(editText)
 
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.second_password_dlg_title)
-            .setMessage(R.string.eth_second_password_prompt)
+        AlertDialog.Builder(this, com.blockchain.componentlib.R.style.AlertDialogStyle)
+            .setTitle(com.blockchain.stringResources.R.string.second_password_dlg_title)
+            .setMessage(com.blockchain.stringResources.R.string.eth_second_password_prompt)
             .setView(frameLayout)
             .setCancelable(false)
             .setPositiveButton(android.R.string.ok) { _, _ ->

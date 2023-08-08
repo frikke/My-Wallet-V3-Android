@@ -5,8 +5,8 @@ import androidx.annotation.DrawableRes
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.fiat.FiatAccountGroup
@@ -53,8 +53,10 @@ class AccountIcon(
         @DrawableRes get() = when (account) {
             is CryptoNonCustodialAccount -> R.drawable.ic_non_custodial_account_indicator
             is FiatAccount -> null
-            is InterestAccount -> R.drawable.ic_interest_account_indicator
             is TradingAccount -> R.drawable.ic_custodial_account_indicator
+            is EarnRewardsAccount.Interest -> R.drawable.ic_interest_account_indicator
+            is EarnRewardsAccount.Staking -> R.drawable.ic_staking_account_indicator
+            is EarnRewardsAccount.Active -> R.drawable.ic_staking_account_indicator // TODO(EARN): icon
             is CryptoExchangeAccount -> R.drawable.ic_exchange_indicator
             else -> null
         }
@@ -62,8 +64,8 @@ class AccountIcon(
     private fun accountGroupIcon(account: AccountGroup): Int? {
         return when (account) {
             is AllWalletsAccount -> R.drawable.ic_all_wallets_white
-            is AllCustodialWalletsAccount -> R.drawable.ic_portfolio
-            is AllNonCustodialWalletsAccount -> R.drawable.ic_defi_wallet
+            is AllCustodialWalletsAccount -> com.blockchain.componentlib.R.drawable.ic_portfolio
+            is AllNonCustodialWalletsAccount -> com.blockchain.componentlib.R.drawable.ic_defi_wallet
             is CryptoAccountCustodialSingleGroup -> null
             is CryptoAccountNonCustodialGroup -> null
             is FiatAccountGroup -> null

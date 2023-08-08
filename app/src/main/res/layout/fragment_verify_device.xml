@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/white">
+    android:clickable="true"
+    android:background="@color/background">
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/back_button"
@@ -18,9 +19,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
+        android:tint="@color/body"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.1"
-        app:srcCompat="@drawable/ic_arrow_back_blue" />
+        app:srcCompat="@drawable/arrow_left_off" />
 
     <ImageView
         android:id="@+id/customer_support"
@@ -34,7 +36,7 @@
         app:layout_constraintBottom_toBottomOf="@id/back_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/back_button"
-        app:tint="@color/grey_400" />
+        app:tint="@color/body" />
 
     <ImageView
         android:id="@+id/icon_verify_device"
@@ -52,6 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacing"
+        android:textColor="@color/title"
         android:text="@string/verify_device_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -61,6 +64,7 @@
         android:id="@+id/verify_device_description"
         style="@style/Text.Light.Centered"
         android:layout_width="match_parent"
+        android:textColor="@color/body"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacing"
         android:text="@string/verify_device_desc"
@@ -68,24 +72,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/verify_device_title" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/open_email_button"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/small_spacing"
-        android:text="@string/open_email_cta"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         app:layout_constraintBottom_toTopOf="@id/resend_email_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/resend_email_button"
-        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
-        android:text="@string/resend_email_cta"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

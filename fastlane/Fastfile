@@ -157,9 +157,8 @@ platform :android do
     lane :ci_run_tests do
 
       ci_credentials
-
       ci_lint
-
+      
       ci_build(
         environment: "Prod",
         build_type: "Debug"
@@ -169,6 +168,28 @@ platform :android do
        ci_modules_tests
 
     end
+
+       desc "Bundle of build, perform checks, runs lint and run tests on CI."
+        lane :ci_run_lint_and_tests do
+
+          ci_credentials
+          ci_lint
+          ci_build(
+            environment: "Prod",
+            build_type: "Debug"
+          )
+
+           ci_test_app
+           ci_modules_tests
+
+        end
+
+    desc "Bundle of build, perform checks, runs lint and run tests on CI."
+        lane :ci_run_lint do
+          ci_credentials
+          ci_lint
+        end
+
 
     desc "Tests to run on CI app"
     lane :ci_test_app do
@@ -307,14 +328,13 @@ platform :android do
 
     desc "Checks to run on CI"
     lane :ci_lint do
-
-      gradle(
-        task: 'lint',
-        build_type: 'Debug',
-        flavor: 'EnvProd',
-        print_command: false,
-        flags: "lintDebug ktlint -Dpre-dex=false -Pkotlin.incremental=false --no-daemon --stacktrace"
-      )
+         gradle(
+           task: 'lint',
+           build_type: 'Debug',
+           flavor: 'EnvProd',
+           print_command: false,
+           flags: "lintDebug ktlint -Dpre-dex=false -Pkotlin.incremental=false --no-daemon --stacktrace"
+         )
     end
 
 

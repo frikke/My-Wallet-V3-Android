@@ -5,11 +5,12 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.presentation.koin.scopedInject
@@ -44,9 +45,10 @@ class AccountRecoveryActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
+        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = true)
+
         updateToolbar(
-            toolbarTitle = getString(R.string.account_recover_title),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.account_recover_title),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         initControls()
@@ -57,9 +59,9 @@ class AccountRecoveryActivity :
     override fun render(newState: AccountRecoveryState) {
         when (newState.status) {
             AccountRecoveryStatus.INVALID_PHRASE ->
-                showSeedPhraseInputError(R.string.invalid_recovery_phrase_1)
+                showSeedPhraseInputError(com.blockchain.stringResources.R.string.invalid_recovery_phrase_1)
             AccountRecoveryStatus.WORD_COUNT_ERROR ->
-                showSeedPhraseInputError(R.string.recovery_phrase_word_count_error)
+                showSeedPhraseInputError(com.blockchain.stringResources.R.string.recovery_phrase_word_count_error)
             AccountRecoveryStatus.RECOVERY_SUCCESSFUL -> {
                 launchResetPasswordFlow(newState.seedPhrase)
             }
@@ -67,14 +69,14 @@ class AccountRecoveryActivity :
                 analytics.logEvent(AccountRecoveryAnalytics.RecoveryFailed(false))
                 BlockchainSnackbar.make(
                     binding.root,
-                    getString(R.string.restore_failed),
+                    getString(com.blockchain.stringResources.R.string.restore_failed),
                     type = SnackbarType.Error
                 ).show()
             }
             AccountRecoveryStatus.RESET_KYC_FAILED ->
                 BlockchainSnackbar.make(
                     binding.root,
-                    getString(R.string.reset_kyc_failed),
+                    getString(com.blockchain.stringResources.R.string.reset_kyc_failed),
                     type = SnackbarType.Error
                 ).show()
             else -> {
@@ -108,23 +110,26 @@ class AccountRecoveryActivity :
                 visibleIf { email.isNotEmpty() && userId.isNotEmpty() && recoveryToken.isNotEmpty() }
                 text = StringUtils.getStringWithMappedAnnotations(
                     context = this@AccountRecoveryActivity,
-                    stringId = R.string.reset_account_notice,
+                    stringId = com.blockchain.stringResources.R.string.reset_account_notice,
                     linksMap = emptyMap(),
                     onClick = { launchResetAccountFlow() }
                 )
                 movementMethod = LinkMovementMethod.getInstance()
             }
-            resetKycLabel.text = getString(R.string.reset_kyc_notice_1)
+            resetKycLabel.text = getString(com.blockchain.stringResources.R.string.reset_kyc_notice_1)
 
-            verifyButton.setOnClickListener {
-                analytics.logEvent(AccountRecoveryAnalytics.MnemonicEntered(isCustodialAccount = false))
+            verifyButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.verify)
+                onClick = {
+                    analytics.logEvent(AccountRecoveryAnalytics.MnemonicEntered(isCustodialAccount = false))
 
-                this@AccountRecoveryActivity.hideKeyboard()
-                model.process(
-                    AccountRecoveryIntents.VerifySeedPhrase(
-                        seedPhrase = recoveryPhaseText.text?.toString() ?: ""
+                    this@AccountRecoveryActivity.hideKeyboard()
+                    model.process(
+                        AccountRecoveryIntents.VerifySeedPhrase(
+                            seedPhrase = recoveryPhaseText.text?.toString() ?: ""
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -133,7 +138,7 @@ class AccountRecoveryActivity :
         analytics.logEvent(AccountRecoveryAnalytics.ResetClicked(isCustodialAccount = true))
         hideKeyboard()
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 binding.fragmentContainer.id,
                 ResetAccountFragment.newInstance(
@@ -149,7 +154,7 @@ class AccountRecoveryActivity :
 
     private fun launchResetPasswordFlow(recoveryPhrase: String) {
         supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
+            .addTransactionAnimation()
             .replace(
                 binding.fragmentContainer.id,
                 ResetPasswordFragment.newInstance(

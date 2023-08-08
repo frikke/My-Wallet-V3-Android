@@ -1,36 +1,39 @@
 package piuk.blockchain.android.walletmode
 
+import com.blockchain.data.firstOutcome
+import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
-import com.blockchain.domain.eligibility.model.ProductEligibility
-import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.walletmode.WalletMode
 
-class DefaultWalletModeStrategy(private val walletModePrefs: WalletModePrefs) {
-    private var custodialAccountsProduct = ProductEligibility(
-        product = EligibleProduct.USE_CUSTODIAL_ACCOUNTS,
-        canTransact = true,
-        isDefault = true,
-        maxTransactionsCap = TransactionsLimit.Unlimited,
-        reasonNotEligible = null
-    )
+class DefaultWalletModeStrategy(
+    private val walletModePrefs: WalletModePrefs,
+    private val eligibilityService: EligibilityService
+) {
 
-    fun updateProductEligibility(productEligibility: ProductEligibility) {
-        require(productEligibility.product == EligibleProduct.USE_CUSTODIAL_ACCOUNTS)
-        this.custodialAccountsProduct = productEligibility
-    }
+    suspend fun defaultWalletMode(): WalletMode {
+        val productsEligibilityData =
+            eligibilityService.getProductEligibility(product = EligibleProduct.USE_CUSTODIAL_ACCOUNTS).firstOutcome()
+                .getOrNull()
+                ?: return WalletMode.CUSTODIAL
 
-    fun defaultWalletMode(): WalletMode {
-        return if (custodialAccountsProduct.canTransact) {
+        return if (productsEligibilityData.canTransact) {
             try {
                 WalletMode.valueOf(walletModePrefs.legacyWalletMode)
             } catch (e: Exception) {
-                WalletMode.CUSTODIAL_ONLY
+                WalletMode.CUSTODIAL
             }
-        } else {
-            WalletMode.NON_CUSTODIAL_ONLY.also {
-                walletModePrefs.userDefaultedToPKW = true
-            }
+        } else WalletMode.NON_CUSTODIAL.also {
+            walletModePrefs.userDefaultedToPKW = true
         }
+    }
+
+    suspend fun custodialEnabled(): Boolean {
+        val productsEligibilityData =
+            eligibilityService.getProductEligibility(product = EligibleProduct.USE_CUSTODIAL_ACCOUNTS).firstOutcome()
+                .getOrNull()
+                ?: return true
+        return productsEligibilityData.canTransact
     }
 }

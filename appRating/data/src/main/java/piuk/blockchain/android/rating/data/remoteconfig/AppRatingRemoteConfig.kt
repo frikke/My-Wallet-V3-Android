@@ -11,13 +11,13 @@ internal class AppRatingRemoteConfig(
         private const val THRESHOLD_KEY = "android_app_rating_threshold"
     }
 
-    suspend fun getThreshold(): Outcome<NumberFormatException, Int> {
-        return remoteConfigService.getRawJson(THRESHOLD_KEY).await().let { threshold ->
-            try {
+    suspend fun getThreshold(): Outcome<Exception, Int> {
+        return try {
+            remoteConfigService.getRawJson(THRESHOLD_KEY).await().let { threshold ->
                 Outcome.Success(threshold.toInt())
-            } catch (e: NumberFormatException) {
-                Outcome.Failure(e)
             }
+        } catch (e: Exception) {
+            Outcome.Failure(e)
         }
     }
 }

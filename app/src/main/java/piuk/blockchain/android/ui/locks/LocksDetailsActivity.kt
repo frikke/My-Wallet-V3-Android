@@ -2,10 +2,10 @@ package piuk.blockchain.android.ui.locks
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import androidx.activity.compose.setContent
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.setContent
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.utils.unsafeLazy
 import piuk.blockchain.android.support.SupportCentreActivity
@@ -27,7 +27,7 @@ class LocksDetailsActivity : BlockchainActivity() {
                 locks = fundsLocks,
                 backClicked = { onBackPressedDispatcher.onBackPressed() },
                 learnMoreClicked = {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(TRADING_ACCOUNT_LOCKS)))
+                    openUrl(TRADING_ACCOUNT_LOCKS)
                 },
                 contactSupportClicked = {
                     startActivity(SupportCentreActivity.newIntent(this, FUND_LOCKS_SUPPORT))

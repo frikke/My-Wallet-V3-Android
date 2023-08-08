@@ -18,10 +18,10 @@ data class ActivityRequest(
 
 @Serializable
 data class ActivityRequestParams(
-    @SerialName("timezoneIana")
-    val timezone: String,
+    @SerialName("timeZone")
+    val timeZone: String,
     @SerialName("fiatCurrency")
     val fiatCurrency: String,
-    @SerialName("acceptLanguage")
-    val acceptLanguage: String
+    @SerialName("locales")
+    val locales: String
 )

@@ -8,12 +8,17 @@ class ExchangeRate(
     val from: Currency,
     val to: Currency
 ) {
-    fun convert(value: Money, round: Boolean = true): Money {
+    fun convert(value: Money, roundingMode: RoundingMode? = null): Money {
         validateCurrency(from, value.currency)
         return rate?.let { rate ->
+            val result = if (roundingMode != null) {
+                rate.multiply(value.toBigDecimal()).setScale(to.precisionDp, roundingMode)
+            } else {
+                rate.multiply(value.toBigDecimal())
+            }
             Money.fromMajor(
                 to,
-                rate.multiply(value.toBigDecimal())
+                result
             )
         } ?: UnknownValue.unknownValue(to)
     }
@@ -45,7 +50,7 @@ class ExchangeRate(
             rate = rate?.takeIf { it.signum() != 0 }?.let { rate ->
                 BigDecimal.ONE.divide(
                     rate,
-                    if (scale == -1) from.precisionDp else scale,
+                    if (scale == -1) from.precisionDp + to.precisionDp else scale,
                     roundingMode
                 ).stripTrailingZeros()
             } ?: rate
@@ -53,13 +58,14 @@ class ExchangeRate(
     }
 
     override fun toString(): String {
-        return "ExchangeRate(from=$from, to=$to, rate=$rate)"
+        return "ExchangeRate(from=${from.networkTicker}, to=${to.networkTicker}, rate=$rate)"
     }
 
     companion object {
         private fun validateCurrency(expected: Currency, got: Currency) {
-            if (expected != got)
+            if (expected != got) {
                 throw ValueTypeMismatchException("exchange", expected.networkTicker, got.networkTicker)
+            }
         }
 
         fun zeroRateExchangeRate(from: Currency, to: Currency = from): ExchangeRate =

@@ -41,19 +41,18 @@ class RecurringBuyCreatedBottomSheet : ComposeModalBottomDialog() {
     @Composable
     override fun Sheet() {
         BottomSheetTwoButtons(
-            headerImageResource = ImageResource.Local(R.drawable.ic_tx_recurring_buy),
+            headerImageResource = ImageResource.Local(com.blockchain.common.R.drawable.ic_tx_recurring_buy),
             title = title,
             subtitle = subtitle,
-            shouldShowHeaderDivider = false,
             onCloseClick = {},
             button1 = BottomSheetButton(
                 type = ButtonType.MINIMAL,
-                text = getString(R.string.recurring_buy_view_rb),
+                text = getString(com.blockchain.stringResources.R.string.recurring_buy_view_rb),
                 onClick = { host.viewRecurringBuy(recurringBuyId) }
             ),
             button2 = BottomSheetButton(
                 type = ButtonType.PRIMARY,
-                text = getString(R.string.common_continue),
+                text = getString(com.blockchain.stringResources.R.string.common_continue),
                 onClick = { host.skip() }
             )
         )

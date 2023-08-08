@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFF1F2F7"
     android:padding="@dimen/standard_spacing">
 
     <LinearLayout
@@ -34,6 +35,13 @@
             android:id="@+id/feature_flag_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/reset_runtime_permission_cooldown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tiny_spacing"
+            android:text="reset runtime permissions cooldown" />
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/Text.Semibold.16"
@@ -70,7 +78,6 @@
 
         <Button
             android:id="@+id/brokerage_error_cta"
-            style="@style/CtaButton.Blue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/tiny_spacing"
@@ -79,9 +86,41 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="2dp"
+            android:gravity="center"
+            android:text="Handhold" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/handhold_override"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="handhold override" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/handhold_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="handhold email verified" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/handhold_kyc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="handhold kyc verified" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/handhold_buy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="handhold buy verified" />
         <Button
             android:id="@+id/reset_app_rating"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/medium_spacing"
@@ -123,7 +162,6 @@
 
         <Button
             android:id="@+id/btn_save_app_maintenance_json"
-            style="@style/CtaButton.Blue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/tiny_spacing"
@@ -145,12 +183,19 @@
 
         <Button
             android:id="@+id/btn_reset_user_cache"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="8dp"
             android:text="Reset User store cache" />
+
+        <Button
+            android:id="@+id/btn_reset_store_caches"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:text="Reset Store caches" />
 
         <TextView
             android:layout_width="match_parent"
@@ -164,7 +209,6 @@
 
         <Button
             android:id="@+id/btn_show_referral_sheet"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -183,7 +227,6 @@
 
         <Button
             android:id="@+id/btn_rnd_device_id"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -202,7 +245,6 @@
 
         <Button
             android:id="@+id/btn_reset_wallet"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -221,7 +263,6 @@
 
         <Button
             android:id="@+id/btn_reset_announce"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -240,7 +281,6 @@
 
         <Button
             android:id="@+id/btn_reset_prefs"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -259,7 +299,6 @@
 
         <Button
             android:id="@+id/btn_component_lib"
-            style="@style/CtaButton.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"

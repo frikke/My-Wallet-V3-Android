@@ -1,12 +1,13 @@
 package com.blockchain.home.presentation.activity.list.composable
 
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.utils.TextValue
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponent
-import com.blockchain.home.presentation.activity.common.ActivityIconState
 import com.blockchain.home.presentation.activity.common.ActivityStackView
 import com.blockchain.home.presentation.activity.list.TransactionGroup
+import com.blockchain.image.LocalLogo
+import com.blockchain.image.LogoValue
+import com.blockchain.image.LogoValueSource
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextColor
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextStyle
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityTextTypography
@@ -17,9 +18,9 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
         TransactionGroup.Group.Pending to listOf(
             ActivityComponent.StackView(
                 id = "",
-                leadingImage = ActivityIconState.SmallTag.Local(
-                    main = R.drawable.ic_close_circle_dark,
-                    tag = R.drawable.ic_close_circle
+                leadingImage = LogoValue.SmallTag(
+                    main = LogoValueSource.Local(LocalLogo.Buy),
+                    tag = LogoValueSource.Local(LocalLogo.Buy)
                 ),
                 leading = listOf(
                     ActivityStackView.Text(
@@ -44,9 +45,9 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
             ),
             ActivityComponent.StackView(
                 id = "",
-                leadingImage = ActivityIconState.SmallTag.Local(
-                    main = R.drawable.ic_close_circle_dark,
-                    tag = R.drawable.ic_close_circle
+                leadingImage = LogoValue.SmallTag(
+                    main = LogoValueSource.Local(LocalLogo.Buy),
+                    tag = LogoValueSource.Local(LocalLogo.Buy)
                 ),
                 leading = listOf(
                     ActivityStackView.Text(
@@ -85,9 +86,9 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
         TransactionGroup.Group.Date(Calendar.getInstance().apply { set(Calendar.MONTH, 4) }) to listOf(
             ActivityComponent.StackView(
                 id = "",
-                leadingImage = ActivityIconState.SmallTag.Local(
-                    main = R.drawable.ic_close_circle_dark,
-                    tag = R.drawable.ic_close_circle
+                leadingImage = LogoValue.SmallTag(
+                    main = LogoValueSource.Local(LocalLogo.Buy),
+                    tag = LogoValueSource.Local(LocalLogo.Buy)
                 ),
                 leading = listOf(
                     ActivityStackView.Text(
@@ -112,9 +113,9 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
             ),
             ActivityComponent.StackView(
                 id = "",
-                leadingImage = ActivityIconState.SmallTag.Local(
-                    main = R.drawable.ic_close_circle_dark,
-                    tag = R.drawable.ic_close_circle
+                leadingImage = LogoValue.SmallTag(
+                    main = LogoValueSource.Local(LocalLogo.Buy),
+                    tag = LogoValueSource.Local(LocalLogo.Buy)
                 ),
                 leading = listOf(
                     ActivityStackView.Text(
@@ -131,14 +132,16 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                         value = TextValue.StringValue("-10.00"),
                         ActivityTextStyle(
                             ActivityTextTypography.Paragraph2,
-                            ActivityTextColor.Muted, true
+                            ActivityTextColor.Muted,
+                            true
                         )
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-0.00893208 ETH"),
                         ActivityTextStyle(
                             ActivityTextTypography.Caption1,
-                            ActivityTextColor.Muted, true
+                            ActivityTextColor.Muted,
+                            true
                         )
                     )
                 )
@@ -147,9 +150,9 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
         TransactionGroup.Group.Date(Calendar.getInstance().apply { set(Calendar.MONTH, 5) }) to listOf(
             ActivityComponent.StackView(
                 id = "",
-                leadingImage = ActivityIconState.SmallTag.Local(
-                    main = R.drawable.ic_close_circle_dark,
-                    tag = R.drawable.ic_close_circle
+                leadingImage = LogoValue.SmallTag(
+                    main = LogoValueSource.Local(LocalLogo.Buy),
+                    tag = LogoValueSource.Local(LocalLogo.Buy)
                 ),
                 leading = listOf(
                     ActivityStackView.Text(
@@ -166,14 +169,16 @@ val DUMMY_DATA: DataResource<Map<TransactionGroup, List<ActivityComponent>>> = D
                         value = TextValue.StringValue("-10.00"),
                         ActivityTextStyle(
                             ActivityTextTypography.Paragraph2,
-                            ActivityTextColor.Muted, true
+                            ActivityTextColor.Muted,
+                            true
                         )
                     ),
                     ActivityStackView.Text(
                         value = TextValue.StringValue("-0.00893208 ETH"),
                         ActivityTextStyle(
                             ActivityTextTypography.Caption1,
-                            ActivityTextColor.Muted, true
+                            ActivityTextColor.Muted,
+                            true
                         )
                     )
                 )

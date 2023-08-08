@@ -1,12 +1,11 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmationValue
@@ -17,7 +16,6 @@ import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -30,20 +28,19 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestWithdrawOnChainTxEngine(
-    private val interestBalanceStore: InterestBalancesStore,
+    private val interestBalanceStore: FlushableDataSource,
     private val interestService: InterestService,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager
 ) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(interestBalanceStore)
+        get() = listOf(interestBalanceStore, paymentTransactionHistoryStore)
 
     private val availableBalance: Single<Money>
-        get() = sourceAccount.balanceRx.firstOrError().map { it.withdrawable }
+        get() = sourceAccount.balanceRx().firstOrError().map { it.withdrawable }
 
     override fun assertInputsValid() {
-        check(sourceAccount is InterestAccount)
+        check(sourceAccount is EarnRewardsAccount.Interest)
         check(txTarget is CryptoAccount)
         check(txTarget is NonCustodialAccount)
         check(sourceAsset == (txTarget as CryptoAccount).currency)
@@ -60,7 +57,8 @@ class InterestWithdrawOnChainTxEngine(
                 limits = TxLimits.fromAmounts(
                     min = Money.fromMinor(sourceAsset, minLimits.minLimit),
                     max = (maxLimits.maxWithdrawalFiatValue as FiatValue).toCrypto(
-                        exchangeRates, sourceAsset as AssetInfo
+                        exchangeRates,
+                        sourceAsset as AssetInfo
                     )
                 ),
                 feeSelection = FeeSelection(),
@@ -110,7 +108,9 @@ class InterestWithdrawOnChainTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.InterestDeposit, sourceAccount
+                        txTarget,
+                        AssetAction.InterestDeposit,
+                        sourceAccount
                     ),
                     TxConfirmationValue.NetworkFee(
                         pendingTx.feeAmount,
@@ -142,7 +142,10 @@ class InterestWithdrawOnChainTxEngine(
         (txTarget as CryptoAccount).receiveAddress.flatMapCompletable { receiveAddress ->
             (txTarget as? CryptoTarget)?.memo?.let {
                 executeWithdrawal(
-                    sourceAssetInfo, pendingTx.amount, receiveAddress.address, it
+                    sourceAssetInfo,
+                    pendingTx.amount,
+                    receiveAddress.address,
+                    it
                 )
             } ?: kotlin.run {
                 executeWithdrawal(sourceAssetInfo, pendingTx.amount, receiveAddress.address)
@@ -155,7 +158,7 @@ class InterestWithdrawOnChainTxEngine(
         sourceAsset: AssetInfo,
         amount: Money,
         receiveAddress: String,
-        memo: String? = null,
+        memo: String? = null
     ) = interestService.withdraw(
         asset = sourceAsset,
         amount = amount,

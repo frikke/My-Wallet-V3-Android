@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.brokerage
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -9,12 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.ViewPager
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.viewextensions.gone
@@ -30,17 +27,18 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBuySellBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.support.SupportCentreActivity
-import piuk.blockchain.android.ui.brokerage.buy.BuyIntroFragment
+import piuk.blockchain.android.ui.base.showFragment
+import piuk.blockchain.android.ui.brokerage.buy.BuySelectAssetFragment
 import piuk.blockchain.android.ui.brokerage.sell.SellIntroFragment
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.home.WalletClientAnalytics
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.AppUtil
 import retrofit2.HttpException
 
@@ -79,16 +77,10 @@ class BuySellFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentBuySellBinding.inflate(inflater, container, false).apply {
-            this.redesignTabLayout.items = listOf(getString(R.string.common_buy), getString(R.string.common_sell))
-        }
+        _binding = FragmentBuySellBinding.inflate(inflater, container, false)
         return binding.root
-    }
-
-    fun goToPage(position: Int) {
-        binding.pager.setCurrentItem(position, true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -148,15 +140,15 @@ class BuySellFragment :
     }
 
     private fun renderBuySellFragments(
-        action: BuySellIntroAction?,
+        action: BuySellIntroAction?
     ) {
         with(binding) {
             buySellEmpty.gone()
-            pager.visible()
             when (action) {
-                is BuySellIntroAction.DisplayBuySellIntro -> {
+                BuySellIntroAction.DisplayBuySellIntro -> {
                     renderBuySellUi()
                 }
+
                 BuySellIntroAction.UserNotEligible -> renderNotEligibleUi()
                 is BuySellIntroAction.StartBuyWithSelectedAsset -> {
                     renderBuySellUi()
@@ -178,6 +170,7 @@ class BuySellFragment :
                         )
                     }
                 }
+
                 else -> startActivity(
                     SimpleBuyActivity.newIntent(
                         context = activity as Context,
@@ -205,8 +198,7 @@ class BuySellFragment :
 
     private fun renderErrorState() {
         with(binding) {
-            redesignTabLayout.gone()
-            pager.gone()
+            buySellFragmentContainer.gone()
             buySellEmpty.setDetails(
                 action = ::subscribeForNavigation,
                 onContactSupport = { requireContext().startActivity(SupportCentreActivity.newIntent(requireContext())) }
@@ -217,62 +209,43 @@ class BuySellFragment :
 
     private fun renderNotEligibleUi() {
         with(binding) {
-            redesignTabLayout.gone()
-            pager.gone()
+            buySellFragmentContainer.gone()
             notEligibleIcon.visible()
             notEligibleTitle.visible()
             notEligibleDescription.visible()
         }
     }
 
-    private val pagerAdapter: ViewPagerAdapter by lazy {
-        ViewPagerAdapter(
-            listOf(getString(R.string.common_buy), getString(R.string.common_sell)),
-            childFragmentManager
-        )
-    }
-
     private fun renderBuySellUi() {
         with(binding) {
-            redesignTabLayout.apply {
-                visible()
-                items = listOf(getString(R.string.common_buy), getString(R.string.common_sell))
-                onItemSelected = {
-                    pager.setCurrentItem(it, true)
-                }
-                showBottomShadow = true
-            }
-            pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-                override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                    redesignTabLayout.selectedItemIndex = position
-                }
-
-                override fun onPageSelected(position: Int) {
-                    redesignTabLayout.selectedItemIndex = position
-                }
-
-                override fun onPageScrollStateChanged(state: Int) {
-                    // do nothing
-                }
-            })
-
-            if (pager.adapter == null) {
-                pager.adapter = pagerAdapter
-                when (showView) {
-                    BuySellViewType.TYPE_BUY -> pager.setCurrentItem(
-                        BuySellViewType.TYPE_BUY.ordinal, true
-                    )
-                    BuySellViewType.TYPE_SELL -> pager.setCurrentItem(
-                        BuySellViewType.TYPE_SELL.ordinal, true
-                    )
-                }
-            }
-
-            pager.visible()
+            showBuyOrSell(showView)
+            buySellFragmentContainer.visible()
             notEligibleIcon.gone()
             notEligibleTitle.gone()
             notEligibleDescription.gone()
         }
+    }
+
+    private fun showBuyOrSell(view: BuySellViewType) {
+        if (view == BuySellViewType.TYPE_SELL) {
+            startActivity(
+                TransactionFlowActivity.newIntent(
+                    context = requireActivity(),
+                    action = AssetAction.Sell,
+                    origin = "",
+                )
+            )
+            requireActivity().finish()
+            return
+        }
+        childFragmentManager.showFragment(
+            fragment =
+            BuySelectAssetFragment.newInstance(
+                fromRecurringBuy = arguments?.getBoolean(ARG_FROM_RECURRING_BUY) ?: false
+            ),
+            containerId = binding.buySellFragmentContainer.id,
+            reloadFragment = false
+        )
     }
 
     override fun onDestroyView() {
@@ -285,16 +258,19 @@ class BuySellFragment :
         private const val VIEW_TYPE = "VIEW_TYPE"
         private const val SELECTED_ASSET = "SELECTED_ASSET"
         private const val SB_ACTIVITY = 321
+        private const val ARG_FROM_RECURRING_BUY = "ARG_FROM_RECURRING_BUY"
 
         fun newInstance(
             asset: AssetInfo? = null,
             viewType: BuySellViewType = BuySellViewType.TYPE_BUY,
+            fromRecurringBuy: Boolean = false
         ) = BuySellFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(VIEW_TYPE, viewType)
                 asset?.let {
                     putString(SELECTED_ASSET, it.networkTicker)
                 }
+                putBoolean(ARG_FROM_RECURRING_BUY, fromRecurringBuy)
             }
         }
     }
@@ -306,30 +282,9 @@ class BuySellFragment :
     override fun onSellInfoClicked() = navigator().launchBuySell(BuySellViewType.TYPE_SELL)
 
     override fun onSellListEmptyCta() {
-        binding.pager.setCurrentItem(BuySellViewType.TYPE_BUY.ordinal, true)
+        // TOOD
     }
 
     override fun navigator(): HomeNavigator =
         (activity as? HomeNavigator) ?: throw IllegalStateException("Parent must implement HomeNavigator")
-}
-
-@SuppressLint("WrongConstant")
-internal class ViewPagerAdapter(
-    private val titlesList: List<String>,
-    fragmentManager: FragmentManager,
-) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-
-    override fun getCount(): Int = titlesList.size
-
-    override fun getPageTitle(position: Int): CharSequence =
-        titlesList[position]
-
-    override fun getItemPosition(`object`: Any): Int {
-        return POSITION_NONE
-    }
-
-    override fun getItem(position: Int): Fragment = when (position) {
-        0 -> BuyIntroFragment.newInstance()
-        else -> SellIntroFragment.newInstance()
-    }
 }

@@ -30,7 +30,7 @@ class SliderView @JvmOverloads constructor(
                         value = it
                         onValueChanged(it)
                     },
-                    enabled = sliderEnabled,
+                    enabled = sliderEnabled
                 )
             }
         }

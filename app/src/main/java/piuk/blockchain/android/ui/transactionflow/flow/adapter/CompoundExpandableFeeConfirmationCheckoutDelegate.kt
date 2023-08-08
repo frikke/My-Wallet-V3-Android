@@ -11,10 +11,11 @@ import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.componentlib.viewextensions.goneIf
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.presentation.getResolvedColor
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.isLayer2Token
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemFeeCheckoutCompoundExpandableInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -39,7 +40,9 @@ class CompoundExpandableFeeConfirmationCheckoutDelegate(private val mapper: TxCo
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder).bind(
-        items[position]
+        items[position],
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
     )
 }
 
@@ -55,13 +58,16 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
         }
     }
 
-    fun bind(item: TxConfirmationValue) {
+    fun bind(item: TxConfirmationValue, isFirstItemInList: Boolean, isLastItemInList: Boolean) {
         with(binding) {
+            root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
             mapper.map(item).run {
                 compoundItemLabel.text = this[ConfirmationPropertyKey.LABEL] as String
                 compoundItemTitle.text = this[ConfirmationPropertyKey.TITLE] as String
                 compoundItemNote.setText(
-                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder, TextView.BufferType.SPANNABLE
+                    this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder,
+                    TextView.BufferType.SPANNABLE
                 )
 
                 val hasSendingFee = this.containsKey(ConfirmationPropertyKey.FEE_ITEM_SENDING)
@@ -100,25 +106,28 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
     }
 
     private fun getFeeLabel(item: FeeInfo) =
-        if (item.asset.isErc20()) {
+        if (item.asset.isLayer2Token) {
             val network = item.l1EvmNetwork?.networkTicker ?: CryptoCurrency.ETHER.displayTicker
             context.getString(
-                R.string.checkout_item_erc20_network_fee,
+                com.blockchain.stringResources.R.string.checkout_item_erc20_network_fee,
                 network,
                 item.asset.displayTicker
             )
         } else {
-            context.getString(R.string.checkout_item_network_fee, item.asset.displayTicker)
+            context.getString(
+                com.blockchain.stringResources.R.string.checkout_item_network_fee,
+                item.asset.displayTicker
+            )
         }
 
     private fun updateIcon() {
         with(binding) {
             if (isExpanded) {
                 compoundItemIcon.setImageResource(R.drawable.expand_animated)
-                compoundItemIcon.setColorFilter(context.getResolvedColor(R.color.blue_600))
+                compoundItemIcon.setColorFilter(context.getResolvedColor(com.blockchain.common.R.color.blue_600))
             } else {
                 compoundItemIcon.setImageResource(R.drawable.collapse_animated)
-                compoundItemIcon.setColorFilter(context.getResolvedColor(R.color.grey_600))
+                compoundItemIcon.setColorFilter(context.getResolvedColor(com.blockchain.common.R.color.grey_600))
             }
         }
     }

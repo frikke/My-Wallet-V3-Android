@@ -11,11 +11,11 @@ import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.theme.AppTheme
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.android.ext.android.inject
 
-abstract class ComposeModalBottomDialog : BottomSheetDialogFragment() {
+abstract class ComposeModalBottomDialog : ThemedBottomSheetFragment(
+    cancelableOnTouchOutside = false
+) {
 
     interface Host : HostedBottomSheet.Host
 
@@ -33,7 +33,7 @@ abstract class ComposeModalBottomDialog : BottomSheetDialogFragment() {
     protected val analytics: Analytics by inject()
 
     final override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = BottomSheetDialog(requireActivity())
+        val dialog = super.onCreateDialog(savedInstanceState)
         dialog.setContentView(
             ComposeView(requireContext()).apply {
                 setContent {
@@ -44,18 +44,11 @@ abstract class ComposeModalBottomDialog : BottomSheetDialogFragment() {
             }
         )
 
-        dialog.setCanceledOnTouchOutside(false)
-
         val layout =
             dialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
         bottomSheetBehavior = BottomSheetBehavior.from(layout)
 
         bottomSheetBehavior.addBottomSheetCallback(bottomSheetCallback)
-
-        dialog.setOnShowListener {
-            bottomSheetBehavior.skipCollapsed = true
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
 
         if (makeSheetNonCollapsible) {
             makeSheetSticky()
@@ -71,7 +64,7 @@ abstract class ComposeModalBottomDialog : BottomSheetDialogFragment() {
                 BottomSheetBehavior.STATE_EXPANDED -> onSheetExpanded()
                 BottomSheetBehavior.STATE_COLLAPSED -> onSheetCollapsed()
                 BottomSheetBehavior.STATE_HIDDEN -> onSheetHidden()
-                else -> { /* shouldn't get here! */
+                else -> { // shouldn't get here!
                 }
             }
         }

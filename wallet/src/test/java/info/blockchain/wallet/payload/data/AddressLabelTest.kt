@@ -26,7 +26,6 @@ class AddressLabelTest {
     }
 
     @Test fun testToJSON() {
-
         // Ensure toJson doesn't write any unintended fields
         val uri = javaClass.classLoader.getResource("wallet_body_1.txt").toURI()
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)

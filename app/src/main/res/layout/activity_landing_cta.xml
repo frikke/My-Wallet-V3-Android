@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/backgroundSecondary">
 
     <com.blockchain.componentlib.navigation.NavigationBarView
         android:id="@+id/toolbar"
@@ -41,6 +41,7 @@
         android:id="@+id/text_title"
         style="@style/Text.Semibold.20"
         android:layout_width="0dp"
+        android:textColor="@color/title"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:lineSpacingExtra="6sp"
@@ -54,6 +55,7 @@
         style="@style/Text.Standard.14"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textColor="@color/body"
         android:layout_marginTop="@dimen/tiny_spacing"
         android:gravity="center"
         android:lineSpacingExtra="3sp"
@@ -62,15 +64,13 @@
         app:layout_constraintStart_toStartOf="@id/guide_start"
         app:layout_constraintTop_toBottomOf="@id/text_title" />
 
-    <Button
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/button_cta"
-        style="@style/CtaButton.Blue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
         android:layout_marginBottom="@dimen/standard_spacing"
-        android:text="@string/common_buy_crypto"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/guide_end"
         app:layout_constraintStart_toStartOf="@id/guide_start" />

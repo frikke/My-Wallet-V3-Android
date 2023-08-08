@@ -4,6 +4,7 @@ import info.blockchain.wallet.api.WalletApi.IPResponse
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
+import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -27,7 +28,7 @@ interface WalletExplorerEndpoints {
         @Field("payload") payload: String,
         @Field("length") length: Int,
         @Field("api_code") apiCode: String
-    ): Observable<ResponseBody>
+    ): Single<ResponseBody>
 
     @FormUrlEncoded
     @POST("wallet")
@@ -86,7 +87,7 @@ interface WalletExplorerEndpoints {
         @Field("sharedKey") sharedKey: String,
         @Field("format") format: String,
         @Field("api_code") apiCode: String
-    ): Single<ResponseBody>
+    ): Single<WalletBaseDto>
 
     @FormUrlEncoded
     @POST("wallet")
@@ -176,7 +177,8 @@ interface WalletExplorerEndpoints {
     @GET("wallet/get-ip")
     fun getExternalIp(): Single<IPResponse>
 
-    @FormUrlEncoded @POST("wallet/sessions")
+    @FormUrlEncoded
+    @POST("wallet/sessions")
     fun createSessionId(
         @Field("api_code") apiCode: String
     ): Single<ResponseBody>
@@ -228,7 +230,7 @@ interface WalletExplorerEndpoints {
         @Field("sharedKey") sharedKey: String,
         @Field("has_cloud_backup") isMobileSetup: Boolean,
         @Field("mobile_device_type") deviceType: Int
-    ): Single<ResponseBody>
+    ): Completable
 
     // TODO move these to the blockchainApi module
     @GET("wallet/poll-for-wallet-info")

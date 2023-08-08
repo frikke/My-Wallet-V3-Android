@@ -7,15 +7,14 @@
     android:layout_height="wrap_content"
     android:paddingBottom="@dimen/standard_spacing">
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <com.blockchain.componentlib.sheets.SheetNubView
         android:id="@+id/sheet_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/tiny_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/vector_sheet_indicator_small" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"
@@ -49,11 +48,12 @@
         style="@style/Text.Semibold.Centered.20"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxLines="7"
+        android:layout_marginTop="@dimen/standard_spacing"
         android:ellipsize="end"
+        android:maxLines="7"
         android:paddingStart="@dimen/standard_spacing"
         android:paddingEnd="@dimen/standard_spacing"
-        android:layout_marginTop="@dimen/standard_spacing"
+        android:textColor="@color/title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/guideline"
@@ -64,12 +64,13 @@
         style="@style/Text.Standard.16"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/standard_spacing"
-        android:paddingEnd="@dimen/standard_spacing"
         android:layout_marginTop="@dimen/medium_spacing"
-        android:maxLines="7"
         android:ellipsize="end"
         android:gravity="center"
+        android:maxLines="7"
+        android:paddingStart="@dimen/standard_spacing"
+        android:paddingEnd="@dimen/standard_spacing"
+        android:textColor="@color/title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title"
@@ -80,30 +81,31 @@
         style="@style/Text.Light.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tiny_spacing"
         android:paddingStart="@dimen/standard_spacing"
         android:paddingEnd="@dimen/standard_spacing"
-        android:layout_marginTop="@dimen/tiny_spacing"
+        android:textColor="@color/body"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/account_info"
         tools:text="2345" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalErrorButtonView
         android:id="@+id/rmv_bank_btn"
-        style="@style/CtaButton.NoBackgroundRedText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginTop="@dimen/large_spacing"
         android:text="@string/remove_bank"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/end_digits" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalSecondaryButtonView
         android:id="@+id/rmv_bank_cancel"
-        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         android:layout_marginTop="@dimen/small_spacing"
         android:text="@string/common_cancel"
         android:visibility="gone"

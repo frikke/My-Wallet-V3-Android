@@ -1,133 +1,106 @@
 package com.blockchain.componentlib.button
 
+import android.content.Context
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.requiredHeightIn
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.Text
+import android.util.AttributeSet
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark800
-import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.button.common.BaseButtonView
+import com.blockchain.componentlib.button.common.Button
+import com.blockchain.componentlib.button.common.ButtonIconColor
+import com.blockchain.componentlib.button.common.ButtonStyle
+
+class AlertButtonView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : BaseButtonView(context, attrs, defStyleAttr) {
+
+    @Composable
+    override fun Content() {
+        if (isInEditMode) {
+            text = "dummy text"
+        }
+
+        AlertButton(
+            onClick = onClick,
+            text = text,
+            state = buttonState
+        )
+    }
+}
+
+private val bgColorLight = Color(0XFF121D33)
+private val bgColorDark = Color(0XFF20242C)
+private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark else bgColorLight
+private val textColor = Color(0XFFFFFFFF)
 
 @Composable
 fun AlertButton(
-    text: String,
-    onClick: () -> Unit,
-    state: ButtonState,
     modifier: Modifier = Modifier,
+    text: String,
+    state: ButtonState,
+    onClick: () -> Unit
 ) {
     Button(
+        modifier = modifier,
         text = text,
-        onClick = onClick,
+        textColor = textColor,
+        backgroundColor = bgColor,
+        disabledBackgroundColor = bgColor,
         state = state,
-        shape = AppTheme.shapes.extraLarge,
-        defaultTextColor = Color.White,
-        defaultBackgroundLightColor = Grey900,
-        defaultBackgroundDarkColor = Dark800,
-        pressedBackgroundColor = Color.Black,
-        modifier = modifier.requiredHeightIn(min = 48.dp),
-        buttonContent = { state: ButtonState, text: String, color: Color, _: Float, _: ImageResource ->
-            Box {
-                if (state == ButtonState.Loading) {
-                    ButtonLoadingIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                        loadingIconResId = R.drawable.ic_loading,
-                    )
-                }
-
-                val alpha = if (state == ButtonState.Loading) 0f else 1f
-                Row(
-                    Modifier.alpha(alpha),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_alert),
-                        contentDescription = null,
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = text,
-                        color = color,
-                        style = AppTheme.typography.body2,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                }
-            }
-        },
+        style = ButtonStyle.Default,
+        icon = ImageResource.Local(R.drawable.ic_alert),
+        iconColor = ButtonIconColor.Ignore,
+        onClick = onClick
     )
 }
 
-@Preview(name = "Default", group = "Alert Button")
-@Composable
-private fun AlertButtonPreview() {
-    AppTheme {
-        AppSurface {
-            AlertButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Enabled
-            )
-        }
-    }
-}
+// ------------ preview
 
-@Preview(name = "Loading", group = "Alert Button")
 @Preview
 @Composable
-private fun AlertButtonLoadingPreview() {
-    AppTheme {
-        AppSurface {
-            AlertButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Loading
-            )
-        }
-    }
+private fun PreviewAlertButton() {
+    AlertButton(
+        text = "Button Text", state = ButtonState.Enabled, onClick = {}
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun AlertButtonPreview_Dark() {
-    AppTheme {
-        AppSurface {
-            AlertButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Enabled
-            )
-        }
-    }
+private fun PreviewAlertButtonDark() {
+    PreviewAlertButton()
+}
+
+@Preview
+@Composable
+private fun PreviewAlertButtonDisabled() {
+    AlertButton(
+        text = "Button Text", state = ButtonState.Disabled, onClick = {}
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun AlertButtonLoadingPreview_Dark() {
-    AppTheme {
-        AppSurface {
-            AlertButton(
-                text = "Click me",
-                onClick = { },
-                state = ButtonState.Loading
-            )
-        }
-    }
+private fun PreviewAlertButtonDisabledDark() {
+    PreviewAlertButtonDisabled()
+}
+
+@Preview
+@Composable
+private fun PreviewAlertButtonLoading() {
+    AlertButton(
+        text = "Button Text", state = ButtonState.Loading, onClick = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAlertButtonLoadingDark() {
+    PreviewAlertButtonLoading()
 }

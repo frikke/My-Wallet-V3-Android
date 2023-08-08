@@ -12,7 +12,8 @@ import kotlinx.serialization.Serializable
 
 class LinkedBankStore(
     private val paymentMethodsService: PaymentMethodsService
-) : KeyedStore<LinkedBankStore.Key,
+) : KeyedStore<
+    LinkedBankStore.Key,
     LinkedBankTransferResponse
     > by PersistedJsonSqlDelightStoreBuilder().buildKeyed(
     storeId = "LinkedBankStore",

@@ -18,9 +18,9 @@ android {
     buildFeatures {
         compose true
     }
-
+    namespace 'com.blockchain.home.presentation'
     composeOptions {
-        kotlinCompilerExtensionVersion Versions.compose
+        kotlinCompilerExtensionVersion Versions.composeCompiler
     }
 }
 
@@ -28,23 +28,40 @@ dependencies {
     // android
     implementation project(':commonarch')
     implementation project(':common:interface')
+    implementation project(':common:presentation')
     implementation project(':flowhome:domain')
     implementation project(':unifiedcryptowallet:domain')
     implementation project(':coincore')
     implementation project(':balance')
     implementation project(':core')
     implementation project(':componentlib')
+    implementation project(':componentlib-icons')
     implementation project(':chrome:common')
     implementation project(':wallet')
     implementation project(':store:core')
     implementation project(':earn:domain')
+    implementation project(':analytics:domain')
+    implementation project(':fiatActions')
+    implementation project(':walletconnect')
+    implementation project(':defiwalletbackup:domain')
+    implementation project(':earn:presentation')
+    implementation project(':string-resources')
+    implementation project(':flowprices:presentation')
+    implementation project(':news:domain')
+    implementation project(':news:presentation')
+    implementation project(':kyc:presentation')
+    implementation project(':flowtransactions:presentation')
 
+    implementation Libraries.composelifecycle
     // android
     implementation Libraries.design
 
     // coroutines
     implementation Libraries.androidCoroutines
+    implementation Libraries.rxjava3Coroutines
     implementation Libraries.lifecycleViewModelExtensions
+
+    implementation Libraries.kotlinImmutableCollections
 
     // koin
     implementation Libraries.koinAndroid
@@ -60,9 +77,15 @@ dependencies {
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.composeUiPoolingContainer
     implementation Libraries.accompanistSwipeRefresh
-
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
     // rx
     implementation Libraries.rxKotlin
+    implementation Libraries.rxjava3Coroutines
+
+    // WalletConnect
+    implementation Libraries.walletConnectV2Web3Wallet
+    implementation Libraries.walletConnectV2AndroidCore
 
     // test
     testImplementation project(':testutils')

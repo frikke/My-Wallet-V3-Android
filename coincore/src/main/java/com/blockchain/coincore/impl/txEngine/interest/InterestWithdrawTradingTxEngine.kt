@@ -1,11 +1,10 @@
 package com.blockchain.coincore.impl.txEngine.interest
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.EarnRewardsAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxResult
@@ -17,7 +16,6 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -28,23 +26,23 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
+import java.math.BigInteger
 
 class InterestWithdrawTradingTxEngine(
-    private val interestBalanceStore: InterestBalancesStore,
+    private val interestBalanceStore: FlushableDataSource,
     private val interestService: InterestService,
     private val tradingStore: TradingStore,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
+    private val walletManager: CustodialWalletManager
 ) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(interestBalanceStore, tradingStore)
+        get() = listOf(interestBalanceStore, tradingStore, paymentTransactionHistoryStore)
 
     private val availableBalance: Single<Money>
-        get() = sourceAccount.balanceRx.firstOrError().map { it.withdrawable }
+        get() = sourceAccount.balanceRx().firstOrError().map { it.withdrawable }
 
     override fun assertInputsValid() {
-        check(sourceAccount is InterestAccount)
+        check(sourceAccount is EarnRewardsAccount.Interest)
         check(txTarget is CryptoAccount)
         check(txTarget is CustodialTradingAccount)
         check(sourceAsset == (txTarget as CryptoAccount).currency)
@@ -52,14 +50,14 @@ class InterestWithdrawTradingTxEngine(
 
     override fun doInitialiseTx(): Single<PendingTx> =
         Singles.zip(
-            walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.SAVINGS),
             interestService.getLimitsForAsset(sourceAssetInfo),
             availableBalance
-        ).map { (minLimits, maxLimits, balance) ->
+        ).map { (maxLimits, balance) ->
             PendingTx(
                 amount = Money.zero(sourceAsset),
                 limits = TxLimits.fromAmounts(
-                    min = Money.fromMinor(sourceAsset, minLimits.minLimit),
+                    // For withdrawls, the min is 1 minor unit of the source asset
+                    min = Money.fromMinor(sourceAsset, BigInteger.ONE),
                     max = (maxLimits.maxWithdrawalFiatValue as FiatValue).toCrypto(exchangeRates, sourceAssetInfo)
                 ),
                 feeSelection = FeeSelection(),
@@ -111,7 +109,9 @@ class InterestWithdrawTradingTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.InterestDeposit, sourceAccount
+                        txTarget,
+                        AssetAction.InterestDeposit,
+                        sourceAccount // TODO(labreu): InterestDeposit??
                     ),
                     TxConfirmationValue.Total(
                         totalWithFee = (pendingTx.amount as CryptoValue).plus(

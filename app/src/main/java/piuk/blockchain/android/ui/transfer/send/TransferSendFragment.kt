@@ -8,7 +8,7 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.eth.MultiChainAccount
+import com.blockchain.coincore.eth.L2NonCustodialAccount
 import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.earn.TxFlowAnalyticsAccountType
 import com.blockchain.preferences.OnboardingPrefs
@@ -53,9 +53,9 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
 
     private fun renderList() {
         setEmptyStateDetails(
-            R.string.transfer_wallets_empty_title,
-            R.string.transfer_wallets_empty_details,
-            R.string.transfer_wallet_buy_crypto
+            com.blockchain.stringResources.R.string.transfer_wallets_empty_title,
+            com.blockchain.stringResources.R.string.transfer_wallets_empty_details,
+            com.blockchain.stringResources.R.string.transfer_wallet_buy_crypto
         ) {
             analytics.logEvent(TransferAnalyticsEvent.NoBalanceCtaClicked)
             analytics.logEvent(
@@ -70,9 +70,6 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
         initialiseAccountSelectorWithHeader(
             statusDecorator = ::statusDecorator,
             onAccountSelected = ::doOnAccountSelected,
-            title = R.string.transfer_send_crypto_title,
-            label = R.string.transfer_send_crypto_label,
-            icon = R.drawable.ic_send_blue_circle,
             onExtraAccountInfoClicked = ::onExtraAccountInfoClicked
         )
     }
@@ -88,13 +85,13 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
         require(account is CryptoAccount)
 
         val shouldShowNetworkWarningSheet = !onboardingPrefs.isSendNetworkWarningDismissed &&
-            account is MultiChainAccount
+            account is L2NonCustodialAccount
 
         if (shouldShowNetworkWarningSheet) {
-            require(account is MultiChainAccount)
+            require(account is L2NonCustodialAccount)
             selectedSource = account
             showBottomSheet(
-                SendNetworkWarningSheet.newInstance(account.currency.displayTicker, account.l1Network.networkName)
+                SendNetworkWarningSheet.newInstance(account.currency.displayTicker, account.l1Network.shortName)
             )
         } else {
             startTransactionFlow(account)
@@ -120,7 +117,8 @@ class TransferSendFragment : AccountSelectorFragment(), SendNetworkWarningSheet.
             TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 sourceAccount = fromAccount,
-                action = AssetAction.Send
+                action = AssetAction.Send,
+                origin = "TransferSendFragment"
             )
         )
     }

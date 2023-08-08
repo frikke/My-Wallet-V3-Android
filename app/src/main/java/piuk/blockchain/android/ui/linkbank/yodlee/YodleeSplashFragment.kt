@@ -50,12 +50,17 @@ class YodleeSplashFragment : Fragment() {
             yodleeSplashBlurb.movementMethod = LinkMovementMethod.getInstance()
             yodleeSplashBlurb.text =
                 stringUtils.getStringWithMappedAnnotations(
-                    R.string.yodlee_splash_blurb, learnMoreMap, requireActivity()
+                    com.blockchain.stringResources.R.string.yodlee_splash_blurb,
+                    learnMoreMap,
+                    requireActivity()
                 )
 
-            yodleeSplashCta.setOnClickListener {
-                analytics.logEvent(bankAuthEvent(BankAuthAnalytics.SPLASH_CTA, BankPartner.YODLEE))
-                navigator().launchYodleeWebview(attributes, linkingBankId)
+            yodleeSplashCta.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_continue)
+                onClick = {
+                    analytics.logEvent(bankAuthEvent(BankAuthAnalytics.SPLASH_CTA, BankPartner.YODLEE))
+                    navigator().launchYodleeWebview(attributes, linkingBankId)
+                }
             }
         }
 

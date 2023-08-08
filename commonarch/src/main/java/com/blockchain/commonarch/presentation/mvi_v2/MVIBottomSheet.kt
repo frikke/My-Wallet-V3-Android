@@ -1,16 +1,19 @@
 package com.blockchain.commonarch.presentation.mvi_v2
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
+import com.blockchain.commonarch.presentation.base.ThemedBottomSheetFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs.ParcelableArgs
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -23,7 +26,9 @@ fun <TViewState : ViewState, TFragment : MVIBottomSheet<TViewState>, TArgs : Par
     }
 }
 
-abstract class MVIBottomSheet<TViewState : ViewState> : BottomSheetDialogFragment() {
+abstract class MVIBottomSheet<TViewState : ViewState> : ThemedBottomSheetFragment(
+    cancelableOnTouchOutside = false
+) {
 
     interface Host : HostedBottomSheet.Host
 
@@ -34,13 +39,6 @@ abstract class MVIBottomSheet<TViewState : ViewState> : BottomSheetDialogFragmen
     }
 
     abstract fun onStateUpdated(state: TViewState)
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return (super.onCreateDialog(savedInstanceState) as BottomSheetDialog).apply {
-            setCanceledOnTouchOutside(false)
-            forceExpanded()
-        }
-    }
 }
 
 fun BottomSheetDialogFragment.disableDragging() {
@@ -67,7 +65,8 @@ fun BottomSheetDialog.forceExpanded() {
     }
 }
 
-fun <TIntent : Intent<TModelState>,
+fun <
+    TIntent : Intent<TModelState>,
     TViewState : ViewState,
     TModelState : ModelState,
     NavEnt : NavigationEvent,
@@ -83,6 +82,16 @@ fun <TIntent : Intent<TModelState>,
     navigator: NavigationRouter<NavEnt>,
     args: TArgs
 ) {
+    if ((requireActivity() as? BlockchainActivity)?.processDeathOccurredAndThisIsNotLauncherActivity == true) {
+        viewModel.viewModelScope.cancel()
+        lifecycleScope.cancel()
+        try {
+            viewLifecycleOwner.lifecycleScope.cancel()
+        } catch (ex: Exception) {
+            // no-op
+        }
+        return
+    }
     viewModel.viewCreated(args)
     // Create a new coroutine in the lifecycleScope
     viewLifecycleOwner.lifecycleScope.launch {

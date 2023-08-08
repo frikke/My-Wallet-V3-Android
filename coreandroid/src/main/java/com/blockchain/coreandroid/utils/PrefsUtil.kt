@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.chains.ethereum.EthDataManager.Companion.ETH_CHAIN_ID
 import com.blockchain.core.utils.AESUtilWrapper
 import com.blockchain.core.utils.DeviceIdGeneratorService
 import com.blockchain.core.utils.EncryptedPrefs
@@ -17,28 +18,37 @@ import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BankLinkingPrefs
-import com.blockchain.preferences.BlockchainCardPrefs
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
+import com.blockchain.preferences.CountryPrefs
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.DexPrefs
 import com.blockchain.preferences.ExchangeCampaignPrefs
+import com.blockchain.preferences.HandholdPrefs
+import com.blockchain.preferences.IterableAnnouncementsPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.MaskedValuePrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.PricesPrefs
+import com.blockchain.preferences.RecurringBuyPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.preferences.RuntimePermissionsPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.preferences.SmallBalancesPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
+import com.blockchain.preferences.ThemePrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.theme.Theme
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -58,7 +68,7 @@ class PrefsUtil(
     private val idGenerator: DeviceIdGeneratorService,
     private val uuidGenerator: UUIDGenerator,
     private val assetCatalogue: AssetCatalogue,
-    private val environmentConfig: EnvironmentConfig,
+    private val environmentConfig: EnvironmentConfig
 ) : SessionPrefs,
     CurrencyPrefs,
     NotificationPrefs,
@@ -67,7 +77,10 @@ class PrefsUtil(
     SecureChannelPrefs,
     WalletModePrefs,
     PricesPrefs,
+    SmallBalancesPrefs,
+    DexPrefs,
     SimpleBuyPrefs,
+    RecurringBuyPrefs,
     WalletStatusPrefs,
     TransactionPrefs,
     EncryptedPrefs,
@@ -83,8 +96,13 @@ class PrefsUtil(
     LocalSettingsPrefs,
     SuperAppMvpPrefs,
     CowboysPrefs,
-    BlockchainCardPrefs,
-    ExchangeCampaignPrefs {
+    CountryPrefs,
+    ExchangeCampaignPrefs,
+    IterableAnnouncementsPrefs,
+    MaskedValuePrefs,
+    HandholdPrefs,
+    ThemePrefs,
+    RuntimePermissionsPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -154,25 +172,13 @@ class PrefsUtil(
         get() = getValue(KEY_STAKING_INTRO_SEEN, false)
         set(seen) = setValue(KEY_STAKING_INTRO_SEEN, seen)
 
+    override var isActiveRewardsIntroSeen: Boolean
+        get() = getValue(KEY_ACTIVE_REWARDS_INTRO_SEEN, false)
+        set(seen) = setValue(KEY_ACTIVE_REWARDS_INTRO_SEEN, seen)
+
     override var remainingSendsWithoutBackup: Int
         get() = getValue(KEY_REMAINING_SENDS_WITHOUT_BACKUP, MAX_ALLOWED_SENDS)
         set(remaining) = setValue(KEY_REMAINING_SENDS_WITHOUT_BACKUP, remaining)
-
-    override var dashboardAssetOrder: List<String>
-        get() = getValue(KEY_DASHBOARD_ORDER)?.let {
-            try {
-                Json.decodeFromString<List<String>>(it)
-            } catch (t: Throwable) {
-                emptyList()
-            }
-        } ?: emptyList()
-        set(value) {
-            setValue(KEY_DASHBOARD_ORDER, Json.encodeToString(value))
-        }
-
-    override var hasTappedFabButton: Boolean
-        get() = getValue(KEY_TAPPED_FAB, false)
-        set(seen) = setValue(KEY_TAPPED_FAB, seen)
 
     override val areScreenshotsEnabled: Boolean
         get() = getValue(KEY_SCREENSHOTS_ENABLED, false)
@@ -284,11 +290,20 @@ class PrefsUtil(
             setValue(KEY_FIRST_TIME_BUYER, value)
         }
 
+    override var hasSeenRecurringBuyOptions: Boolean
+        get() = getValue(KEY_HAS_SEEN_RB_OPTIONS, false)
+        set(value) {
+            setValue(KEY_HAS_SEEN_RB_OPTIONS, value)
+        }
+
     override var tradingCurrency: FiatCurrency?
         get() = assetCatalogue.fromNetworkTicker(getValue(KEY_SIMPLE_BUY_CURRENCY, "")) as? FiatCurrency
         set(value) {
-            if (value != null) setValue(KEY_SIMPLE_BUY_CURRENCY, value.networkTicker)
-            else removeValue(KEY_SIMPLE_BUY_CURRENCY)
+            if (value != null) {
+                setValue(KEY_SIMPLE_BUY_CURRENCY, value.networkTicker)
+            } else {
+                removeValue(KEY_SIMPLE_BUY_CURRENCY)
+            }
         }
 
     override var hasCompletedAtLeastOneBuy: Boolean
@@ -314,6 +329,18 @@ class PrefsUtil(
     override var isWalletBackUpSkipped: Boolean
         get() = getValue(IS_WALLET_BACKUP_SKIPPED, false)
         set(value) = setValue(IS_WALLET_BACKUP_SKIPPED, value)
+
+    override var hasSeenDefiOnboarding: Boolean
+        get() = getValue(HAS_SEEN_DEFI_ONBOARDING, false)
+        set(value) = setValue(HAS_SEEN_DEFI_ONBOARDING, value)
+
+    override var hasSeenCustodialOnboarding: Boolean
+        get() = getValue(HAS_SEEN_CUSTODIAL_ONBOARDING, false)
+        set(value) = setValue(HAS_SEEN_CUSTODIAL_ONBOARDING, value)
+
+    override var hasSeenEarnProductIntro: Boolean
+        get() = getValue(HAS_SEEN_EARN_PRODUCT_ONBOARDING, false)
+        set(value) = setValue(HAS_SEEN_EARN_PRODUCT_ONBOARDING, value)
 
     override val isWalletFunded: Boolean
         get() = getValue(WALLET_FUNDED_KEY, false)
@@ -568,6 +595,7 @@ class PrefsUtil(
             ?: AppInfoPrefs.DEFAULT_APP_VERSION_NAME
         val firebaseToken = store.getString(KEY_FIREBASE_TOKEN, "").orEmpty()
         val isLandingCtaDismissed = store.getBoolean(KEY_IS_LANDING_CTA_DISMISSED, false)
+        val currentThemeValue = currentTheme
 
         store.edit().clear().apply()
 
@@ -575,6 +603,7 @@ class PrefsUtil(
         setValue(APP_INSTALLATION_VERSION_NAME, installedVersion)
         setValue(KEY_FIREBASE_TOKEN, firebaseToken)
         setValue(KEY_IS_LANDING_CTA_DISMISSED, isLandingCtaDismissed)
+        currentTheme = currentThemeValue
 
         clearBackup()
     }
@@ -761,10 +790,6 @@ class PrefsUtil(
         get() = getValue(COWBOYS_REFERRAL_CARD_DISMISSED, false)
         set(value) = setValue(COWBOYS_REFERRAL_CARD_DISMISSED, value)
 
-    override var defaultCardId: String
-        get() = getValue(DEFAULT_BLOCKCHAIN_CARD_ID, "")
-        set(value) = setValue(DEFAULT_BLOCKCHAIN_CARD_ID, value)
-
     override var latestPricesMode: String?
         get() = getValue(PRICES_FILTER_MODE, "").takeIf { it.isNotEmpty() }
         set(value) {
@@ -783,6 +808,76 @@ class PrefsUtil(
         set(value) {
             setValue(CAMPAIGN_ACTION_TAKEN, value)
         }
+
+    // iterable announcements
+    private fun parseAnnouncements(value: String): MutableList<String> = value.split(",").toMutableList()
+    private fun formatAnnouncements(list: List<String>): String = list.joinToString(separator = ",")
+
+    override fun markAsSeen(id: String) {
+        getValue(ITERABLE_SEEN_ANNOUNCEMENTS, "")
+            .run { parseAnnouncements(this) }
+            .apply { add(id) }
+            .also { setValue(ITERABLE_SEEN_ANNOUNCEMENTS, formatAnnouncements(it)) }
+    }
+
+    override fun markAsDeleted(id: String) {
+        getValue(ITERABLE_DELETED_ANNOUNCEMENTS, "")
+            .run { parseAnnouncements(this) }
+            .apply { add(id) }
+            .also { setValue(ITERABLE_DELETED_ANNOUNCEMENTS, formatAnnouncements(it)) }
+    }
+
+    override fun seenAnnouncements(): List<String> {
+        return getValue(ITERABLE_SEEN_ANNOUNCEMENTS, "")
+            .run { parseAnnouncements(this) }
+    }
+
+    override fun deletedAnnouncements(): List<String> {
+        return getValue(ITERABLE_DELETED_ANNOUNCEMENTS, "")
+            .run { parseAnnouncements(this) }
+    }
+
+    override fun updateSeenAnnouncements(ids: List<String>) {
+        formatAnnouncements(ids)
+            .also { setValue(ITERABLE_SEEN_ANNOUNCEMENTS, it) }
+    }
+
+    override fun syncDeletedAnnouncements(allAnnouncements: List<String>) {
+        val local = deletedAnnouncements().toMutableList()
+        local.removeIf { !allAnnouncements.contains(it) }
+    }
+
+    override var shouldMaskValues: Boolean
+        get() = getValue(MASK_VALUES, false)
+        set(value) = setValue(MASK_VALUES, value)
+
+    override var overrideHandholdVerification: Boolean
+        get() = getValue(DEBUG_HANDHOLD_OVERRIDE, false)
+        set(value) = setValue(DEBUG_HANDHOLD_OVERRIDE, value)
+
+    override var debugHandholdEmailVerified: Boolean
+        get() = getValue(DEBUG_HANDHOLD_EMAIL_VERIFIED, false)
+        set(value) = setValue(DEBUG_HANDHOLD_EMAIL_VERIFIED, value)
+
+    override var debugHandholdKycVerified: Boolean
+        get() = getValue(DEBUG_HANDHOLD_KYC_VERIFIED, false)
+        set(value) = setValue(DEBUG_HANDHOLD_KYC_VERIFIED, value)
+
+    override var debugHandholdBuyVerified: Boolean
+        get() = getValue(DEBUG_HANDHOLD_BUY_VERIFIED, false)
+        set(value) = setValue(DEBUG_HANDHOLD_BUY_VERIFIED, value)
+
+    override var currentTheme: String
+        get() = getValue(CURRENT_THEME, Theme.System.name)
+        set(value) = setValue(CURRENT_THEME, value)
+
+    override var notificationLastRequestMillis: Long
+        get() = getValue(NOTIFICATION_PERMISSION_LAST_REQUEST, 0L)
+        set(value) = setValue(NOTIFICATION_PERMISSION_LAST_REQUEST, value)
+
+    override var notificationDoNotAskAgain: Boolean
+        get() = getValue(NOTIFICATION_PERMISSION_DO_NOT_ASK_AGAIN, false)
+        set(value) = setValue(NOTIFICATION_PERMISSION_DO_NOT_ASK_AGAIN, value)
 
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
@@ -804,6 +899,7 @@ class PrefsUtil(
         private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
         private const val KEY_CARD_STATE = "key_card_state"
         private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"
+        private const val KEY_HAS_SEEN_RB_OPTIONS = "key_has_seen_rb_options"
         private const val KEY_SIMPLE_BUY_CURRENCY = "key_trading_urrency_currency"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"
         private const val KEY_BUYS_COMPLETED_COUNT = "KEY_BUYS_COMPLETED_COUNT"
@@ -816,6 +912,7 @@ class PrefsUtil(
         private const val KEY_PRIVATE_KEY_INTRO_SEEN = "key_private_key_intro_seen"
         private const val KEY_REWARDS_INTRO_SEEN = "key_rewards_intro_seen"
         private const val KEY_STAKING_INTRO_SEEN = "key_staking_intro_seen"
+        private const val KEY_ACTIVE_REWARDS_INTRO_SEEN = "key_active_rewards_intro_seen"
         private const val KEY_REMAINING_SENDS_WITHOUT_BACKUP = "key_remaining_sends_without_backup"
         private const val MAX_ALLOWED_SENDS = 5
         private const val KEY_TAPPED_FAB = "key_tapped_fab"
@@ -824,6 +921,9 @@ class PrefsUtil(
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
         private const val IS_WALLET_BACKUP_SKIPPED = "IS_WALLET_BACKUP_SKIPPED"
+        private const val HAS_SEEN_DEFI_ONBOARDING = "HAS_SEEN_DEFI_ONBOARDING"
+        private const val HAS_SEEN_CUSTODIAL_ONBOARDING = "HAS_SEEN_CUSTODIAL_ONBOARDING"
+        private const val HAS_SEEN_EARN_PRODUCT_ONBOARDING = "HAS_SEEN_EARN_PRODUCT_ONBOARDING"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"
         private const val BITPAY_TRANSACTION_SUCCEEDED = "BITPAY_TRANSACTION_SUCCEEDED"
         private const val NETWORK_FEE_PRIORITY_KEY = "fee_type_key_"
@@ -919,11 +1019,7 @@ class PrefsUtil(
         private const val HAS_SEEN_COWBOYS_FLOW = "has_seen_cowboys_flow"
         private const val COWBOYS_REFERRAL_CARD_DISMISSED = "referral_card_dismissed"
 
-        // Blockchain Card
-        private const val DEFAULT_BLOCKCHAIN_CARD_ID = "default_blockchain_card_id"
-
         // multiapp assets
-        private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
 
         // Exchange Campaign
         private const val CAMPAIGN_DISMISS_COUNT = "campaign_show_count"
@@ -934,6 +1030,33 @@ class PrefsUtil(
         private const val WALLET_MODE_LEGACY_KEY = "WALLET_MODE"
         private const val WALLET_MODE_KEY = "WALLET_MODE_UPDATED_KEY"
         private const val USER_DEFAULTED_TO_PKW = "USER_DEFAULTED_TO_PKW"
+        private const val USER_COUNTRY = "USER_COUNTRY"
+        private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
+        private const val DEX_INTRO_SHOWN = "dex_intro_shown"
+        private const val DEX_LAST_SELECTED_SLIPPAGE_INDEX = "LAST_SELECTED_SLIPPAGE_INDEX"
+        private const val DEX_LAST_SELECTED_DESTINATION_TICKER = "DEX_LAST_SELECTED_DESTINATION_TICKER"
+        private const val DEX_SELECTED_CHAIN_ID = "DEX_SELECTED_CHAIN_ID"
+        private const val ALLOWANCE_APPROVED_BUT_PENDING_TOKENS = "DEX_ALLOWANCE_APPROVED_BUT_PENDING_TOKENS"
+
+        // iterable announcements
+        private const val ITERABLE_SEEN_ANNOUNCEMENTS = "ITERABLE_SEEN_ANNOUNCEMENTS"
+        private const val ITERABLE_DELETED_ANNOUNCEMENTS = "ITERABLE_DELETED_ANNOUNCEMENTS"
+
+        // masked values
+        private const val MASK_VALUES = "MASK_VALUES"
+
+        // handhold
+        private const val DEBUG_HANDHOLD_OVERRIDE = "overrideHandholdVerification"
+        private const val DEBUG_HANDHOLD_EMAIL_VERIFIED = "DEBUG_EMAIL_VERIFIED"
+        private const val DEBUG_HANDHOLD_KYC_VERIFIED = "DEBUG_KYC_VERIFIED"
+        private const val DEBUG_HANDHOLD_BUY_VERIFIED = "DEBUG_BUY_VERIFIED"
+
+        // theme
+        private const val CURRENT_THEME = "CURRENT_THEME"
+
+        // permissions
+        private const val NOTIFICATION_PERMISSION_LAST_REQUEST = "NOTIFICATION_PERMISSION_LAST_REQUEST"
+        private const val NOTIFICATION_PERMISSION_DO_NOT_ASK_AGAIN = "NOTIFICATION_PERMISSION_DO_NOT_ASK_AGAIN"
     }
 
     override val legacyWalletMode: String
@@ -949,6 +1072,49 @@ class PrefsUtil(
         get() = getValue(USER_DEFAULTED_TO_PKW, false)
         set(value) {
             setValue(USER_DEFAULTED_TO_PKW, value)
+        }
+    override var showSmallBalances: Boolean
+        get() = getValue(SHOULD_SHOW_SMALL_BALANCES, true)
+        set(value) {
+            setValue(SHOULD_SHOW_SMALL_BALANCES, value)
+        }
+
+    override val dexIntroShown: Boolean
+        get() = getValue(DEX_INTRO_SHOWN, false)
+
+    override fun markDexIntroAsSeen() {
+        setValue(DEX_INTRO_SHOWN, true)
+    }
+
+    override var selectedSlippageIndex: Int
+        get() =
+            getValue(DEX_LAST_SELECTED_SLIPPAGE_INDEX, -1)
+        set(value) {
+            setValue(DEX_LAST_SELECTED_SLIPPAGE_INDEX, value)
+        }
+
+    override var selectedDestinationCurrencyTicker: String
+        get() =
+            getValue(DEX_LAST_SELECTED_DESTINATION_TICKER, "")
+        set(value) {
+            setValue(DEX_LAST_SELECTED_DESTINATION_TICKER, value)
+        }
+    override var country: String
+        get() =
+            getValue(USER_COUNTRY, "")
+        set(value) {
+            setValue(USER_COUNTRY, value)
+        }
+    override var selectedChainId: Int
+        get() = getValue(DEX_SELECTED_CHAIN_ID, ETH_CHAIN_ID)
+        set(value) {
+            setValue(DEX_SELECTED_CHAIN_ID, value)
+        }
+
+    override var allowanceApprovedButPendingTokens: Set<String>
+        get() = getValue(ALLOWANCE_APPROVED_BUT_PENDING_TOKENS, "").split(",").toSet()
+        set(value) {
+            setValue(ALLOWANCE_APPROVED_BUT_PENDING_TOKENS, value.joinToString(separator = ","))
         }
 }
 

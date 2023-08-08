@@ -9,7 +9,7 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import kotlinx.serialization.Serializable
 
 class HistoricRateStore(
-    private val assetPriceService: AssetPriceService,
+    private val assetPriceService: AssetPriceService
 ) : KeyedStore<HistoricRateStore.Key, HistoricRate> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
         storeId = STORE_ID,
@@ -17,13 +17,13 @@ class HistoricRateStore(
             assetPriceService.getHistoricPrices(
                 baseTickers = setOf(key.assetTicker),
                 quoteTickers = setOf(key.fiatTicker),
-                time = key.requestedTimestamp / 1000, // API uses seconds
+                time = key.requestedTimestamp / 1000 // API uses seconds
             ).map {
                 HistoricRate(
                     rate = it.first().price,
                     fiatTicker = key.fiatTicker,
                     assetTicker = key.assetTicker,
-                    requestedTimestamp = key.requestedTimestamp,
+                    requestedTimestamp = key.requestedTimestamp
                 )
             }
         },
@@ -39,7 +39,7 @@ class HistoricRateStore(
     data class Key(
         val fiatTicker: String,
         val assetTicker: String,
-        val requestedTimestamp: Long,
+        val requestedTimestamp: Long
     )
 
     companion object {

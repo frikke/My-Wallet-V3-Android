@@ -43,7 +43,10 @@ sealed class PaymentMethod(
         override val isEligible: Boolean,
         val cardFundSources: List<CardFundSource>?
     ) : PaymentMethod(
-        UNDEFINED_CARD_PAYMENT_ID, PaymentMethodType.PAYMENT_CARD, limits, UNDEFINED_CARD_PAYMENT_METHOD_ORDER,
+        UNDEFINED_CARD_PAYMENT_ID,
+        PaymentMethodType.PAYMENT_CARD,
+        limits,
+        UNDEFINED_CARD_PAYMENT_METHOD_ORDER,
         isEligible
     ),
         UndefinedPaymentMethod {
@@ -81,7 +84,11 @@ sealed class PaymentMethod(
         override val isEligible: Boolean
     ) :
         PaymentMethod(
-            UNDEFINED_BANK_ACCOUNT_ID, PaymentMethodType.FUNDS, limits, UNDEFINED_BANK_ACCOUNT_METHOD_ORDER, isEligible
+            UNDEFINED_BANK_ACCOUNT_ID,
+            PaymentMethodType.FUNDS,
+            limits,
+            UNDEFINED_BANK_ACCOUNT_METHOD_ORDER,
+            isEligible
         ),
         UndefinedPaymentMethod {
         val showAvailability: Boolean
@@ -97,8 +104,11 @@ sealed class PaymentMethod(
         override val isEligible: Boolean
     ) :
         PaymentMethod(
-            UNDEFINED_BANK_TRANSFER_PAYMENT_ID, PaymentMethodType.BANK_TRANSFER, limits,
-            UNDEFINED_BANK_TRANSFER_METHOD_ORDER, isEligible
+            UNDEFINED_BANK_TRANSFER_PAYMENT_ID,
+            PaymentMethodType.BANK_TRANSFER,
+            limits,
+            UNDEFINED_BANK_TRANSFER_METHOD_ORDER,
+            isEligible
         ),
         UndefinedPaymentMethod
 
@@ -123,9 +133,11 @@ sealed class PaymentMethod(
 
         val uiAccountType: String =
             accountType.lowercase(Locale.getDefault()).replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(
-                    Locale.getDefault()
-                ) else it.toString()
+                if (it.isLowerCase()) {
+                    it.titlecase(
+                        Locale.getDefault()
+                    )
+                } else it.toString()
             }
 
         override val paymentDetails: PaymentMethodType

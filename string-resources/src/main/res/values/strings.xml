@@ -15,6 +15,11 @@
     <string name="common_receive">Receive</string>
     <string name="common_rewards">Rewards</string>
     <string name="common_swap">Swap</string>
+    <string name="common_get_asset">Get %1$s</string>
+    <string name="common_new">New</string>
+    <string name="common_swap_from">Swap from</string>
+    <string name="common_swap_select_account">Select %1$s account</string>
+    <string name="common_swap_to">Swap to</string>
     <string name="common_add">Add</string>
     <string name="common_add_cash">Add Cash</string>
     <string name="common_cash_out">Cash Out</string>
@@ -22,16 +27,19 @@
     <string name="common_activity">Activity</string>
     <string name="common_summary">Summary</string>
     <string name="common_from">From</string>
+    <string name="common_more">More</string>
     <string name="common_to">To</string>
     <string name="common_yes">Yes</string>
     <string name="common_no">No</string>
     <string name="common_ok">OK</string>
+    <string name="common_done">Done</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_total">Total</string>
     <string name="common_remove">Remove</string>
     <string name="common_deposit">Deposit</string>
     <string name="common_transfer">Transfer</string>
     <string name="common_stake">Stake</string>
+    <string name="common_earn">Earn</string>
     <string name="common_error">Something went wrong, please try again</string>
     <string name="common_confirm">Confirm</string>
     <string name="common_disconnect">Disconnect</string>
@@ -47,15 +55,19 @@
     <string name="common_continue">Continue</string>
     <string name="common_try_again">Try Again</string>
     <string name="common_sell">Sell</string>
+    <string name="common_select">Select</string>
+    <string name="common_settings">Settings</string>
     <string name="common_sign">Sign</string>
     <string name="common_buy">Buy</string>
     <string name="common_balance">Balance</string>
     <string name="common_search">Search</string>
     <string name="common_approve">Approve</string>
     <string name="common_deny">Deny</string>
+    <string name="common_decline">Decline</string>
     <string name="common_payment">Payment</string>
     <string name="common_unknown">Unknown</string>
     <string name="common_wallets">Wallets</string>
+    <string name="common_wallet">Wallet</string>
     <string name="common_go_back">Go Back</string>
     <string name="common_reset_password">Reset Password</string>
     <string name="common_buy_crypto">Buy Crypto</string>
@@ -66,8 +78,10 @@
     <string name="common_copy">Copy</string>
     <string name="common_copied">Copied</string>
     <string name="common_share">Share</string>
+    <string name="common_max">Max</string>
+    <string name="common_max_arg">Max: %1$s</string>
     <string name="common_launch">Launch</string>
-    <string name="common_maybe_later">Maybe Later</string>
+    <string name="common_maybe_later">Maybe later</string>
     <string name="common_i_understand">I Understand</string>
     <string name="common_did_you_know">Did you know?</string>
     <string name="common_submit">Submit</string>
@@ -77,6 +91,14 @@
     <string name="common_no_results_found">No results found</string>
     <string name="common_general">General</string>
     <string name="common_status">Status</string>
+    <string name="common_other">Other</string>
+    <string name="common_important">Important</string>
+    <string name="common_go">GO</string>
+    <string name="common_important_information">Important information</string>
+    <string name="common_crypto">Crypto</string>
+    <string name="common_completed">Completed</string>
+    <string name="common_dont_allow">Don’t Allow</string>
+    <string name="common_crypto_deposit">Crypto deposit</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -102,12 +124,6 @@
     <string name="item_debug_menu" translatable="false">Debug Menu</string>
 
     <!-- toolbar -->
-    <string name="toolbar_cmd_home">Home</string>
-    <string name="toolbar_cmd_activity">Activity</string>
-
-    <string name="toolbar_cmd_swap">Swap</string>
-    <string name="toolbar_cmd_transfer">Transfer</string>
-
     <string name="polite_no">No thanks</string>
 
     <string name="done">Done</string>
@@ -188,9 +204,11 @@
 
     <!-- SuperApp -->
     <string name="chrome_navigation_home">Home</string>
-    <string name="chrome_navigation_trade">Trade</string>
+    <string name="chrome_navigation_prices">Prices</string>
     <string name="chrome_navigation_card">Card</string>
     <string name="chrome_navigation_nft">NFTs</string>
+    <string name="chrome_navigation_dex">DEX</string>
+    <string name="chrome_navigation_earn">Earn</string>
 
     <!-- Value Props -->
     <string name="landing_value_prop_one">Instantly Buy, Sell and Swap Crypto.</string>
@@ -226,8 +244,8 @@
     <string name="password_disclaimer">I agree to Blockchain.com’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
     <string name="new_account_cta_text">Next</string>
     <string name="new_account_title_1">New Account</string>
-    <string name="new_account_referral_code_label">Have a referral code?</string>
-    <string name="new_account_referral_code">Enter referral code (optional)</string>
+    <string name="new_account_referral_code_label">Enter referral code</string>
+    <string name="new_account_referral_code">Enter a referral code (optional)</string>
     <string name="new_account_referral_code_invalid">Please enter a valid referral code</string>
     <string name="create_wallet_state">State</string>
     <string name="create_wallet_country">Country of Residence</string>
@@ -244,9 +262,10 @@
     <string name="strength_strong">Strong</string>
     <string name="strength_hint">Use at least 8 characters, a mix of letters, numbers and symbols.</string>
     <string name="strength_label">Password Strength</string>
+    <string name="create_wallet_error_title">Unable to process</string>
+    <string name="create_wallet_error_description">We are unable to create your Wallet. Please, try again later.</string>
 
     <string name="btn_continue">Continue</string>
-    <string name="btn_forgot_password">Forgot Password?</string>
 
     <string name="SEND">Send</string>
 
@@ -333,8 +352,7 @@
     <string name="received_bitcoin_cash">Received Bitcoin Cash</string>
 
     <string name="portfolio">Portfolio</string>
-    <string name="brokerage_wallet_name" translatable="false">Accounts</string>
-    <string name="brokerage_wallet_name_superapp" translatable="false">Trading</string>
+    <string name="brokerage_wallet_name" translatable="false">Account</string>
     <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>
@@ -515,7 +533,7 @@
     <string name="security">Security</string>
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
-    <string name="setting_limits_title">Trading Accounts</string>
+    <string name="setting_limits_title">Blockchain.com Accounts</string>
     <string name="setting_limits_description">Limits &amp; Features</string>
     <string name="setting_limits_load_error_title">Loading Error</string>
     <string name="setting_limits_load_error_description">We can’t load your limits now. You can check your account limits by going to Settings</string>
@@ -662,52 +680,17 @@
     <string name="tx_title_swapped">Swapped %1$s → %2$s</string>
     <string name="tx_title_transferred">Transferred %s</string>
     <string name="tx_title_fee">Fee %s</string>
-    <string name="tx_title_rewards">%s Rewards Earned</string>
+    <string name="tx_title_rewards">Earned %s</string>
     <string name="tx_title_add_with_ticker">Add %s</string>
     <string name="tx_title_stake_with_ticker">Stake %s</string>
     <string name="tx_title_added">Added %s</string>
-    <string name="tx_title_stake_earned">%s Earned</string>
-    <string name="tx_title_stake_withdrawn">%s Unstaked</string>
+    <string name="tx_title_earned">Earned %s</string>
+    <string name="tx_title_debited">%s Debited</string>
+    <string name="tx_title_stake_withdrawn">Unstaked %s</string>
     <string name="tx_title_staked">Staked %s</string>
-
-    <!-- TRANSACTION DETAILS -->
-    <string name="transaction_detail_coinbase">No Inputs (Newly Generated Coins)</string>
 
     <!-- SECURITY CENTRE -->
     <string name="security_centre_email_check">Check email</string>
-
-    <!-- BACKUP -->
-    <string name="backup_subtitle">Secret Private Key Recovery Phrase</string>
-    <string name="backup_instructions_1">In crypto, when you hold the private keys, you\'re in control of the funds in your Private Key Wallet. The downside is that WHOEVER holds your private keys can control your Private Key Wallet.</string>
-    <string name="backup_instructions_2">So you must:</string>
-    <string name="backup_instructions_3">1. Write down the 12 word phrase on the next screen in the exact order it appears</string>
-    <string name="backup_instructions_4">2. Keep it safe, ideally on a securely stored piece of paper (in other words, not a digital copy).</string>
-    <string name="backup_instructions_5">3. NEVER share your backup phrase with anyone.</string>
-    <string name="backup_instructions_warn">Warning: If someone has your backup phrase they will have access to your Private Key Wallet and can withdraw funds.</string>
-    <string name="backup_instructions_alert">Blockchain.com will never ask to view or receive your recovery phrase.</string>
-    <string name="backup_button_begin">View Recovery Phrase</string>
-
-    <string name="backup_write_down_words">It is important to make sure you write down your words
-        exactly as they appear here and in this order.
-    </string>
-    <string name="backup_header_complete">Backup Complete</string>
-    <string name="backup_complete_message_1">You can use your Secret Private Key Recovery Phrase to restore your funds if
-        you lose your password. Anyone with access to your Secret Private Key Recovery Phrase can access your funds so
-        remember to keep it offline somewhere safe and secure.
-    </string>
-    <string name="backup_again">Backup again</string>
-    <string name="backup_confirmed">Backup confirmed</string>
-    <string name="backup_last">Last backup: %1$s</string>
-    <string name="backup_verify_heading_1">Enter the following words from your Secret Private Key Recovery Phrase to
-        complete the backup process.
-    </string>
-    <string name="backup_next_word">NEXT WORD</string>
-    <string name="backup_previous_word">PREVIOUS WORD</string>
-    <string name="backup_word">Word</string>
-    <string name="backup_of">of</string>
-    <string name="backup_word_mismatch">Word Mismatch</string>
-    <string name="backup_done">DONE</string>
-    <string name="backup_lost_mnemonic_1">Lost your 12 word Secret Private Key Recovery Phrase?</string>
 
     <!-- BIOMETRICS -->
     <string name="fingerprint_hint">Touch sensor</string>
@@ -819,7 +802,7 @@
     <string name="dashboard_asset_error">Could not load %1$s at this time</string>
 
     <string name="dashboard_asset_balance_wallet">Wallet Balance</string>
-    <string name="dashboard_asset_balance_custodial">Trading Wallet</string>
+    <string name="dashboard_asset_balance_custodial">Blockchain.com Wallet</string>
     <string name="dashboard_asset_balance_rewards">Earn %1$.1f%% annually</string>
 
     <string name="dashboard_asset_actions_send_dsc">Transfer %1$s to any Wallet</string>
@@ -827,13 +810,16 @@
     <string name="dashboard_asset_actions_swap_dsc">Exchange %1$s for Another Crypto</string>
     <string name="dashboard_asset_actions_add_dsc">Add %1$s to your Rewards Account</string>
     <string name="dashboard_asset_actions_add_staking_dsc">Add %1$s to your Staking Account</string>
+    <string name="dashboard_asset_actions_add_active_dsc">Add %1$s to your Active Rewards Account</string>
     <string name="dashboard_asset_actions_add_title">Add</string>
     <string name="dashboard_asset_actions_withdraw_dsc_1">Withdraw %1$s from your Rewards Account</string>
-    <string name="dashboard_asset_actions_buy_dsc">Add %1$s to your Trading Account</string>
+    <string name="dashboard_asset_actions_buy_dsc">Add %1$s to your Blockchain.com Account</string>
     <string name="dashboard_asset_actions_summary_title_1">Rewards Summary</string>
     <string name="dashboard_asset_actions_summary_staking_title">Staking Summary</string>
+    <string name="dashboard_asset_actions_summary_active_rewards_title">Active Rewards Summary</string>
     <string name="dashboard_asset_actions_summary_dsc_1">View your accrued %1$s Rewards</string>
     <string name="dashboard_asset_actions_summary_staking_dsc">View your accrued %1$s Earnings</string>
+    <string name="dashboard_asset_actions_summary_active_rewards_dsc">View your accrued %1$s Earnings</string>
     <string name="dashboard_asset_actions_rewards_dsc_failed">Could not load Rewards details</string>
     <string name="asset_details_chart_load_failed_toast">Failed to load chart details, please try again</string>
     <string name="asset_details_load_failed_toast">Failed to load wallet details, please try again</string>
@@ -930,7 +916,7 @@
 
     <!-- Sell announcement -->
     <string name="sell_announcement_title">Sell Your Crypto for Cash</string>
-    <string name="sell_announcement_description">Sell directly from your Trading Wallets to your Cash Wallet.</string>
+    <string name="sell_announcement_description">Sell directly from your Blockchain.com Wallets to your Cash Wallet.</string>
     <string name="sell_announcement_action">Sell now</string>
 
     <!-- Rewards announcement -->
@@ -994,8 +980,8 @@
     <string name="airdrop_sheet_xlm_title" translatable="false">Stellar (XLM)</string>
 
     <!-- custody wallet intro sheet -->
-    <string name="custody_intro_title_1">Your Trading Account</string>
-    <string name="custody_intro_body">When you buy crypto, we store your funds securely on your behalf in a crypto Trading Account. You can keep them safe with us or transfer them to your Private Key (or non-custodial) Wallet to own and store yourself.</string>
+    <string name="custody_intro_title_1">Your Blockchain.com Account</string>
+    <string name="custody_intro_body">When you buy crypto, we store your funds securely on your behalf in a crypto Blockchain.com Account. You can keep them safe with us or transfer them to your Private Key (or non-custodial) Wallet to own and store yourself.</string>
 
     <!-- force backup before send sheet -->
     <string name="backup_before_send_title">Backup Your Wallet</string>
@@ -1054,6 +1040,7 @@
     <string name="kyc_profile_submit">Submit</string>
     <string name="kyc_profile_error">Error creating user details, try again later</string>
     <string name="kyc_profile_error_conflict">A user already exists with this email address</string>
+    <string name="kyc_profile_error_invalid_name">Make sure your name and last name are correct</string>
     <string name="kyc_invalid_country_message_me">Message me when available</string>
     <string name="kyc_invalid_country_no_thanks">No thanks</string>
 
@@ -1151,9 +1138,6 @@
     <string name="kyc_tier_current_state_underreview_subtitle">You’ve successfully submitted your application. A Blockchain.com Support Member is reviewing it now.</string>
     <string name="kyc_tier_current_state_underreview_nextstep_title">What happens next?</string>
     <string name="kyc_tier_current_state_underreview_nextstep_subtitle">We’ll notify you via email about the status of your application.</string>
-    <string name="kyc_tier_current_state_underreview_nextstep_subtitle_sdd">We’ll notify you via email about the status of your application.
-
-While you wait, you can make your first trade and move currency up to your current limit.</string>
     <string name="kyc_tier_current_state_underreview_cta">Go to dashboard</string>
 
     <string name="kyc_tier_current_state_verified_title">You’ve been verified</string>
@@ -1251,7 +1235,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="get_free_crypto">GET FREE CRYPTO</string>
     <string name="start_arrow">start arrow</string>
     <string name="approved">Approved!</string>
-    <string name="in_review">In Review</string>
+    <string name="in_review">In review</string>
     <string name="available">Available</string>
     <string name="swap_limit">Your Swap Limit is the maximum amount of crypto you can trade</string>
     <string name="swap_unavailable">Swap Currently Unavailable</string>
@@ -1281,7 +1265,6 @@ If you want to know more about our verification process visit our <annotation li
 
     <string name="tour_step_three_btn">Next</string>
 
-    <string name="dashboard_total_balance">Total Balance</string>
     <string name="asset_card_rate_period">24hrs</string>
     <string name="upgrading_wallet">Upgrading Wallet</string>
 
@@ -1427,21 +1410,24 @@ If you want to know more about our verification process visit our <annotation li
     <string name="buy_now">Buy Now</string>
     <string name="buy_asset_now">Buy %1s Now</string>
     <string name="preview_buy">Preview Buy</string>
+    <string name="preview_swap">Preview Swap</string>
     <string name="simple_buy_transfer_details_error">Something went wrong while loading the transfer details.\n\nPlease try again later.</string>
     <string name="payment_methods_bank_transfer">If you\'d prefer to deposit funds directly from your bank account first, follow the instructions on the next screen. Once your deposit arrives in your Blockchain.com account you can come back here to buy crypto.</string>
     <string name="payment_methods_make_deposit">Make A Deposit -></string>
     <string name="alias_tooltip">The banking alias allows you to identify your bank account much easier than with the 22 CBU digits.</string>
-
-    <string name="default_crypto_non_custodial_wallet_label">Private Key Wallet</string>
+    <!--DO NOT replace this-->
+    <string name="default_v1_crypto_non_custodial_wallet_label" translatable="false">Private Key Wallet</string>
+    <string name="default_v2_crypto_non_custodial_wallet_label" translatable="false">DeFi Wallet</string>
     <string name="old_default_non_custodial_wallet_label">My %1s Wallet</string>
     <string name="default_label_all_wallets">All Wallets</string>
-    <string name="default_label_rewards_wallet">Rewards Account</string>
-    <string name="default_label_staking_wallet">Staking Account</string>
+    <string name="default_label_rewards_wallet">Passive Rewards</string>
+    <string name="default_label_staking_wallet">Staking Rewards</string>
+    <string name="default_label_active_rewards_wallet">Active Rewards</string>
     <string name="default_label_custodial_wallets">Accounts</string>
     <string name="exchange_default_account_label_1">Exchange Account</string>
     <string name="approximately_symbol">~ %1$s</string>
-    <string name="custodial_wallet_default_label_1">Trading Account</string>
-    <string name="custodial_wallet_default_label_2">%s Trading Account</string>
+    <string name="custodial_wallet_default_label">Blockchain.com Account</string>
+    <string name="custodial_wallet_default_label_2">%s Blockchain.com Account</string>
     <string name="select_account_sheet_title">Select a Wallet</string>
     <string name="select_account_sheet_title_defi">Select a Wallet</string>
     <string name="select_account_sheet_title_brokerage">Select an Account</string>
@@ -1462,13 +1448,13 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_state_cleared">Cleared</string>
     <string name="activity_state_rejected">Rejected</string>
     <string name="activity_state_refunded">Refunded</string>
-    <string name="activity_wallet_total_balance">Total Balance</string>
+    <string name="common_total_balance">Total Balance</string>
 
     <!--Cards-->
     <string name="card_number">Card Number</string>
     <string name="name_on_card">Name on Card</string>
     <string name="expiry_date">Expiry Date</string>
-    <string name="card_cvv">CVV2</string>
+    <string name="card_cvv">CVV</string>
     <string name="card_cvc">CVC</string>
     <string name="card_not_supported">Card Not Supported</string>
     <string name="privacy_protected_ssl">Privacy protected with 256-Bit SSL encryption.</string>
@@ -1483,17 +1469,17 @@ If you want to know more about our verification process visit our <annotation li
     <string name="order_error_subtitle">Don’t worry. Your money is safe. Please try again or contact our Support Team for help.</string>
     <string name="order_error_subtitle_rb">Don’t worry. Your money is safe. Your %1$s recurring buy of %2$s failed to save. Please try again or contact our Support Team for help.</string>
     <string name="card_expiry_date">Exp: %1s</string>
-    <string name="card_buying">Buying %1s</string>
+    <string name="card_buying">Buying %1$s of %2$s</string>
     <string name="card_in_progress">%1s Buy In Progress</string>
     <string name="we_will_notify_order_complete">We’ll notify you when your order is complete.</string>
     <string name="bank_transfer_in_progress_title">%1$s Buy Started</string>
     <string name="bank_transfer_in_progress_blurb">We are completing your purchase now. Expect the funds to be withdrawn from your bank by %1$s. Check the status of your order at anytime in Activity.</string>
     <string name="bank_transfer_in_progress_ob_blurb">Your order is being processed. You can safely close this screen while we update the order in the background.</string>
-    <string name="completing_card_buy_1">Your %1$s order of %2$s is being processed.</string>
+    <string name="completing_card_buy_1">Your %1$s purchase is processing. Hang tight!</string>
     <string name="completing_card_buy_rb">Your %1$s buy of %2$s of %3$s has been set up.</string>
     <string name="completing_card_buy">We’re completing your purchase now.</string>
     <string name="card_purchased">%1s Purchased</string>
-    <string name="card_purchased_available_now">Your %1s is now available in your Wallet.</string>
+    <string name="card_purchased_available_now">Your %1s purchase is complete and available in your Blockchain.com Account.</string>
     <string name="card_info_title">Did you know?</string>
     <string name="card_info_description">Many credit cards don’t support crypto purchases. Debit cards usually work best.</string>
     <string name="invalid_cvv">Invalid CVV</string>
@@ -1501,6 +1487,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="card_verification">Card Verification</string>
     <string name="invalid_date">Invalid Date</string>
     <string name="invalid_card_number">Invalid Card Number</string>
+    <string name="invalid_card_name">Invalid Card Name</string>
     <string name="full_name">Full Name</string>
     <string name="address_line_1">Address Line 1</string>
     <string name="address_line_2">Address Line 2</string>
@@ -1510,12 +1497,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="billing_address_state">State</string>
     <string name="currency_not_supported_title">Your Currency is Not Supported</string>
     <string name="currency_not_supported_1">Currently we don’t support buying crypto with %1s</string>
-    <string name="activity_no_activity_title">You Have No Activity</string>
-    <string name="activity_no_activity_text">All your transactions will show up here.</string>
     <string name="activity_custodial_pending_value">Bank Transfer</string>
     <string name="checkout_bank_transfer_label">Bank Transfer</string>
-    <string name="activity_loading_error">Failed to load activity, please try again later</string>
-    <string name="activity_details_loading_error">There was an issue loading the details of this transaction. Please try again later</string>
     <string name="apple_pay" translatable="false">Apple Pay</string>
     <string name="card_issuer_always_rejects_title">Buying crypto not supported</string>
     <string name="card_issuer_always_rejects_desc">This card doesn’t allow crypto transactions. Try another card instead.</string>
@@ -1535,32 +1518,19 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_details_to">To</string>
     <string name="activity_details_from">From</string>
     <string name="empty" translatable="false" />
-    <string name="activity_details_action">View on Blockchain Explorer</string>
     <string name="activity_details_cancel_action">Cancel Buy</string>
-    <string name="activity_detail_description_action">Add a description</string>
-    <string name="activity_detail_description_label">Description</string>
     <string name="activity_details_label_pending">Pending</string>
     <string name="activity_details_label_manual_review">Manual Review</string>
     <string name="activity_details_label_processing">Processing</string>
     <string name="activity_details_label_complete">Completed</string>
     <string name="activity_details_label_failed">Failed</string>
-    <string name="activity_details_title_transferred">Transfer</string>
-    <string name="activity_details_title_received_1">Received</string>
-    <string name="activity_details_title_sent_1">Sent</string>
-    <string name="activity_details_title_bought">Bought</string>
     <string name="activity_details_title_purchase">Purchase</string>
-    <string name="activity_details_title_sold">Sold</string>
     <string name="activity_details_title_sale">Sale</string>
-    <string name="activity_details_title_swapped">Swapped</string>
-    <string name="activity_details_title_deposit">Transfer</string>
-    <string name="activity_details_title_rewards_earned">Rewards Earned</string>
-    <string name="activity_details_title_recurring_buy">Recurring Buy</string>
-    <string name="activity_details_title_withdraw">Withdrawal</string>
     <string name="activity_details_label_confirming">Confirming</string>
     <string name="activity_details_label_cancelled">Cancelled</string>
     <string name="activity_details_label_waiting_on_funds">Waiting on Funds</string>
     <string name="activity_details_label_confirmations">%1$d of %2$d\nConfirmations</string>
-    <string name="activity_details_title_fee">Gas Fee</string>
+    <string name="activity_details_label_confirmations_single_line">%1$s/%2$s confirmations</string>
     <string name="activity_details_transaction_fee">Gas for</string>
     <string name="activity_details_exchange_rate">Exchange Rate</string>
     <string name="activity_details_exchange_rate_value">%1$s / %2$s</string>
@@ -1573,8 +1543,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_details_swap_for">For</string>
     <string name="activity_details_view_bank_transfer_details">View Bank Transfer Details</string>
     <string name="activity_details_buy_again">Buy Again</string>
-    <string name="activity_details_description_updated">Description updated</string>
-    <string name="activity_details_description_not_updated">Description failed to update</string>
     <string name="activity_details_transaction_fee_send">Sending %1$s</string>
     <string name="activity_details_transaction_fee_unknown">Unknown</string>
     <string name="activity_details_payment_load_fail">Couldn’t load payment details</string>
@@ -1676,9 +1644,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="max_swap_amount_description">The max amount of %1$s you can swap for %2$s is %3$s.</string>
     <string name="max_sell_amount_description">The max amount of %1$s you can sell for %2$s is %3$s.</string>
     <string name="swap_enter_amount_max_limit_from_custodial_info">Swapping from Trade Accounts cannot exceed %1$s %2$s. You have %3$s remaining.</string>
-    <string name="swap_enter_amount_max_limit_from_noncustodial_info">Swapping from Private Key Wallets cannot exceed %1$s %2$s. You have %3$s remaining.</string>
+    <string name="swap_enter_amount_max_limit_from_noncustodial_info">Swapping from DeFi Wallets cannot exceed %1$s %2$s. You have %3$s remaining.</string>
     <string name="sell_enter_amount_max_limit_from_custodial_info">Selling from Trade Accounts cannot exceed %1$s %2$s. You have %3$s remaining.</string>
-    <string name="sell_enter_amount_max_limit_from_noncustodial_info">Selling from Private Key Wallets cannot exceed %1$s %2$s. You have %3$s remaining.</string>
+    <string name="sell_enter_amount_max_limit_from_noncustodial_info">Selling from DeFi Wallets cannot exceed %1$s %2$s. You have %3$s remaining.</string>
     <string name="buy_enter_amount_max_limit_info">You can only buy %1$s %2$s. You have %3$s remaining.</string>
     <string name="buy_enter_amount_max_limit_suggested_tier_upgrade_info">You can only buy %1$s %2$s. You have %3$s remaining. Upgrade to Full Access to buy more.</string>
     <string name="buy_enter_amount_max_limit_without_upgrade_info">You can only buy %1$s %2$s. You have %3$s remaining</string>
@@ -1689,6 +1657,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="send_enter_amount_max_limit_info_action_title">Get Unlimited Sends</string>
     <string name="swap_enter_amount_max_limit_info_action_title">Swap More Crypto</string>
     <string name="buy_enter_amount_max_limit_info_action_title">Buy More Crypto</string>
+    <string name="buy_enter_amount_quote_error">Error getting quote</string>
     <string name="tx_enter_amount_transactions_limit_info_title">Verify Now</string>
     <string name="tx_enter_amount_transactions_limit_info_description">You can only complete %1$d transaction with a Limited Access account.</string>
     <string name="tx_enter_amount_transactions_limit_info_action_title">Unlock more when you verify</string>
@@ -1755,9 +1724,14 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_confirmation_bonding_period_5">&#160;%1$d&#160;</string>
     <plurals name="staking_confirmation_bonding_period_6">
         <item quantity="one">day</item>
-        <item quantity="many">days</item>
+        <item quantity="other">days</item>
     </plurals>
     <string name="staking_confirmation_bonding_period_7">&#160;before generating rewards.</string>
+    <string name="active_rewards_confirmation_bonding_period_1">I agree to transfer</string>
+    <string name="active_rewards_confirmation_bonding_period_2">&#160;%1$s&#160;</string>
+    <string name="active_rewards_confirmation_bonding_period_3">to my Active Rewards Account.</string>
+    <string name="active_rewards_confirmation_bonding_period_4">&#160;I understand that price movements may result in a reduction of my %1$s balance, and that my transfer will be placed in next week\'s strategy.</string>
+    <string name="active_rewards_agreement_withdrawal_blocked">I understand that withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, %1$s assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy.</string>
     <string name="send_confirmation_progress_title">Transferring %1$s</string>
     <string name="staking_confirmation_progress_title">Staking %1$s</string>
     <string name="send_confirmation_progress_message">We’re transferring your %1$s now.</string>
@@ -1805,7 +1779,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="send_transfer_accounts_title">Transfer between your accounts</string>
     <string name="send_domain_alert_title">Send to a Crypto Domain</string>
     <string name="send_domain_alert_description">You can now send crypto to domains like  satoshi.blockchain, satoshi.eth, and y.at/💎👐</string>
-    <string name="send_internal_transfer_message_1_1">At this time you can transfer %1$s from your %2$s Trading Account to your %2$s Private Key Wallets or Rewards Account. If you want to transfer to external addresses you can do so from your Private Key Wallet.</string>
+    <string name="send_internal_transfer_message_1_1">At this time you can transfer %1$s from your %2$s Blockchain.com Account to your %2$s DeFi Wallets or Rewards Account. If you want to transfer to external addresses you can do so from your DeFi Wallet.</string>
     <string name="send_to_exchange_xlm_title">Sending to an exchange?</string>
     <string name="send_to_exchange_xlm_blurb">&#160;Add a Memo to avoid losing funds.&#160;</string>
     <string name="send_to_exchange_xlm_link"><annotation link="send_memo_link">Learn more about balance requirements.</annotation></string>
@@ -1824,7 +1798,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="tx_confirmation_fee_learn_more_2">fees are set by the %1$s network.&#160;</string>
     <string name="tx_confirmation_fee_learn_more_3"><annotation link="send_tx_fees">Learn more about fees</annotation>.</string>
     <string name="tx_confirmation_free_fee_learn_more_1">Network fees when using</string>
-    <string name="tx_confirmation_free_fee_learn_more_2_1">&#160;Trading Accounts&#160;</string>
+    <string name="tx_confirmation_free_fee_learn_more_2_1">&#160;Blockchain.com Accounts&#160;</string>
     <string name="tx_confirmation_free_fee_learn_more_3">are FREE! <annotation link="send_tx_fees">Learn more about fees</annotation>.</string>
     <string name="tx_enter_amount_send_cta">Preview Send</string>
     <string name="tx_enter_amount_swap_cta">Preview Swap</string>
@@ -1847,6 +1821,28 @@ If you want to know more about our verification process visit our <annotation li
     <string name="tx_enter_amount_fee_sheet_swap_available_label">Available to Swap</string>
     <string name="tx_enter_amount_fee_sheet_sell_available_label">Available to Sell</string>
 
+    <!--  Tx Confirmation  -->
+    <string name="tx_confirmation_quote_refresh_timer">New quote in</string>
+    <string name="tx_confirmation_exchange_rate_label">Rate</string>
+    <string name="tx_confirmation_exchange_rate_value">1 %1$s = %2$s</string>
+
+    <!--  Swap Confirmation  -->
+    <string name="swap_confirmation_navbar">Confirm Swap</string>
+    <string name="swap_neworderstate_pending_deposit_title">Swapping %1$s</string>
+    <string name="swap_neworderstate_pending_deposit_description">Your initial swap of %1$s for %2$s is being processed (usually %3$s minutes). Your balance will update once it\'s complete.</string>
+    <string name="swap_neworderstate_succeeded_title">Swap Complete!</string>
+    <string name="swap_neworderstate_succeeded_description">You swapped %1$s for %2$s</string>
+
+    <!--  Sell Confirmation  -->
+    <string name="sell_sourceaccounts_available_to_sell">Available to sell</string>
+    <string name="sell_targetasset_sell_for">Sell for</string>
+    <string name="sell_enteramount_for">For</string>
+    <string name="sell_confirmation_navbar">Confirm</string>
+    <string name="sell_neworderstate_pending_deposit_title">Selling %1$s</string>
+    <string name="sell_neworderstate_pending_deposit_description">Your sale of %1$s of %2$s is being processed (usually %3$s minutes). Your balance will update once it\'s complete.</string>
+    <string name="sell_neworderstate_pending_deposit_l2_description">Your sale of %1$s of %2$s on %3$s is being processed (usually %4$s minutes). Your balance will update once it\'s complete.</string>
+    <string name="sell_neworderstate_succeeded_title">Sell complete!</string>
+    <string name="sell_neworderstate_succeeded_description">You sold %1$s for %2$s.</string>
 
     <!--Tx Flow Info messaging-->
     <string name="not_enough_funds">Not Enough %1$s</string>
@@ -1856,6 +1852,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="minimum_withdraw_error_message">To offset fees, the minimum amount for any withdrawal is %1$s.</string>
     <string name="over_your_limit">Over Your Limit</string>
     <string name="minimum_swap_error_message">To avoid unnecessary fees and network slippage, the minimum amount for this pair is %1$s.</string>
+    <string name="minimum_swap_custodial_error_message">The minimum amount you can swap is %1$s.</string>
     <string name="minimum_buy_error_message">To offset fees and market volatility, the minimum amount for any buy is %1$s.</string>
     <string name="minimum_sell_error_message">The minimum amount for you can sell is %1$s.</string>
     <string name="minimum_deposit_error_message">The minimum amount for you can deposit is %1$s. </string>
@@ -1864,10 +1861,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="rewards_summary_total">Total Rewards Earned</string>
     <string name="rewards_summary_next_payment">Next Rewards Payment</string>
     <string name="rewards_summary_accrued">Accrued Rewards This Month</string>
-    <string name="rewards_summary_hold_period">Initial Hold Period</string>
     <string name="rewards_summary_hold_period_days">%1$d Days</string>
     <string name="rewards_summary_rate">Rewards Rate</string>
-    <string name="rewards_dashboard_title">Rewards Account</string>
+    <string name="earn_dashboard_title">Earn</string>
     <string name="rewards_dashboard_item_balance_title">%1$s Balance</string>
     <string name="rewards_dashboard_item_accrued_title">Total Rewards Earned</string>
     <string name="rewards_dashboard_item_action_earn">Earn Rewards</string>
@@ -1910,7 +1906,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="buy_small_amounts">Buy Small Amounts</string>
     <string name="buy_search">Search Cryptos</string>
     <string name="search_empty">No Cryptos Match Your Search</string>
-
+    <string name="security_code">Security Code</string>
+    <string name="security_code_info">Please re-enter the %1$s digit CVV code associated with the card below</string>
+    <string name="cvv_code">CVV Code</string>
+    <string name="security_last_card_digits">Card ending in %1$s</string>
 
     <string name="scan_mismatch_transaction_target">The scanned code is not a %1$s QR code.</string>
     <string name="scan_failed">QR code not recognised, please try again.</string>
@@ -1962,8 +1961,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="swap_kyc_upsell_2_desc">This is to ensure you’re a human being. No robots allowed.</string>
     <string name="swap_kyc_upsell_3_title">Swap up to $25,000 a Day</string>
     <string name="swap_kyc_upsell_3_desc">Once verified, come back to Swap and exchange your crypto.</string>
-    <string name="swap_trading_sheet_title">Faster. Cheaper. Better\nSwap Crypto with your Trading Wallet.</string>
-    <string name="swap_trading_sheet_subtitle">Get lower fees and double the transaction speed when you Swap your crypto from any Trading Wallet.</string>
+    <string name="swap_trading_sheet_title">Faster. Cheaper. Better\nSwap Crypto with your Blockchain.com Wallet.</string>
+    <string name="swap_trading_sheet_subtitle">Get lower fees and double the transaction speed when you Swap your crypto from any Blockchain.com Wallet.</string>
     <string name="swap_trading_fees_title">Same Swap, Lower Fees</string>
     <string name="swap_trading_fees_subtitle">You pay zero network fees by swapping crypto off-chain</string>
     <string name="swap_trading_speed_title">Swap in Seconds</string>
@@ -1972,13 +1971,14 @@ If you want to know more about our verification process visit our <annotation li
 
     <string name="trending_label">Trending</string>
     <string name="trending_swap">Swap %1$s</string>
-    <string name="trending_empty">Fund your Trading Wallets to see Trending Swaps with lower fees.</string>
+    <string name="trending_empty">Fund your Blockchain.com Wallets to see Trending Swaps with lower fees.</string>
     <string name="select_a_wallet">Select a Wallet</string>
     <string name="select_a_bank">Select a Bank</string>
 
     <!-- Transaction Flow confirmation screen -->
     <string name="confirm_status_msg_insufficient_funds">You have insufficient funds in this account to process this transaction</string>
-    <string name="confirm_status_msg_insufficient_gas">You do not have enough %1$s to process this transaction.</string>
+    <string name="confirm_status_msg_insufficient_gas">Not enough %1$s for gas fees</string>
+    <string name="confirm_status_msg_insufficient_gas_description">You need more %1$s to cover the network fees.</string>
     <string name="confirm_status_msg_option_invalid">Please ensure you\'ve agreed to our Terms.</string>
     <string name="confirm_status_memo_invalid">Please add a memo.</string>
     <string name="confirm_status_msg_invoice_expired">BitPay Invoice Expired</string>
@@ -1995,7 +1995,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="qr_activity_hint_any_asset">Scan a CryptoCurrency address or a BitPay invoice</string>
     <string name="qr_activity_hint_asset_address">Be sure to only scan a %1$s QR Code</string>
     <string name="qr_activity_hint_bitpay">Scan a BitPay invoice</string>
-    <string name="qr_activity_hint_import_wallet">Scan a wallet private key</string>
+    <string name="qr_activity_hint_import_wallet">Scan a DeFi wallet</string>
     <string name="qr_activity_hint_pairing_code">Scan a web pairing QR code</string>
     <string name="qr_activity_hint_new_web_login">Log in to web</string>
 
@@ -2090,6 +2090,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="executing_transaction_error">Oops! Something went wrong while executing the %1$s on-chain transaction.</string>
     <string name="executing_connection_error">Looks like there is an issue with your internet connection. Please check and try again.</string>
     <string name="common_http_error_with_message">Oops! Something went wrong %1$s.</string>
+    <string name="common_http_error_description">Something went wrong.</string>
+    <string name="common_http_error_title">Oops!</string>
     <string name="common_http_error_with_new_line_message">Oops! Something went wrong.\n%1$s</string>
     <string name="invalid_domain_address">Invalid domain Address</string>
     <string name="trading_ineligible_for_swap">Oops! This service isn’t currently available. Please contact support.</string>
@@ -2113,15 +2115,16 @@ If you want to know more about our verification process visit our <annotation li
     <string name="kyc_country_selection_search_hint_1">Select Your Country</string>
     <string name="kyc_country_selection_title_1">Select Your Country</string>
     <string name="security_check">Security Check</string>
-    <string name="success_email_veriff">Success! Your email has been confirmed.</string>
+    <string name="success_email_veriff">You can now use this email to access any Blockchain.com product</string>
     <string name="error_email_veriff_title">Oops! Something went wrong.</string>
     <string name="error_email_veriff">We were unable to your verify your email. Please try again or we can send you a new email.</string>
     <string name="error_email_veriff_too_many_attempts">Too many attemps, please try again later.</string>
-    <string name="email_verified">Email Verified</string>
+    <string name="email_verified">Your email was verified!</string>
     <string name="email_verification_title">We sent a verification email to %1$s. Click the link and get all set up to buy crypto.</string>
-    <string name="email_verification_subtitle">We sent a verification email to %1$s. Click the link and get all set up to buy crypto.</string>
+    <string name="email_verification_subtitle">Click on the link we sent to</string>
     <string name="email_verification_resend_snackbar">Email sent to %1$s.</string>
     <string name="email_verify">Verify Your Email</string>
+    <string name="resend_email">Resend Email</string>
     <string name="edit_email_address">Edit Email Address</string>
     <string name="common_save">Save</string>
     <string name="change_email_instructions">Enter your email address below and click Save. We’ll send you a verification email to this new address.</string>
@@ -2270,28 +2273,29 @@ If you want to know more about our verification process visit our <annotation li
 
     <string name="wallet_outage_message">We are experiencing an outage. Please rest assured your funds are safe. <annotation link="learn_more">Learn more</annotation></string>
     <string name="wallet_issue_message">There is a notice up on our status page. Full wallet functionality might not be available. Rest assured that your funds are safe. <annotation link="learn_more">Learn more →</annotation></string>
+    <string name="wallet_issue_message_clear">There is a notice up on our status page. Full wallet functionality might not be available. Rest assured that your funds are safe. Learn more</string>
     <string name="increase_your_limits">Increase your limits</string>
     <string name="increase_your_limits_body">Continue your verification to get Full Access and increase your limits and payment methods.</string>
     <string name="continue_to_gold">Continue to Full Access</string>
     <string name="receive_memo_warning">If you send funds without the %1$s Memo Text, your funds will be lost and not credited to your account. Please send only %1$s to this address.</string>
     <string name="receive_memo_title">%1$s Memo:</string>
 
-    <string name="kyc_upsell_custodial_dlg_title">Verify to use the Trading Account</string>
-    <string name="kyc_upsell_custodial_dlg_body">Get access to the Trading Account in seconds by completing your profile and getting Limited Access.</string>
+    <string name="kyc_upsell_custodial_dlg_title">Verify to use the Blockchain.com Account</string>
+    <string name="kyc_upsell_custodial_dlg_body">Get access to the Blockchain.com Account in seconds by completing your profile and getting Limited Access.</string>
     <string name="kyc_upsell_custodial_dlg_item_title_1">Verify Your Email</string>
     <string name="kyc_upsell_custodial_dlg_item_body_1">Confirm your email address to protect your Blockchain.com Wallet.</string>
     <string name="kyc_upsell_custodial_dlg_item_title_2">Add Your Name &amp; Address</string>
     <string name="kyc_upsell_custodial_dlg_item_body_2">We need to know your name and address to comply with local laws.</string>
-    <string name="kyc_upsell_custodial_dlg_item_title_3">Use the Trading Account</string>
-    <string name="kyc_upsell_custodial_dlg_item_body_3">Receive, Buy and Swap cryptocurrencies with your Trading Account.</string>
+    <string name="kyc_upsell_custodial_dlg_item_title_3">Use the Blockchain.com Account</string>
+    <string name="kyc_upsell_custodial_dlg_item_body_3">Receive, Buy and Swap cryptocurrencies with your Blockchain.com Account.</string>
     <string name="kyc_upsell_custodial_dlg_cta">Verify Now</string>
 
     <!-- New checkout items -->
     <string name="checkout_item_price_blurb">Blockchain.com provides the best market price we receive and applies a spread.</string>
     <string name="checkout_item_price_blurb_zero_margin">Blockchain.com does not include additional spread in the price for the sale of %1$s.</string>
     <string name="checkout_item_price_fee">This fee is based on trade size, payment method and asset being purchased on Blockchain.com</string>
-    <string name="checkout_item_private_key_wallet_explanation">%s Private Key wallets, send, and receive are not supported at this time.</string>
-    <string name="checkout_item_private_key_wallet_explanation_1">%s Private Key wallets are not supported at this time.&#160;</string>
+    <string name="checkout_item_private_key_wallet_explanation">%s DeFi wallets, send, and receive are not supported at this time.</string>
+    <string name="checkout_item_private_key_wallet_explanation_1">%s DeFi wallets are not supported at this time.&#160;</string>
     <string name="checkout_item_deposit_to">Deposit To</string>
     <string name="checkout_item_withdraw_to">Withdraw To</string>
     <string name="checkout_item_fee_to">Withdraw Fee</string>
@@ -2299,17 +2303,22 @@ If you want to know more about our verification process visit our <annotation li
     <string name="checkout_item_send_to">Send to</string>
     <string name="checkout_item_sale">Sale amount</string>
     <string name="checkout_item_network_fee">%s Network fee</string>
+    <string name="checkout_item_subtotal">Subtotal</string>
+    <string name="checkout_item_net_amount">Amount to be received</string>
     <string name="checkout_item_erc20_network_fee">%1$s Network fee - %2$s</string>
     <string name="checkout_item_network_fee_label">Network fees</string>
     <string name="checkout_item_network_fee_level_label">Network fees - %s</string>
     <string name="checkout_item_network_fee_estimate">~ %1$s</string>
-    <string name="checkout_item_price_note">Blockchain.com provides the best market price we receive and applies a spread.&#160;</string>
-    <string name="checkout_item_network_fee_note">Pays for %1$s miners to confirm your transaction on the blockchain network.&#160;</string>
+    <string name="checkout_item_price_note">Blockchain.com provides the best market price we receive and applies a spread.</string>
+    <string name="checkout_item_network_fee_note">Pays for %1$s miners to confirm your transaction on the blockchain network.</string>
+    <string name="checkout_item_two_fees_title">Why are there two network fees?</string>
+    <string name="checkout_item_two_fees_description">Network fees are set by the origin and destination network. In order to swap between them, you need to pay fees on each network.</string>
+    <string name="checkout_item_fee_explainer_description">Network fees are paid as a reward for miners or network validators who validate these on-chain transactions.</string>
     <string name="swap_confirmation_disclaimer_1">Final amount may change due to market activity. By approving this Swap you agree to Blockchain.com’s\n<annotation link="refund_policy">Refund Policy</annotation></string>
     <string name="sell_confirmation_disclaimer">Final amount may change due to market activity. By approving this Sell you agree to Blockchain.com’s\n<annotation link="refund_policy">Refund Policy</annotation></string>
-    <string name="checkout_swap_exchange_note">The exchange rate is the best price available for %1$s in terms of 1 %2$s&#160;</string>
-    <string name="upsell_message">Get lower fees and double the transaction speed when you Swap crypto to any Trading Account. Just look for these badges to reduce fees by up to 50%.</string>
-    <string name="upsell_title">Reduce fees. Swap to Trading Account.</string>
+    <string name="checkout_swap_exchange_note">The exchange rate is the best price available for %1$s in terms of 1 %2$s</string>
+    <string name="upsell_message">Get lower fees and double the transaction speed when you Swap crypto to any Blockchain.com Account. Just look for these badges to reduce fees by up to 50%.</string>
+    <string name="upsell_title">Reduce fees. Swap to Blockchain.com Account.</string>
     <string name="swap_erc_20_tooltip">This token is an ERC-20. The network fees are set by the Ethereum Network.</string>
     <string name="checkout_dual_fee_note">Network fees are set by the %1$s and %2$s networks.</string>
     <string name="checkout_one_fee_note">Network fees are set by the %1$s network.</string>
@@ -2318,13 +2327,14 @@ If you want to know more about our verification process visit our <annotation li
     <string name="checkout_both_erc_20_fee_note">%1$s and %2$s are ERC-20 tokens. Network fees are set by the Ethereum network.</string>
     <string name="checkout_fee_link"><annotation link="learn_more_link">Learn more about fees.</annotation></string>
     <string name="learn_more_annotated"><annotation link="learn_more_link">Learn more.</annotation></string>
-    <string name="checkout_fee_free">When using Trading Accounts, there are no network fees</string>
-    <string name="private_key_wallet_explanation">%s Private Key wallets, send, and receive are not supported at this time.</string>
-    <string name="checkout_rewards_confirmation_disclaimer">After confirming this withdrawal, you will not continue to earn rewards on the amount withdrawn.\n\nYour %1$s will be available in your \"%2$s\" Account within 2 days.</string>
+    <string name="checkout_fee_free">When using Blockchain.com Accounts, there are no network fees</string>
+    <string name="private_key_wallet_explanation">%s DeFi wallets, send, and receive are not supported at this time.</string>
+    <string name="checkout_rewards_confirmation_disclaimer">You are requesting to withdraw %1$s (%2$s) from your %3$s Rewards Account. This balance will be available in your Trading Account after %4$d days. After confirming this withdrawal, you will not continue to earn %5$s rewards on the amount withdrawn.</string>
+    <string name="checkout_active_rewards_confirmation_disclaimer">You are requesting to withdraw your funds from your Active Rewards Account. Requesting a withdrawal will send your total balance to your %1$s Trading Account. \n\nThis balance will be available in your Trading Account on Saturday at 08:00 AM UTC, and may vary depending on the outcome of this week\'s strategy.</string>
     <string name="checkout_rb_weekly_title">Invest Weekly?</string>
     <string name="checkout_rb_biweekly_title">Invest bi-Weekly?</string>
     <string name="checkout_rb_monthly_title">Invest Monthly?</string>
-    <string name="checkout_rb_subtitle">Buy %1$s %2$s. Cancel anytime.</string>
+    <string name="checkout_rb_subtitle">Buy %1$s every %2$s. Cancel anytime.</string>
 
     <!-- New pairing -->
     <string name="pairing_wallet_title">Pair your wallet</string>
@@ -2354,7 +2364,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="resend_email_cta">Send Again</string>
     <string name="login_wallet_id_text">Wallet: %s</string>
     <string name="login_password_hint">Password</string>
-    <string name="forgot_password_label">Trouble logging in?</string>
+    <string name="forgot_password_label">Forgot your password?</string>
     <string name="two_factor_auth_title">Authorize login</string>
     <string name="two_factor_code_hint">2FA code</string>
     <string name="invalid_two_fa_code">Invalid 2FA code</string>
@@ -2377,14 +2387,14 @@ If you want to know more about our verification process visit our <annotation li
     <string name="enter_recovery_phrase_hint">Enter your secret recovery phrase</string>
     <string name="recovery_phrase_word_count_error">The Recovery Phrase must be exactly 12 words</string>
     <string name="reset_account_notice">Can’t find your recovery phrase? <annotation link="reset_account">Reset your account</annotation></string>
-    <string name="reset_kyc_notice_1">For your security, you may have to re-verify your identity before accessing your trading or rewards account.</string>
+    <string name="reset_kyc_notice_1">For your security, you may have to re-verify your identity before accessing your Blockchain.com or rewards account.</string>
     <string name="reset_kyc_failed">Restoring account failed. Please try again.</string>
     <string name="reset_account_title">Reset Your Account?</string>
-    <string name="reset_account_description_1">Resetting will restore your Trading, Rewards, and Exchange accounts.</string>
+    <string name="reset_account_description_1">Resetting will restore your Blockchain.com, Rewards, and Exchange accounts.</string>
     <string name="reset_account_cta">Reset Account</string>
     <string name="retry_recovery_phrase_cta">Retry Recovery Phrase</string>
     <string name="reset_account_warning_title">Resetting Account May Result In Lost Funds</string>
-    <string name="reset_account_warning_description">This means that if you lose your recovery phrase, you will lose access to your Private Key Wallet funds. You can always restore your Private Key Wallet funds later if you find your recovery phrase.</string>
+    <string name="reset_account_warning_description">This means that if you lose your recovery phrase, you will lose access to your DeFi Wallet funds. You can always restore your DeFi Wallet funds later if you find your recovery phrase.</string>
     <string name="reset_password_optional_label">Would you like to reset your password? You can always do this later in Settings.</string>
     <string name="reset_password_hint">New Password</string>
     <string name="reset_password_confirm_hint">Confirm New Password</string>
@@ -2395,8 +2405,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="fund_recovery_failed_blurb">Don’t worry, your account is safe.  Please contact support to finish the Account Recovery process. Your account will not show balances or transaction history until you complete the recovery process.</string>
     <string name="fund_recovery_failed_label">Fund recovery failures can happen for a number of reasons. Our support team is able to help recover your account.&#160;</string>
     <string name="restore_wallet_cta">Restore Wallet</string>
-    <string name="account_wallet_mismatch_title">Your Trading Account Is Linked To Another Wallet</string>
-    <string name="account_wallet_mismatch_notice">Your Blockchain.com trading account is associated with another wallet. Please log into your wallet referenced below for account access.</string>
+    <string name="account_wallet_mismatch_title">Your Blockchain.com Account Is Linked To Another Wallet</string>
+    <string name="account_wallet_mismatch_notice">Your Blockchain.com account is associated with another wallet. Please log into your wallet referenced below for account access.</string>
     <string name="account_wallet_mismatch_label">Wallet ID: %s</string>
     <string name="account_wallet_mismatch_wallet_id_not_found">Wallet ID not received</string>
 
@@ -2440,8 +2450,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="recurring_buy_view_rb">View Recurring Buy</string>
     <string name="recurring_buy_created_title">%s Buy Created</string>
     <string name="recurring_buy_created_subtitle">You’ll now buy %1$s in %2$s %3$s. You can cancel at any time.</string>
-    <string name="dashboard_title_recurring_buy">Unsure when to buy?</string>
-    <string name="dashboard_recurring_buy_description">Timing the market is hard, which is why many investors use dollar cost averaging.</string>
     <string name="dashboard_recurring_buy_learn_more">Learn more →</string>
     <string name="dashboard_recurring_buy_item_title_1">%1$s %2$s</string>
     <string name="dashboard_recurring_buy_item_label">Next buy on %s</string>
@@ -2461,12 +2469,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="activity_details_label_btn_cash">Add Cash</string>
     <string name="recurring_buy_short_error">Failed</string>
     <string name="recurring_buy_insufficient_funds_short_error">Failed. Low Balance</string>
-    <string name="recurring_buy_insufficient_funds_error_1">Your payment method\'s balance is too low. Please add more cash now.</string>
-    <string name="recurring_buy_internal_server_error">There has been an error with your purchase. We will retry shortly.</string>
-    <string name="recurring_buy_final_attempt_error">There has been an error with your purchase. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
-    <string name="recurring_buy_beneficiary_error">Your selected payment method is not active. Please use another.</string>
     <string name="recurring_buy_limits_exceed_error">Your account has exceeded its trading limits. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
-    <string name="recurring_buy_generic_error">There has been an error with your purchase. <annotation link="contact_support_link">Contact support</annotation> for more information.</string>
     <string name="fee_calculated_at_checkout">Calculated at checkout</string>
     <string name="recurring_buy_on_boarding_header">Set an easy, automatic Recurring Buy for every day, week or month. Tap into the power of Dollar Cost Averaging.</string>
     <string name="recurring_buy_set_up_title">Set Up a Recurring Buy</string>
@@ -2475,6 +2478,9 @@ If you want to know more about our verification process visit our <annotation li
     <string name="recurring_buy_first_time_success_title">Recurring Buy Started!</string>
     <string name="recurring_buy_first_time_info">Buy %1$s of %2$s every day, week or month with a Recurring Buy. No need to ever time the market.</string>
     <string name="recurring_buy_first_time_success_subtitle">We will buy %1$s of %2$s %3$s at that moment’s market price. Cancel this recurring buy at anytime.</string>
+    <string name="recurring_buy_add">Add Recurring Buy</string>
+    <string name="recurring_buy_automate_title">Automate your buys</string>
+    <string name="recurring_buy_automate_description">Buy crypto daily, weekly, or monthly</string>
 
     <!-- Zendesk -->
     <string name="zendesk_window_title">Blockchain.com Live Support</string>
@@ -2489,14 +2495,11 @@ If you want to know more about our verification process visit our <annotation li
     <string name="loading_prices">Loading Prices</string>
     <string name="syncing_account">Syncing Account</string>
 
-    <!-- Portfolio Screen -->
-    <string name="empty_portfolio_title">Welcome to Blockchain.com!</string>
-    <string name="empty_portfolio_description">All your crypto balances will show up here once you buy or receive.</string>
-
     <!-- Prices Screen -->
     <string name="search_coins_hint">Search Coins</string>
-    <string name="prices_error_title">Can’t load Assets Prices</string>
-    <string name="prices_error_desc">An error occurred while loading Assets Prices.\nPlease check your internet connection and try again or Contact Support if the issue persists.</string>
+    <string name="prices_filter_all">All</string>
+    <string name="prices_filter_favorites">Favorites</string>
+    <string name="prices_filter_tradable">Tradable</string>
 
     <!-- Receive Screen -->
     <string name="search_wallets_hint">Search Wallets and Cryptos</string>
@@ -2505,6 +2508,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="receive_network_alert_title">%1$s on %2$s Network</string>
     <string name="receive_network_alert_subtitle">Please send %1$s on the %2$s Network for this address only. We cannot recover lost funds.</string>
     <string name="receive_network_warning">Only receive %1$s on the %2$s network</string>
+    <string name="receive_asset_memo_title">Memo: %1$s</string>
+    <string name="receive_asset_memo_description">If you send funds without the %1$s Memo Text, your funds will be lost and not credited to your account. Please send only %1$s to this address.</string>
 
     <!-- Funds locks !-->
     <string name="funds_locked_warning_title">On Hold</string>
@@ -2515,10 +2520,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="funds_locked_summary_available_withdraw">Available to Withdraw</string>
     <string name="funds_locked_summary_on_hold">%s On Hold</string>
     <string name="funds_locked_summary_details">See Details</string>
-    <string name="funds_locked_summary_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
+    <string name="funds_locked_summary_text">Newly added funds are subject to a holding period. You can transfer between your Blockchain.com, Rewards, and Exchange accounts in the meantime.</string>
 
     <!-- LocksInfo activity details -->
-    <string name="funds_locked_details_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
+    <string name="funds_locked_details_text">Newly added funds are subject to a holding period. You can transfer between your  Blockchain.com, Rewards, and Exchange accounts in the meantime.</string>
     <string name="funds_locked_details_contact_support">See something that doesn\'t look right? <annotation link="contact_support">Contact support</annotation></string>
     <string name="funds_locked__details_title_date">HELD UNTIL</string>
     <string name="funds_locked_details_title_amount">AMOUNT</string>
@@ -2535,10 +2540,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="reference_id_required">Reference ID (Required)</string>
 
     <!-- Actions bottom sheet -->
-    <string name="action_sheet_swap_description">Exchange for Another Crypto</string>
-    <string name="action_sheet_send_description">Send to Any Wallet</string>
-    <string name="action_sheet_receive_description">Copy Your Addresses &amp; QR Codes</string>
-    <string name="action_sheet_rewards_description">Earn Rewards on Your Crypto</string>
     <string name="action_sheet_deposit_description">Add Cash from Your Bank</string>
     <string name="action_sheet_withdraw_description">Cash Out to Your Bank</string>
 
@@ -2557,6 +2558,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="select_a_trading_currency">Select a Trading Currency.</string>
     <string name="select_a_display_currency">Select a Display Currency.</string>
     <string name="currency_not_available">Right now, %1$s is not supported for buying crypto. You can add a bank account or card from the list of available currencies below.</string>
+    <string name="currently_unavailable">Currently unavailable</string>
     <string name="bank_fees_disclaimer">Additional bank fees may apply. Your bank may add fee and Exchange Rates to each transaction.</string>
     <string name="landing_cta_title">Your First Buy Is on Us.</string>
     <string name="landing_cta_subtitle">Verify your ID and we\'ll cover the fees on your first trade. It\'s our way of saying welcome to Blockchain.com!</string>
@@ -2576,8 +2578,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="feature_limits_deposits">Bank Buys / Deposits</string>
     <string name="feature_limits_withdrawals">Bank Withdrawals</string>
     <string name="feature_limits_earn_rewards">Rewards Accounts</string>
-    <string name="feature_limits_from_trading_accounts">from Trading Accounts</string>
-    <string name="feature_limits_to_trading_accounts">to Trading Accounts</string>
+    <string name="feature_limits_from_trading_accounts">from Blockchain.com Accounts</string>
+    <string name="feature_limits_to_trading_accounts">to Blockchain.com Accounts</string>
     <string name="feature_limits_swap_description">Between All Accounts</string>
     <string name="feature_limits_buy_sell_description">Card or Banking Method</string>
     <string name="feature_limits_card_purchases_description">Buying Crypto</string>
@@ -2598,7 +2600,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="feature_limits_header_silver_description">Verify your ID and link your bank to Buy &amp; Sell Crypto straight from your wallet.</string>
     <string name="feature_limits_header_silver_cta">Apply Now</string>
     <string name="feature_limits_header_denied_description">You currently have the highest level of Account Limits and features available.</string>
-    <string name="feature_limits_footer">Transaction limits may apply to certain banks and card issuers.\n\nPurchase or deposit limits are determined by many factors, including verification completed on your account, your purchase history, your payment type, and more.\n\nLearn more about Trading Accounts, Limits, and features by visiting our <annotation link="support_center_link">Support Center</annotation>.</string>
+    <string name="feature_limits_footer">Transaction limits may apply to certain banks and card issuers.\n\nPurchase or deposit limits are determined by many factors, including verification completed on your account, your purchase history, your payment type, and more.\n\nLearn more about Blockchain.com Accounts, Limits, and features by visiting our <annotation link="support_center_link">Support Center</annotation>.</string>
     <string name="feature_limits_silver_limits">Limited Access Limits</string>
     <string name="feature_limits_gold_limits">Full Access Limits</string>
     <string name="feature_limits_gold_limits_description">Includes Limited Access Features</string>
@@ -2610,7 +2612,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="kyc_limits_upgrade_now_gold_info_1">Connect your bank or card to your Wallet. Hold cash in your wallet. Earn crypto with Rewards.</string>
     <string name="kyc_limits_upgrade_now_gold_info_2">Includes all Limited Access limits and features.</string>
     <string name="kyc_limits_upgrade_now_silver_title">Limited Access Limits</string>
-    <string name="kyc_limits_upgrade_now_silver_description">Unlock Trade Accounts and Swap.</string>
+    <string name="kyc_limits_upgrade_now_silver_description">Unlock Blockchain.com Accounts and Swap.</string>
     <string name="kyc_limits_upgrade_now_silver_info">Unlock Swap - our in-app exchange. </string>
     <string name="kyc_limits_upgrade_now_tier_state_under_review">In Manual Review</string>
     <string name="dashboard_onboarding_title3">Finish setting up your Blockchain.com account and start buying crypto today.</string>
@@ -2626,7 +2628,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="dashboard_onboarding_step_link_buy_time">10 Seconds</string>
     <string name="dashboard_onboarding_steps_counter">%1$d/%2$d</string>
     <string name="dashboard_onboarding_card_title">Complete Your Profile</string>
-    <string name="dashboard_onboarding_subtitle">Buy Crypto Today</string>
+    <string name="dashboard_onboarding_subtitle">Trade crypto today</string>
     <string name="dashboard_onboarding_error_title">Loading Error</string>
     <string name="dashboard_onboarding_error_description">We encountered an issue while loading the verification screen. Please go back to the previous screen and try again.</string>
     <string name="blockchain_fee">Blockchain.com Fee</string>
@@ -2654,6 +2656,11 @@ If you want to know more about our verification process visit our <annotation li
     <string name="settings_subtitle_no_payments">Add a Credit/Debit Card</string>
     <string name="settings_label_settings">Settings</string>
     <string name="settings_title_account">Account</string>
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_subtitle">App theme: %1$s</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
     <string name="settings_notifications_title">Notifications</string>
     <string name="settings_notifications_subtitle">Emails and push alerts</string>
     <string name="settings_subtitle_account">Limits, Currency, Airdrops and more</string>
@@ -2683,7 +2690,7 @@ If you want to know more about our verification process visit our <annotation li
     <!-- Account screen -->
     <string name="account_toolbar">Account</string>
     <string name="account_limits_title">Limits and Features</string>
-    <string name="account_limits_subtitle">Trading Accounts</string>
+    <string name="account_limits_subtitle">Blockchain.com Accounts</string>
     <string name="account_wallet_id_title">Wallet ID</string>
     <string name="account_wallet_id_subtitle">Warning: Do Not Share Publicly</string>
     <string name="account_currency_title">Display Currency</string>
@@ -2817,6 +2824,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="dapp_is_now_rejected">%1s Connection was Rejected</string>
     <string name="go_back_to_your_browser">Go back to your browser and try again.</string>
     <string name="dapp_confirmation_warning">This dapp is requesting an action, which could take money from your wallet. Make sure you trust this site.</string>
+    <string name="dapp_network_not_supported">The dApp requested to use an unsupported network</string>
     <string name="common_chain">Chain</string>
     <string name="common_network">Network</string>
     <string name="message_from_dapp">Message from %1s</string>
@@ -2838,25 +2846,10 @@ If you want to know more about our verification process visit our <annotation li
         <item quantity="other">%d Connected Apps</item>
     </plurals>
 
-    <!-- Ui Tour -->
-    <string name="ui_tour_buy_and_sell_title">Buy &amp; Sell</string>
-    <string name="ui_tour_prices_title">Discover New Coins</string>
-    <string name="ui_tour_middle_button_title">Instantly Trade</string>
-    <string name="ui_tour_activity_title">See All Transactions</string>
-    <string name="ui_tour_earn_title">Earn Rewards</string>
-    <string name="ui_tour_buyer_handhold_title">Get Set Up to Buy</string>
-
-    <string name="ui_tour_buy_and_sell_subtitle">Use your card or link your bank to buy crypto in seconds. Quick, easy &amp; secure.</string>
-    <string name="ui_tour_prices_subtitle">Track the live price of over 1,200 coins and find new ones to add to your wallet.</string>
-    <string name="ui_tour_middle_button_subtitle">Whether you want to swap with speed or send to a friend - we’ve got you covered!</string>
-    <string name="ui_tour_activity_subtitle">Know exactly when you bought, sold or swapped and at what price.</string>
-    <string name="ui_tour_earn_subtitle">Put your crypto to work by passively investing, securing your favourite networks and more.</string>
-    <string name="ui_tour_buyer_handhold_subtitle">Add a payment method to start buying crypto in seconds.</string>
-
     <!-- Pin screen -->
-    <string name="pin_title_create">Choose a Wallet PIN.</string>
+    <string name="pin_title_create">Create your PIN</string>
     <string name="pin_subtitle">This will be used for Biometric Unlock Backup.</string>
-    <string name="pin_title_confirm">Confirm Your PIN.</string>
+    <string name="pin_title_confirm">Confirm Your PIN</string>
     <string name="pin_mismatch_error_msg">PINs do not match. Please try again.</string>
     <string name="pin_num_digits">Pin must contain 4 digits.</string>
     <string name="pin_toolbar_change">Change PIN</string>
@@ -2872,7 +2865,9 @@ If you want to know more about our verification process visit our <annotation li
 
     <!-- CoinView -->
     <string name="coinview_interest_with_balance">Earning %1$s%%</string>
-    <string name="coinview_interest_no_balance">Earn %1$s%% APY</string>
+    <string name="coinview_interest_no_balance">Earn %1$s%% rate</string>
+    <string name="coinview_active_rewards_with_balance">Earning up to %1$s%%</string>
+    <string name="coinview_active_rewards_no_balance">Earn up to %1$s%% rate</string>
     <string name="coinview_nc_desc">Non-custodial</string>
     <string name="coinview_multi_nc_desc">%s Network</string>
     <string name="coinview_c_unavailable_desc">Buy &amp; Sell %1$s</string>
@@ -2890,13 +2885,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="coinview_price_all">All time</string>
     <string name="coinview_price_label">Current %1$s Price</string>
     <string name="coinview_balance_label">Your Total %1$s</string>
-    <string name="coinview_rb_card_title">Don’t know when to buy?</string>
-    <string name="coinview_rb_card_blurb">Timing the market is hard, which is why many investors use dollar cost averaging.</string>
+    <string name="coinview_rb_card_title">Recurring Buy</string>
     <string name="coinview_not_tradeable_title">%1$s (%2$s) is not tradeable.</string>
     <string name="coinview_not_tradeable_subtitle">Add to your Watchlist to be notified when %1$s becomes available to trade.</string>
     <string name="coinview_chart_loading">Loading chart…</string>
     <string name="coinview_accounts_label">Wallets &amp; Accounts</string>
-    <string name="coinview_nc_accounts_label">Private Key Wallets</string>
+    <string name="coinview_nc_accounts_label">DeFi Wallets</string>
     <string name="coinview_custodial_accounts_label">Custodial Accounts</string>
     <string name="coinview_chart_load_error_title">Failed to Load Price Chart</string>
     <string name="coinview_chart_load_error_subtitle">Reload or exit and return to the page to view price chart.</string>
@@ -2907,6 +2901,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="coinview_recuring_buy_load_error_subtitle">Reload or exit and return to the page to view your recurring buys.</string>
     <string name="coinview_account_load_error_title">Failed to Load Wallets and Accounts</string>
     <string name="coinview_account_load_error_subtitle">There was a problem fetching your Wallets and Accounts. Don’t worry, your funds are safe. Reload or exit and return to the page.</string>
+    <string name="coinview_asset_l1">This %1$s is on the %2$s network</string>
     <string name="coinview_fiat_missing">Invalid Fiat currency selected</string>
     <string name="coinview_prices_missing">There was an issue getting token data</string>
     <string name="coinview_watchlist_toggle_fail">Failed to update the Watchlist, please try again</string>
@@ -2915,7 +2910,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="coinview_no_asset_blurb_2">contact support.</string>
     <string name="coinview_no_asset_blurb">Looks like we don’t have any data on this asset. If this continues, <annotation link="contact_support">contact support.</annotation></string>
     <string name="coinview_no_asset_title">Unknown Asset</string>
-    <string name="coinview_asset_info_cta">Visit Website →</string>
+    <string name="coinview_asset_info_cta">Visit Website</string>
     <string name="coinview_no_asset_description">It looks like we don’t have a description for this token yet, please check their website by tapping the button below to find out more.</string>
     <string name="coinview_no_balance_sheet_title">No %1$s to %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">You need %1$s in your %2$s to %3$s.</string>
@@ -2933,16 +2928,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="transactions_left_title">Transactions Left</string>
     <string name="transactions_left_subtitle">Verify for unlimited trades.</string>
     <string name="kyc_upgrade_now_toolbar">Upgrade Now</string>
-    <string name="kyc_upgrade_now_tab_basic">Limited Access</string>
-    <string name="kyc_upgrade_now_tab_verified">Full Access</string>
-    <string name="kyc_upgrade_now_basic_level">Limited Access</string>
-    <string name="kyc_upgrade_now_basic_active">Active</string>
-    <string name="kyc_upgrade_now_basic_limited_access">Apply Now</string>
-    <string name="kyc_upgrade_now_basic_send_receive_title">Send and receive crypto</string>
-    <string name="kyc_upgrade_now_basic_send_receive_description">Between private key wallets</string>
-    <string name="kyc_upgrade_now_basic_swap_title">Swap crypto</string>
-    <string name="kyc_upgrade_now_basic_swap_description">One-time between private key wallets</string>
-    <string name="kyc_upgrade_now_basic_cta">Get Limited Access</string>
     <string name="kyc_upgrade_now_verified_level">Full Access</string>
     <string name="kyc_upgrade_now_verified_full_access">Apply Now</string>
     <string name="kyc_upgrade_now_verified_swap_title">Swap crypto</string>
@@ -2965,14 +2950,16 @@ If you want to know more about our verification process visit our <annotation li
     <string name="transaction_denied">Transaction denied</string>
 
     <!-- Bottom sheet explainers -->
-    <string name="explainer_custodial_title">Trading Account</string>
-    <string name="explainer_custodial_description">Your Trading Account is a custodial wallet hosted by Blockchain.com. Your trading account allows you to trade with cheaper fees and buy and sell crypto in seconds.</string>
-    <string name="explainer_non_custodial_title">Private Key Wallet</string>
-    <string name="explainer_non_custodial_description">Your Private Key Wallet means your funds are owned and controlled by you and you alone. Blockchain.com cannot see or manage your balances in this wallet.</string>
+    <string name="explainer_custodial_title">Blockchain.com Account</string>
+    <string name="explainer_custodial_description">Your Blockchain.com Account is a custodial wallet hosted by Blockchain.com. Your Blockchain.com account allows you to trade with cheaper fees and buy and sell crypto in seconds.</string>
+    <string name="explainer_non_custodial_title" translatable="false">DeFi Wallet</string>
+    <string name="explainer_non_custodial_description">Your DeFi Wallet means your funds are owned and controlled by you and you alone. Blockchain.com cannot see or manage your balances in this wallet.</string>
     <string name="explainer_rewards_title">Rewards Account</string>
-    <string name="explainer_rewards_description">Your Rewards Account allows you to earn rewards on your crypto; up to %s%% APY.</string>
+    <string name="explainer_rewards_description">Your Rewards Account allows you to earn rewards on your crypto; up to %s%%.</string>
     <string name="explainer_staking_title">Staking Account</string>
     <string name="explainer_staking_description">Your Staking Account allows you to earn up to %1$s%% annually on your crypto by securing your favourite blockchain networks.</string>
+    <string name="explainer_active_rewards_title">Active Rewards Account</string>
+    <string name="explainer_active_rewards_description">Your Active Rewards Account allows you to earn up to %1$s%% annually by forecasting the price of crypto.</string>
 
     <!-- Bottom sheet actions -->
     <string name="actions_sheet_percentage_rate">Rate: %s%%</string>
@@ -3050,56 +3037,57 @@ If you want to know more about our verification process visit our <annotation li
     <string name="backup_phrase_title_secure_wallet">Secure Your Wallet</string>
     <string name="backup_phrase_title_steps">Step %1$d of %2$d</string>
 
-    <string name="backup_phrase_intro_title">Let’s Back Up Your Wallet</string>
+    <string name="backup_phrase_intro_title">Let’s Back Up Your DeFi Wallet</string>
     <string name="back_up_status_negative">Not Backed Up</string>
     <string name="back_up_status_positive">Backed Up</string>
-    <string name="backup_phrase_intro_description">In the next few screens, you will get your 12 words to recover your wallets if ever needed in the future.</string>
-    <string name="backup_phrase_intro_ack_1">If I lose my secret phrase, my funds will be lost forever.</string>
-    <string name="backup_phrase_intro_ack_2">If I expose or share my secret phrase to anybody, my funds can get stolen.</string>
-    <string name="backup_phrase_intro_ack_3">It is my full responsibility to keep my secret phrase secure.</string>
+    <string name="backup_phrase_intro_description">The next few screens will display the 12 words you will need to recover your DeFi Wallet if you lose your password.</string>
+    <string name="backup_phrase_intro_ack_1">If I lose my password, my 12 words (recovery phrase) is the only way to restore access to my DeFi Wallet.</string>
+    <string name="backup_phrase_intro_ack_2">If lose my recovery phrase, I’ll be unable to restore access to my Defi Wallet.</string>
+    <string name="backup_phrase_intro_ack_3">If I share my recovery phrase with someone, they will have access to my DeFi Wallet.</string>
     <string name="back_up_now">Back Up Now</string>
 
-    <string name="skip_backup_title">Are you sure you want to continue?</string>
-    <string name="skip_backup_description">By skipping your DeFi Wallet backup, you risk losing access to your funds.</string>
+    <string name="skip_backup_title">Are you sure you want to skip your DeFi Wallet backup?</string>
+    <string name="skip_backup_description">If you don’t create a backup and lose your password, you risk losing access to your funds permanently.</string>
     <string name="skip_backup_cta_skip">Yes, skip backup</string>
     <string name="skip_backup_cta_backup">Back Up (Recommended)</string>
 
     <string name="recovery_phrase_title">Your Recovery Phrase</string>
-    <string name="recovery_phrase_description">These 12 words give you access to your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
+    <string name="recovery_phrase_description">These 12 words give you access to your DeFi Wallets. Please back them up to the cloud or write them down manually.</string>
     <string name="recovery_phrase_backup_again">Back Up Again</string>
     <string name="recovery_phrase_backup_manual">Back Up Manually</string>
     <string name="recovery_phrase_backup_cloud">Back Up to Cloud</string>
 
     <string name="manual_backup_title">Manual Back Up</string>
     <string name="manual_backup_description">Write down your recovery phrase in the order you see below.</string>
-    <string name="manual_backup_copy_description">Copy them to a password manager or write them down with ink and paper. Keep it handy, the next step is to verify your phrase.</string>
+    <string name="manual_backup_copy_description">Copy them to a password manager or write them down. Make sure to keep it handy, the next step is to verify your phrase.</string>
     <string name="manual_backup_copied">Copied for 2 Minutes</string>
 
     <string name="verify_phrase_title">Verify Your Phrase</string>
-    <string name="verify_phrase_description">Tap the words to put them in the correct order.\n</string>
+    <string name="verify_phrase_description">Tap the words to put them in the correct order.</string>
     <string name="verify_phrase_incorrect_message">Incorrect order. Reset or tap individual words to remove.</string>
     <string name="verify_phrase_incorrect_button">Reset Words</string>
 
-    <string name="backup_success_title">Back Up Successful!</string>
-    <string name="backup_success_description">Remember to keep your Recovery Phrase stored in a safe location and to never share it with anyone.</string>
-
-    <string name="defi_onboarding_enable_wallet_title">Enable to get started</string>
-    <string name="defi_onboarding_enable_wallet_description">Connect to web3 apps, collect NFTs, and swap on DEXs.</string>
+    <string name="backup_success_title">DeFi Wallet back up successful!</string>
+    <string name="backup_success_description">Remember to keep your recovery phrase stored in a safe location and to never share it with anyone.</string>
 
     <string name="defi_onboarding_nav_title">DeFi Wallet</string>
 
-    <string name="defi_onboarding_intro_title">Introducing the %1$s</string>
-    <string name="defi_onboarding_intro_description">Explore all of Web3 and DeFi in one place</string>
-    <string name="defi_onboarding_intro_property1_title">Self-Custody Your Assets</string>
-    <string name="defi_onboarding_intro_property1_subtitle">DeFi wallets are on-chain</string>
-    <string name="defi_onboarding_intro_property2_title">Multi-chain Support</string>
-    <string name="defi_onboarding_intro_property2_subtitle">Manage your portfolio across 7 chains</string>
-    <string name="defi_onboarding_intro_property3_title">Connect to Decentralized Finance</string>
+    <string name="defi_onboarding_intro_title">Introducing your non-custodial \n%1$s</string>
+    <string name="defi_onboarding_intro_description">Use Bitcoin and DeFi, all in on place.</string>
+    <string name="defi_onboarding_intro_property1_title">Self-custody your assets</string>
+    <string name="defi_onboarding_intro_property1_subtitle">Your DeFi Wallet is on chain</string>
+    <string name="defi_onboarding_intro_property2_title">Use multiple chains</string>
+    <string name="defi_onboarding_intro_property2_subtitle">Manage your assets across multiple chains</string>
+    <string name="defi_onboarding_intro_property3_title">Connect to Dapps and\nsign transactions</string>
     <string name="defi_onboarding_intro_property3_subtitle">Log into DApps and sign transactions</string>
-    <string name="defi_onboarding_intro_cta">Enable DeFi Wallet</string>
+    <string name="defi_onboarding_intro_cta">Go to DeFi Wallet</string>
 
     <string name="defi_onboarding_complete_title">Welcome to Your %1$s</string>
     <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>
+
+    <string name="custodial_onboarding_intro_property1_title">Buy, sell and trade crypto</string>
+    <string name="custodial_onboarding_intro_property2_title">Fund your account with a card\nor bank account</string>
+    <string name="custodial_onboarding_intro_property3_title">Earn rewards by putting your\ncrypto to work</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
     <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 1\u0025 back in crypto.²</string>
@@ -3237,7 +3225,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_unable_to_load_card">Unable to load card</string>
     <string name="bc_card_transaction_status">Status</string>
     <string name="bc_card_transaction_payment_method">Payment Method</string>
-    <string name="bc_card_transaction_fee">Blockchain.com Fee</string>
     <string name="bc_card_transaction_original_amount">Total %1$s</string>
     <string name="bc_card_dashboard_legal_disclaimer">This Blockchain.com Visa® Card is issued by Pathward, N.A., Member FDIC, pursuant to a license from Visa U.S.A. Inc. Blockchain.com Visa card can be used everywhere Visa debit cards are accepted.</string>
     <string name="bc_card_order_intro_legal_disclaimer">This Blockchain.com Visa® Card is issued by Pathward, N.A., Member FDIC, pursuant to a license from Visa U.S.A. Inc. Blockchain.com Visa card can be used everywhere Visa debit cards are accepted. ¹No Blockchain.com Fees but a spread applies when we sell cryptocurrencies. ²This optional offer is not a Pathward product or service nor does Pathward endorse this offer.</string>
@@ -3254,7 +3241,6 @@ If you want to know more about our verification process visit our <annotation li
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>
 
     <!-- Accessibility -->
-    <string name="accessibility_action_menu">Action Menu</string>
     <string name="accessibility_back">Back</string>
     <string name="accessibility_qr_code_scanner">QR Code Scanner</string>
     <string name="accessibility_user_settings">User Settings</string>
@@ -3270,15 +3256,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="accessibility_filter">Filter</string>
 
     <!-- Bottom Nav Items -->
-    <string name="bottom_nav_home">Home</string>
-    <string name="bottom_nav_prices">Prices</string>
-    <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
-    <string name="bottom_nav_activity">Activity</string>
-    <string name="bottom_nav_nfts" translatable="false">NFTs</string>
-    <string name="bottom_nav_earn">Earn</string>
-    <string name="defi_wallet_name" translatable="false">Private Key Wallet</string>
-    <string name="defi_wallet_name_superapp" translatable="false">DeFi</string>
-    <string name="error_loading_balance">Some balances failed to load</string>
+    <string name="defi_wallet_name" translatable="false">DeFi Wallet</string>
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
     <string name="defi_current_balance">Current Balance</string>
@@ -3287,28 +3265,30 @@ If you want to know more about our verification process visit our <annotation li
     <string name="purchase_title_error">Purchasing error</string>
     <string name="purchase_description_error">We encountered a problem with the purchase. Please try again.</string>
 
-    <!-- Educational - wallet modes-->
-    <string name="educational_wallet_mode_intro_title">Your Wallet just got better</string>
-    <string name="educational_wallet_mode_intro_description"> We’ve made some major improvements to the Blockchain.com app.</string>
-    <string name="educational_wallet_mode_menu_title">A new way to navigate</string>
-    <string name="educational_wallet_mode_menu_description">Easily move between Trading Account and DeFi Wallet.</string>
-    <string name="educational_wallet_mode_defi_title">Your new home for Private Key Wallet</string>
-    <string name="educational_wallet_mode_defi_description">Access your Private Key Wallets and engage with web3 and decentralized finance.</string>
-    <string name="educational_wallet_mode_defi_secure_tag">Secured by You</string>
-    <string name="educational_wallet_mode_trading_title">Your accounts</string>
-    <string name="educational_wallet_mode_trading_description">Access your Trading and Rewards accounts and buy and sell crypto.</string>
-    <string name="educational_wallet_mode_trading_secure_tag">Secured by Blockchain.com</string>
-    <string name="educational_wallet_mode_cta">Get Started</string>
+    <!-- intro screens-->
+    <string name="intro_new_user_title">Welcome to \nBlockchain.com</string>
+    <string name="intro_new_user_description">The only crypto app you’ll ever need.</string>
+    <string name="intro_new_user_tag_description">Join over 40M users who have transacted $1T+ since 2012 on Blockchain.com.</string>
+    <string name="intro_existing_user_title">Your app just got better</string>
+    <string name="intro_existing_user_description">Welcome to your new Blockchain.com app, a SuperApp for crypto. Experience powerful crypto trading together with a self-custody wallet, all in one place. </string>
+    <string name="intro_non_custodial_title">Control your crypto \nand use DeFi</string>
+    <string name="intro_non_custodial_description">Self-custody your crypto across multiple blockchains, use dapps, and collect NFTs.</string>
+    <string name="intro_non_custodial_tag_title">Self-Custody</string>
+    <string name="intro_non_custodial_tag_description">With a DeFi Wallet, only you have access to your crypto assets. Blockchain.com cannot access your funds. Your keys, your crypto!</string>
+    <string name="intro_custodial_title">Buy, sell, trade, and \nearn crypto</string>
+    <string name="intro_custodial_description">Link a card or bank account to buy crypto. Earn rewards by putting your crypto to work.</string>
+    <string name="intro_custodial_tag_title">Custodial</string>
+    <string name="intro_custodial_tag_description">Funds stored in your Blockchain.com Account are held in our custody system.</string>
+    <string name="intro_swipe_hint">Swipe to continue -></string>
 
     <!-- NFT -->
-    <string name="nft_coming_soon_title">Coming soon!</string>
-    <string name="nft_coming_soon_description">We’re working hard to support your NFTs in the wallet. We’ll send you an email when it’s time to update your app.</string>
-    <string name="nft_empty_title">You Don’t Have Any NFTs</string>
-    <string name="nft_empty_description">Send from any wallet, or buy from a marketplace!</string>
+    <string name="nft_empty_title">Add NFTs to your DeFi Wallet</string>
+    <string name="nft_empty_description">Transfer from any wallet, \nor buy from a marketplace!</string>
     <string name="nft_cta_buy">Buy NFTs</string>
     <string name="nft_help">How does this work?</string>
     <string name="nft_cta_shop">Shop on Opensea</string>
     <string name="nft_cta_view">View on Opensea</string>
+    <string name="nft_collectibles">Your Collectibles</string>
     <string name="nft_creator">Creator</string>
     <string name="nft_description">Description</string>
     <string name="nft_help_title">How does this work?</string>
@@ -3324,19 +3304,12 @@ If you want to know more about our verification process visit our <annotation li
     <string name="nft_help_instructions_4_description">This will be an option after selecting Login or Connect Wallet</string>
     <string name="nft_help_instructions_5_title">Once purchased, NFTs will show up here</string>
     <string name="nft_help_instructions_5_description">Access your NFTs from your Blockchain Wallet</string>
+    <string name="nft_properties">Properties</string>
 
     <!---->
-    <string name="shortcuts">Shortcuts</string>
-    <string name="exchange_your_crypto">Exchange your crypto</string>
-    <string name="transfer_to_another_wallet">Transfer to another wallet</string>
-    <string name="top_up_trading_account">Top up in your Trading Account.</string>
+    <string name="transfer_to_other_wallets">Transfer crypto to other wallets</string>
     <string name="receive_to_your_wallet">Receive to your wallet</string>
-    <string name="rewards_to_your_cryptos">Earn Rewards on Your Crypto</string>
     <string name="buy_crypto">Buy Crypto</string>
-    <string name="defi_buy_not_supported">We don’t support buying crypto into your Private Key Wallet at this time. You can buy from your Trading Account and send to your Private Key Wallet.</string>
-    <string name="go_to_trading">Go to Trading Account</string>
-    <string name="use_your_card_or_cash">Use Your Cash or Card</string>
-    <string name="fiat_to_cash">Convert Your Crypto to Cash</string>
 
     <!-- Address Verification -->
     <string name="address_verification_my_address_is_not_here">My address is not here</string>
@@ -3428,32 +3401,33 @@ If you want to know more about our verification process visit our <annotation li
     <string name="bc_card_empty_statements_description">Your monthly statements will show up here and be available to view and download.</string>
     <string name="bc_card_currently_active">Currently Active</string>
     <string name="bc_card_limit_reached">Current card limit reached</string>
-
-    <string name="show_trading_accounts">Show trading accounts</string>
-    <string name="show_pkw_accounts">Show Private Key wallets</string>
+    <string name="bc_card_pin_updated_title">PIN was successfully updated</string>
+    <string name="bc_card_pin_updated_description">Your PIN has been successfully changed and will take effect immediately.</string>
+    <string name="pkw_wallets" translatable="false">DeFi Wallets</string>
+    <string name="show_trading_accounts">Show Blockchain.com accounts</string>
+    <string name="show_pkw_accounts">Show DeFi Wallets</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
     <string name="add_to_google_pay">Add to Google Pay</string>
     <string name="card_added_to_google_pay">Card Added to Google Pay</string>
     <string name="failed_to_add_card_to_google_pay">Failed to Add Card to Google Pay</string>
     <string name="ma_home_assets_title">Assets</string>
     <string name="ma_home_need_help">Need help?</string>
-    <string name="chat_with_support">Need help?</string>
-    <string name="view_support_center">View Support center</string>
+    <string name="chat_with_support">Chat with support</string>
+    <string name="view_support_center">View support center</string>
     <string name="ma_home_activity_title">Activity</string>
     <string name="view">View</string>
 
     <string name="assets_no_result">😞 No results</string>
     <string name="assets_filter_title">Filter assets</string>
     <string name="assets_filter_small_balances">Show small balances</string>
-    <string name="assets_filter_confirmation">Show</string>
 
-    <!-- STAKING -->
+    <!-- EARN -->
     <string name="staking_coming_soon_title">Coming soon to mobile</string>
     <string name="staking_coming_soon_subtitle">In the meantime, you can manage your Staking Account using our web app.</string>
     <string name="staking_coming_soon_cta">Go to Web App</string>
 
     <string name="staking_cannot_withdraw_title">Staking Considerations</string>
-    <string name="staking_cannot_withdraw_paragraph">Your staked ETH will start generating rewards after an initial bonding period.\n\nWhile unstaking and withdrawing ETH isn’t currently available, it will be supported in a future upgrade.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
+    <string name="staking_cannot_withdraw_paragraph">Your staked ETH will start generating rewards after an initial bonding period.\n\nUnstaking and withdrawing ETH can take up to %1$d days depending on the network queue.\n\nThese rules are not specific to Blockchain.com. They’re features of the Ethereum network.</string>
     <string name="staking_summary_title">%1$s Staking Rewards</string>
     <string name="staking_summary_total_earned">Total Earned</string>
     <string name="staking_summary_view_activity">View activity</string>
@@ -3461,31 +3435,91 @@ If you want to know more about our verification process visit our <annotation li
     <string name="staking_summary_total_bonding">Bonding</string>
     <string name="staking_summary_rate">Current rate</string>
     <string name="staking_summary_rate_value">%1$s%%</string>
-    <string name="staking_summary_payment_frequency">Payment frequency</string>
-    <string name="staking_summary_payment_frequency_daily">Daily</string>
-    <string name="staking_summary_payment_frequency_weekly">Weekly</string>
-    <string name="staking_summary_payment_frequency_monthly">Monthly</string>
-    <string name="staking_summary_payment_frequency_unknown">Unknown</string>
-    <string name="staking_summary_sheet_error_unknown_asset">There was an error loading the Staking Summary details for %1$s, please try again later</string>
-    <string name="staking_summary_sheet_error_other">There was an unexpected error loading the Staking Summary details, please try again later</string>
+    <string name="earn_payment_frequency">Payment frequency</string>
+    <string name="earn_payment_frequency_daily">Daily</string>
+    <string name="earn_payment_frequency_weekly">Weekly</string>
+    <string name="earn_payment_frequency_monthly">Monthly</string>
+    <string name="earn_payment_frequency_unknown">Unknown</string>
+    <string name="earn_summary_sheet_error_unknown_asset">There was an error loading the Summary details for %1$s, please try again later</string>
+    <string name="earn_summary_sheet_error_other">There was an unexpected error loading the Summary details, please try again later</string>
     <string name="staking_summary_non_withdrawable_info">Unstaking and withdrawing ETH will be available when enabled by the Ethereum network.</string>
     <string name="staking_summary_bonding_explanation">Staked funds are subject to a bonding period of time before they start generating staking rewards.</string>
-    <string name="staking_summary_rate_explanation">Rewards rates are determined by each protocol minus a %1$s%% Blockchain.com fee. Users receive the displayed rate.</string>
+    <string name="earn_staking_rate_description">Rewards rates are determined by each protocol minus a Blockchain.com fee. Users receive the displayed rate.</string>
     <string name="earn_dashboard_filter_all">All</string>
     <string name="earn_dashboard_filter_staking">Staking</string>
-    <string name="earn_dashboard_filter_rewards">Passive</string>
+    <string name="earn_dashboard_filter_interest">Passive</string>
+    <string name="earn_dashboard_filter_active">Active</string>
     <string name="staking_dashboard_search">Search coins</string>
-    <string name="staking_dashboard_no_results">No results</string>
+    <string name="earning_dashboard_no_results">😞 No results</string>
+    <string name="earning_dashboard_empty_filter">You have not added any funds into these Rewards yet</string>
+    <string name="earning_dashboard_empty_filter_cta">Start earning</string>
+    <string name="discover_dashboard_empty_filter">We don\'t have any offering here at the moment - check back soon!</string>
     <string name="earn_rewards_label_passive">Passive Rewards</string>
+    <string name="earn_rewards_label_passive_short">Passive</string>
     <string name="earn_rewards_carousel_passive_desc">Monthly rewards for\nholding crypto with us.</string>
     <string name="earn_rewards_label_staking">Staking Rewards</string>
+    <string name="earn_rewards_label_staking_short">Staking</string>
     <string name="earn_rewards_carousel_staking_desc">Daily rewards for\nsecuring networks.</string>
+    <string name="earn_rewards_carousel_active_desc">Weekly rewards for\nforecasting the market.</string>
+    <string name="earn_rewards_label_active">Active Rewards</string>
+    <string name="earn_rewards_label_active_short">Active</string>
     <string name="earn_dashboard_tab_earning">Earning</string>
     <string name="earn_dashboard_tab_discover">Discover</string>
     <string name="earn_dashboard_error_title">Couldn\'t load Earn</string>
     <string name="earn_dashboard_error_desc">There was an error while loading your Earn accounts details, please check your Internet connection and try again.</string>
     <string name="earn_access_blocked_region_title">We’re not in your region yet</string>
     <string name="earn_access_blocked_region_paragraph">%1$s are currently unavailable in your region.\n\nWe are working hard so that you get the most of all our products. We’ll let you know as soon as we can!</string>
+    <string name="active_rewards_summary_title">%1$s Active Rewards</string>
+    <string name="earn_onboarding_intro_title">Earn</string>
+    <string name="earn_onboarding_intro_subtitle">Get the most out of your crypto.\nDeposit and earn up to 10%.</string>
+    <string name="earn_onboarding_passive_title">Passive Rewards</string>
+    <string name="earn_onboarding_passive_subtitle">Get paid every month, just for holding.</string>
+    <string name="earn_onboarding_staking_title">Staking Rewards</string>
+    <string name="earn_onboarding_staking_subtitle">Earn crypto for securing your favorite blockchain networks.</string>
+    <string name="earn_onboarding_active_title">Active Rewards</string>
+    <string name="earn_onboarding_active_subtitle">Participate on weekly strategies and earn rewards based on crypto performance.</string>
+    <string name="earn_onboarding_cta">Start earning</string>
+    <string name="earn_net_earning_explainer">Sum of all rewards and debits of previous strategies</string>
+    <string name="earn_active_rewards_on_hold_description">Funds you transfer during the week will be included in the following week\'s strategy at 08:00 AM (UTC).</string>
+    <string name="earn_active_rewards_rate_description">Rate perceived by the user if market price is at or lower than the trigger price at the expiration date.</string>
+    <string name="earn_active_rewards_trigger_price_description">A price level that results in a debit to your crypto balance if exceeded on the expiration date.</string>
+    <string name="earn_withdrawal_pending_title">Withdrawal requested</string>
+    <string name="earn_active_rewards_withdrawal_pending_subtitle">Your withdrawal will be executed once this week\'s strategy is complete.</string>
+    <string name="earn_staking_withdrawal_pending_subtitle">Your withdrawal will be executed once the unbonding period finishes. Your funds will be available in your Trading Account.</string>
+    <string name="earn_active_rewards_withdrawal_activity">Withdrew all %1$s</string>
+
+    <!-- Prove.com -->
+    <string name="prove_phone_number">Phone number</string>
+    <string name="prove_resend_sms">Resend SMS</string>
+    <string name="prove_resend_sms_in_seconds">Resend SMS in %02d:%02d</string>
+    <string name="prove_waiting_prefill_data_loading">Verifying your information</string>
+    <string name="prove_waiting_prefill_submission_loading">Verifying your account</string>
+    <string name="prove_intro_title">Let’s gather your information</string>
+    <string name="prove_intro_subtitle">Tap continue to begin the process.</string>
+    <string name="prove_intro_cta_info">By selecting “Continue”, you agree to the Blockchain.com Privacy Policy</string>
+    <string name="prove_mobile_auth_dob_entry_title">Enter your information</string>
+    <string name="prove_mobile_auth_dob_entry_subtitle">Please add your date of birth.</string>
+    <string name="prove_mobile_auth_dob_entry_placeholder">MM/DD/YYYY</string>
+    <string name="prove_mobile_auth_dob_entry_min_age">You must be 18 years or older.</string>
+    <string name="prove_instant_link_phone_and_dob_entry_title">Enter your information</string>
+    <string name="prove_instant_link_phone_and_dob_entry_subtitle">Please add your phone number and date of birth.</string>
+    <string name="prove_instant_link_phone_and_dob_entry_us_phone_only">Verification only supports US(+1) phone numbers.</string>
+    <string name="prove_instant_link_phone_and_dob_entry_phone_placeholder">Enter your phone number</string>
+    <string name="prove_instant_link_phone_and_dob_entry_cta_info">We’ll send you a link to verify your identity.</string>
+    <string name="prove_instant_link_phone_and_dob_entry_verification_timeout">Verification session expired</string>
+    <string name="prove_waiting_instant_link_validation_title">Verification processing</string>
+    <string name="prove_waiting_instant_link_validation_subtitle">We’ve sent a link to you via SMS. Follow it to continue with verification.</string>
+    <string name="prove_view_prefill_data_title">Confirm your information</string>
+    <string name="prove_view_prefill_data_first_name_placeholder">Enter your first name</string>
+    <string name="prove_view_prefill_data_last_name_placeholder">Enter your last name</string>
+    <string name="prove_view_prefill_data_address_label">Address</string>
+    <string name="prove_view_prefill_data_address_placeholder_enter">Enter your current address</string>
+    <string name="prove_view_prefill_data_address_placeholder_select">Select your current address</string>
+    <string name="prove_view_prefill_data_address_manual_or">or&#160;</string>
+    <string name="prove_view_prefill_data_address_manual_enter_manually">enter manually -></string>
+    <string name="prove_view_prefill_data_cannot_be_modifier">This information cannot be modified</string>
+    <string name="prove_leave_warning">Are you sure you want to leave?</string>
+    <string name="prove_leave_button">Leave</string>
 
     <string name="all_prices">All Prices</string>
     <string name="tradable">Tradable</string>
@@ -3493,6 +3527,221 @@ If you want to know more about our verification process visit our <annotation li
     <string name="buy_crypto_today">Buy crypto today</string>
     <string name="complete_your_profile">Complete your profile</string>
     <string name="other_amount">Other amount</string>
-    <string name="to_get_started_buy_your_first_btc">To get started, buy your first BTC.</string>
+    <string name="to_get_started_transfer_to_your_wallets">To get started, transfer to your wallets</string>
+    <string name="nc_empty_state_title">To get started, fund\nyour DeFi Wallet with crypto</string>
+    <string name="nc_empty_state_description">Transfer crypto from another wallet</string>
+    <string name="nc_empty_state_cta">Deposit Crypto</string>
+    <string name="transfer_from_your_trading_account">Transfer from your Blockchain.com Account, send from any exchange, or ask a friend!</string>
+    <string name="earn_up_to">Earn up to 10%</string>
+    <string name="put_your_crypto_to_work">Put your crypto to work</string>
+    <string name="staking_asset">Staked %1s</string>
+    <string name="earn_rate">%1$s%% Rate</string>
+    <string name="add_cash_from_your_bank_or_card">Add cash from your bank</string>
+    <string name="cash_out_bank">Cash out to your bank</string>
+    <string name="select_an_option">Select an option</string>
+    <string name="choose_how_to_swap">Choose how you\'d like to swap</string>
+    <string name="bcdc_swap">Blockchain.com Swap</string>
+    <string name="cross_chain_limited_tokens">Cross-chain, limited token pairs</string>
+    <string name="dex_swap">DEX Swap</string>
+    <string name="single_chain_eth_tokens">Swap thousands of tokens on Ethereum and Polygon</string>
+    <string name="announcement_recovery_title">Secure your wallet</string>
+    <string name="announcement_recovery_subtitle">Backup your Recovery Phrase</string>
+    <string name="announcements_all_done">🎉 You’re all caught up!</string>
+    <string name="prices_top_movers">Top Movers</string>
+    <string name="other_tokens">Other tokens</string>
+    <string name="processing_fee">Processing fee</string>
+    <string name="earn_active_rewards_earnings">Net earnings</string>
+    <string name="earn_total_subscribed">Total subscribed</string>
+    <string name="earn_active_rewards_on_hold">On hold</string>
+    <string name="earn_annual_rate">Estimated annual rate</string>
+    <string name="earn_active_rewards_trigger_price">Trigger price</string>
+    <string name="earn_active_rewards_withdrawal_blocked">Withdrawals for Active Rewards are not yet enabled. Weekly withdrawal functionality is being finalized and will be enabled in approximately March 2023. Until then, BTC assets in Active Rewards Accounts will be re-subscribed to each week\'s strategy. Blockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
+    <string name="earn_active_rewards_withdrawal_blocked_warning_title">Active Rewards considerations</string>
+    <string name="earn_active_rewards_withdrawal_blocked_warning_subtitle">Price movements may result in a reduction of your asset’s balance. \n\nOnce subscribed, assets are locked until the following week and subject to market volatility. \n\nBlockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
+    <string name="earn_trading_disclaimer">Blockchain.com does not assume liability for any losses incurred from price fluctuations. Please trade with caution.</string>
+    <string name="start_trading">Start trading</string>
+    <string name="welcome_to_dex">Welcome to the DEX</string>
+    <string name="welcome_to_dex_subtitle">A decentralized exchange (DEX) is a peer-to-peer marketplace that lets you swap cryptocurrencies.</string>
+    <string name="swap_1000_tokens">Swap 1000+ tokens</string>
+    <string name="swap_1000_tokens_subtitle">Swap ETH, UNI, USDT, DAI, and more.</string>
+    <string name="keep_control_of_funds">Keep control of your funds</string>
+    <string name="keep_control_of_funds_subtitle">When you trade on a DEX, you keep access to your private keys––it\'s \"your keys, your crypto.\" Blockchain.com doesn’t hold these funds.</string>
+    <string name="select_token">Select Token</string>
+    <string name="common_requested">Requested</string>
+    <string name="earn_active_rewards_withdrawal_close_date">Next Saturday</string>
+    <string name="your_assets">Your Assets</string>
+    <string name="all_tokens">All Tokens</string>
+    <string name="earn_passive_rewards_description">Earn rewards for simply holding an asset for a longer period of time.</string>
+    <string name="earn_staking_rewards_description">Earn rewards by holding an asset and securing networks.</string>
+    <string name="earn_active_rewards_description">Earn rewards by holding an asset and forecasting the market.</string>
+    <string name="earn_product_target_audience_all">For all eligible users</string>
+    <string name="earn_product_target_audience_intermediate">Intermediate users</string>
+    <string name="earn_product_target_audience_advanced">Advanced users</string>
+    <string name="earn_product_asset_availability_all">All assets available</string>
+    <string name="earn_product_asset_availability_ethereum">Available on Ethereum</string>
+    <string name="earn_product_asset_availability_bitcoin">Available on Bitcoin</string>
+    <string name="earn_passive_rate_label" formatted="false">Up to %1$s%% annually</string>
+    <string name="earn_staking_rate_label" formatted="false">Up to %1$s%% annually</string>
+    <string name="earn_active_rate_label" formatted="false">Up to %1$s%% annually</string>
+    <string name="earn_rate_update_frequency_weekly">Variable weekly</string>
+    <string name="earn_rate_update_frequency_monthly">Updated monthly</string>
+    <string name="earn_rate_update_frequency_variable">Variable by network</string>
+    <string name="earn_product_earn_frequency_daily">Earn daily</string>
+    <string name="earn_product_earn_frequency_weekly">Earn daily</string>
+    <string name="earn_product_payout_frequency_daily">Paid daily</string>
+    <string name="earn_product_payout_frequency_weekly">Paid weekly</string>
+    <string name="earn_product_payout_frequency_monthly">Paid monthly</string>
+    <string name="earn_product_withdrawal_frequency_instantly">Withdraw instantly after 7 days</string>
+    <string name="earn_product_withdrawal_frequency_variable">Withdraw depending on network</string>
+    <string name="earn_product_withdrawal_frequency_weekly">Withdraw weekly</string>
+    <string name="earn_product_comparator_title">Compare Products</string>
+    <string name="earn_product_comparator_description">Learn which Earn Product is\nbest for you.</string>
+    <string name="earn_staking_withdrawal_blocked">Unstaking ETH won’t be available until withdrawals are enabled by the Ethereum network.</string>
+    <string name="passive_rewards_summary_title">%1$s Passive Rewards</string>
+    <string name="earn_interest_accrued_this_month">Accrued this month</string>
+    <string name="earn_interest_accrued_this_month_explainer">Rewards earned month to date.</string>
+    <string name="common_next_payment">Next payment</string>
+    <string name="common_got_it">Got it</string>
+    <string name="earn_payment_frequency_monthly_description">Rewards are paid by the end of the day on the 1st of each month.</string>
+    <string name="earn_interest_hold_period_description">From the moment you deposit your funds into your Passive Rewards account, these will be restricted from being withdrawn for 7 days.</string>
+    <string name="earn_interest_hold_period">Initial Hold Period</string>
+    <string name="earn_interest_accrued_this_month_description">Rewards earned month to date</string>
+    <string name="earn_interest_rate_description">Rewards accrues daily and is paid monthly. The rewards rate may be periodically adjusted.</string>
+    <string name="earn_active_rewards_earnings_description">Sum of all debits and credits of previous strategies.</string>
+    <string name="dex_no_input_title">To get started, transfer to your wallets</string>
+    <string name="estimated_fees">Estimated fee</string>
+    <string name="fetching_quote">Fetching best price…</string>
+    <string name="not_enough_gas">Not enough %1$s for gas fees</string>
+    <string name="select_network">Select Network</string>
+    <string name="allowed_slippage">Allowed Slippage</string>
+    <string name="slippage_explanation">Slippage is the max percentage of price you\'re willing to allow for your swap to go through. If price changes beyond that, the swap will revert and your assets will be returned.</string>
+    <string name="approve_token">Approve %1$s</string>
+    <string name="allow_bcdc_dex_to_use">Allow %1$s</string>
+    <string name="allowance_bcdc_expanation">To complete the swap, allow permission to use your %1$s. You only have to do this once per token.</string>
+    <string name="asset_upsell_buy_another">Buy Another Asset</string>
+    <string name="asset_upsell_title">Would you like to buy another asset?</string>
+    <string name="asset_upsell_subtitle">People who bought Bitcoin often buy these assets as well.</string>
+    <string name="sell_asset_upsell_title">Would you like to buy an asset?</string>
+    <string name="sell_asset_upsell_subtitle">With all that fresh cash, you could buy another crypto.</string>
+    <string name="interest_upsell_after_swap_title">Put your %1$s to work</string>
+    <string name="interest_upsell_after_swap_subtitle">With Passive Rewards, you can earn up to %1$s%% on your %2$s.</string>
+    <string name="interest_upsell_after_swap_cta">Start earning</string>
+    <string name="confirm_swap">Confirm Swap</string>
+    <string name="min_amount">Min. amount</string>
+    <string name="minimum_amount">Minimum amount</string>
+    <string name="minimum_amount_extra_info">The minimum amount you are guaranteed to receive. If the price changes more than %1$s, your transaction will revert.</string>
+    <string name="network_fee">Network fee</string>
+    <string name="network_fee_info_description">A fee paid to process your transaction.This must be paid in %1$s.</string>
+    <string name="bcdc_fee">Blockchain.com fee</string>
+    <string name="bcdc_fee_extra_info_description">This is a small fee for using the Blockchain.com DEX service.</string>
+    <string name="min_amount_estimation">Input is estimated. You will receive at least %1$s or the transaction will revert and assets will be returned to your wallet.</string>
+    <string name="unable_to_swap_tokens">Unable to swap these tokens</string>
+    <string name="common_pending_activity">Pending Activity</string>
+    <string name="swapping_with_currencies">Swapping %1$s for %2$s</string>
+    <string name="your_swap_is_confirmed">Your swap is being confirmed by the network. Track the confirmation on the Explorer or feel free to start a new swap.</string>
+    <string name="view_on_explorer">View on Explorer</string>
+    <string name="swap_failed">Swap failed</string>
+    <string name="swap_failed_message">Your balance hasn\'t been affected. You can try again or cancel.</string>
+    <string name="price_updated">Price updated</string>
+    <string name="accept">Accept</string>
+    <string name="approval_for_token_failed">%1$s approval failed</string>
+    <string name="approval_for_token_completed">Approved %1$s</string>
+    <string name="default_dex_not_available_message">The dex is not available yet for your account.</string>
+    <string name="tx_in_process">Transaction in process</string>
+    <string name="tx_in_process_for_network">Your balances may not be accurate since you have transactions in progress on the %1$s network.</string>
+    <string name="not_accurate_balance">Your balances may not be accurate.
+        Once the transaction is confirmed, your balances will update.</string>
+    <string name="earn_staking_withdrawal_queue_notice_title">Unstaking Information</string>
+    <string name="earn_staking_withdrawal_queue_notice_description">The unbonding period depends on the network queue. The current unbonding period is %1$s days.</string>
+    <string name="earn_staking_withdrawal_locked_countdown_message">You will be able to request another withdrawal in %1$s min.</string>
+    <string name="earn_staking_bonding_asset">Staked %1$s</string>
+    <string name="earn_staking_bonding_days">Bonding (%1$s days)</string>
+    <string name="earn_staking_unbonding_asset">Withdrew %1$s</string>
+    <string name="earn_staking_unbonding_days">Unbonding (%1$s days)</string>
+
+    <string name="news_author">Published by %1$s</string>
+    <string name="news_home_title">Latest News</string>
+    <string name="news_title">News</string>
+
+    <string name="dapps_list_title">Connected Apps</string>
+    <string name="common_disconnect_all">Disconnect All</string>
+    <string name="walletconnect_dapp_list_scan_cta">Connect a Dapp</string>
+    <string name="walletconnect_session_approved_title">You\'re connected to %1$s</string>
+    <string name="walletconnect_session_rejected_title">Your connection to %1$s was rejected</string>
+    <string name="empty_dapp_description">A Dapp wants to connect \nto your wallet</string>
+    <string name="empty_dapp_title">the Dapp</string>
+    <string name="common_dapp">Dapp</string>
+    <string name="deposit_more">Deposit more %1$s</string>
+    <string name="total_balance_loading">Loading…</string>
+    <string name="total_balance_error">Failed to load</string>
+
+    <string name="walletconnect_auth_request_title">Message signing request</string>
+    <string name="common_message">Message</string>
+    <string name="approving_token">Approving %1$s</string>
+    <string name="could_take_few_seconds">This could take a few seconds.</string>
+    <string name="no_assets_on_network">No assets on %1$s</string>
+    <string name="no_assets_on_network_description">You don\'t have any assets on %1$s Network. Deposit %2$s to get started.</string>
+
+    <string name="handhold_title">Complete Your Profile</string>
+    <string name="handhold_subtitle">Buy crypto today</string>
+    <string name="handhold_completion_minutes">Complete in around %1$s minutes</string>
+    <string name="handhold_completion_seconds">Complete in around %1$s seconds</string>
+    <string name="handhold_email">Verify your email</string>
+    <string name="handhold_kyc">Verify your identity</string>
+    <string name="handhold_buy">Buy crypto</string>
+    <string name="dashboard_kyc_rejected_with_balance_title">Your account is now a DeFi Wallet only account.</string>
+    <string name="dashboard_kyc_rejected_with_balance_description">Any funds you had in the account section are safe. To send them to the DeFi Wallet, please contact our Support Center.</string>
+    <string name="dashboard_kyc_rejected_with_balance_support">Contact Support Center</string>
+    <string name="dashboard_kyc_blocked_title">We couldn’t verify your identity</string>
+    <string name="dashboard_kyc_blocked_description">It seems we\'re unable to verify your identity. However, you can still use our DeFi Wallet.</string>
+    <string name="go_to_defi">Go to DeFi Wallet</string>
+
+    <plurals name="years_ago">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">%d months ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+
+    <string name="permission_notifications_title">Allow Notifications</string>
+    <string name="permission_notifications_description">We’ll notify you when big changes happen in the market. We’ll also send you payment and security alerts.</string>
+
+    <string name="balances_failed_title">Failed to load some balances</string>
+    <string name="balances_failed_description_one">We couldn’t load the balances and activity of the %1$s network at this time.</string>
+    <string name="balances_failed_description_many">We couldn’t load the balances and activity of the %1$s and %1$s networks at this time.</string> <!--of the <bitcoin, eth> and <avax>-->
+
+    <string name="create_wallet_referral_code_label">Do you have a referral code?</string>
+    <string name="common_create_password">Create Password</string>
+    <string name="signup_re_enter_password">Re-enter your password</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="common_week">Week</string>
+    <string name="common_regular">Regular</string>
+    <string name="common_strong">Strong</string>
+    <string name="password_input_instruction_beginning">Your password must contain at least</string>
+    <string name="password_input_instruction_lowercase">" one lowercase letter,"</string>
+    <string name="password_input_instruction_uppercase">" one uppercase letter,"</string>
+    <string name="password_input_instruction_number">" one number,"</string>
+    <string name="password_input_instruction_special_char">" one special character"</string>
+    <string name="password_input_instruction_length">" and be at least 8 characters long."</string>
+    <string name="biometric_request_dialog_title">Allow Biometric Credentials</string>
+    <string name="biometric_request_dialog_body">Log into your Wallet and approve transactions with a single tap.</string>
+    <string name="defi_intro_title">Introducing the \nDeFi Wallet</string>
+    <string name="defi_intro_description">With a DeFi Wallet, only you have access to your crypto assets - not us.\n Your keys, your crypto.</string>
+    <string name="defi_intro_custodial_disclaimer">If you would like Blockchain.com to custody your funds, use our Blockchain.com Account.</string>
+    <string name="custodial_intro_defi_disclaimer">If you would like Blockchain.com to custody your funds, use our Blockchain.com Account.</string>
+    <string name="custodial_intro_title">Welcome to your\nBlockchain.com Account</string>
+    <string name="custodial_intro_description">With the Blockchain.com Account, your funds are held in our custody system.</string>
+    <string name="kyc_prompt_title">Before you continue</string>
+    <string name="kyc_prompt_description">To start trading crypto, we first need to verify your identity.</string>
+    <string name="kyc_prompt_tag">About 2 minutes</string>
+    <string name="kyc_prompt_cta">Verify my identity</string>
+    <string name="deposit_address_copied">Address copied</string>
+    <string name="deposit_memo_copied">Memo copied</string>
 
 </resources>

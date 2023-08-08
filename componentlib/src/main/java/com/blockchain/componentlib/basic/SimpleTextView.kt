@@ -38,8 +38,11 @@ class SimpleTextView @JvmOverloads constructor(
                         .wrapContentWidth()
                         .let {
                             val onClick = onClick
-                            if (onClick != null) it.clickable { onClick() }
-                            else it
+                            if (onClick != null) {
+                                it.clickable { onClick() }
+                            } else {
+                                it
+                            }
                         },
                     style = style,
                     color = textColor,

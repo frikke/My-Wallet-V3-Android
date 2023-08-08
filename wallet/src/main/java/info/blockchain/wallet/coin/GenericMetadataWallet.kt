@@ -35,7 +35,7 @@ data class GenericMetadataWallet(
         this.copy(
             accounts = accounts.replace(
                 old = accounts[index],
-                new = accounts[index].updateXpub(xPub),
+                new = accounts[index].updateXpub(xPub)
             )
         )
 
@@ -59,6 +59,15 @@ data class GenericMetadataWallet(
         return copy(
             accounts = accounts.replace(oldAccount, newAccount)
         )
+    }
+
+    fun updatedAccounts(updatedAccounts: Map<GenericMetadataAccount, String>): GenericMetadataWallet {
+        val updatedAccountList = accounts.map { account ->
+            updatedAccounts[account]?.let { label ->
+                account.updateLabel(label)
+            } ?: account
+        }
+        return copy(accounts = updatedAccountList)
     }
 
     fun updateDefaultIndex(newIndex: Int): GenericMetadataWallet {

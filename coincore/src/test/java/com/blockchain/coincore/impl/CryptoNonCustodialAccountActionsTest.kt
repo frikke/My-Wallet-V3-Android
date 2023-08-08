@@ -1,7 +1,6 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.ActionState
-import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
@@ -15,26 +14,38 @@ import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_USER_FIAT
 import com.blockchain.coincore.testutil.CoinCoreFakeData.userFiatToUserFiat
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
+import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.unifiedcryptowallet.domain.wallet.PublicKey
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.core.qualifier.StringQualifier
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.test.KoinTest
@@ -43,6 +54,51 @@ import org.koin.test.KoinTestRule
 class CryptoNonCustodialAccountActionsTest : KoinTest {
 
     private val custodialManager: CustodialWalletManager = mock()
+
+    private val unifiedBalancesService: UnifiedBalancesService = object : UnifiedBalancesService {
+
+        override fun failedBalancesNetworks(
+            freshnessStrategy: FreshnessStrategy
+        ): Flow<DataResource<List<CoinNetwork>>> {
+            return flowOf(DataResource.Data(emptyList()))
+        }
+
+        override fun balances(
+            wallet: NetworkWallet?,
+            freshnessStrategy: FreshnessStrategy
+        ): Flow<DataResource<List<NetworkBalance>>> {
+            return flowOf(
+                DataResource.Data(
+                    listOf(
+                        NetworkBalance(
+                            TEST_ASSET,
+                            CryptoValue.fromMinor(TEST_ASSET, 0.toBigInteger()),
+                            CryptoValue.fromMinor(TEST_ASSET, 0.toBigInteger()),
+                            ExchangeRate.identityExchangeRate(TEST_ASSET)
+                        )
+                    )
+                )
+            )
+        }
+
+        override fun balanceForWallet(
+            wallet: NetworkWallet,
+            freshnessStrategy: FreshnessStrategy
+        ): Flow<DataResource<NetworkBalance>> {
+            val isFounded = (wallet as NonCustodialTestAccount).isFunded
+            val balance = if (isFounded) 1.toBigDecimal() else 0.toBigDecimal()
+            return flowOf(
+                DataResource.Data(
+                    NetworkBalance(
+                        TEST_ASSET,
+                        CryptoValue.fromMinor(TEST_ASSET, balance),
+                        CryptoValue.fromMinor(TEST_ASSET, balance),
+                        ExchangeRate.identityExchangeRate(TEST_ASSET)
+                    )
+                )
+            )
+        }
+    }
     private val payloadDataManager: PayloadDataManager = mock()
     private val userIdentity: UserIdentity = mock()
     private val exchangeRates: ExchangeRatesDataManager = mock {
@@ -74,7 +130,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
         factory {
             mock<WalletModeService> {
-                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+                on { walletModeSingle }.thenReturn(Single.just(WalletMode.CUSTODIAL))
             }
         }
         factory {
@@ -82,6 +138,15 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         }
         factory {
             userIdentity
+        }
+
+        factory(StringQualifier("ff_unified_balances")) {
+            mock<FeatureFlag> {
+                on { enabled }.thenReturn(Single.just(true))
+            }
+        }
+        factory {
+            unifiedBalancesService
         }
     }
 
@@ -340,18 +405,18 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     }
 
     private fun configureActionSubject(
-        isFunded: Boolean = true,
-    ): CryptoNonCustodialAccount =
-        NonCustodialTestAccount(
+        isFunded: Boolean = true
+    ): CryptoNonCustodialAccount {
+        return NonCustodialTestAccount(
             label = "Test Account",
             currency = TEST_ASSET,
             exchangeRates = exchangeRates,
-            activity = Single.just(emptyList()),
             receiveAddress = mock(),
             isDefault = true,
             addressResolver = mock(),
             isFunded = isFunded
         )
+    }
 
     private fun configureActionTest(
         userAccessForSwap: FeatureAccess = FeatureAccess.Granted(),
@@ -361,25 +426,29 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         userAccessForStakingDeposit: FeatureAccess = FeatureAccess.Granted(),
         eligibleForInterest: Boolean = true,
         supportedFiatFunds: List<FiatCurrency> = listOf(FiatCurrency.Dollars),
-        isAssetSupportedForSwap: Boolean = true,
+        isAssetSupportedForSwap: Boolean = true
     ) {
         whenever(custodialManager.selectedFiatcurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(custodialManager.getSupportedFundsFiats(FiatCurrency.Dollars)).thenReturn(
+        whenever(custodialManager.getSupportedFundsFiats(eq(FiatCurrency.Dollars), any())).thenReturn(
             flowOf(supportedFiatFunds)
         )
-        whenever(userIdentity.isEligibleFor(Feature.Interest(TEST_ASSET))).thenReturn(Single.just(eligibleForInterest))
-        whenever(userIdentity.userAccessForFeature(Feature.Swap)).thenReturn(Single.just(userAccessForSwap))
-        whenever(userIdentity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(userAccessForSell))
-        whenever(userIdentity.userAccessForFeature(Feature.DepositInterest)).thenReturn(
+        whenever(userIdentity.isEligibleFor(eq(Feature.Interest(TEST_ASSET)), any())).thenReturn(
+            Single.just(eligibleForInterest)
+        )
+        whenever(userIdentity.userAccessForFeature(eq(Feature.Swap), any())).thenReturn(Single.just(userAccessForSwap))
+        whenever(userIdentity.userAccessForFeature(eq(Feature.Sell), any())).thenReturn(Single.just(userAccessForSell))
+        whenever(userIdentity.userAccessForFeature(eq(Feature.DepositInterest), any())).thenReturn(
             Single.just(userAccessForInterestDeposit)
         )
-        whenever(userIdentity.userAccessForFeature(Feature.DepositCrypto)).thenReturn(
+        whenever(userIdentity.userAccessForFeature(eq(Feature.DepositCrypto), any())).thenReturn(
             Single.just(userAccessForCryptoDeposit)
         )
-        whenever(userIdentity.userAccessForFeature(Feature.DepositStaking)).thenReturn(
+        whenever(
+            userIdentity.userAccessForFeature(eq(Feature.DepositStaking), any())
+        ).thenReturn(
             Single.just(userAccessForStakingDeposit)
         )
-        whenever(custodialManager.isAssetSupportedForSwapLegacy(TEST_ASSET)).thenReturn(
+        whenever(custodialManager.isAssetSupportedForSwap(TEST_ASSET)).thenReturn(
             Single.just(isAssetSupportedForSwap)
         )
     }
@@ -387,18 +456,13 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
 private class NonCustodialTestAccount(
     override val label: String,
-    override val activity: Single<ActivitySummaryList>,
     override val receiveAddress: Single<ReceiveAddress>,
     override val isDefault: Boolean,
     override val exchangeRates: ExchangeRatesDataManager,
     override val addressResolver: AddressResolver,
-    override val isFunded: Boolean,
-    currency: AssetInfo,
+    val isFunded: Boolean,
+    currency: AssetInfo
 ) : CryptoNonCustodialAccount(currency) {
-
-    override fun getOnChainBalance(): Observable<Money> =
-        Observable.just(Money.zero(currency))
-
     override val index: Int
         get() = 1
 

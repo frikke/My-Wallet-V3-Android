@@ -1,11 +1,12 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
+import com.blockchain.data.DataResource
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.dataremediation.model.QuestionnaireNode
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -16,7 +17,7 @@ import com.blockchain.outcome.Outcome
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
@@ -24,13 +25,11 @@ import piuk.blockchain.android.ui.dataremediation.TreeNode
 
 class ReentryDecisionTest {
 
-    private val custodialWalletManager: CustodialWalletManager = mockk {
-        every { fetchSimplifiedDueDiligenceUserState() } returns Single.just(
-            SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true)
-        )
-    }
     private val dataRemediationService: DataRemediationService = mockk {
         coEvery { getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION) } returns Outcome.Success(null)
+    }
+    private val userFeaturePermissionService: UserFeaturePermissionService = mockk {
+        every { isEligibleFor(Feature.Kyc) } returns flowOf(DataResource.Data(true))
     }
 
     @Test
@@ -192,7 +191,7 @@ class ReentryDecisionTest {
             context = QuestionnaireContext.TIER_TWO_VERIFICATION,
             nodes = listOf(
                 QuestionnaireNode.Selection("s1", "text1", emptyList(), false),
-                QuestionnaireNode.Selection("s2", "text2", emptyList(), false),
+                QuestionnaireNode.Selection("s2", "text2", emptyList(), false)
             ),
             isMandatory = true
         )
@@ -246,10 +245,32 @@ class ReentryDecisionTest {
         ) `should be` ReentryPoint.MobileEntry
     }
 
+    @Test
+    fun `if user is not eligible for KYC it should show TierCurrentState with KYC Rejected`() {
+        every { userFeaturePermissionService.isEligibleFor(Feature.Kyc) }.returns(flowOf(DataResource.Data(false)))
+        whereNext(
+            createdNabuUser(tier = 0, next = 2).copy(
+                email = "abc@def.com",
+                emailVerified = true,
+                address = Address(
+                    line1 = "",
+                    line2 = "",
+                    city = "",
+                    stateIso = "",
+                    postCode = "",
+                    countryCode = "DE"
+                ),
+                dob = "dob",
+                firstName = "A",
+                lastName = "B"
+            )
+        ) `should be equal to` ReentryPoint.TierCurrentState(KycState.Rejected)
+    }
+
     private fun whereNext(user: NabuUser) =
         TiersReentryDecision(
-            custodialWalletManager,
             dataRemediationService,
+            userFeaturePermissionService
         ).findReentryPoint(user).blockingGet()
 
     private fun createdNabuUser(

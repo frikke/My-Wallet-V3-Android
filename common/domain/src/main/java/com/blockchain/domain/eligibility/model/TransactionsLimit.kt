@@ -6,6 +6,7 @@ import java.io.Serializable
 sealed class TransactionsLimit : Serializable {
     @kotlinx.serialization.Serializable
     object Unlimited : TransactionsLimit()
+
     @kotlinx.serialization.Serializable
     data class Limited(val maxTransactionsCap: Int, val maxTransactionsLeft: Int) : TransactionsLimit()
 }

@@ -30,7 +30,7 @@ sealed class QuestionnaireNode(
         override val children: List<QuestionnaireNode>,
         val input: String,
         val hint: String,
-        val regex: Regex?,
+        val regex: Regex?
     ) : QuestionnaireNode(id, text, children)
 
     data class Selection(

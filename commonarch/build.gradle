@@ -1,11 +1,14 @@
 apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
-
+android {
+    namespace 'com.blockchain.commonarch'
+}
 dependencies {
     implementation project(':common:interface')
     implementation project(':componentlib')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
+    implementation project(':instrumentation:presentation')
 
     implementation Libraries.rxJava
     implementation Libraries.rxKotlin

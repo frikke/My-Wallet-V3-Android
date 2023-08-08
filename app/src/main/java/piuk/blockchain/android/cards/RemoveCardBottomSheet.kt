@@ -39,22 +39,26 @@ class RemoveCardBottomSheet : SlidingModalBottomDialog<RemoveCardBottomSheetBind
             title.text = card.uiLabel()
             endDigits.text = card.dottedEndDigits()
             icon.setImageResource(card.cardType.icon())
-            rmvCardBtn.setOnClickListener {
-                compositeDisposable += cardService.deleteCard(card.id)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnSubscribe {
-                        updateUi(true)
-                    }
-                    .doFinally {
-                        updateUi(false)
-                    }
-                    .subscribeBy(onComplete = {
-                        (host as? Host)?.onCardRemoved(card.cardId)
-                        dismiss()
-                        analytics.logEvent(SimpleBuyAnalytics.REMOVE_CARD)
-                    }, onError = {})
 
-                analytics.logEvent(SettingsAnalytics.RemoveCardClicked(LaunchOrigin.SETTINGS))
+            rmvCardBtn.apply {
+                text = getString(com.blockchain.stringResources.R.string.remove_card)
+                onClick = {
+                    compositeDisposable += cardService.deleteCard(card.id)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnSubscribe {
+                            updateUi(true)
+                        }
+                        .doFinally {
+                            updateUi(false)
+                        }
+                        .subscribeBy(onComplete = {
+                            (host as? Host)?.onCardRemoved(card.cardId)
+                            dismiss()
+                            analytics.logEvent(SimpleBuyAnalytics.REMOVE_CARD)
+                        }, onError = {})
+
+                    analytics.logEvent(SettingsAnalytics.RemoveCardClicked(LaunchOrigin.SETTINGS))
+                }
             }
         }
     }

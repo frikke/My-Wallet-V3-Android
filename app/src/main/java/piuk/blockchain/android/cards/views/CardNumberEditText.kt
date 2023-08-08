@@ -31,10 +31,10 @@ class CardNumberEditText : CardEditText, KoinComponent {
     }
 
     override fun getErrorMessage(): String {
-        return if (cardNumberIsInvalid())
-            resources.getString(R.string.invalid_card_number)
-        else
-            resources.getString(R.string.card_not_supported)
+        return if (cardNumberIsInvalid()) {
+            resources.getString(com.blockchain.stringResources.R.string.invalid_card_number)
+        } else
+            resources.getString(com.blockchain.stringResources.R.string.card_not_supported)
     }
 
     private fun cardNumberIsInvalid(): Boolean = super.isValid().not()
@@ -47,7 +47,9 @@ class CardNumberEditText : CardEditText, KoinComponent {
         super.afterTextChanged(editable)
         if (supportedCardTypes.contains(cardType.name)) {
             updateIcon(cardType.icon())
-        } else updateIcon(0)
+        } else {
+            updateIcon(0)
+        }
     }
 
     private fun updateIcon(frontResource: Int) {

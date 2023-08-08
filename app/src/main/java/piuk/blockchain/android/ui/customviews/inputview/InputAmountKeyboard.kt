@@ -10,11 +10,11 @@ class InputAmountKeyboard : InputKeyboard {
     private fun isDeviceManufacturerFlagged(): Boolean =
         FLAGGED_DEVICES.any { it.equals(getDeviceManufacturer(), ignoreCase = true) }
 
-    override fun inputTypeForAmount(): Int {
+    override fun specialInputForAmounts(): Int? {
         return if (isDeviceManufacturerFlagged() && getDecimalSeparator() != SEPARATOR_US) {
             InputType.TYPE_CLASS_PHONE
         } else {
-            InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+            null
         }
     }
 

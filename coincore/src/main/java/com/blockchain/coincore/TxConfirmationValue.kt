@@ -1,8 +1,8 @@
 package com.blockchain.coincore
 
 import com.blockchain.coincore.impl.txEngine.PricedQuote
-import com.blockchain.core.chains.EvmNetwork
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CoinNetwork
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
@@ -10,7 +10,7 @@ data class FeeInfo(
     val feeAmount: Money,
     val fiatAmount: Money,
     val asset: Currency,
-    val l1EvmNetwork: EvmNetwork? = null
+    val l1EvmNetwork: CoinNetwork? = null
 )
 
 sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
@@ -18,7 +18,7 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
     data class ExchangePriceConfirmation(
         val money: Money,
         val asset: Currency,
-        val isNewQuote: Boolean = false,
+        val isNewQuote: Boolean = false
     ) :
         TxConfirmationValue(TxConfirmation.EXPANDABLE_SIMPLE_READ_ONLY)
 
@@ -34,7 +34,7 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
 
     data class DAppInfo(
         val name: String,
-        val url: String,
+        val url: String
     ) : TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
 
     data class Chain(val assetInfo: AssetInfo) :
@@ -95,6 +95,11 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
         val feeAmount: Money
     ) : TxConfirmationValue(TxConfirmation.SIMPLE_READ_ONLY)
 
+    data class ProcessingFee(
+        val feeAmount: Money,
+        val exchangeFee: Money
+    ) : TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
+
     data class CompoundNetworkFee(
         val sendingFeeInfo: FeeInfo? = null,
         val receivingFeeInfo: FeeInfo? = null,
@@ -126,7 +131,7 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
     ) : TxConfirmationValue(TxConfirmation.SIMPLE_READ_ONLY)
 
     data class AvailableToWithdraw(
-        val value: String,
+        val value: String
     ) : TxConfirmationValue(TxConfirmation.SIMPLE_TOOLTIP)
 
     data class AchTermsAndConditions(

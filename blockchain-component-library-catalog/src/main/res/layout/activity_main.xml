@@ -72,34 +72,6 @@
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/tags"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tags"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/default_table_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Default Table Rows"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/action_table_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Action Table Rows"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/balance_table_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Balance Table Rows"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/dividers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -121,55 +93,6 @@
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/exchange_buy_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Exchange Buy Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/exchange_sell_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Exchange Sell Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/exchange_split_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Exchange Split Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/minimal_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Minimal Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/secondary_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Secondary Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/small_minimal_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Small Minimal Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/small_primary_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Small Primary Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/small_secondary_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -177,38 +100,10 @@
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/split_buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Split Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/double_primary_buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Double Primary Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/double_minimal_buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Double Minimal Button"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/controls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Controls"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/section_headers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Section Headers"
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
@@ -225,13 +120,6 @@
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/bottom_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Bottom Navigation"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/top_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -243,13 +131,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Pager"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tab layout"
             android:textAllCaps="false" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -285,24 +166,10 @@
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/dialogue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Dialogues"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/progress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Progress"
-            android:textAllCaps="false" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/sheets"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Bottom sheets"
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
@@ -337,21 +204,6 @@
             android:layout_height="wrap_content"
             android:text="Charts"
             android:textAllCaps="false" />
-
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pickers"
-            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/date_picker"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Date Pickers"
-            android:textAllCaps="false" />
-
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"

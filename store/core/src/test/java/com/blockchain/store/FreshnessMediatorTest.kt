@@ -10,8 +10,8 @@ import org.junit.Test
 
 class FreshnessMediatorTest {
 
-    val freshness = Freshness.ofMinutes(20)
-    val mediator = FreshnessMediator<Key, List<Item>>(freshness)
+    private val freshness = Freshness.ofMinutes(20)
+    private val mediator = FreshnessMediator<Key, List<Item>>(freshness)
 
     @Test
     fun `given null cachedData it should fetch`() {

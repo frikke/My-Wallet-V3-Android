@@ -20,9 +20,9 @@
         style="@style/Text.Semibold.20"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/title"
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="@dimen/small_spacing"
-        android:background="@color/white"
         android:text="@string/payment_methods"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sheet_indicator" />
@@ -43,14 +43,13 @@
         app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_goneMarginBottom="@dimen/standard_spacing" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalPrimaryButtonView
         android:id="@+id/add_payment_method"
-        style="@style/CtaButton.White"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/very_small_spacing"
         android:layout_marginBottom="@dimen/standard_spacing"
-        android:text="@string/add_payment_method"
+        android:layout_marginHorizontal="@dimen/small_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

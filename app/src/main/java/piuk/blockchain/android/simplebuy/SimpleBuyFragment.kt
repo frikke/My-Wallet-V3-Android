@@ -2,8 +2,8 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import info.blockchain.balance.AssetInfo
 
 interface SimpleBuyScreen : SlidingModalBottomDialog.Host {
@@ -38,14 +38,13 @@ interface SimpleBuyNavigator :
         showRecurringBuySuggestion: Boolean = false,
         recurringBuyFrequencyRemote: RecurringBuyFrequency? = RecurringBuyFrequency.ONE_TIME
     )
-    fun goToSetupFirstRecurringBuy(addToBackStack: Boolean = true)
-    fun goToFirstRecurringBuyCreated(addToBackStack: Boolean = true)
     fun goToBlockedBuyScreen()
 }
 
 interface SmallSimpleBuyNavigator {
     fun exitSimpleBuyFlow()
     fun popFragmentsInStackUntilFind(fragmentName: String, popInclusive: Boolean)
+    fun launchUpSellBottomSheet(assetBoughtTicker: String)
 }
 
 interface ErrorBuyNavigator {
@@ -55,7 +54,8 @@ interface ErrorBuyNavigator {
         error: String,
         errorDescription: String? = null,
         nabuApiException: NabuApiException? = null,
-        serverSideUxErrorInfo: ServerSideUxErrorInfo? = null
+        serverSideUxErrorInfo: ServerSideUxErrorInfo? = null,
+        closeFlowOnDeeplinkFallback: Boolean = true
     )
 
     fun showBankRefreshError(accountId: String)

@@ -9,13 +9,13 @@ sealed class LargeSectionHeaderType(val title: String) {
     class Icon(
         title: String,
         val icon: ImageResource,
-        val onIconClicked: () -> Unit,
+        val onIconClicked: () -> Unit
     ) : LargeSectionHeaderType(title)
 
     class Filter(
         title: String,
         val options: List<String>,
         val onOptionSelected: (index: Int) -> Unit,
-        val optionIndexSelected: Int,
+        val optionIndexSelected: Int
     ) : LargeSectionHeaderType(title)
 }

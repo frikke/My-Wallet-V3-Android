@@ -1,11 +1,13 @@
 package com.blockchain.coincore
 
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.l1chain
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.core.Single
 
 data class TrendingPair(
@@ -25,21 +27,24 @@ internal class SwapTrendingPairsProvider(
 ) : TrendingPairsProvider {
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> {
-        return coincore.activeWalletsInModeRx(walletModeService.enabledWalletMode()).map { grp ->
-            grp.accounts.filterIsInstance<CryptoAccount>()
-                .filterNot { it is InterestAccount }
-                .filter {
-                    when (walletModeService.enabledWalletMode()) {
-                        WalletMode.CUSTODIAL_ONLY,
-                        WalletMode.UNIVERSAL -> it is TradingAccount
-                        WalletMode.NON_CUSTODIAL_ONLY -> it is NonCustodialAccount
-                    }
-                }
-                .filter {
-                    if (it is NonCustodialAccount)
-                        it.isDefault
-                    else
-                        true
+        return walletModeService.walletModeSingle.flatMapObservable { walletMode ->
+            coincore.activeWalletsInModeRx(walletMode, FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale))
+                .map { it.accounts }.map {
+                    it.filterIsInstance<CryptoAccount>()
+                        .filterNot { account -> account is EarnRewardsAccount }
+                        .filter { account ->
+                            account
+                            when (walletMode) {
+                                WalletMode.CUSTODIAL -> account is TradingAccount
+                                WalletMode.NON_CUSTODIAL -> account is NonCustodialAccount
+                            }
+                        }.filter { account ->
+                            if (account is NonCustodialAccount) {
+                                account.isDefault
+                            } else {
+                                true
+                            }
+                        }
                 }
         }.map { activeAccounts ->
             val assetList = makeRequiredAssetSet()
@@ -56,7 +61,10 @@ internal class SwapTrendingPairsProvider(
 
     private fun makeRequiredAssetSet() =
         DEFAULT_SWAP_PAIRS.map { pair ->
-            val l1chain = pair.first.l1chain(assetCatalogue)
+            val l1chain =
+                pair.first.takeIf { it.isLayer2Token }?.coinNetwork?.nativeAssetTicker?.let {
+                    assetCatalogue.assetInfoFromNetworkTicker(it)
+                }
             listOf(pair.first, pair.second, l1chain)
         }.flatten()
             .filterNotNull()
@@ -71,8 +79,7 @@ internal class SwapTrendingPairsProvider(
                 TrendingPair(
                     sourceAccount = source,
                     destinationAccount = target,
-                    enabled = source.balanceRx.firstOrError().map {
-
+                    enabled = source.balanceRx().firstOrError().map {
                         it.total.isPositive
                     }
                 )

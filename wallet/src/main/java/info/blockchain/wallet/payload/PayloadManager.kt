@@ -3,6 +3,12 @@ package info.blockchain.wallet.payload
 import com.blockchain.AppVersion
 import com.blockchain.api.ApiException
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.asSingle
+import com.blockchain.internalnotifications.NotificationEvent
+import com.blockchain.internalnotifications.NotificationTransmitter
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.serialization.JsonSerializableAccount
 import com.blockchain.utils.thenSingle
@@ -37,6 +43,8 @@ import info.blockchain.wallet.payload.data.activeXpubs
 import info.blockchain.wallet.payload.data.nonArchivedImportedAddressStrings
 import info.blockchain.wallet.payload.model.Balance
 import info.blockchain.wallet.payload.model.toBalanceMap
+import info.blockchain.wallet.payload.store.PayloadDataStore
+import info.blockchain.wallet.payload.store.WalletPayloadCredentials
 import info.blockchain.wallet.util.DoubleEncryptionFactory
 import info.blockchain.wallet.util.Tools
 import io.reactivex.rxjava3.core.Completable
@@ -53,15 +61,17 @@ import org.spongycastle.crypto.InvalidCipherTextException
 import org.spongycastle.util.encoders.Hex
 import retrofit2.HttpException
 
-class PayloadManager(
+class PayloadManager constructor(
     private val walletApi: WalletApi,
+    private val payloadDataStore: PayloadDataStore,
     private val bitcoinApi: NonCustodialBitcoinService,
+    private val notificationTransmitter: NotificationTransmitter,
     private val multiAddressFactory: MultiAddressFactory,
     private val balanceManagerBtc: BalanceManagerBtc,
     private val balanceManagerBch: BalanceManagerBch,
     private val device: Device,
     private val remoteLogger: RemoteLogger,
-    private val appVersion: AppVersion,
+    private val appVersion: AppVersion
 ) {
     private lateinit var walletBase: WalletBase
     private lateinit var password: String
@@ -130,6 +140,8 @@ class PayloadManager(
                     ServerConnectionException(it.code().toString() + " - " + it.response()?.errorBody()!!.string())
                 )
             } else Completable.error(it)
+        }.doFinally {
+            notificationTransmitter.postEvent(NotificationEvent.PayloadUpdated)
         }
     }
 
@@ -179,11 +191,19 @@ class PayloadManager(
         sharedKey: String,
         guid: String,
         password: String,
-        sessionId: String,
+        sessionId: String
     ): Completable {
         this.password = password
-        return walletApi.fetchWalletData(guid, sharedKey, sessionId).doOnSuccess {
-            walletBase = WalletBase.fromJson(it.string()).withDecryptedPayload(this.password)
+        return payloadDataStore.stream(
+            request = FreshnessStrategy.Cached(refreshStrategy = RefreshStrategy.RefreshIfStale).withKey(
+                WalletPayloadCredentials(
+                    guid,
+                    sharedKey,
+                    sessionId
+                )
+            )
+        ).asSingle().doOnSuccess {
+            walletBase = WalletBase(it).withDecryptedPayload(this.password)
         }.ignoreElement().onErrorResumeNext {
             if (it is HttpException) {
                 val message = it.response()?.errorBody()?.string() ?: ""
@@ -194,6 +214,8 @@ class PayloadManager(
                 }
             }
             return@onErrorResumeNext Completable.error(it)
+        }.doOnError {
+            notificationTransmitter.postEvent(NotificationEvent.PayloadUpdated)
         }
     }
 
@@ -267,31 +289,43 @@ class PayloadManager(
         } ?: emptyList()
 
         return saveAndSync(
-            walletBase.withWalletBody(payload.withUpdatedBodiesAndVersion(v4WalletBodies, 4)), password
+            walletBase.withWalletBody(payload.withUpdatedBodiesAndVersion(v4WalletBodies, 4)),
+            password
         )
     }
 
     fun updateDerivationsForAccounts(accounts: List<Account>): Completable {
         return saveAndSync(
-            walletBase.withUpdatedDerivationsForAccounts(accounts), password
+            walletBase.withUpdatedDerivationsForAccounts(accounts),
+            password
         )
     }
 
     fun updateAccountLabel(account: JsonSerializableAccount, label: String): Completable {
         return saveAndSync(
-            walletBase.withUpdatedLabel(account, label), password
+            walletBase.withUpdatedLabel(account, label),
+            password
+        )
+    }
+
+    fun updateAccountsLabels(updatedAccounts: Map<Account, String>): Completable {
+        return saveAndSync(
+            walletBase.withUpdatedAccountsLabel(updatedAccounts),
+            password
         )
     }
 
     fun updateArchivedAccountState(account: JsonSerializableAccount, acrhived: Boolean): Completable {
         return saveAndSync(
-            walletBase.withUpdatedAccountState(account, acrhived), password
+            walletBase.withUpdatedAccountState(account, acrhived),
+            password
         )
     }
 
     fun updateMnemonicVerified(verified: Boolean): Completable {
         return saveAndSync(
-            walletBase.withMnemonicState(verified), password
+            walletBase.withMnemonicState(verified),
+            password
         )
     }
 
@@ -392,6 +426,8 @@ class PayloadManager(
         ).doOnComplete {
             val updatedWalletBase = newWalletBase.withUpdatedChecksum(newPayloadChecksum)
             updatePayload(updatedWalletBase)
+        }.doFinally {
+            notificationTransmitter.postEvent(NotificationEvent.PayloadUpdated)
         }
     }
 
@@ -399,7 +435,6 @@ class PayloadManager(
         walletBody: WalletBody,
         payloadVersion: Int
     ): List<String> {
-
         // This matches what iOS is doing, but it seems to be massive overkill for mobile
         // devices. I'm also filtering out archived accounts here because I don't see the point
         // in sending them.
@@ -434,7 +469,6 @@ class PayloadManager(
         label: String,
         secondPassword: String?
     ): Single<Account> {
-
         val updatedWallet: Wallet = payload.addAccount(
             label,
             secondPassword
@@ -494,13 +528,14 @@ class PayloadManager(
         }
     }
 
-    fun addImportedAddressFromKey(
+    private fun addImportedAddressFromKey(
         key: SigningKey,
         secondPassword: String?
     ): Single<ImportedAddress> {
         val address = payload.importedAddressFromKey(
             key,
-            secondPassword, device.osType,
+            secondPassword,
+            device.osType,
             appVersion.appVersion
         )
         val wallet: Wallet = payload.addImportedAddress(address)
@@ -556,30 +591,10 @@ class PayloadManager(
 
         return SigningKeyImpl(
             Tools.getECKeyFromKeyAndAddress(
-                decryptedPrivateKey!!, importedAddress.address
+                decryptedPrivateKey!!,
+                importedAddress.address
             )
         )
-    }
-
-    private fun accountTotalBalance(
-        balanceHashMap: HashMap<String, Balance>,
-        legacyXpub: String,
-        segwitXpub: String
-    ): Balance? {
-        var totalBalance: Balance? = null
-        if (balanceHashMap.containsKey(legacyXpub)) {
-            totalBalance = balanceHashMap[legacyXpub]
-        }
-        if (balanceHashMap.containsKey(segwitXpub)) {
-            if (totalBalance != null) {
-                totalBalance.finalBalance = totalBalance.finalBalance.add(balanceHashMap[segwitXpub]!!.finalBalance)
-                totalBalance.totalReceived = totalBalance.totalReceived.add(balanceHashMap[segwitXpub]!!.totalReceived)
-                totalBalance.txCount = totalBalance.txCount + balanceHashMap[segwitXpub]!!.txCount
-            } else {
-                totalBalance = balanceHashMap[segwitXpub]
-            }
-        }
-        return totalBalance
     }
 
     /**
@@ -652,7 +667,6 @@ class PayloadManager(
         limit: Int,
         offset: Int
     ): List<TransactionSummary> {
-
         return multiAddressFactory.getAccountTransactions(
             listOf(xpubs),
             null,
@@ -783,8 +797,9 @@ class PayloadManager(
         return hdAccount.receive
             .getAddressAt(
                 position,
-                if (derivationType === Derivation.LEGACY_TYPE)
-                    Derivation.LEGACY_PURPOSE else
+                if (derivationType === Derivation.LEGACY_TYPE) {
+                    Derivation.LEGACY_PURPOSE
+                } else
                     Derivation.SEGWIT_BECH32_PURPOSE
             ).formattedAddress
     }

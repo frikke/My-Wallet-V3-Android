@@ -87,7 +87,9 @@ class NotificationTokenManagerTest {
         whenever(payloadDataManager.sharedKey).thenReturn("sharedKey")
         whenever(
             notificationService.sendNotificationToken(
-                anyString(), anyString(), anyString()
+                anyString(),
+                anyString(),
+                anyString()
             )
         ).thenReturn(
             Completable.complete()
@@ -194,7 +196,6 @@ class NotificationTokenManagerTest {
 
     @Test
     fun removeNotificationToken_noPayload() {
-
         whenever(prefs.firebaseToken).thenReturn("1234")
         whenever(notificationTokenProvider.deleteToken()).thenReturn(Completable.complete())
         whenever(notificationService.removeNotificationToken(GUID, SHARED_KEY))

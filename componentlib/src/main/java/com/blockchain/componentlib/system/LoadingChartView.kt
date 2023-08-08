@@ -33,8 +33,7 @@ class LoadingChartView @JvmOverloads constructor(
         AppTheme {
             AppSurface {
                 LoadingChart(
-                    historicalRates = historicalRates,
-                    loadingText = loadingText
+                    historicalRates = historicalRates
                 )
             }
         }

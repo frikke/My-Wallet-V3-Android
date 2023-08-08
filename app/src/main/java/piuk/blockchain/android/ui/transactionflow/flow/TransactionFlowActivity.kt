@@ -14,19 +14,23 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
+import com.blockchain.commonarch.presentation.base.addTransactionAnimation
 import com.blockchain.commonarch.presentation.mvi.MviActivity
-import com.blockchain.componentlib.alert.BlockchainSnackbar
-import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.tablerow.custom.StackedIcon
+import com.blockchain.componentlib.utils.openUrl
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.earn.activeRewards.ActiveRewardsWithdrawalWarningSheet
+import com.blockchain.fiatActions.QuestionnaireSheetHost
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.outcome.doOnSuccess
@@ -37,16 +41,15 @@ import com.blockchain.presentation.extensions.getTarget
 import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.extensions.putTarget
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.presentation.openUrl
+import com.blockchain.transactions.NewTransactionFlowActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.isLayer2Token
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
@@ -54,6 +57,7 @@ import piuk.blockchain.android.ui.customviews.BlockedDueToNotEligibleSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -69,9 +73,10 @@ import timber.log.Timber
 class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>(),
     SlidingModalBottomDialog.Host,
-    QuestionnaireSheet.Host,
+    QuestionnaireSheetHost,
     KycUpgradeNowSheet.Host,
-    StakingAccountWithdrawWarning.Host {
+    StakingAccountWithdrawWarning.Host,
+    ActiveRewardsWithdrawalWarningSheet.Host {
 
     private val scopeId: String by lazy {
         "${TX_SCOPE_ID}_${this@TransactionFlowActivity.hashCode()}"
@@ -97,12 +102,17 @@ class TransactionFlowActivity :
     private val dataRemediationService: DataRemediationService by scopedInject()
     private val fraudService: FraudService by inject()
     private lateinit var startingIntent: TransactionIntent
+    private val assetCatalogue: AssetCatalogue by inject()
 
     private val sourceAccount: SingleAccount by lazy {
         intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
             remoteLogger.logException(IllegalStateException(), "No source account specified for action $action")
             NullCryptoAccount()
         }
+    }
+
+    private val origin: String by lazy {
+        intent.extras?.getString(ORIGIN).orEmpty()
     }
 
     private val transactionTarget: TransactionTarget by lazy {
@@ -126,15 +136,16 @@ class TransactionFlowActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
 
         setupBackPress()
+
+        updateToolbarBackground(mutedBackground = true)
 
         updateToolbar(
             menuItems = listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_close,
-                    contentDescription = R.string.accessibility_close
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_close
                 ) { finish() }
             ),
             backAction = {
@@ -142,6 +153,26 @@ class TransactionFlowActivity :
                 onBackPressedAnalytics(state)
             }
         )
+
+        // header icon
+        sourceAccount.takeIf { it !is NullCryptoAccount }?.let {
+            val l2Network = (sourceAccount as? CryptoNonCustodialAccount)?.currency
+                ?.takeIf { it.isLayer2Token }
+                ?.coinNetwork
+
+            val mainIcon = ImageResource.Remote(sourceAccount.currency.logo)
+            val tagIcon = l2Network?.nativeAssetTicker
+                ?.let { assetCatalogue.fromNetworkTicker(it)?.logo }
+                ?.let { ImageResource.Remote(it) }
+            val icon = tagIcon?.let {
+                StackedIcon.SmallTag(
+                    main = mainIcon,
+                    tag = tagIcon
+                )
+            } ?: StackedIcon.SingleIcon(mainIcon)
+            updateToolbarIcon(icon)
+        }
+
         binding.txProgress.visible()
         startModel()
     }
@@ -166,26 +197,15 @@ class TransactionFlowActivity :
         val intentMapper = TransactionFlowIntentMapper(
             sourceAccount = sourceAccount,
             target = transactionTarget,
+            origin = origin,
             action = action
         )
 
-        model.process(TransactionIntent.GetNetworkName(sourceAccount))
-        compositeDisposable += sourceAccount.requireSecondPassword()
-            .map { intentMapper.map(it) }
-            .subscribeBy(
-                onSuccess = { transactionIntent ->
-                    startingIntent = transactionIntent
-                    model.process(transactionIntent)
-                },
-                onError = {
-                    Timber.e("Unable to configure transaction flow, aborting. e == $it")
-                    BlockchainSnackbar.make(
-                        binding.root, getString(R.string.common_error), type = SnackbarType.Error
-                    ).show()
-                    finish()
-                }
-            )
+        val transactionIntent = intentMapper.map(sourceAccount.requireSecondPassword())
+        startingIntent = transactionIntent
+        model.process(transactionIntent)
 
+        // TODO(aromano): SWAP SELL keep this in
         if (action == AssetAction.Swap || action == AssetAction.Sell) {
             lifecycleScope.launchWhenResumed {
                 dataRemediationService.getQuestionnaire(QuestionnaireContext.TRADING)
@@ -212,6 +232,7 @@ class TransactionFlowActivity :
             TransactionStep.ZERO -> {
                 // do nothing
             }
+
             TransactionStep.CLOSED -> dismissFlow()
             else -> analyticsHooks.onStepChanged(state)
         }
@@ -238,10 +259,12 @@ class TransactionFlowActivity :
                 navigateOnBackPressed { finish() }
                 true
             }
+
             R.id.action_close -> {
                 dismissFlow()
                 true
             }
+
             else -> {
                 super.onOptionsItemSelected(item)
             }
@@ -262,15 +285,18 @@ class TransactionFlowActivity :
                     model.process(TransactionIntent.ClearSelectedTarget)
                     model.process(TransactionIntent.ReturnToPreviousStep)
                 }
+
                 BackNavigationState.ResetPendingTransaction -> {
                     hideKeyboard()
                     model.process(TransactionIntent.InvalidateTransaction)
                 }
+
                 BackNavigationState.ResetPendingTransactionKeepingTarget -> {
                     hideKeyboard()
                     binding.txProgress.visible()
                     model.process(TransactionIntent.InvalidateTransactionKeepingTarget)
                 }
+
                 BackNavigationState.NavigateToPreviousScreen -> model.process(TransactionIntent.ReturnToPreviousStep)
             }
         } else {
@@ -282,18 +308,26 @@ class TransactionFlowActivity :
         when (step) {
             TransactionStep.ZERO,
             TransactionStep.CLOSED -> null
+
             TransactionStep.FEATURE_BLOCKED -> when (featureBlockedReason) {
                 is BlockedReason.Sanctions -> BlockedDueToSanctionsSheet.newInstance(featureBlockedReason)
                 is BlockedReason.NotEligible -> BlockedDueToNotEligibleSheet.newInstance(featureBlockedReason)
                 is BlockedReason.TooManyInFlightTransactions,
                 is BlockedReason.InsufficientTier -> KycUpgradeNowSheet.newInstance()
+
                 is BlockedReason.ShouldAcknowledgeStakingWithdrawal -> StakingAccountWithdrawWarning.newInstance(
-                    featureBlockedReason.assetIconUrl
+                    featureBlockedReason.assetIconUrl,
+                    featureBlockedReason.unbondingDays
                 )
+
+                is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning ->
+                    ActiveRewardsWithdrawalWarningSheet.newInstance()
+
                 null -> throw IllegalStateException(
                     "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"
                 )
             }
+
             TransactionStep.ENTER_PASSWORD -> EnterSecondPasswordFragment.newInstance()
             TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance(assetAction)
             TransactionStep.ENTER_ADDRESS -> EnterTargetAddressFragment.newInstance()
@@ -301,6 +335,7 @@ class TransactionFlowActivity :
                 checkRemainingSendAttemptsWithoutBackup()
                 EnterAmountFragment.newInstance(assetAction)
             }
+
             TransactionStep.SELECT_TARGET_ACCOUNT -> SelectTargetAccountFragment.newInstance()
             TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionFragment.newInstance(assetAction)
             TransactionStep.IN_PROGRESS -> TransactionProgressFragment.newInstance()
@@ -311,7 +346,7 @@ class TransactionFlowActivity :
                 showBottomSheet(it)
             } else {
                 val transaction = supportFragmentManager.beginTransaction()
-                    .addAnimationTransaction()
+                    .addTransactionAnimation()
                     .replace(R.id.tx_flow_content, it, it.toString())
 
                 if (!supportFragmentManager.fragments.contains(it)) {
@@ -362,11 +397,11 @@ class TransactionFlowActivity :
 
     override fun startKycClicked() {
         val campaign = when (action) {
-            AssetAction.Swap -> CampaignType.Swap
-            AssetAction.Buy -> CampaignType.SimpleBuy
-            AssetAction.InterestDeposit -> CampaignType.Interest
-            AssetAction.InterestWithdraw -> CampaignType.Interest
-            else -> CampaignType.None
+            AssetAction.Swap -> KycEntryPoint.Swap
+            AssetAction.Buy -> KycEntryPoint.Buy
+            AssetAction.InterestDeposit -> KycEntryPoint.Interest
+            AssetAction.InterestWithdraw -> KycEntryPoint.Interest
+            else -> KycEntryPoint.Other
         }
         startKycForResult.launch(KycNavHostActivity.newIntent(this, campaign))
     }
@@ -395,27 +430,43 @@ class TransactionFlowActivity :
         // no op
     }
 
+    override fun openExternalUrl(url: String) {
+        openUrl(url)
+    }
+
     companion object {
         private const val SOURCE = "SOURCE_ACCOUNT"
         private const val TARGET = "TARGET_ACCOUNT"
         private const val ACTION = "ASSET_ACTION"
+        private const val ORIGIN = "ORIGIN"
         private const val TX_SCOPE_ID = "TRANSACTION_ACTIVITY_SCOPE_ID"
 
         fun newIntent(
             context: Context,
-            sourceAccount: BlockchainAccount = NullCryptoAccount(),
-            target: TransactionTarget = NullCryptoAccount(),
-            action: AssetAction
+            sourceAccount: BlockchainAccount? = NullCryptoAccount(),
+            target: TransactionTarget? = NullCryptoAccount(),
+            action: AssetAction,
+            origin: String = ""
         ): Intent {
             val bundle = Bundle().apply {
-                putAccount(SOURCE, sourceAccount)
-                putTarget(TARGET, target)
+                putAccount(SOURCE, sourceAccount ?: NullCryptoAccount())
+                putTarget(TARGET, target ?: NullCryptoAccount())
                 putSerializable(ACTION, action)
+                putString(ORIGIN, origin)
             }
 
-            return Intent(context, TransactionFlowActivity::class.java).apply {
+            val activityClass = if (shouldUseNewFlow(action)) {
+                NewTransactionFlowActivity::class.java
+            } else {
+                TransactionFlowActivity::class.java
+            }
+
+            return Intent(context, activityClass).apply {
                 putExtras(bundle)
             }
         }
+
+        private fun shouldUseNewFlow(action: AssetAction): Boolean =
+            action in listOf(AssetAction.Swap, AssetAction.Sell)
     }
 }

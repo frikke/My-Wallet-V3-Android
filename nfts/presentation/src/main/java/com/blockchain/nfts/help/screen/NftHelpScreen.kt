@@ -26,11 +26,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.sheets.SheetNub
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.nfts.R
 
 @Composable
@@ -38,6 +38,7 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(AppTheme.colors.background)
     ) {
         Box(
             modifier = Modifier
@@ -53,27 +54,26 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
                 .padding(
                     start = AppTheme.dimensions.smallSpacing,
                     top = AppTheme.dimensions.verySmallSpacing,
-                    end = AppTheme.dimensions.smallSpacing,
-                    bottom = AppTheme.dimensions.standardSpacing
+                    end = AppTheme.dimensions.smallSpacing
                 )
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.nft_help_title),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_help_title),
                 style = AppTheme.typography.title3,
                 color = AppTheme.colors.title
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
 
-            Image(ImageResource.Local(R.drawable.ic_nft_help))
+            Image(imageResource = ImageResource.Local(R.drawable.ic_nft_help))
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             Text(
-                text = stringResource(R.string.nft_help_buy_title),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_help_buy_title),
                 style = AppTheme.typography.title2,
                 color = AppTheme.colors.title
             )
@@ -81,20 +81,18 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
             Text(
-                text = stringResource(R.string.nft_help_buy_description),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_help_buy_description),
                 style = AppTheme.typography.paragraph1,
-                color = Grey700
+                color = AppColors.body
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
-            MinimalButton(
+            MinimalPrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.nft_help_buy_cta_opensea),
-                icon = ImageResource.Local(
-                    id = R.drawable.ic_opensea,
-                    size = AppTheme.dimensions.standardSpacing
-                ),
+                text = stringResource(com.blockchain.stringResources.R.string.nft_help_buy_cta_opensea),
+                icon = ImageResource.Local(R.drawable.ic_opensea),
+                iconColor = ButtonIconColor.Ignore,
                 onClick = onBuyClick
             )
 
@@ -107,26 +105,27 @@ fun NftHelpScreen(onBuyClick: () -> Unit) {
 
 @Composable
 fun Instructions() {
+    @Suppress("RememberReturnType")
     val instructions = remember {
         listOf(
             Instruction(
-                title = R.string.nft_help_instructions_1_title
+                title = com.blockchain.stringResources.R.string.nft_help_instructions_1_title
             ),
             Instruction(
-                title = R.string.nft_help_instructions_2_title
+                title = com.blockchain.stringResources.R.string.nft_help_instructions_2_title
             ),
             Instruction(
-                title = R.string.nft_help_instructions_3_title,
-                description = R.string.nft_help_instructions_3_description
+                title = com.blockchain.stringResources.R.string.nft_help_instructions_3_title,
+                description = com.blockchain.stringResources.R.string.nft_help_instructions_3_description
             ),
             Instruction(
-                title = R.string.nft_help_instructions_4_title,
-                description = R.string.nft_help_instructions_4_description
+                title = com.blockchain.stringResources.R.string.nft_help_instructions_4_title,
+                description = com.blockchain.stringResources.R.string.nft_help_instructions_4_description
             ),
             Instruction(
-                title = R.string.nft_help_instructions_5_title,
-                description = R.string.nft_help_instructions_5_description
-            ),
+                title = com.blockchain.stringResources.R.string.nft_help_instructions_5_title,
+                description = com.blockchain.stringResources.R.string.nft_help_instructions_5_description
+            )
         )
     }
 
@@ -141,7 +140,7 @@ fun Instructions() {
     ) {
         Text(
             modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
-            text = stringResource(R.string.nft_help_instructions),
+            text = stringResource(com.blockchain.stringResources.R.string.nft_help_instructions),
             style = AppTheme.typography.paragraph2,
             color = AppTheme.colors.title
         )
@@ -179,7 +178,7 @@ fun InstructionItem(
                 .clip(CircleShape)
                 .background(AppTheme.colors.light),
             style = AppTheme.typography.body2,
-            color = Grey400,
+            color = AppColors.muted,
             text = number.toString(),
             textAlign = TextAlign.Center
         )
@@ -199,7 +198,7 @@ fun InstructionItem(
                 Text(
                     text = description,
                     style = AppTheme.typography.paragraph1,
-                    color = Grey700
+                    color = AppColors.body
                 )
             }
         }

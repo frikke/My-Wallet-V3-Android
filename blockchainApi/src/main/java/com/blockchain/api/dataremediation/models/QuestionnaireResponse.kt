@@ -23,7 +23,7 @@ data class QuestionnaireNodeResponse(
     val text: String,
     val children: List<QuestionnaireNodeResponse>?,
 
-    /* node type specific fields */
+    // node type specific fields
     // SINGLE_SELECTION and MULTIPLE_SELECTION
     val instructions: String?, // present in SINGLE_SELECTION and MULTIPLE_SELECTION
     val isDropdown: Boolean?, // present in SINGLE_SELECTION and MULTIPLE_SELECTION
@@ -34,5 +34,5 @@ data class QuestionnaireNodeResponse(
     val regex: String?,
 
     // SELECTION
-    val checked: Boolean?,
+    val checked: Boolean?
 )

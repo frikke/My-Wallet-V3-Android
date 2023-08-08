@@ -10,6 +10,7 @@ val coinviewPresentationModule = module {
             CoinviewViewModel(
                 walletModeService = get(),
                 coincore = get(),
+                assetCatalogue = get(),
                 currencyPrefs = get(),
                 labels = get(),
                 getAssetPriceUseCase = get(),
@@ -19,7 +20,10 @@ val coinviewPresentationModule = module {
                 loadAssetRecurringBuysUseCase = get(),
                 loadQuickActionsUseCase = get(),
                 assetService = get(),
-                custodialWalletManager = get()
+                custodialWalletManager = get(),
+                recurringBuyService = get(),
+                newsService = get(),
+                kycService = get()
             )
         }
     }

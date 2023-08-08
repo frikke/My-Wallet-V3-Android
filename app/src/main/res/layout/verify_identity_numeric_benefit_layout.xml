@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/backgroundSecondary"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -14,7 +15,7 @@
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="@dimen/standard_spacing"
         android:background="@drawable/bkgd_tx_circle"
-        android:backgroundTint="@color/blue_000"
+        android:backgroundTint="@color/background"
         android:gravity="center"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -27,6 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_spacing"
         android:layout_marginEnd="24dp"
+        android:textColor="@color/title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/benefit_index"
@@ -41,6 +43,7 @@
         android:layout_marginStart="@dimen/small_spacing"
         android:layout_marginTop="@dimen/smallest_spacing"
         android:layout_marginEnd="24dp"
+        android:textColor="@color/body"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/benefit_index"
         app:layout_constraintTop_toBottomOf="@id/benefit_title"

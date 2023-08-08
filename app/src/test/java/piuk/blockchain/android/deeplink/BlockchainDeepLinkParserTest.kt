@@ -1,14 +1,17 @@
 package piuk.blockchain.android.deeplink
 
 import android.net.Uri
+import com.blockchain.deeplinking.processor.BlockchainLinkState
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import piuk.blockchain.android.BlockchainTestApplication
+import piuk.blockchain.android.FakeCoreClient
+import piuk.blockchain.android.FakeWeb3Wallet
 
-@Config(sdk = [24], application = BlockchainTestApplication::class)
+@Config(sdk = [26], application = BlockchainTestApplication::class, shadows = [FakeCoreClient::class, FakeWeb3Wallet::class])
 @RunWith(RobolectricTestRunner::class)
 class BlockchainDeepLinkParserTest {
     private val subject = BlockchainDeepLinkParser()

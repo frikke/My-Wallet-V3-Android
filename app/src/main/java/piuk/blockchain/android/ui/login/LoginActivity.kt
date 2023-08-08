@@ -6,13 +6,18 @@ import android.text.Editable
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.activity.addCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.QrCode
+import com.blockchain.componentlib.navigation.ModeBackgroundColor
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
@@ -20,6 +25,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.home.presentation.navigation.QrExpected
 import com.blockchain.presentation.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -39,10 +45,10 @@ import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedViewModel
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
-import piuk.blockchain.android.ui.home.MainActivity
-import piuk.blockchain.android.ui.launcher.LauncherActivityV2
+import piuk.blockchain.android.ui.home.HomeActivityLauncher
+import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
-import piuk.blockchain.android.ui.scan.QrExpected
+import piuk.blockchain.android.ui.login.auth.LoginAuthActivity.Companion.RESULT_BACK_FROM_RECOVERY
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
@@ -71,6 +77,14 @@ class LoginActivity :
 
     private val recaptchaClient: GoogleReCaptchaClient by lazy {
         GoogleReCaptchaClient(this, environmentConfig)
+    }
+
+    private val loginAuthResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == RESULT_BACK_FROM_RECOVERY) {
+            model.process(LoginIntents.RevertToEmailInput)
+        }
     }
 
     private var state: LoginState? = null
@@ -108,32 +122,36 @@ class LoginActivity :
                 })
 
                 setOnEditorActionListener { _, actionId, _ ->
-                    if (actionId == EditorInfo.IME_ACTION_GO && continueButton.isEnabled) {
+                    if (actionId == EditorInfo.IME_ACTION_GO && continueButton.buttonState == ButtonState.Enabled) {
                         onContinueButtonClicked()
                     }
                     true
                 }
             }
-            continueButton.setOnClickListener {
-                onContinueButtonClicked()
+            continueButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_continue)
+                onClick = { onContinueButtonClicked() }
             }
 
-            continueWithGoogleButton.setOnClickListener {
-                analytics.logEvent(LoginAnalytics.LoginWithGoogleMethodSelected)
-                startActivityForResult(googleSignInClient.signInIntent, RC_SIGN_IN)
-            }
             if (environmentConfig.isRunningInDebugMode()) {
-                scanPairingButton.setOnClickListener {
-                    QrScanActivity.start(this@LoginActivity, QrExpected.WEB_LOGIN_QR)
-                }
-                scanPairingButton.visibleIf {
-                    environmentConfig.environment != Environment.PRODUCTION
+                scanPairingButton.apply {
+                    text = getString(com.blockchain.stringResources.R.string.btn_scan_pairing_code)
+                    icon = Icons.QrCode
+                    onClick = {
+                        startActivityForResult(
+                            QrScanActivity.newInstance(this@LoginActivity, QrExpected.WEB_LOGIN_QR),
+                            QrScanActivity.SCAN_URI_RESULT
+                        )
+                    }
+                    visibleIf {
+                        environmentConfig.environment != Environment.PRODUCTION
+                    }
                 }
                 manualPairingButton.apply {
-                    setOnClickListener {
+                    text = getString(com.blockchain.stringResources.R.string.btn_manual_pairing)
+                    onClick = {
                         startActivity(Intent(context, ManualPairingActivity::class.java))
                     }
-                    isEnabled = true
                     visible()
                 }
             }
@@ -187,8 +205,10 @@ class LoginActivity :
     override fun initBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
 
     private fun setupToolbar() {
+        updateToolbarBackground(modeColor = ModeBackgroundColor.None, mutedBackground = true)
+
         updateToolbar(
-            toolbarTitle = getString(R.string.login_title),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.login_title),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
 
@@ -196,7 +216,7 @@ class LoginActivity :
             listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_question,
-                    contentDescription = R.string.accessibility_support
+                    contentDescription = com.blockchain.stringResources.R.string.accessibility_support
                 ) {
                     analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
                     showCustomerSupportSheet()
@@ -216,11 +236,12 @@ class LoginActivity :
         when (newState.currentStep) {
             LoginStep.APP_MAINTENANCE -> navigateToAppMaintenance()
             LoginStep.SHOW_SCAN_ERROR -> {
-                showSnackbar(SnackbarType.Error, R.string.pairing_failed)
+                showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.pairing_failed)
                 if (newState.shouldRestartApp) {
                     restartToLauncherActivity()
                 }
             }
+
             LoginStep.ENTER_PIN -> {
                 showLoginApprovalStatePrompt(newState.loginApprovalState)
                 startActivity(
@@ -228,36 +249,53 @@ class LoginActivity :
                         context = this,
                         startForResult = false,
                         originScreen = PinActivity.Companion.OriginScreenToPin.LOGIN_SCREEN,
-                        addFlagsToClear = true,
+                        addFlagsToClear = true
                     )
                 )
             }
+
             LoginStep.VERIFY_DEVICE -> navigateToVerifyDevice(newState)
-            LoginStep.SHOW_SESSION_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_failed_session_id_error)
-            LoginStep.SHOW_EMAIL_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_send_email_error)
+            LoginStep.SHOW_SESSION_ERROR -> showSnackbar(
+                SnackbarType.Error,
+                com.blockchain.stringResources.R.string.login_failed_session_id_error
+            )
+
+            LoginStep.SHOW_EMAIL_ERROR -> showSnackbar(
+                SnackbarType.Error,
+                com.blockchain.stringResources.R.string.login_send_email_error
+            )
+
             LoginStep.NAVIGATE_FROM_DEEPLINK -> {
                 newState.intentUri?.let { uri ->
-                    startActivity(Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java))
+                    loginAuthResult.launch(
+                        Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java)
+                    )
                 }
             }
+
             LoginStep.NAVIGATE_FROM_PAYLOAD -> {
                 newState.payload?.let {
-                    startActivity(LoginAuthActivity.newInstance(this, it, newState.payloadBase64String))
-                    model.process(LoginIntents.ShowEmailSent)
+                    loginAuthResult.launch(
+                        LoginAuthActivity.newInstance(this, it, newState.payloadBase64String)
+                    )
                 }
             }
+
             LoginStep.NAVIGATE_TO_WALLET_CONNECT -> {
                 model.process(LoginIntents.ResetState)
                 navigateToMainWithWCLink(newState.walletConnectUrl)
             }
+
             LoginStep.UNKNOWN_ERROR -> {
                 model.process(LoginIntents.CheckShouldNavigateToOtherScreen)
-                showSnackbar(SnackbarType.Error, R.string.common_error)
+                showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.common_error)
             }
+
             LoginStep.MANUAL_PAIRING -> {
                 startActivity(ManualPairingActivity.newInstance(this, newState.guid))
                 finish()
             }
+
             LoginStep.POLLING_PAYLOAD_ERROR -> handlePollingError(newState.pollingState)
             LoginStep.ENTER_EMAIL -> returnToEmailInput()
             // TODO AND-5317 this should display a bottom sheet with info about what device we're authorising
@@ -269,6 +307,7 @@ class LoginActivity :
                 restartToLauncherActivity()
                 finish()
             }
+
             else -> {
                 // do nothing
             }
@@ -280,23 +319,33 @@ class LoginActivity :
             LoginApprovalState.NONE -> {
                 // do nothing
             }
-            LoginApprovalState.APPROVED -> showSnackbar(SnackbarType.Success, R.string.login_approved_toast)
-            LoginApprovalState.REJECTED -> showSnackbar(SnackbarType.Error, R.string.login_denied_toast)
+
+            LoginApprovalState.APPROVED -> showSnackbar(
+                SnackbarType.Success,
+                com.blockchain.stringResources.R.string.login_approved_toast
+            )
+
+            LoginApprovalState.REJECTED -> showSnackbar(
+                SnackbarType.Error,
+                com.blockchain.stringResources.R.string.login_denied_toast
+            )
         }
 
     private fun restartToLauncherActivity() {
         fraudService.endFlow(FraudFlow.LOGIN)
         startActivity(
-            Intent(this, LauncherActivityV2::class.java).apply {
+            Intent(this, LauncherActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         )
     }
 
+    private val homeActivityLauncher: HomeActivityLauncher by inject()
+
     private fun navigateToMainWithWCLink(url: String) {
         fraudService.endFlow(FraudFlow.LOGIN)
         startActivity(
-            MainActivity.newIntent(
+            homeActivityLauncher.newIntent(
                 context = application,
                 pendingDestination = Destination.WalletConnectDestination(url)
             ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -306,13 +355,13 @@ class LoginActivity :
     private fun showLoginApprovalDialog() {
         fraudService.endFlow(FraudFlow.LOGIN)
         AlertDialog.Builder(this)
-            .setTitle(R.string.login_approval_dialog_title)
-            .setMessage(R.string.login_approval_dialog_message)
-            .setPositiveButton(R.string.common_approve) { di, _ ->
+            .setTitle(com.blockchain.stringResources.R.string.login_approval_dialog_title)
+            .setMessage(com.blockchain.stringResources.R.string.login_approval_dialog_message)
+            .setPositiveButton(com.blockchain.stringResources.R.string.common_approve) { di, _ ->
                 model.process(LoginIntents.ApproveLoginRequest)
                 di.dismiss()
             }
-            .setNegativeButton(R.string.common_deny) { di, _ ->
+            .setNegativeButton(com.blockchain.stringResources.R.string.common_deny) { di, _ ->
                 model.process(LoginIntents.DenyLoginRequest)
                 di.dismiss()
             }
@@ -323,16 +372,19 @@ class LoginActivity :
     private fun handlePollingError(state: AuthPollingState) =
         when (state) {
             AuthPollingState.TIMEOUT -> {
-                showSnackbar(SnackbarType.Error, R.string.login_polling_timeout)
+                showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.login_polling_timeout)
                 returnToEmailInput()
             }
+
             AuthPollingState.ERROR -> {
                 // fail silently? - maybe log analytics
             }
+
             AuthPollingState.DENIED -> {
-                showSnackbar(SnackbarType.Error, R.string.login_polling_denied)
+                showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.login_polling_denied)
                 returnToEmailInput()
             }
+
             else -> {
                 // no error, do nothing
             }
@@ -357,10 +409,13 @@ class LoginActivity :
                 val task = GoogleSignIn.getSignedInAccountFromIntent(data)
                 task.result.email?.let { email ->
                     verifyReCaptcha(email)
-                } ?: showSnackbar(SnackbarType.Info, R.string.login_google_email_not_found)
+                } ?: showSnackbar(
+                    SnackbarType.Info,
+                    com.blockchain.stringResources.R.string.login_google_email_not_found
+                )
             } catch (apiException: ApiException) {
                 Timber.e(apiException)
-                showSnackbar(SnackbarType.Error, R.string.login_google_sign_in_failed)
+                showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.login_google_sign_in_failed)
             }
         }
     }
@@ -379,14 +434,19 @@ class LoginActivity :
     private fun updateUI(newState: LoginState) {
         with(binding) {
             progressBar.visibleIf { newState.isLoading }
-            // TODO enable Google auth once ready along with the OR label
             continueButton.visibleIf {
                 newState.isTypingEmail ||
                     newState.currentStep == LoginStep.SEND_EMAIL ||
                     newState.currentStep == LoginStep.VERIFY_DEVICE
             }
-            continueButton.isEnabled =
-                emailRegex.matches(newState.email) || (newState.isTypingEmail && emailRegex.matches(newState.email))
+
+            continueButton.buttonState =
+                if (emailRegex.matches(newState.email) || (
+                    newState.isTypingEmail && emailRegex.matches(
+                            newState.email
+                        )
+                    )
+                ) ButtonState.Enabled else ButtonState.Disabled
         }
     }
 
@@ -418,7 +478,8 @@ class LoginActivity :
                 .replace(
                     R.id.content_frame,
                     VerifyDeviceFragment.newInstance(
-                        newState.email, newState.captcha
+                        newState.email,
+                        newState.captcha
                     ),
                     VerifyDeviceFragment::class.simpleName
                 )
@@ -438,7 +499,7 @@ class LoginActivity :
                     response.tokenResult == NULL_STRING.uppercase()
                 ) {
                     analytics.logEvent(LoginAnalytics.LoginCaptchaTokenIncorrect)
-                    showSnackbar(SnackbarType.Error, R.string.common_error)
+                    showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.common_error)
                 } else {
                     analytics.logEvent(LoginAnalytics.LoginIdentifierEntered)
                     model.process(
@@ -449,7 +510,7 @@ class LoginActivity :
                     )
                 }
             },
-            onError = { showSnackbar(SnackbarType.Error, R.string.common_error) }
+            onError = { showSnackbar(SnackbarType.Error, com.blockchain.stringResources.R.string.common_error) }
         )
     }
 

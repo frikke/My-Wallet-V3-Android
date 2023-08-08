@@ -58,7 +58,9 @@ class AirdropStatusSerializationTest {
             val state: CampaignTransactionState
         )
 
-        CampaignTransactionState::class.sealedSubclasses.map { it.objectInstance as CampaignTransactionState }.forEach { state ->
+        CampaignTransactionState::class.sealedSubclasses.map {
+            it.objectInstance as CampaignTransactionState
+        }.forEach { state ->
             println("Checking serialization for: ${state.javaClass.name}")
             val jsonString = jsonBuilder.encodeToString(TestClass(state))
             val testObject = jsonBuilder.decodeFromString<TestClass>(jsonString)

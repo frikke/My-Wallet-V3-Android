@@ -6,4 +6,6 @@
     <color name="colorText">#FF000000</color>
     <color name="colorTextBackground">#FFFFFFFF</color>
     <color name="colorMarkerBackground">#B3FFFFFF</color>
+    <color name="colorPositive">#FF06D6A0</color>
+    <color name="colorNegative">#FFF00699</color>
 </resources>

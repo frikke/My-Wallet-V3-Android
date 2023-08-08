@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -12,14 +14,14 @@
         <TextView
             android:id="@+id/text_view_more_info_splash_title"
             android:layout_width="match_parent"
-            android:gravity="center"
-            android:textSize="16sp"
-            android:layout_marginTop="48dp"
-            android:layout_marginLeft="32dp"
-            android:layout_marginRight="32dp"
-            android:textColor="@color/kyc_splash_title_black"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="48dp"
+            android:layout_marginRight="32dp"
+            android:gravity="center"
             android:text="@string/kyc_more_info_splash_header"
+            android:textColor="@color/title"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -27,12 +29,13 @@
         <TextView
             android:id="@+id/text_view_more_info_splash_subtitle"
             style="@style/KycFlowMessage"
-            android:gravity="center"
-            android:layout_marginLeft="32dp"
-            android:layout_marginRight="32dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp"
+            android:gravity="center"
             android:text="@string/kyc_more_info_splash_subtitle"
+            android:textColor="@color/body"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_view_more_info_splash_title" />
@@ -49,15 +52,14 @@
             app:layout_constraintTop_toBottomOf="@+id/text_view_more_info_splash_subtitle"
             app:srcCompat="@drawable/vector_identity" />
 
-        <Button
+        <com.blockchain.componentlib.button.PrimaryButtonView
             android:id="@+id/button_kyc_more_info_splash_next"
-            style="@style/CtaButton.Blue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginHorizontal="@dimen/small_spacing"
             android:layout_marginTop="48dp"
             android:layout_marginBottom="32dp"
-            android:text="@string/kyc_profile_next"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

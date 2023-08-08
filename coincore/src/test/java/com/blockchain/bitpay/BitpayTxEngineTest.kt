@@ -420,11 +420,10 @@ class BitpayTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balanceRx }.thenReturn(
+        on { balanceRx() }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
-                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = Money.zero(totalBalance.currency),
                     exchangeRate = ExchangeRate.identityExchangeRate(totalBalance.currency)

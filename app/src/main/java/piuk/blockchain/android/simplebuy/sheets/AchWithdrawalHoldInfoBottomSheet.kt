@@ -18,11 +18,10 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.launchUrlInBrowser
 
@@ -51,39 +50,37 @@ fun AchWithdrawalHoldInfoSheet(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = AppTheme.colors.light,
+                color = AppTheme.colors.background,
                 shape = RoundedCornerShape(
-                    dimensionResource(id = R.dimen.tiny_spacing)
+                    dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                 )
             ),
         horizontalAlignment = Alignment.Start
     ) {
-
         SheetHeader(
-            title = stringResource(id = R.string.withdrawal_holds),
+            title = stringResource(id = com.blockchain.stringResources.R.string.withdrawal_holds),
             onClosePress = onCloseClick,
-            shouldShowDivider = false
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
 
         SimpleText(
             modifier = Modifier
                 .padding(horizontal = AppTheme.dimensions.standardSpacing),
-            text = stringResource(R.string.deposit_terms_withdrawal_hold_info),
+            text = stringResource(com.blockchain.stringResources.R.string.deposit_terms_withdrawal_hold_info),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Start
         )
 
-        SmallMinimalButton(
+        MinimalPrimarySmallButton(
             modifier = Modifier
                 .padding(
                     horizontal = AppTheme.dimensions.standardSpacing,
                     vertical = AppTheme.dimensions.standardSpacing
                 ),
             onClick = onLearnMoreClick,
-            text = stringResource(id = R.string.common_learn_more)
+            text = stringResource(id = com.blockchain.stringResources.R.string.common_learn_more)
         )
     }
 }

@@ -2,13 +2,16 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.coincore.fiat.isOpenBankingCurrency
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.recurringbuy.domain.model.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
+import com.blockchain.domain.common.model.Millis
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.DepositTerms
@@ -19,9 +22,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.utils.unsafeLazy
@@ -35,7 +35,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
-import java.time.ZonedDateTime
 import kotlin.math.floor
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Transient
@@ -66,22 +65,23 @@ data class SimpleBuyState constructor(
     val paymentSucceeded: Boolean = false,
     val withdrawalLockPeriod: @Contextual BigInteger = BigInteger.ZERO,
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
-    val recurringBuyForExperiment: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
+    val suggestedRecurringBuyExperiment: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
     val recurringBuyId: String? = null,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
-    val showRecurringBuyFirstTimeFlow: Boolean = false,
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
     val isRecurringBuyToggled: Boolean = false,
     val googlePayDetails: GooglePayDetails? = null,
     val featureFlagSet: FeatureFlagsSet = FeatureFlagsSet(),
     val quotePrice: QuotePrice? = null,
+    val hasSeenRecurringBuyOptions: Boolean = true,
+    @Transient val shouldUpsellAnotherAsset: Boolean = false,
     @Transient val quickFillButtonData: QuickFillButtonData? = null,
     @Transient val safeConnectTosLink: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
     @Transient val buyErrorState: ErrorState? = null,
+    @Transient val quoteError: Exception? = null,
     @Transient override val fiatRate: ExchangeRate? = null,
-    @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
     @Transient val isLoading: Boolean = false,
     @Transient val cardAcquirerCredentials: CardAcquirerCredentials? = null,
     @Transient val authorisePaymentUrl: String? = null,
@@ -96,8 +96,13 @@ data class SimpleBuyState constructor(
     @Transient val confirmationActionRequested: Boolean = false,
     @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null,
     @Transient val showAppRating: Boolean = false,
-    @Transient val sideEventsChecked: Boolean = false,
-    @Transient val hasAmountComeFromDeeplink: Boolean = false
+    @Transient val orderFinishedSuccessfullyHandled: Boolean = false,
+    @Transient val hasHandled3ds: Boolean = false,
+    @Transient val openCvvInput: Boolean = false,
+    @Transient val hasHandledCvv: Boolean = false,
+    @Transient val securityCodePaymentId: String? = null,
+    @Transient val hasAmountComeFromDeeplink: Boolean = false,
+    @Transient val promptRecurringBuyIntervals: Boolean = false
 ) : MviState, TransactionFlowStateInfo {
 
     val order: SimpleBuyOrder by unsafeLazy {
@@ -166,7 +171,7 @@ data class SimpleBuyState constructor(
 
     override val sourceAccountType: AssetCategory
         get() = if (selectedPaymentMethod?.paymentMethodType == PaymentMethodType.FUNDS) {
-            AssetCategory.CUSTODIAL
+            AssetCategory.TRADING
         } else {
             AssetCategory.NON_CUSTODIAL
         }
@@ -232,7 +237,6 @@ data class QuotePrice(
 data class FeatureFlagsSet(
     val buyQuoteRefreshFF: Boolean = false,
     val plaidFF: Boolean = false,
-    val rbFrequencySuggestionFF: Boolean = false,
     val rbExperimentFF: Boolean = false,
     val feynmanEnterAmountFF: Boolean = false,
     val feynmanCheckoutFF: Boolean = false,
@@ -292,11 +296,11 @@ sealed class ErrorState : Serializable {
 
 data class SimpleBuyOrder(
     val orderState: OrderState = OrderState.UNINITIALISED,
-    val amount: FiatValue? = null,
+    val amount: FiatValue? = null
 )
 
 data class PaymentOptions(
-    val availablePaymentMethods: List<PaymentMethod> = emptyList(),
+    val availablePaymentMethods: List<PaymentMethod> = emptyList()
 )
 
 @kotlinx.serialization.Serializable
@@ -307,8 +311,8 @@ data class BuyQuote(
     val settlementReason: SettlementReason? = null,
     val quoteMargin: Double? = null,
     val feeDetails: BuyFees,
-    val createdAt: @Contextual ZonedDateTime,
-    val expiresAt: @Contextual ZonedDateTime,
+    val createdAt: Millis,
+    val expiresAt: Millis,
     val remainingTime: Long,
     val chunksTimeCounter: MutableList<Int> = mutableListOf(),
     val depositTerms: DepositTerms?
@@ -321,7 +325,7 @@ data class BuyQuote(
             BuyQuote(
                 id = brokerageQuote.id,
                 // we should pass the fiat to the state, otherwise Money interface wont get serialised.
-                price = brokerageQuote.price.toFiat(fiatCurrency),
+                price = brokerageQuote.sourceToDestinationRate.price.toFiat(fiatCurrency),
                 availability = brokerageQuote.availability,
                 settlementReason = brokerageQuote.settlementReason,
                 quoteMargin = brokerageQuote.quoteMargin,
@@ -341,7 +345,7 @@ data class BuyQuote(
             BuyQuote(
                 id = brokerageQuote.id,
                 // we should pass the fiat to the state, otherwise Money interface wont get serialised.
-                price = brokerageQuote.price.toFiat(fiatCurrency),
+                price = brokerageQuote.sourceToDestinationRate.price.toFiat(fiatCurrency),
                 availability = brokerageQuote.availability,
                 settlementReason = brokerageQuote.settlementReason,
                 quoteMargin = brokerageQuote.quoteMargin,
@@ -392,7 +396,7 @@ data class BuyQuote(
 data class BuyFees(
     val feeBeforePromo: FiatValue,
     val fee: FiatValue,
-    val promo: Promo,
+    val promo: Promo
 )
 
 @kotlinx.serialization.Serializable
@@ -401,7 +405,7 @@ data class SelectedPaymentMethod(
     val partner: Partner? = null,
     val label: String? = "",
     val paymentMethodType: PaymentMethodType,
-    val isEligible: Boolean,
+    val isEligible: Boolean
 ) {
     fun isCard() = paymentMethodType == PaymentMethodType.PAYMENT_CARD
     fun isBank() = paymentMethodType == PaymentMethodType.BANK_TRANSFER

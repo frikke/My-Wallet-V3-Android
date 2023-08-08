@@ -1,40 +1,39 @@
 package com.blockchain.koin.modules
 
+import com.blockchain.core.featureflag.CassyAlphaTesterUserTagFeatureFlag
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import com.blockchain.koin.assetOrderingFeatureFlag
-import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
-import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.blockchainMembershipsFeatureFlag
+import com.blockchain.koin.buyIntercomBotFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
-import com.blockchain.koin.coinNetworksFeatureFlag
-import com.blockchain.koin.cowboysPromoFeatureFlag
+import com.blockchain.koin.darkModeFeatureFlag
+import com.blockchain.koin.dexFeatureFlag
+import com.blockchain.koin.dynamicEthHotWalletAddressFeatureFlag
 import com.blockchain.koin.earnTabFeatureFlag
-import com.blockchain.koin.ethLayerTwoFeatureFlag
-import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
 import com.blockchain.koin.exchangeWAPromptFeatureFlag
 import com.blockchain.koin.feynmanCheckoutFeatureFlag
 import com.blockchain.koin.feynmanEnterAmountFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.googleWalletFeatureFlag
-import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
+import com.blockchain.koin.iterableAnnouncementsFeatureFlag
 import com.blockchain.koin.paymentUxAssetDisplayBalanceFeatureFlag
 import com.blockchain.koin.paymentUxTotalDisplayBalanceFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.proveFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
-import com.blockchain.koin.rbFrequencyFeatureFlag
-import com.blockchain.koin.sardineFeatureFlag
-import com.blockchain.koin.sessionIdFeatureFlag
-import com.blockchain.koin.stakingAccountFeatureFlag
-import com.blockchain.koin.stxForAllFeatureFlag
-import com.blockchain.koin.superAppFeatureFlag
-import com.blockchain.koin.superappRedesignFeatureFlag
-import com.blockchain.koin.unifiedBalancesFlag
+import com.blockchain.koin.sellSwapBrokerageQuoteFeatureFlag
+import com.blockchain.koin.stakingWithdrawalsFeatureFlag
+import com.blockchain.koin.topMoversInBuy
+import com.blockchain.koin.vgsFeatureFlag
+import com.blockchain.koin.walletConnectV1FeatureFlag
+import com.blockchain.koin.walletConnectV2FeatureFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -47,15 +46,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_gpay",
                 "Google Pay"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(blockchainCardFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_blockchain_card",
-                "Blockchain Card"
             )
         )
     }.bind(FeatureFlag::class)
@@ -78,74 +68,11 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(superAppFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_new_super_app",
-                "Super App mode"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(ethLayerTwoFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_eth_layer_two_networks",
-                "Enable Eth L2 Networks"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(coinNetworksFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_coin_networks",
-                "Enable Coin Networks"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(evmWithoutL1BalanceFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_balance_without_l1",
-                "Load Balances Without L1 Balance"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(backupPhraseFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_backup_phrase",
-                "Backup Phrase Flow"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(stxForAllFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_stx_all_users",
-                "Enable Stacks"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(plaidFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_plaid",
                 "Enable Plaid For ACH Users"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(unifiedBalancesFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_unified_balances_ff",
-                "Enable Balances from unified balances endpoint"
             )
         )
     }.bind(FeatureFlag::class)
@@ -159,6 +86,24 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
+    single(dexFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_dex",
+                "Dex"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(proveFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_provedotcom",
+                "Prove.com"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
     single(assetOrderingFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
@@ -168,29 +113,24 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(cowboysPromoFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_cowboys_promo",
-                "Enable Cowboys promotion"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(cardPaymentAsyncFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "ff_card_payment_async",
-                "Enable Async Card Payment"
+        CassyAlphaTesterUserTagFeatureFlag(
+            IntegratedFeatureFlag(
+                remoteFlag = get<RemoteConfigService>().featureFlag(
+                    "ff_card_payment_async",
+                    "Enable Async Card Payment"
+                )
             )
         )
     }.bind(FeatureFlag::class)
 
-    single(rbFrequencyFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_rb_frequency_suggestion",
-                "Enable Recurring Buy suggestion"
+    single(vgsFeatureFlag) {
+        CassyAlphaTesterUserTagFeatureFlag(
+            IntegratedFeatureFlag(
+                remoteFlag = get<RemoteConfigService>().featureFlag(
+                    "android_ff_vgs",
+                    "Enable VGS"
+                )
             )
         )
     }.bind(FeatureFlag::class)
@@ -222,42 +162,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(superappRedesignFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_superapp_redesign",
-                "Enable SuperApp Redesign"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(sessionIdFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "ff_x_session_id",
-                "Send X-Session-ID Header"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(sardineFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "ff_sardine",
-                "Enable Sardine"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(stakingAccountFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_staking_account",
-                "Enable Staking Account & New Coinview"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(paymentUxTotalDisplayBalanceFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
@@ -272,15 +176,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_payment_ux_asset_display_balance",
                 "Enable Payment UX Dashboard Asset display balance"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(hideDustFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfigService>().featureFlag(
-                "android_ff_hide_dust",
-                "Enable Hiding Dust"
             )
         )
     }.bind(FeatureFlag::class)
@@ -326,6 +221,96 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "exchange_wa_prompt",
                 "Exchange WA prompt"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(sellSwapBrokerageQuoteFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_sell_swap_brokerage_quote",
+                "Sell/Swap Brokerage Quote"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(activeRewardsWithdrawalsFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_active_rewards_withdrawals",
+                "Active Rewards Withdrawals"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(stakingWithdrawalsFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_staking_withdrawals",
+                "Staking Withdrawals"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(iterableAnnouncementsFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_iterable_announcements",
+                "Iterable Announcements"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(dynamicEthHotWalletAddressFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_dynamic_eth_hot_wallet_address",
+                "Dynamic ETH HWS Address"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(topMoversInBuy) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "blockchain_app_configuration_buy_top_movers_is_enabled",
+                "Show Top Movers in Buy flow"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(buyIntercomBotFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "blockchain_app_configuration_buy_intercom_bot",
+                "intercom bot in buy flow"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(walletConnectV2FeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_walletconnect_v2",
+                "Enable WalletConnect V2"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(walletConnectV1FeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_walletconnect_v1",
+                "Enable WalletConnect V1"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(darkModeFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "blockchain_app_configuration_and_dark_mode",
+                "dark mode"
             )
         )
     }.bind(FeatureFlag::class)

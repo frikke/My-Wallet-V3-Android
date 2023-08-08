@@ -59,9 +59,9 @@ class EthAccountApi internal constructor(
     fun getLastEthTransaction(addresses: List<String>): Maybe<EthTransaction> {
         return ethEndpoints.getTransactions(addresses.joinToString(","), 1)
             .flatMapMaybe {
-                if (it.transactions.isNotEmpty())
+                if (it.transactions.isNotEmpty()) {
                     Maybe.just(it.transactions[0])
-                else Maybe.empty()
+                } else Maybe.empty()
             }
     }
 

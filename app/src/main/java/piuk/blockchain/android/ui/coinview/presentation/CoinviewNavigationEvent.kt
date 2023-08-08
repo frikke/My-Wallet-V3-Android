@@ -4,6 +4,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
+import com.blockchain.domain.swap.SwapOption
 import info.blockchain.balance.Money
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 
@@ -13,6 +14,7 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val networkTicker: String,
         val interestRate: Double,
         val stakingRate: Double,
+        val activeRewardsRate: Double,
         val actions: List<StateAwareAction>
     ) : CoinviewNavigationEvent
 
@@ -20,13 +22,15 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val cvAccount: CoinviewAccount,
         val interestRate: Double,
         val stakingRate: Double,
-        val fiatBalance: Money,
+        val activeRewardsRate: Double,
+        val fiatBalance: Money?,
         val cryptoBalance: Money,
         val actions: List<StateAwareAction>
     ) : CoinviewNavigationEvent
 
     data class NavigateToBuy(
         val asset: CryptoAsset,
+        val fromRecurringBuy: Boolean
     ) : CoinviewNavigationEvent
 
     data class NavigateToSell(
@@ -44,7 +48,8 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     ) : CoinviewNavigationEvent
 
     data class NavigateToSwap(
-        val cvAccount: CoinviewAccount
+        val cvAccount: CoinviewAccount,
+        val swapOption: SwapOption
     ) : CoinviewNavigationEvent
 
     data class NavigateToActivity(
@@ -59,16 +64,26 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val cvAccount: CoinviewAccount
     ) : CoinviewNavigationEvent
 
-    data class NavigateToInterestDeposit(
-        val cvAccount: CoinviewAccount
-    ) : CoinviewNavigationEvent
-
-    data class NavigateToInterestWithdraw(
+    data class NavigateToActiveRewardsStatement(
         val cvAccount: CoinviewAccount
     ) : CoinviewNavigationEvent
 
     data class NavigateToStakingDeposit(
         val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
+    data class NavigateToStakingWithdraw(
+        val cvSourceStakingAccount: CoinviewAccount,
+        val cvTargetCustodialTradingAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
+    data class NavigateToActiveRewardsDeposit(
+        val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
+    data class NavigateToActiveRewardsWithdraw(
+        val cvSourceActiveRewardsAccount: CoinviewAccount,
+        val cvTargetCustodialTradingAccount: CoinviewAccount
     ) : CoinviewNavigationEvent
 
     data class ShowNoBalanceUpsell(

@@ -7,7 +7,7 @@ import okhttp3.Response
 class UserAgentInterceptor(
     private val versionName: String,
     private val versionType: String,
-    private val buildTypeSuffix: String,
+    private val buildTypeSuffix: String
 ) : Interceptor {
 
     /**

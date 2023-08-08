@@ -12,7 +12,7 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 
 class TradingStore(
-    private val balanceService: CustodialBalanceService,
+    private val balanceService: CustodialBalanceService
 ) : Store<Map<String, TradingBalanceResponseDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
@@ -25,7 +25,7 @@ class TradingStore(
             keySerializer = String.serializer(),
             valueSerializer = TradingBalanceResponseDto.serializer()
         ),
-        mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
+        mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
     ),
     FlushableDataSource {
 

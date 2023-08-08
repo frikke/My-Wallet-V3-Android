@@ -9,13 +9,13 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.NotificationAddresses
-import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.then
+import com.blockchain.utils.thenSingle
 import com.blockchain.wallet.DefaultLabels
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -26,14 +26,12 @@ import io.reactivex.rxjava3.core.Single
 internal class EthAsset(
     private val ethDataManager: EthDataManager,
     private val feeDataManager: FeeDataManager,
-    private val assetCatalogue: Lazy<AssetCatalogue>,
     private val walletPrefs: WalletStatusPrefs,
     private val notificationUpdater: BackendNotificationUpdater,
     private val formatUtils: FormatUtilities,
     private val labels: DefaultLabels,
     private val addressResolver: EthHotWalletAddressResolver
 ) : CryptoAssetBase(),
-    StandardL1Asset,
     NonCustodialSupport {
     override val currency: AssetInfo
         get() = CryptoCurrency.ETHER
@@ -43,30 +41,33 @@ internal class EthAsset(
             labels.getDefaultNonCustodialWalletLabel()
         )
 
-    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
+    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
+        val renamedAccount = ethDataManager.ehtAccount.takeIf { it.labelNeedsUpdate() }?.let {
+            ethDataManager.updateAccountLabel(it.label.updatedLabel()).onErrorComplete()
+        } ?: Completable.complete()
 
-        Single.just(
-            EthCryptoWalletAccount(
-                ethDataManager = ethDataManager,
-                fees = feeDataManager,
-                jsonAccount = ethDataManager.ehtAccount,
-                walletPreferences = walletPrefs,
-                exchangeRates = exchangeRates,
-                custodialWalletManager = custodialManager,
-                assetCatalogue = assetCatalogue.value,
-                addressResolver = addressResolver,
-                l1Network = EthDataManager.ethChain
+        return renamedAccount.then {
+            updateBackendNotificationAddresses(ethDataManager.ehtAccount.address)
+        }.thenSingle {
+            Single.just(
+                listOf(
+                    EthCryptoWalletAccount(
+                        ethDataManager = ethDataManager,
+                        fees = feeDataManager,
+                        jsonAccount = ethDataManager.ehtAccount,
+                        walletPreferences = walletPrefs,
+                        exchangeRates = exchangeRates,
+                        addressResolver = addressResolver
+                    )
+                )
             )
-        ).doOnSuccess { ethAccount ->
-            updateBackendNotificationAddresses(ethAccount)
-        }.map {
-            listOf(it)
         }
+    }
 
-    private fun updateBackendNotificationAddresses(account: EthCryptoWalletAccount) {
+    private fun updateBackendNotificationAddresses(address: String): Completable {
         val notify = NotificationAddresses(
             assetTicker = currency.networkTicker,
-            addressList = listOf(account.address)
+            addressList = listOf(address)
         )
         return notificationUpdater.updateNotificationBackend(notify)
     }
@@ -91,7 +92,8 @@ internal class EthAsset(
             it.startsWith(ETH_ADDRESS_AMOUNT_PART, true)
         }?.let { param ->
             CryptoValue.fromMinor(
-                CryptoCurrency.ETHER, param.removePrefix(ETH_ADDRESS_AMOUNT_PART).toBigDecimal()
+                CryptoCurrency.ETHER,
+                param.removePrefix(ETH_ADDRESS_AMOUNT_PART).toBigDecimal()
             )
         }
 

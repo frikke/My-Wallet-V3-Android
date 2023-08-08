@@ -12,6 +12,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.eth.EthCryptoWalletAccount
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.coincore.eth.WalletConnectTarget
+import com.blockchain.coincore.evm.L1EvmNonCustodialAccount
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.ethereum.EthDataManager
@@ -20,7 +21,10 @@ import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.then
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.NetworkType
+import info.blockchain.wallet.api.data.FeeOptions
 import info.blockchain.wallet.ethereum.util.EthUtils
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -38,24 +42,26 @@ class WalletConnectTransactionEngine(
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf()
 
+    override fun ensureSourceBalanceFreshness() {}
+
     private val ethSignMessageTarget: EthereumSendTransactionTarget
         get() = txTarget as EthereumSendTransactionTarget
 
     override fun assertInputsValid() {
         check(txTarget is WalletConnectTarget)
         check(txTarget is EthereumSendTransactionTarget)
-        check(sourceAccount is EthCryptoWalletAccount)
-        check(sourceAsset == CryptoCurrency.ETHER)
+        check(sourceAccount is EthCryptoWalletAccount || sourceAccount is L1EvmNonCustodialAccount)
+        check(sourceAsset is CryptoCurrency.ETHER || (sourceAsset as AssetInfo).coinNetwork?.type == NetworkType.EVM)
     }
 
     override fun doInitialiseTx(): Single<PendingTx> {
         return Single.just(
             PendingTx(
                 amount = ethSignMessageTarget.amount,
-                totalBalance = Money.zero(CryptoCurrency.ETHER),
-                availableBalance = Money.zero(CryptoCurrency.ETHER),
-                feeForFullAvailable = Money.zero(CryptoCurrency.ETHER),
-                feeAmount = Money.zero(CryptoCurrency.ETHER),
+                totalBalance = Money.zero(sourceAsset),
+                availableBalance = Money.zero(sourceAsset),
+                feeForFullAvailable = Money.zero(sourceAsset),
+                feeAmount = Money.zero(sourceAsset),
                 feeSelection = FeeSelection(
                     selectedLevel = FeeLevel.Regular,
                     availableLevels = setOf(FeeLevel.Regular),
@@ -67,7 +73,10 @@ class WalletConnectTransactionEngine(
     }
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        sourceAccount.balanceRx.firstOrError().zipWith(absoluteFees()).map { (balance, fees) ->
+        Single.zip(
+            sourceAccount.balanceRx().firstOrError(),
+            absoluteFees()
+        ) { balance, fees ->
             pendingTx.copy(
                 availableBalance = balance.withdrawable - fees,
                 feeForFullAvailable = fees,
@@ -94,7 +103,9 @@ class WalletConnectTransactionEngine(
                                 fiatAmount = fees.toUserFiat(exchangeRates),
                                 asset = sourceAsset
                             )
-                        } else null,
+                        } else {
+                            null
+                        },
                         feeLevel = pendingTx.feeSelection.selectedLevel
                     ),
                     TxConfirmationValue.Total(
@@ -109,12 +120,35 @@ class WalletConnectTransactionEngine(
         }
 
     private fun absoluteFees(): Single<Money> =
-        gasLimit().zipWith(gasPrice()).map { (gasLimit, gasPrice) ->
-            Money.fromMinor(
-                CryptoCurrency.ETHER,
-                gasLimit * gasPrice.toBigInteger()
-            )
+        if (sourceAsset is CryptoCurrency.ETHER) {
+            gasLimit().zipWith(gasPrice()).map { (gasLimit, gasPrice) ->
+                Money.fromMinor(
+                    sourceAsset,
+                    gasLimit * gasPrice.toBigInteger()
+                )
+            }
+        } else {
+            feeOptions().map { feeOptions ->
+                val gasLimitContract = feeOptions.gasLimitContract
+                getValueForFeeLevel(gasLimitContract, feeOptions.regularFee, (sourceAsset as AssetInfo))
+            }
         }
+
+    private fun feeOptions(): Single<FeeOptions> =
+        feeManager.getErc20FeeOptions(
+            (sourceAsset as AssetInfo).coinNetwork!!.networkTicker,
+            (sourceAsset as AssetInfo).l2identifier
+        )
+            .singleOrError()
+
+    private fun getValueForFeeLevel(gasLimitContract: Long, feeLevel: Long, assetInfo: AssetInfo) =
+        CryptoValue.fromMinor(
+            assetInfo,
+            Convert.toWei(
+                BigDecimal.valueOf(gasLimitContract * feeLevel),
+                Convert.Unit.GWEI
+            )
+        )
 
     private fun gasLimit(): Single<BigInteger> {
         return ethSignMessageTarget.gasLimit?.let { gas ->
@@ -126,10 +160,10 @@ class WalletConnectTransactionEngine(
 
     private fun gasPrice(): Single<Money> {
         return ethSignMessageTarget.gasPrice?.let { gas ->
-            Single.just(Money.fromMinor(CryptoCurrency.ETHER, gas))
+            Single.just(Money.fromMinor(sourceAsset, gas))
         } ?: feeManager.ethFeeOptions.firstOrError().map {
             Money.fromMinor(
-                CryptoCurrency.ETHER,
+                sourceAsset,
                 Convert.toWei(
                     BigDecimal.valueOf(it.regularFee),
                     Convert.Unit.GWEI
@@ -148,7 +182,9 @@ class WalletConnectTransactionEngine(
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         Single.zip(
-            sourceAccount.balanceRx.map { it.withdrawable }.firstOrError(),
+            sourceAccount.balanceRx().map {
+                it.withdrawable
+            }.firstOrError(),
             absoluteFees()
         ) { balance: Money, fee ->
             if (fee + pendingTx.amount > balance) {
@@ -215,7 +251,8 @@ class WalletConnectTransactionEngine(
                 EthereumSendTransactionTarget.Method.SIGN ->
                     Single.just(
                         TxResult.HashedTxResult(
-                            txId = EthUtils.decorateAndEncode(signed), amount = pendingTx.amount
+                            txId = EthUtils.decorateAndEncode(signed),
+                            amount = pendingTx.amount
                         )
                     )
             }

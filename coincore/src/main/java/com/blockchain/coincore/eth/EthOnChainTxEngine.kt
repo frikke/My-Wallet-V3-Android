@@ -80,7 +80,9 @@ class EthOnChainTxEngine(
                 txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
-                        txTarget, AssetAction.Send, sourceAccount
+                        txTarget,
+                        AssetAction.Send,
+                        sourceAccount
                     ),
                     TxConfirmationValue.CompoundNetworkFee(
                         sendingFeeInfo = if (!pendingTx.feeAmount.isZero) {
@@ -89,7 +91,9 @@ class EthOnChainTxEngine(
                                 pendingTx.feeAmount.toUserFiat(exchangeRates),
                                 sourceAsset
                             )
-                        } else null,
+                        } else {
+                            null
+                        },
                         feeLevel = pendingTx.feeSelection.selectedLevel
                     ),
                     TxConfirmationValue.Total(
@@ -144,7 +148,7 @@ class EthOnChainTxEngine(
         require(amount.currency == sourceAsset)
 
         return Single.zip(
-            sourceAccount.balanceRx.firstOrError(),
+            sourceAccount.balanceRx().firstOrError(),
             absoluteFees()
         ) { balance, feeLevels ->
             val total = balance.total as CryptoValue
@@ -207,7 +211,9 @@ class EthOnChainTxEngine(
 
             ethDataManager.createEthTransaction(
                 nonce = nonce,
-                to = if (useHotWallet) hotWalletAddress else
+                to = if (useHotWallet) {
+                    hotWalletAddress
+                } else
                     (txTarget as CryptoAddress).address,
                 gasPriceWei = fees.gasPrice(pendingTx.feeSelection.selectedLevel),
                 gasLimitGwei = fees.getGasLimit(txTarget.isContract) + extraGasLimitIfMemoAvailable(useHotWallet),
@@ -245,7 +251,7 @@ class EthOnChainTxEngine(
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         Single.zip(
-            sourceAccount.balanceRx.map { it.withdrawable }.firstOrError(),
+            sourceAccount.balanceRx().map { it.withdrawable }.firstOrError(),
             absoluteFees()
         ) { balance: Money, feeLevels ->
             val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: Money.zero(sourceAsset)

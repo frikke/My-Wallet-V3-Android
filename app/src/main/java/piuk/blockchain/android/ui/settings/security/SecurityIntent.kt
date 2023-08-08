@@ -15,14 +15,14 @@ sealed class SecurityIntent : MviIntent<SecurityState> {
 
     class UpdateErrorState(
         @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        val error: SecurityError,
+        val error: SecurityError
     ) : SecurityIntent() {
         override fun reduce(oldState: SecurityState): SecurityState = oldState.copy(errorState = error)
     }
 
     class UpdateViewState(
         @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        val viewState: SecurityViewState,
+        val viewState: SecurityViewState
     ) : SecurityIntent() {
         override fun reduce(oldState: SecurityState): SecurityState = oldState.copy(securityViewState = viewState)
     }

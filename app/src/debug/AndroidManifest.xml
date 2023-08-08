@@ -8,7 +8,7 @@
     <application
         android:fullBackupContent="false"
         android:networkSecurityConfig="@xml/charles_network_security_config"
-        tools:replace="fullBackupContent">
+        tools:replace="android:fullBackupContent, android:networkSecurityConfig">
 
         <activity
             android:name=".ui.debug.FeatureFlagsHandlingActivity"

@@ -33,7 +33,7 @@ class TradingStoreRepositoryTest {
         displayTicker = "CRYPTO1",
         networkTicker = "CRYPTO1",
         name = "Crypto_1",
-        categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+        categories = setOf(AssetCategory.TRADING, AssetCategory.NON_CUSTODIAL),
         precisionDp = 8,
         requiredConfirmations = 5,
         colour = "#123456"
@@ -43,7 +43,7 @@ class TradingStoreRepositoryTest {
         displayTicker = "CRYPTO2",
         networkTicker = "CRYPTO2",
         name = "Crypto_2",
-        categories = setOf(AssetCategory.CUSTODIAL),
+        categories = setOf(AssetCategory.TRADING),
         precisionDp = 8,
         requiredConfirmations = 5,
         colour = "#123456"
@@ -55,7 +55,10 @@ class TradingStoreRepositoryTest {
         Pair(
             it.displayTicker,
             TradingBalanceResponseDto(
-                pending = "3", total = "1", withdrawable = "2", mainBalanceToDisplay = "4"
+                pending = "3",
+                total = "1",
+                withdrawable = "2",
+                mainBalanceToDisplay = "4"
             )
         )
     }
@@ -114,7 +117,6 @@ class TradingStoreRepositoryTest {
             total = Money.fromMinor(asset, 1.toBigInteger()),
             withdrawable = Money.fromMinor(asset, 2.toBigInteger()),
             pending = Money.fromMinor(asset, 3.toBigInteger()),
-            dashboardDisplay = Money.fromMinor(asset, 4.toBigInteger()),
             hasTransactions = true
         )
 
@@ -123,6 +125,5 @@ class TradingStoreRepositoryTest {
             total = Money.zero(asset),
             withdrawable = Money.zero(asset),
             pending = Money.zero(asset),
-            dashboardDisplay = Money.zero(asset),
         )
 }

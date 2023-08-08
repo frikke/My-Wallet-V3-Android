@@ -1,7 +1,5 @@
 package com.blockchain.coincore.impl.txEngine
 
-import com.blockchain.banking.BankPartnerCallbackProvider
-import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
@@ -16,11 +14,15 @@ import com.blockchain.coincore.impl.txEngine.fiat.WITHDRAW_LOCKS
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
+import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.paymentmethods.model.LinkedBank
@@ -43,7 +45,6 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
@@ -199,8 +200,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             outputCurrency = eq(TEST_USER_FIAT),
             sourceCurrency = eq(TEST_USER_FIAT),
             targetCurrency = eq(TGT_ASSET),
-            sourceAccountType = eq(AssetCategory.NON_CUSTODIAL),
-            targetAccountType = eq(AssetCategory.CUSTODIAL),
+            sourceAccountType = eq(NON_CUSTODIAL_LIMITS_ACCOUNT),
+            targetAccountType = eq(CUSTODIAL_LIMITS_ACCOUNT),
             legacyLimits = any()
         )
     }
@@ -480,7 +481,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertComplete()
             .assertNoErrors()
@@ -538,7 +540,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertError {
                 it == exception
@@ -597,7 +600,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertComplete()
             .assertNoErrors()
@@ -660,7 +664,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         whenever(bankService.getLinkedBankLegacy(bankAccountAddress.address)).thenReturn(Single.just(linkedBank))
 
         subject.doExecute(
-            pendingTx, ""
+            pendingTx,
+            ""
         ).test()
             .assertComplete()
             .assertNoErrors()

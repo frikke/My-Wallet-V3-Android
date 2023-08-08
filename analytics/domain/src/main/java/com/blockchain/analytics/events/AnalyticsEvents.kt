@@ -2,7 +2,6 @@ package com.blockchain.analytics.events
 
 import com.blockchain.analytics.AnalyticsEvent
 
-@Deprecated("Analytics events should be defined near point of use")
 enum class AnalyticsEvents(
     override val event: String,
     override val params: Map<String, String> = emptyMap()
@@ -104,6 +103,13 @@ enum class AnalyticsNames(val eventName: String) {
     BUY_CHECKOUT_SCREEN_SUBMITTED("Buy Checkout Screen Submitted"),
     BUY_CHECKOUT_SCREEN_BACK_CLICKED("Buy Checkout Screen Back Clicked"),
     BUY_AMOUNT_SCREEN_BACK_CLICKED("Buy Amount Screen Back Clicked"),
+    BUY_ASSET_UPSELL_PAGE_VIEWED("Buy Flow Buy Other Crypto Page Viewed"),
+    BUY_ASSET_UPSELL_PAGE_DISMISSED("Buy Flow Buy Other Crypto Page Dismissed"),
+    BUY_ASSET_UPSELL_MAYBE_LATER_CLICKED("Buy Flow Buy Other Crypto Maybe Later Clicked"),
+    BUY_ASSET_UPSELL_MOST_POPULAR_ASSET_CLICKED("Buy Flow Buy Other Crypto Most Popular Asset Clicked"),
+    INTEREST_UPSELL_AFTER_SWAP_PAGE_VIEWED("Wallet Swap Earn Upsell shown"),
+    INTEREST_UPSELL_AFTER_SWAP_MAYBE_LATER_CLICKED("Wallet Swap Earn Upsell Start Earning Clicked"),
+    INTEREST_UPSELL_AFTER_SWAP_START_EARNING_CLICKED("Wallet Swap Earn Upsell Maybe Later Clicked"),
 
     // BUY ENTRY
     FAB_BUY_CLICKED("FAB Buy Clicked"),
@@ -205,6 +211,9 @@ enum class AnalyticsNames(val eventName: String) {
     INTEREST_WITHDRAWAL_CLICKED("Interest Withdrawal Clicked"),
     INTEREST_WITHDRAWAL_VIEWED("Interest Withdrawal Viewed"),
     STAKING_DEPOSIT_CLICKED("Staking Deposit Clicked"),
+    STAKING_WITHDRAWAL_CLICKED("Staking Withdrawal Clicked"),
+    ACTIVE_REWARDS_DEPOSIT_CLICKED("Active Rewards Deposit Clicked"),
+    ACTIVE_REWARDS_WITHDRAWAL_CLICKED("Active Rewards Withdrawal Clicked"),
     ACCOUNT_PASSWORD_CHANGED("Account Password Changed"),
     CHANGE_PIN_CODE_CLICKED("Change Pin Clicked"),
     CHANGE_EMAIL_CLICKED("Email Change Clicked"),
@@ -324,10 +333,6 @@ enum class AnalyticsNames(val eventName: String) {
     NOTIFICATION_SECURITY_ALERTS_SET_UP("Security Alerts Set Up"),
     NOTIFICATION_WALLET_ACTIVITY_SET_UP("Wallet Activity Set Up"),
     NOTIFICATION_STATUS_CHANGE_ERROR("Status Change Error"),
-    UI_TOUR_VIEWED("UI Tour Viewed"),
-    UI_TOUR_CTA_CLICKED("UI Tour CTA Clicked"),
-    UI_TOUR_PROGRESS_CLICKED("UI Tour Progress Clicked"),
-    UI_TOUR_DISMISSED("UI Tour Progress Dismissed"),
     WALLET_ACTIVITY_VIEWED("Wallet Activity Viewed"),
 
     WALLET_FAB_VIEWED("Wallet FAB Viewed"),
@@ -358,12 +363,114 @@ enum class AnalyticsNames(val eventName: String) {
     COWBOYS_VERIFY_INTERSTITIAL_CLOSED("Cowboys Verify Identity Interstitial Closed"),
     COWBOYS_VERIFY_INTERSTITIAL_CTA_CLICKED("Cowboys Verify Identity Interstitial Verify ID Clicked"),
     COWBOYS_REFER_FRIEND_ANNOUNCEMENT_CLICKED("Cowboys Refer Friends Announcement Clicked"),
-    MVP_SWITCHED_TO_DEFI("Switched to DeFi"),
-    MVP_SWITCHED_TO_TRADING("Switched to Trading"),
-    MVP_DEFI_BUY_SELECTED("QAS DeFi Buy"),
     ENABLE_DEFI_CLICKED("Enable DeFi Clicked"),
-    MVP_DEFI_BUY_SWITCH_TO_TRADING("QAS DeFi Buy Switched to Trading")
-    ;
+
+    // superapp
+    SUPERAPP_MODE_CUSTODIAL_CLICKED("BCDC Account App Mode Clicked"),
+    SUPERAPP_MODE_NON_CUSTODIAL_CLICKED("DeFi App Mode Clicked"),
+    SUPERAPP_EMPTY_BUY_BTC_CLICKED("Wallet Dashboard Empty State Buy Bitcoin Clicked"),
+    SUPERAPP_EMPTY_BUY_OTHER_CLICKED("Wallet Dashboard Empty State Buy Different Clicked"),
+    SUPERAPP_EMPTY_RECEIVE_CLICKED("Wallet Dashboard Empty State Deposit In DeFi Wallet Clicked"),
+    SUPERAPP_QUICK_ACTION_BUY_CLICKED("Wallet Dashboard Buy QA Clicked"),
+    SUPERAPP_QUICK_ACTION_SWAP_CLICKED("Wallet Dashboard Swap QA Clicked"),
+    SUPERAPP_QUICK_ACTION_SELL_CLICKED("Wallet Dashboard Sell QA Clicked"),
+    SUPERAPP_QUICK_ACTION_RECEIVE_CLICKED("Wallet Dashboard Receive QA Clicked"),
+    SUPERAPP_QUICK_ACTION_SEND_CLICKED("Wallet Dashboard Send QA Clicked"),
+    SUPERAPP_QUICK_ACTION_ADD_CASH_CLICKED("Wallet Dashboard Add Cash QA Clicked"),
+    SUPERAPP_QUICK_ACTION_CASH_OUT_CLICKED("Wallet Dashboard Cash Out QA Clicked"),
+    SUPERAPP_MODE_CUSTODIAL_LONG_CLICK("BCDC Account App Mode Long Pressed"),
+    SUPERAPP_MODE_NON_CUSTODIAL_LONG_CLICK("DeFi App Mode Long Pressed"),
+    SUPERAPP_MODE_CUSTODIAL_VIEWED("BCDC Account App Mode Viewed"),
+    SUPERAPP_MODE_NON_CUSTODIAL_VIEWED("DeFi App Mode Viewed"),
+    SUPERAPP_ASSETS_SEE_ALL_CLICKED("Wallet Dashboard Assets See All Clicked"),
+    SUPERAPP_CRYPTO_ASSET_CLICKED("Wallet Dashboard Assets Balance Clicked"),
+    SUPERAPP_FIAT_ASSET_CLICKED("Wallet Dashboard Fiat Balance Clicked"),
+    SUPERAPP_FIAT_ADD_CASH_CLICKED("Wallet Fiat Detail Add Cash Shortcut Clicked"),
+    SUPERAPP_FIAT_CASH_OUT_CLICKED("Wallet Fiat Detail Cash Out Shortcut Clicked"),
+    SUPERAPP_EARN_GET_STARTED_CLICKED("Wallet Dashboard Earn Get Started Clicked"),
+    SUPERAPP_EARN_MANAGE_CLICKED("Wallet Dashboard Earn Manage Clicked"),
+    SUPERAPP_EARN_DISCOVER_CLICKED("Wallet Earn Discover Clicked"),
+    SUPERAPP_EARN_LEARN_MORE_CLICKED("Wallet Earn Discover Learn More Clicked"),
+    SUPERAPP_EARN_ASSET_CLICKED("Wallet Dashboard Earn Asset Clicked"),
+    SUPERAPP_EARN_DETAIL_WITHDRAW_CLICKED("Wallet Earn Asset Detail Withdraw Clicked"),
+    SUPERAPP_EARN_DETAIL_ADD_CLICKED("Wallet Earn Asset Detail Add Clicked"),
+    SUPERAPP_ACTIVITY_SEE_ALL_CLICKED("Wallet Dashboard Activity See All Clicked"),
+    SUPERAPP_SUPPORT_CLICKED("Wallet Dashboard Need Help Support Center Clicked"),
+    SUPERAPP_DEFI_ONBOARDING_VIEWED("Introducing DeFi Wallet Viewed"),
+    SUPERAPP_DEFI_ONBOARDING_CONTINUE_CLICKED("Go To DeFi Wallet Clicked"),
+    SUPERAPP_DEFI_BACKUP_SKIP_CLICKED("Back Up Flow Skipped"),
+    SUPERAPP_DEFI_BACKUP_NOW_CLICKED("Back Up Flow Back Up Now Clicked"),
+    SUPERAPP_DEFI_BACKUP_TO_CLOUD_CLICKED("Back Up Flow Back Up To Cloud Clicked"),
+    SUPERAPP_DEFI_BACKUP_MANUALLY_CLICKED("Back Up Flow Backup Manually Clicked"),
+    SUPERAPP_DEFI_BACKUP_SUCCESSFUL_VIEWED("Back Up Flow DeFi Wallet Back Up Successful Viewed"),
+    SUPERAPP_DEFI_DCA_LEARN_MORE_CLICKED("Wallet Coinview X Sell Learn More Clicked"),
+    TOP_MOVER_DASHBOARD_CLICKED("Wallet Dashboard Top Mover Card Clicked"),
+    TOP_MOVER_PRICES_CLICKED("Prices Tab Top Mover Card Clicked"),
+    TOP_MOVER_BUY_CLICKED("Buy List Top Mover Card Clicked"),
+
+    // recurring buys
+    RB_COINVIEW_CTA_CLICKED("Wallet Coinview Recurring Buy CTA clicked"),
+    RB_HOME_CTA_CLICKED("Wallet Home Recurring Buy CTA clicked"),
+    RB_ONBOARDING_VIEWED("Wallet Recurring Buy Onboarding viewed"),
+    RB_HOME_DETAIL_CLICKED("Wallet Home Recurring Buy Detail Clicked"),
+    RB_DASHBOARD_DETAIL_CLICKED("Wallet Recurring Buys Dashboard Detail Clicked"),
+    RB_HOME_MANAGE_CLICKED("Wallet Home Recurring Buy Manage Clicked"),
+    RB_DASHBOARD_ADD_CLICKED("Wallet Recurring Buys Dashboard CTA Clicked"),
+    RB_DETAIL_VIEWED("Wallet Recurring Buys Detail Viewed"),
+    RB_DETAIL_CANCEL_CLICKED("Wallet Recurring Buys Detail Cancel"),
+    RB_BUY_TOGGLE_CLICKED("Wallet Buys Confirmation Screen Recurring Buy Toggle Clicked"),
+    RB_BUY_FREQUENCY_CLICKED("Wallet Buys Recurring Frequency Selection Clicked"),
+    RB_BUY_FREQUENCY_VIEWED("Wallet Buys Recurring Frequency Selection Viewed"),
+
+    // new swap
+    SWAP_ENTER_AMOUNT_VIEWED("Wallet Swap Amount Screen Viewed"),
+    SWAP_ENTER_AMOUNT_MAX_CLICKED("Wallet Swap Amount Screen Max Clicked"),
+    SWAP_ENTER_AMOUNT_PREVIEW_CLICKED("Wallet Swap Amount Screen Preview Swap Clicked"),
+    SWAP_ENTER_AMOUNT_SOURCE_CLICKED("Wallet Swap Amount Screen Change Source Clicked"),
+    SWAP_ENTER_AMOUNT_TARGET_CLICKED("Wallet Swap Amount Screen Change Target Clicked"),
+    SWAP_SOURCE_SELECTED("Wallet Swap Source List Token Selected"),
+    SWAP_TARGET_SELECTED("Wallet Swap Target List Token Selected"),
+    SWAP_CONFIRMATION_VIEWED("Wallet Swap Confirmation Screen Viewed"),
+    SWAP_CONFIRMATION_SWAP_CLICKED("Wallet Swap Confirmation Screen Confirm Swap Clicked"),
+    SWAP_CONFIRMATION_PENDING_VIEWED("Wallet Swap Post Confirmation Pending Viewed"),
+    SWAP_CONFIRMATION_ERROR_VIEWED("Wallet Swap Post Confirmation Error Viewed"),
+    SWAP_CONFIRMATION_SUCCESS_VIEWED("Wallet Swap Post Confirmation Success Viewed"),
+
+    // new sell
+    SELL_SELECT_SOURCE_VIEWED("Wallet Sell Asset Selection Screen Viewed"),
+    SELL_ENTER_AMOUNT_VIEWED("Wallet Sell Amount Screen Viewed"),
+    SELL_ENTER_AMOUNT_QUICK_FILL_CLICKED("Wallet Sell Amount Screen Quick Fill Clicked"),
+    SELL_ENTER_AMOUNT_PREVIEW_CLICKED("Wallet Sell Amount Screen Preview Sell Clicked"),
+    SELL_CONFIRMATION_VIEWED("Wallet Sell Confirmation Screen Viewed"),
+    SELL_CONFIRMATION_SELL_CLICKED("Wallet Sell Confirmation Screen Confirm Sell Clicked"),
+    SELL_CONFIRMATION_PENDING_VIEWED("Wallet Sell Post Confirmation Pending Viewed"),
+    SELL_CONFIRMATION_ERROR_VIEWED("Wallet Sell Post Confirmation Error Viewed"),
+    SELL_CONFIRMATION_SUCCESS_VIEWED("Wallet Sell Post Confirmation Success Viewed"),
+
+    // dex
+    DEX_ONBOARDING_VIEWED("DEX Onboarding Viewed"),
+    DEX_SWAP_AMOUNT_ENTERED("DEX Swap Amount Entered"),
+    DEX_COUNTRY_INELIGIBLE_VIEWED("DEX Country Ineligible Viewed"),
+    DEX_SWAP_SELECT_SOURCE_OPENED("DEX Swap Input Opened"),
+    DEX_SWAP_SELECT_DESTINATION_OPENED("DEX Swap Output Opened"),
+    DEX_SWAP_DESTINATION_NOT_FOUND("DEX Swap Output Not Found"),
+    DEX_SWAP_OUTPUT_SELECTED("DEX Swap Output Selected"),
+    DEX_SWAP_APPROVE_TOKEN_CLICKED("DEX Swap Approve token clicked"),
+    DEX_SWAP_APPROVE_TOKEN_CONFIRMED("DEX Swap Approve token confirmed"),
+    DEX_SWAP_PREVIEW_VIEWED("DEX Swap Preview Viewed"),
+    DEX_SWAP_CONFIRM_CLICKED("DEX Swap Confirm Clicked"),
+    DEX_SWAP_IN_PROGRESS_VIEWED("DEX Swapping Viewed"),
+    DEX_SWAP_EXECUTED_VIEWED("DEX Swap Executed Viewed"),
+    DEX_SWAP_FAILED_VIEWED("DEX Swap Failed Viewed"),
+    DEX_SETTINGS_OPENED("DEX Settings opened"),
+    DEX_SLIPPAGE_CHANGED("DEX Slippage changed"),
+
+    // Wallet Connect V2
+    WALLETCONNECT_HOME_CONNECTED_APP_CLICKED("Wallet Dashboard Connected App Clicked"),
+    WALLETCONNECT_HOME_CTA_CLICKED("Wallet Dashboard Connect A Dapp Through Wallet Connect Clicked"),
+
+    // Spinner tracking
+    SPINNER_TIMEOUT("Spinner Timeout")
 }
 
 enum class LaunchOrigin {
@@ -371,6 +478,9 @@ enum class LaunchOrigin {
     SEND,
     SWAP,
     AIRDROP,
+    INTEREST,
+    ONBOARDING,
+    SIMPLEBUY,
     RESUBMISSION,
     SIMPLETRADE,
     DASHBOARD_PROMO,
@@ -401,5 +511,5 @@ enum class LaunchOrigin {
     LAUNCH_SCREEN,
     COIN_VIEW,
     NUX_LAUNCH_PROMO_LOG_IN,
-    NUX_LAUNCH_PROMO_BUY_CRYPTO;
+    NUX_LAUNCH_PROMO_BUY_CRYPTO
 }

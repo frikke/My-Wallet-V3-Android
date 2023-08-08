@@ -1,14 +1,15 @@
 package com.blockchain.notifications
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.data.DataResource
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.WalletApi
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import okhttp3.ResponseBody
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -16,6 +17,7 @@ import org.junit.Test
 class NotificationServiceTest {
     private lateinit var subject: NotificationService
     private val mockWalletApi: WalletApi = mock()
+    private val notificationStorage: NotificationStorage = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -26,7 +28,7 @@ class NotificationServiceTest {
 
     @Before
     fun setUp() {
-        subject = NotificationService(mockWalletApi)
+        subject = NotificationService(mockWalletApi, notificationStorage)
     }
 
     @Test
@@ -34,15 +36,15 @@ class NotificationServiceTest {
         val guid = "guid"
         val key = "1234"
         val token = "4321"
-        whenever(mockWalletApi.updateFirebaseNotificationToken(token, guid, key))
-            .thenReturn(Observable.just(mock<ResponseBody>()))
+        whenever(notificationStorage.stream(any()))
+            .thenReturn(flowOf(DataResource.Data(Unit)))
 
         val testObserver = subject.sendNotificationToken(token, guid, key).test()
 
         testObserver.assertComplete()
         testObserver.assertNoErrors()
-        verify(mockWalletApi).updateFirebaseNotificationToken(token, guid, key)
-        verifyNoMoreInteractions(mockWalletApi)
+        verify(notificationStorage).stream(any())
+        verifyNoMoreInteractions(notificationStorage)
     }
 
     @Test

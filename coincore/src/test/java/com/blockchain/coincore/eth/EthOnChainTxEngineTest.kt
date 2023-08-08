@@ -1,4 +1,5 @@
 @file:Suppress("UnnecessaryVariable")
+
 package com.blockchain.coincore.eth
 
 import com.blockchain.coincore.AccountBalance
@@ -216,7 +217,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimit
@@ -276,7 +277,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Regular) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimitContract
@@ -338,7 +339,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimit
@@ -417,7 +418,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimit
@@ -497,7 +498,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
             .assertValue { verifyFeeLevels(it.feeSelection, FeeLevel.Priority) }
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balanceRx
+        verify(sourceAccount).balanceRx()
         verify(txTarget).isContract
         verify(feeManager).ethFeeOptions
         verify(ethFeeOptions).gasLimitContract
@@ -653,11 +654,10 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET)
     ) = mock<EthCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balanceRx }.thenReturn(
+        on { balanceRx() }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,
-                    dashboardDisplay = totalBalance,
                     withdrawable = availableBalance,
                     pending = CryptoValue.zero(CryptoCurrency.ETHER),
                     exchangeRate = ExchangeRate.identityExchangeRate(CryptoCurrency.ETHER)

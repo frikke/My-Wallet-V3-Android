@@ -3,6 +3,7 @@ package com.blockchain.analytics.data.koin
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsContextProvider
 import com.blockchain.analytics.AnalyticsLocalPersistence
+import com.blockchain.analytics.AnalyticsSettings
 import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.analytics.UserAnalytics
 import com.blockchain.analytics.data.AnalyticsContextProviderImpl
@@ -10,9 +11,7 @@ import com.blockchain.analytics.data.AnalyticsFileLocalPersistence
 import com.blockchain.analytics.data.AnalyticsImpl
 import com.blockchain.analytics.data.NabuAnalytics
 import com.blockchain.analytics.data.UserAnalyticsImpl
-import com.blockchain.koin.embraceLogger
 import com.blockchain.koin.nabu
-import com.blockchain.operations.AppStartUpFlushable
 import com.google.firebase.analytics.FirebaseAnalytics
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -25,11 +24,13 @@ val analyticsModule = module {
         AnalyticsImpl(
             firebaseAnalytics = get(),
             nabuAnalytics = get(nabu),
-            remoteLogger = get(embraceLogger),
+            nabuAnalyticsSettings = get(nabu),
+            remoteLogger = get(),
             store = get()
         )
     }.apply {
         bind(Analytics::class)
+        bind(AnalyticsSettings::class)
         bind(ProviderSpecificAnalytics::class)
     }
 
@@ -44,10 +45,11 @@ val analyticsModule = module {
             localAnalyticsPersistence = get(),
             remoteLogger = get(),
             tokenStore = get(),
+            walletModeStore = lazy { get() },
             lifecycleObservable = get()
         )
     }.apply {
-        bind(AppStartUpFlushable::class)
+        bind(AnalyticsSettings::class)
         bind(Analytics::class)
     }
 

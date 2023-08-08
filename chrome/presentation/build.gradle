@@ -1,18 +1,41 @@
 apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
 android {
+    namespace 'com.blockchain.chrome'
 }
 
 dependencies {
     implementation project(':chrome:common')
     implementation project(':common:interface')
+    implementation project(':common:network')
+    implementation project(':common:presentation')
     implementation project(':commonarch')
     implementation project(':balance')
+    implementation project(':deeplinking')
+    implementation project(':notifications')
+    implementation project(':coincore')
+    implementation project(':core')
+    implementation project(':wallet')
+    implementation project(':blockchainApi')
+    implementation project(':analytics:domain')
     implementation project(':componentlib')
-
+    implementation Libraries.rxjava3Coroutines
+    implementation project(':defiwalletbackup:presentation')
+    implementation project(':defiwalletbackup:domain')
     implementation project(':flowhome:presentation')
+    implementation project(':flowprices:presentation')
+    implementation project(':flowtransactions:presentation')
+    implementation project(':earn:presentation')
+    implementation project(':walletconnect')
+    implementation project(':appRating:domain')
+    implementation project(':appRating:presentaion')
+    implementation project(':nfts:presentation')
+    implementation project(':dex:presentation')
+
+    implementation project(':fiatActions')
+    implementation Libraries.rxKotlin
 
     implementation Libraries.accompanistSystemUi
     implementation Libraries.accompanistSwipeRefresh
-
+    implementation Libraries.kotlinImmutableCollections
 }

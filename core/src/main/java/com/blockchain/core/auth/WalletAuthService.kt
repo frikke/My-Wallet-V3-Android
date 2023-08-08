@@ -146,7 +146,7 @@ class WalletAuthService(private val walletApi: WalletApi, private val sessionIdS
         sharedKey: String,
         hasCloudBackup: Boolean,
         deviceType: Int
-    ): Single<ResponseBody> =
+    ): Completable =
         walletApi.verifyCloudBackup(guid, sharedKey, hasCloudBackup, deviceType)
 
     fun getDeeplinkPayload(): Single<ResponseBody> =

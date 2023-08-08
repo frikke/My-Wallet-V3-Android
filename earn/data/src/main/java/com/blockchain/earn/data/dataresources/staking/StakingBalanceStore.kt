@@ -1,7 +1,9 @@
 package com.blockchain.earn.data.dataresources.staking
 
-import com.blockchain.api.staking.StakingApiService
-import com.blockchain.api.staking.data.StakingBalanceDto
+import com.blockchain.api.earn.staking.StakingApiService
+import com.blockchain.api.earn.staking.data.StakingBalanceDto
+import com.blockchain.internalnotifications.NotificationEvent
+import com.blockchain.store.CacheConfiguration
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
@@ -12,10 +14,11 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 
 class StakingBalanceStore(
-    private val stakingApiService: StakingApiService,
+    private val stakingApiService: StakingApiService
 ) : Store<Map<String, StakingBalanceDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
+        reset = CacheConfiguration.on(listOf(NotificationEvent.RewardsTransaction)),
         fetcher = Fetcher.Keyed.ofOutcome(
             mapper = {
                 stakingApiService.getStakingBalances()

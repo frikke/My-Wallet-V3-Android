@@ -1,9 +1,11 @@
 package com.blockchain.walletconnect.ui.dapps
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
@@ -22,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rxjava3.subscribeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,9 +34,11 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviComposeFragment
+import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
@@ -43,11 +47,13 @@ import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletconnect.R
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import kotlinx.coroutines.launch
 
 class DappsListFragment :
     MviComposeFragment<DappsListModel, DappsListIntent, DappsListState>() {
@@ -64,7 +70,7 @@ class DappsListFragment :
     override fun onResume() {
         super.onResume()
         updateToolbar(
-            toolbarTitle = getString(R.string.account_wallet_connect),
+            toolbarTitle = getString(com.blockchain.stringResources.R.string.account_wallet_connect),
             menuItems = emptyList()
         )
     }
@@ -84,9 +90,7 @@ class DappsListFragment :
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                AppTheme {
-                    Dapps(model)
-                }
+                Dapps(model)
             }
         }
     }
@@ -98,6 +102,8 @@ class DappsListFragment :
     private fun Dapps(model: DappsListModel) {
         val state by model.state.subscribeAsState(null)
 
+        val scope = rememberCoroutineScope()
+
         var currentBottomSheet: SessionBottomSheet? by remember {
             mutableStateOf(null)
         }
@@ -106,68 +112,72 @@ class DappsListFragment :
             ModalBottomSheetValue.Hidden
         )
 
-        var bottomSheetState by remember { mutableStateOf(ModalBottomSheetValue.Hidden) }
+        fun hideSheet() {
+            scope.launch { modalBottomSheetState.hide() }
+        }
+
+        fun showSheet() {
+            scope.launch { modalBottomSheetState.show() }
+        }
 
         BottomSheetHostLayout(
             modalBottomSheetState = modalBottomSheetState,
-            onBackAction = { bottomSheetState = ModalBottomSheetValue.Hidden },
-            stateFlow = bottomSheetState,
+            onBackAction = { hideSheet() },
             sheetContent = {
                 Spacer(modifier = Modifier.height(1.dp))
                 currentBottomSheet?.let {
                     SheetLayout(
                         closeSheet = {
-                            bottomSheetState = ModalBottomSheetValue.Hidden
+                            hideSheet()
                         },
                         bottomSheet = it
                     )
                 }
-            }, content = {
-            state?.let {
-                if (it.connectedSessions.isEmpty()) {
-                    renderNoDapps()
-                } else {
-                    DappsList(it.connectedSessions) { session ->
-                        currentBottomSheet = SessionBottomSheet.Disconnect(
-                            session = session,
-                            onDisconnectClick = {
-                                currentBottomSheet = SessionBottomSheet.Confirmation(
-                                    session,
-                                    onConfirmClick = {
-                                        model.process(DappsListIntent.Disconnect(session))
-                                        bottomSheetState = ModalBottomSheetValue.Hidden
-                                        analytics.logEvent(
-                                            WalletConnectAnalytics.ConnectedDappActioned(
-                                                dappName = session.dAppInfo.peerMeta.name,
-                                                action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT_INTENT
+            },
+            content = {
+                state?.let {
+                    if (it.connectedSessions.isEmpty()) {
+                        NoDapps()
+                    } else {
+                        DappsList(it.connectedSessions) { session ->
+                            currentBottomSheet = SessionBottomSheet.Disconnect(
+                                session = session,
+                                onDisconnectClick = {
+                                    currentBottomSheet = SessionBottomSheet.Confirmation(
+                                        session,
+                                        onConfirmClick = {
+                                            model.process(DappsListIntent.Disconnect(session))
+                                            hideSheet()
+                                            analytics.logEvent(
+                                                WalletConnectAnalytics.ConnectedDappActioned(
+                                                    dappName = session.dAppInfo.peerMeta.name,
+                                                    action =
+                                                    WalletConnectAnalytics.DappConnectionAction.DISCONNECT_INTENT
+                                                )
                                             )
-                                        )
-                                    }
-                                )
-                                bottomSheetState = ModalBottomSheetValue.Hidden
-                                bottomSheetState = ModalBottomSheetValue.Expanded
-
-                                analytics.logEvent(
-                                    WalletConnectAnalytics.ConnectedDappActioned(
-                                        dappName = session.dAppInfo.peerMeta.name,
-                                        action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT
+                                        }
                                     )
-                                )
-                            }
-                        )
-                        bottomSheetState = ModalBottomSheetValue.Expanded
+                                    showSheet()
 
-                        analytics.logEvent(
-                            WalletConnectAnalytics.ConnectedDappClicked(
-                                dappName = session.dAppInfo.peerMeta.name
+                                    analytics.logEvent(
+                                        WalletConnectAnalytics.ConnectedDappActioned(
+                                            dappName = session.dAppInfo.peerMeta.name,
+                                            action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT
+                                        )
+                                    )
+                                }
                             )
-                        )
+
+                            showSheet()
+
+                            analytics.logEvent(
+                                WalletConnectAnalytics.ConnectedDappClicked(
+                                    dappName = session.dAppInfo.peerMeta.name
+                                )
+                            )
+                        }
                     }
                 }
-            }
-        },
-            onCollapse = {
-                bottomSheetState = ModalBottomSheetValue.Hidden
             }
         )
     }
@@ -184,6 +194,7 @@ private fun SheetLayout(
             session = bottomSheet.session,
             onDisconnectClick = bottomSheet.onDisconnectClick
         )
+
         is SessionBottomSheet.Confirmation ->
             ConfirmActionBottomSheet(
                 closeSheet = closeSheet,
@@ -201,17 +212,20 @@ private fun ConfirmActionBottomSheet(
 ) {
     BottomSheetTwoButtons(
         onCloseClick = closeSheet,
-        title = stringResource(R.string.are_you_sure),
-        subtitle = stringResource(R.string.you_are_about_disconnect, session.dAppInfo.peerMeta.name),
-        headerImageResource = ImageResource.Local(R.drawable.ic_warning),
+        title = stringResource(com.blockchain.stringResources.R.string.are_you_sure),
+        subtitle = stringResource(
+            com.blockchain.stringResources.R.string.you_are_about_disconnect,
+            session.dAppInfo.peerMeta.name
+        ),
+        headerImageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_warning),
         button1 = BottomSheetButton(
             type = ButtonType.DESTRUCTIVE_MINIMAL,
-            text = stringResource(R.string.common_disconnect),
+            text = stringResource(com.blockchain.stringResources.R.string.common_disconnect),
             onClick = onConfirmationClick
         ),
         button2 = BottomSheetButton(
             type = ButtonType.MINIMAL,
-            text = stringResource(R.string.common_cancel),
+            text = stringResource(com.blockchain.stringResources.R.string.common_cancel),
             onClick = closeSheet
         )
     )
@@ -230,7 +244,7 @@ private fun DisconnectBottomSheet(
         headerImageResource = ImageResource.Remote(session.dAppInfo.peerMeta.uiIcon()),
         button = BottomSheetButton(
             type = ButtonType.DESTRUCTIVE_MINIMAL,
-            text = stringResource(R.string.common_disconnect),
+            text = stringResource(com.blockchain.stringResources.R.string.common_disconnect),
             onClick = onDisconnectClick
         )
     )
@@ -238,7 +252,9 @@ private fun DisconnectBottomSheet(
 
 @Composable
 private fun DappsList(sessions: List<WalletConnectSession>, onClick: (WalletConnectSession) -> Unit) {
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier.background(AppColors.backgroundSecondary)
+    ) {
         items(
             items = sessions,
             itemContent = {
@@ -262,45 +278,53 @@ private fun DappListItem(session: WalletConnectSession, onClick: () -> Unit) {
             endImageResource = ImageResource.Local(R.drawable.ic_more_horizontal),
             onClick = onClick
         )
-        Divider(color = AppTheme.colors.light, thickness = 1.dp)
+        AppDivider()
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-private fun renderNoDapps() {
+private fun NoDapps() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = dimensionResource(R.dimen.size_epic)),
+            .background(AppColors.backgroundSecondary)
+            .padding(bottom = dimensionResource(com.blockchain.componentlib.R.dimen.size_epic)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
             contentScale = ContentScale.None,
-            imageResource = ImageResource.Local(R.drawable.ic_world_blue)
+            imageResource = ImageResource.Local(R.drawable.ic_world_blue).withTint(AppColors.primary)
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         Text(
-            text = stringResource(R.string.no_dapps_connected),
+            text = stringResource(com.blockchain.stringResources.R.string.no_dapps_connected),
             modifier = Modifier.padding(
-                start = dimensionResource(R.dimen.small_spacing),
-                end = dimensionResource(R.dimen.small_spacing)
+                start = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing),
+                end = dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
             ),
             textAlign = TextAlign.Center,
             style = AppTheme.typography.title3,
             color = AppTheme.colors.title
         )
         Text(
-            text = stringResource(R.string.connect_with_wallet_connect),
+            text = stringResource(com.blockchain.stringResources.R.string.connect_with_wallet_connect),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(
-                start = dimensionResource(R.dimen.standard_spacing),
-                end = dimensionResource(R.dimen.standard_spacing)
+                start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
             ),
             style = AppTheme.typography.paragraph1,
-            color = AppTheme.colors.medium
+            color = AppTheme.colors.body
         )
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewNoDappsDark() {
+    NoDapps()
 }
 
 sealed class SessionBottomSheet {

@@ -6,6 +6,7 @@ import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.componentlib.viewextensions.updateItemBackground
 import com.blockchain.presentation.getResolvedColor
 import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.R
@@ -27,15 +28,27 @@ class InvoiceCountdownTimerDelegate<in T> : AdapterDelegate<T> {
         items: List<T>,
         position: Int,
         holder: RecyclerView.ViewHolder
-    ) = (holder as ViewHolder).bind(items[position] as TxConfirmationValue.BitPayCountdown)
+    ) = (holder as ViewHolder).bind(
+        items[position] as TxConfirmationValue.BitPayCountdown,
+        isFirstItemInList = position == 0,
+        isLastItemInList = items.lastIndex == position
+    )
 
     class ViewHolder(
         private val binding: ItemSendConfirmCountdownBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: TxConfirmationValue.BitPayCountdown) {
-            binding.confirmationItemLabel.setText(R.string.bitpay_remaining_time)
-            updateCountdownElements(item.timeRemainingSecs)
+        fun bind(
+            item: TxConfirmationValue.BitPayCountdown,
+            isFirstItemInList: Boolean,
+            isLastItemInList: Boolean
+        ) {
+            with(binding) {
+                root.updateItemBackground(isFirstItemInList, isLastItemInList)
+
+                confirmationItemLabel.setText(com.blockchain.stringResources.R.string.bitpay_remaining_time)
+                updateCountdownElements(item.timeRemainingSecs)
+            }
         }
 
         private fun updateCountdownElements(remaining: Long) {
@@ -52,9 +65,9 @@ class InvoiceCountdownTimerDelegate<in T> : AdapterDelegate<T> {
             binding.confirmationItemValue.text = readableTime
 
             when {
-                remaining > FIVE_MINUTES -> setColors(R.color.primary_grey_light)
-                remaining > ONE_MINUTE -> setColors(R.color.secondary_yellow_medium)
-                else -> setColors(R.color.secondary_red_light)
+                remaining > FIVE_MINUTES -> setColors(com.blockchain.componentlib.R.color.dark)
+                remaining > ONE_MINUTE -> setColors(com.blockchain.componentlib.R.color.warning)
+                else -> setColors(com.blockchain.componentlib.R.color.error)
             }
         }
 

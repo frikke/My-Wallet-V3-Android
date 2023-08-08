@@ -1,6 +1,5 @@
 package com.blockchain.coincore.bch
 
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.MultipleWalletsAsset
@@ -12,13 +11,15 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.NotificationAddresses
-import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.logging.Logger
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.then
+import com.blockchain.utils.thenSingle
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -27,7 +28,6 @@ import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
 
 private const val BCH_URL_PREFIX = "bitcoincash:"
 
@@ -43,7 +43,6 @@ internal class BchAsset internal constructor(
     private val addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(),
     NonCustodialSupport,
-    StandardL1Asset,
     MultipleWalletsAsset {
 
     override val currency: AssetInfo
@@ -51,48 +50,51 @@ internal class BchAsset internal constructor(
 
     override fun initToken(): Completable =
         bchDataManager.initBchWallet(labels.getDefaultNonCustodialWalletLabel())
-            .doOnError { Timber.e("Unable to init BCH, because: $it") }
+            .doOnError { Logger.e("Unable to init BCH, because: $it") }
             .onErrorComplete()
 
-    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Single.fromCallable {
-            with(bchDataManager) {
-                mutableListOf<CryptoAccount>().apply {
-                    getAccountMetadataList().forEachIndexed { i, account ->
-                        val bchAccount = BchCryptoWalletAccount.createBchAccount(
-                            payloadManager = payloadManager,
-                            jsonAccount = account,
-                            bchManager = bchDataManager,
-                            addressIndex = i,
-                            bchBalanceCache = bchBalanceCache,
-                            exchangeRates = exchangeRates,
-                            feeDataManager = feeDataManager,
-                            sendDataManager = sendDataManager,
-                            walletPreferences = walletPreferences,
-                            custodialWalletManager = custodialManager,
-                            refreshTrigger = this@BchAsset,
-                            addressResolver = addressResolver
-                        )
-                        if (bchAccount.isDefault) {
-                            updateBackendNotificationAddresses(bchAccount)
+    override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> {
+        val renameAccounts =
+            bchDataManager.getAccountMetadataList().filter { it.labelNeedsUpdate() }.takeIf { it.isNotEmpty() }
+                ?.let { accounts ->
+                    bchDataManager.updateAccountsLabel(
+                        updatedAccounts = accounts.associateWith {
+                            it.label.updatedLabel()
                         }
-                        add(bchAccount)
-                    }
+                    ).onErrorComplete()
+                } ?: Completable.complete()
+
+        val updateNotification =
+            bchDataManager.getAccountMetadataList().getOrNull(bchDataManager.getDefaultAccountPosition())?.let {
+                updateBackendNotificationAddresses(
+                    bchDataManager.getAccountMetadataList().indexOf(it)
+                ).onErrorComplete()
+            } ?: Completable.complete()
+
+        return renameAccounts.then { updateNotification }.thenSingle {
+            Single.just(
+                bchDataManager.getAccountMetadataList().mapIndexed { index, account ->
+                    BchCryptoWalletAccount.createBchAccount(
+                        payloadManager = payloadManager,
+                        jsonAccount = account,
+                        bchManager = bchDataManager,
+                        addressIndex = index,
+                        bchBalanceCache = bchBalanceCache,
+                        exchangeRates = exchangeRates,
+                        feeDataManager = feeDataManager,
+                        sendDataManager = sendDataManager,
+                        walletPreferences = walletPreferences,
+                        refreshTrigger = this@BchAsset,
+                        addressResolver = addressResolver
+                    )
                 }
-            }
+            )
         }
+    }
 
-    private fun updateBackendNotificationAddresses(account: BchCryptoWalletAccount) {
-        require(account.isDefault)
-        require(!account.isArchived)
-
-        val result = mutableListOf<String>()
-
-        for (i in 0 until OFFLINE_CACHE_ITEM_COUNT) {
-            account.getReceiveAddressAtPosition(i)?.let {
-                result += it
-            }
-        }
+    private fun updateBackendNotificationAddresses(accountIndex: Int): Completable {
+        val result = (0 until OFFLINE_CACHE_ITEM_COUNT)
+            .mapNotNull { bchDataManager.getReceiveAddressAtPosition(accountIndex, it) }
 
         val notify = NotificationAddresses(
             assetTicker = currency.networkTicker,

@@ -17,6 +17,7 @@ import org.koin.android.ext.android.inject
 interface HostedBottomSheet {
     interface Host {
         fun onSheetClosed()
+
         @CallSuper
         fun onSheetClosed(sheet: BottomSheetDialogFragment) {
             onSheetClosed()
@@ -26,7 +27,7 @@ interface HostedBottomSheet {
     val host: Host
 }
 
-abstract class SlidingModalBottomDialog<T : ViewBinding> : BottomSheetDialogFragment() {
+abstract class SlidingModalBottomDialog<T : ViewBinding> : ThemedBottomSheetFragment() {
 
     interface Host : HostedBottomSheet.Host
 
@@ -65,7 +66,7 @@ abstract class SlidingModalBottomDialog<T : ViewBinding> : BottomSheetDialogFrag
                         BottomSheetBehavior.STATE_EXPANDED -> onSheetExpanded()
                         BottomSheetBehavior.STATE_COLLAPSED -> onSheetCollapsed()
                         BottomSheetBehavior.STATE_HIDDEN -> onSheetHidden()
-                        else -> { /* shouldn't get here! */
+                        else -> { // shouldn't get here!
                         }
                     }
                 }

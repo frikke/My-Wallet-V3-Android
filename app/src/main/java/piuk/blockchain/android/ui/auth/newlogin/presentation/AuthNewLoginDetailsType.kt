@@ -12,7 +12,7 @@ interface AuthNewLoginDetailsType {
 class AuthNewLoginLocation(private val location: String) : AuthNewLoginDetailsType {
 
     override val headerTextRes: Int
-        get() = R.string.auth_new_login_location_header
+        get() = com.blockchain.stringResources.R.string.auth_new_login_location_header
 
     override val value: String
         get() = location
@@ -20,7 +20,7 @@ class AuthNewLoginLocation(private val location: String) : AuthNewLoginDetailsTy
 
 class AuthNewLoginIpAddress(private val ip: String) : AuthNewLoginDetailsType {
     override val headerTextRes: Int
-        get() = R.string.auth_new_login_browser_ip_header
+        get() = com.blockchain.stringResources.R.string.auth_new_login_browser_ip_header
 
     override val value: String
         get() = ip
@@ -28,7 +28,7 @@ class AuthNewLoginIpAddress(private val ip: String) : AuthNewLoginDetailsType {
 
 class AuthNewLoginBrowserInfo(private val info: String) : AuthNewLoginDetailsType {
     override val headerTextRes: Int
-        get() = R.string.auth_new_login_browser_info_header
+        get() = com.blockchain.stringResources.R.string.auth_new_login_browser_info_header
 
     override val value: String
         get() = info
@@ -39,7 +39,7 @@ class AuthNewLoginLastLogin(private val lastUsed: Long) : AuthNewLoginDetailsTyp
     private val sdf = SimpleDateFormat("MMMM dd hh:mm a z", Locale.getDefault())
 
     override val headerTextRes: Int
-        get() = R.string.auth_new_login_last_used_header
+        get() = com.blockchain.stringResources.R.string.auth_new_login_last_used_header
 
     override val value: String
         get() = sdf.format(lastUsed)

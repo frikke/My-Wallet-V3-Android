@@ -4,33 +4,33 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
+import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.trade.TradeDataService
+import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.fiatActions.fiatactions.models.LinkablePaymentMethods
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
+import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
-import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
-import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 
 class TransactionInteractorTest {
@@ -57,12 +57,10 @@ class TransactionInteractorTest {
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val dismissRecorder: DismissRecorder = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
-    private val quickFillRoundingService: QuickFillRoundingService = mock()
-    private val hideDustFF: FeatureFlag = mock()
+    private val tradeDataService: TradeDataService = mockk()
     private val improvedPaymentUxFF: FeatureFlag = mock()
-    private val localSettingsPrefs: LocalSettingsPrefs = mock()
-    private val dynamicRepository: UniversalDynamicAssetRepository = mock()
     private val stakingService: StakingService = mock()
+    private val activeRewardsService: ActiveRewardsService = mock()
     private val transactionPrefs: TransactionPrefs = mock()
 
     private lateinit var subject: TransactionInteractor
@@ -85,12 +83,10 @@ class TransactionInteractorTest {
             bankLinkingPrefs = bankLinkingPrefs,
             dismissRecorder = dismissRecorder,
             fiatCurrenciesService = fiatCurrenciesService,
-            quickFillRoundingService = quickFillRoundingService,
-            hideDustFF = hideDustFF,
-            localSettingsPrefs = localSettingsPrefs,
-            dynamicAssetRepository = dynamicRepository,
+            tradeDataService = tradeDataService,
             improvedPaymentUxFF = improvedPaymentUxFF,
             stakingService = stakingService,
+            activeRewardsService = activeRewardsService,
             transactionPrefs = transactionPrefs
         )
     }
@@ -114,7 +110,8 @@ class TransactionInteractorTest {
             result,
             DepositOptionsState.ShowBottomSheet(
                 LinkablePaymentMethods(
-                    USD, listOf(PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT)
+                    USD,
+                    listOf(PaymentMethodType.BANK_TRANSFER, PaymentMethodType.BANK_ACCOUNT)
                 )
             )
         )
@@ -162,7 +159,7 @@ class TransactionInteractorTest {
         arrangeEligiblePaymentMethodTypes(
             USD,
             listOf(
-                EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD),
+                EligiblePaymentMethodType(PaymentMethodType.PAYMENT_CARD, USD)
             )
         )
 
@@ -194,7 +191,7 @@ class TransactionInteractorTest {
         arrangeEligiblePaymentMethodTypes(
             USD,
             listOf(
-                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, EUR),
+                EligiblePaymentMethodType(PaymentMethodType.BANK_TRANSFER, EUR)
             )
         )
 

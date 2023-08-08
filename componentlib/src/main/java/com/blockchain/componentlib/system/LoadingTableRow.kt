@@ -17,21 +17,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey100
 
 @Composable
 fun ShimmerLoadingTableRow(
-    showIconLoader: Boolean = true
+    showIconLoader: Boolean = true,
+    showEndBlocks: Boolean = true,
+    showBottomBlock: Boolean = true,
+    reversed: Boolean = false
 ) {
     val transition = rememberInfiniteTransition()
     val translateAnim by transition.animateFloat(
@@ -44,18 +49,23 @@ fun ShimmerLoadingTableRow(
     )
 
     val brush = Brush.linearGradient(
-        colors = listOf(Grey100, Color.White, Grey100),
+        colors = listOf(AppTheme.colors.light, AppTheme.colors.backgroundSecondary, AppTheme.colors.light),
         start = Offset(10f, 10f),
         end = Offset(translateAnim, translateAnim)
     )
 
-    Row(
-        modifier = Modifier.fillMaxWidth()
+    CompositionLocalProvider(
+        LocalLayoutDirection provides if (reversed) LayoutDirection.Rtl else LayoutDirection.Ltr
     ) {
-        if (showIconLoader) {
-            ShimmerIcon(brush = brush)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (showIconLoader) {
+                ShimmerIcon(brush = brush)
+            }
+            ShimmerRow(brush = brush, showEndBlocks = showEndBlocks, showBottomBlock = showBottomBlock)
         }
-        ShimmerRow(brush = brush)
     }
 }
 
@@ -66,46 +76,51 @@ fun ShimmerIcon(
     Box(
         modifier = Modifier
             .padding(
-                start = dimensionResource(R.dimen.very_small_spacing),
-                top = dimensionResource(R.dimen.large_spacing),
-                end = dimensionResource(R.dimen.smallest_spacing)
+                start = AppTheme.dimensions.smallSpacing
             )
             .background(
                 brush = brush,
                 shape = CircleShape
             )
-            .size(dimensionResource(R.dimen.standard_spacing))
+            .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
     )
 }
 
 @Composable
 fun ShimmerRow(
-    brush: Brush
+    brush: Brush,
+    showEndBlocks: Boolean = true,
+    showBottomBlock: Boolean = true
 ) {
     Column(
         modifier = Modifier.padding(
-            start = dimensionResource(R.dimen.medium_spacing),
-            top = dimensionResource(R.dimen.standard_spacing),
-            end = dimensionResource(R.dimen.standard_spacing),
-            bottom = dimensionResource(R.dimen.standard_spacing)
+            start = AppTheme.dimensions.smallSpacing,
+            top = AppTheme.dimensions.smallSpacing,
+            end = AppTheme.dimensions.smallSpacing,
+            bottom = AppTheme.dimensions.smallSpacing
         )
     ) {
-        ShimmerLargeBlock(brush = brush)
-        ShimmerSmallBlock(brush = brush)
+        ShimmerLargeBlock(brush = brush, showEndBlock = showEndBlocks)
+        if (showBottomBlock) {
+            ShimmerSmallBlock(brush = brush, showEndBlock = showEndBlocks)
+        }
     }
 }
 
 @Composable
-fun ShimmerLargeBlock(brush: Brush) {
+fun ShimmerLargeBlock(
+    brush: Brush,
+    showEndBlock: Boolean = true
+) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
         Spacer(
             modifier = Modifier
                 .weight(3f)
-                .height(dimensionResource(R.dimen.standard_spacing))
+                .height(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                 .padding(
-                    vertical = dimensionResource(R.dimen.smallest_spacing),
+                    vertical = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
                 )
                 .background(brush = brush)
         )
@@ -118,24 +133,27 @@ fun ShimmerLargeBlock(brush: Brush) {
         Spacer(
             modifier = Modifier
                 .weight(2f)
-                .height(dimensionResource(R.dimen.standard_spacing))
-                .padding(vertical = dimensionResource(R.dimen.smallest_spacing))
-                .background(brush = brush)
+                .height(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
+                .padding(vertical = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
+                .then(if (showEndBlock) Modifier.background(brush = brush) else Modifier)
         )
     }
 }
 
 @Composable
-fun ShimmerSmallBlock(brush: Brush) {
+fun ShimmerSmallBlock(
+    brush: Brush,
+    showEndBlock: Boolean = true
+) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
         Spacer(
             modifier = Modifier
                 .weight(2f)
-                .height(dimensionResource(R.dimen.medium_spacing))
+                .height(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
                 .padding(
-                    vertical = dimensionResource(R.dimen.smallest_spacing),
+                    vertical = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing)
                 )
                 .background(brush = brush)
         )
@@ -148,9 +166,9 @@ fun ShimmerSmallBlock(brush: Brush) {
         Spacer(
             modifier = Modifier
                 .weight(1f)
-                .height(dimensionResource(R.dimen.medium_spacing))
-                .padding(vertical = dimensionResource(R.dimen.smallest_spacing))
-                .background(brush = brush)
+                .height(dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing))
+                .padding(vertical = dimensionResource(com.blockchain.componentlib.R.dimen.smallest_spacing))
+                .then(if (showEndBlock) Modifier.background(brush = brush) else Modifier)
         )
     }
 }

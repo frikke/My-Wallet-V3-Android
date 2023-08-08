@@ -38,13 +38,14 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion Versions.compose
+        kotlinCompilerExtensionVersion Versions.composeCompiler
     }
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    namespace 'piuk.blockchain.blockchain_component_library_catalog'
 }
 
 dependencies {

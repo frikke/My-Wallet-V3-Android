@@ -109,7 +109,9 @@ class NotificationTokenManager(
     private fun sendFirebaseToken(refreshedToken: String): Completable {
         return if (prefs.arePushNotificationsEnabled && walletPayloadService.initialised) {
             notificationService.sendNotificationToken(
-                refreshedToken, walletPayloadService.guid, walletPayloadService.sharedKey
+                refreshedToken,
+                walletPayloadService.guid,
+                walletPayloadService.sharedKey
             )
                 .retry(2)
                 .subscribeOn(Schedulers.io())

@@ -5,28 +5,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.SingleAccountList
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.data.asSingle
 import com.blockchain.domain.paymentmethods.BankService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.defaultOrder
-import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.presentation.koin.scopedInject
-import com.blockchain.utils.zipObservables
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
@@ -45,7 +40,6 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     private val accountsSorting: AccountsSorting by scopedInject(defaultOrder)
     private val bankService: BankService by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val hideDustFF: FeatureFlag by scopedInject(hideDustFeatureFlag)
     private val localSettingsPrefs: LocalSettingsPrefs by scopedInject()
 
     private lateinit var introHeaderView: IntroHeaderView
@@ -53,7 +47,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransferAccountSelectorBinding.inflate(inflater, container, false)
 
@@ -74,13 +68,8 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     fun initialiseAccountSelectorWithHeader(
         statusDecorator: StatusDecorator,
         onAccountSelected: (BlockchainAccount) -> Unit,
-        onExtraAccountInfoClicked: (AccountLocks) -> Unit = {},
-        @StringRes title: Int,
-        @StringRes label: Int,
-        @DrawableRes icon: Int,
+        onExtraAccountInfoClicked: (AccountLocks) -> Unit = {}
     ) {
-        introHeaderView.setDetails(title, label, icon)
-
         with(binding.accountSelectorAccountList) {
             this.onAccountSelected = onAccountSelected
             this.onLockItemSelected = onExtraAccountInfoClicked
@@ -88,8 +77,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
             initialise(
                 source = accounts(),
                 status = statusDecorator,
-                accountsLocks = showWithdrawalLocks(),
-                introView = introHeaderView
+                accountsLocks = showWithdrawalLocks()
             )
         }
     }
@@ -112,39 +100,16 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     }
 
     private fun showWithdrawalLocks(): Single<List<AccountLocks>> =
-        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
+        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).asSingle()
             .map { listOf(AccountLocks(it)) }
 
     private fun accounts(): Single<List<AccountListViewItem>> =
-        coincore.walletsWithActions(
-            actions = setOf(fragmentAction),
+        coincore.walletsWithAction(
+            action = fragmentAction,
             sorter = accountsSorting.sorter()
-        ).flatMap { list ->
-            if (fragmentAction == AssetAction.Send) {
-                checkAndFilterDustBalancesList(list)
-            } else {
-                Single.just(list)
-            }.map {
-                it.map(AccountListViewItem.Companion::create)
-            }
-        }
-
-    private fun checkAndFilterDustBalancesList(list: SingleAccountList) =
-        hideDustFF.enabled.flatMap { enabled ->
-            if (enabled && localSettingsPrefs.hideSmallBalancesEnabled) {
-                list.map { account ->
-                    account.balanceRx
-                }.zipObservables().map {
-                    list.mapIndexedNotNull { index, singleAccount ->
-                        if (!it[index].totalFiat.isDust()) {
-                            singleAccount
-                        } else {
-                            null
-                        }
-                    }
-                }.firstOrError()
-            } else {
-                Single.just(list)
+        ).map {
+            it.map { account ->
+                AccountListViewItem(account)
             }
         }
 
@@ -154,7 +119,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         @StringRes title: Int,
         @StringRes label: Int,
         @StringRes ctaText: Int,
-        action: () -> Unit,
+        action: () -> Unit
     ) {
         binding.accountSelectorEmptyView.setDetails(
             title = title,
@@ -184,14 +149,15 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     private fun doOnLoadError(t: Throwable) {
         BlockchainSnackbar.make(
             binding.root,
-            getString(R.string.transfer_wallets_load_error),
+            getString(com.blockchain.stringResources.R.string.transfer_wallets_load_error),
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
         ).show()
         doOnEmptyList()
     }
 
-    private fun doOnListLoaded(isEmpty: Boolean) {
+    private fun doOnListLoaded(accounts: List<AccountListViewItem>) {
+        val isEmpty = accounts.isEmpty()
         if (isEmpty) doOnEmptyList() else doOnListLoaded()
     }
 }

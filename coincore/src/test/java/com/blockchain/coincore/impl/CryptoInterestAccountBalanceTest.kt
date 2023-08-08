@@ -2,11 +2,14 @@ package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.data.DataResource
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -15,7 +18,9 @@ import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.util.concurrent.TimeUnit
-import junit.framework.Assert.assertFalse
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.asFlow
 import org.junit.Before
 import org.junit.Test
 
@@ -44,9 +49,8 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
     @Test
     fun `Balance is fetched correctly and is non-zero`() {
-
-        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
-            .thenReturn(Observable.just(TEST_TO_USER_RATE_1))
+        whenever(exchangeRates.exchangeRateToUserFiatFlow(TEST_ASSET))
+            .thenReturn(flowOf(DataResource.Data(TEST_TO_USER_RATE_1)))
 
         val balance = InterestAccountBalance(
             totalBalance = 100.testValue(TEST_ASSET),
@@ -56,10 +60,10 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             lockedBalance = 60.testValue(TEST_ASSET)
         )
 
-        whenever(interestService.getBalanceFor(TEST_ASSET))
+        whenever(interestService.getBalanceFor(eq(TEST_ASSET), any()))
             .thenReturn(Observable.just(balance))
 
-        subject.balanceRx
+        subject.balanceRx()
             .test()
             .assertComplete()
             .assertValue {
@@ -68,15 +72,13 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
                     it.pending == balance.pendingDeposit &&
                     it.exchangeRate == TEST_TO_USER_RATE_1
             }
-
-        assert(subject.isFunded)
     }
 
     @Test
     fun `Balance is fetched correctly and is zero`() {
 
-        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
-            .thenReturn(Observable.just(TEST_TO_USER_RATE_1))
+        whenever(exchangeRates.exchangeRateToUserFiatFlow(TEST_ASSET))
+            .thenReturn(flowOf(DataResource.Data(TEST_TO_USER_RATE_1)))
 
         val balance = InterestAccountBalance(
             totalBalance = 0.testValue(TEST_ASSET),
@@ -86,33 +88,32 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             lockedBalance = 0.testValue(TEST_ASSET)
         )
 
-        whenever(interestService.getBalanceFor(TEST_ASSET))
+        whenever(interestService.getBalanceFor(eq(TEST_ASSET), any()))
             .thenReturn(Observable.just(balance))
 
-        subject.balanceRx
+        subject.balanceRx()
             .test()
             .assertComplete()
             .assertValue {
                 it.total == balance.totalBalance &&
                     it.exchangeRate == TEST_TO_USER_RATE_1
             }
-
-        assertFalse(subject.isFunded)
     }
 
     @Test
     fun `rate changes are propagated correctly`() {
-
         val scheduler = TestScheduler()
 
         val rates = listOf(TEST_TO_USER_RATE_1, TEST_TO_USER_RATE_2)
         val rateSource = Observable.zip(
             Observable.interval(1, TimeUnit.SECONDS, scheduler),
             Observable.fromIterable(rates)
-        ) { /* tick */ _, rate -> rate as ExchangeRate }
+        ) { /* tick */ _, rate -> rate as ExchangeRate }.asFlow()
 
-        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
-            .thenReturn(rateSource)
+        whenever(exchangeRates.exchangeRateToUserFiatFlow(TEST_ASSET))
+            .thenReturn(
+                rateSource.map { DataResource.Data(it) }
+            )
 
         val balance = InterestAccountBalance(
             totalBalance = 100.testValue(TEST_ASSET),
@@ -122,10 +123,10 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             lockedBalance = 60.testValue(TEST_ASSET)
         )
 
-        whenever(interestService.getBalanceFor(TEST_ASSET))
+        whenever(interestService.getBalanceFor(eq(TEST_ASSET), any()))
             .thenReturn(Observable.just(balance))
 
-        val testSubscriber = subject.balanceRx
+        val testSubscriber = subject.balanceRx()
             .subscribeOn(scheduler)
             .test()
             .assertNoValues()
@@ -147,7 +148,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             displayTicker = "NOPE",
             networkTicker = "NOPE",
             name = "Not a real thing",
-            categories = setOf(AssetCategory.CUSTODIAL),
+            categories = setOf(AssetCategory.TRADING),
             precisionDp = 8,
             requiredConfirmations = 3,
             colour = "000000"

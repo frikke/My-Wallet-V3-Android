@@ -5,14 +5,15 @@
     android:id="@+id/view_empty_parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/background"
     android:orientation="vertical"
-    android:padding="@dimen/standard_spacing"
+    android:padding="@dimen/small_spacing"
     android:paddingBottom="@dimen/standard_spacing">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/view_empty_title"
         style="@style/Text.Semibold.Centered.20"
+        android:textColor="@color/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:text="@string/transfer_wallets_empty_title" />
@@ -20,6 +21,7 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/view_empty_desc"
         style="@style/Text.Standard.Centered.14"
+        android:textColor="@color/body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/tiny_spacing"
@@ -33,17 +35,16 @@
         android:layout_weight="1"
         app:srcCompat="@drawable/ic_wallet_intro_image" />
 
-    <Button
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/view_empty_cta"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         tools:text="@string/common_empty_cta" />
 
-    <Button
+    <com.blockchain.componentlib.button.SecondaryButtonView
         android:id="@+id/view_empty_support_cta"
-        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"

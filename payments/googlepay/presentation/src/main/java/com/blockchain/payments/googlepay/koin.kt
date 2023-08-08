@@ -54,14 +54,14 @@ val googlePayPresentationModule = module {
     single<GooglePayManager> {
         GooglePayManagerImpl(
             paymentsClient = get(),
-            json = get(googlePayPresentationJsonQualifier),
+            json = get(googlePayPresentationJsonQualifier)
         )
     }
 
     single {
         GooglePayViewUtils(
             paymentsClient = get(),
-            json = get(googlePayPresentationJsonQualifier),
+            json = get(googlePayPresentationJsonQualifier)
         )
     }
 

@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.NavDirections
-import com.blockchain.activities.StartOnboarding
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.data.logEvent
 import com.blockchain.analytics.events.AnalyticsEvents
@@ -17,18 +16,13 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycSplashBinding
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
+import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.kyc.navigate
-import piuk.blockchain.android.util.throttledClicks
-import timber.log.Timber
 
 class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), KycSplashView {
 
@@ -39,8 +33,6 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
     private val presenter: KycSplashPresenter by scopedInject()
 
     private val settingsDataManager: SettingsDataManager by scopedInject()
-
-    private val onBoardingStarter: StartOnboarding by inject()
 
     private val analytics: Analytics by inject()
 
@@ -62,53 +54,45 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val campaignType = progressListener.campaignType
+        val entryPoint = progressListener.entryPoint
         logEvent(
-            when (campaignType) {
-                CampaignType.None,
-                CampaignType.Swap -> AnalyticsEvents.KycWelcome
-                CampaignType.Resubmission -> AnalyticsEvents.KycResubmission
-                CampaignType.SimpleBuy -> AnalyticsEvents.KycSimpleBuyStart
-                CampaignType.FiatFunds -> AnalyticsEvents.KycFiatFundsStart
-                CampaignType.Interest -> AnalyticsEvents.KycFiatFundsStart
+            when (entryPoint) {
+                KycEntryPoint.Other,
+                KycEntryPoint.Swap -> AnalyticsEvents.KycWelcome
+                KycEntryPoint.Resubmission -> AnalyticsEvents.KycResubmission
+                KycEntryPoint.Buy -> AnalyticsEvents.KycSimpleBuyStart
+                KycEntryPoint.FiatFunds -> AnalyticsEvents.KycFiatFundsStart
+                KycEntryPoint.Interest -> AnalyticsEvents.KycFiatFundsStart
+                else -> AnalyticsEvents.KycWelcome
             }
         )
 
-        val title = when (progressListener.campaignType) {
-            CampaignType.SimpleBuy,
-            CampaignType.Resubmission,
-            CampaignType.FiatFunds -> R.string.buy_sell_splash_title
-            CampaignType.Swap -> R.string.kyc_splash_title
-            CampaignType.Interest -> R.string.earn_rewards
-            CampaignType.None -> R.string.identity_verification
+        val title = when (entryPoint) {
+            KycEntryPoint.Buy,
+            KycEntryPoint.Resubmission,
+            KycEntryPoint.FiatFunds -> com.blockchain.stringResources.R.string.buy_sell_splash_title
+            KycEntryPoint.Swap -> com.blockchain.stringResources.R.string.kyc_splash_title
+            KycEntryPoint.Interest -> com.blockchain.stringResources.R.string.earn_rewards
+            KycEntryPoint.Other -> com.blockchain.stringResources.R.string.identity_verification
+            else -> com.blockchain.stringResources.R.string.buy_sell_splash_title
         }
 
         progressListener.setupHostToolbar(title)
 
         with(binding) {
             textViewKycTermsAndConditions.gone()
+
+            buttonKycSplashApplyNow.apply {
+                text = getString(com.blockchain.stringResources.R.string.kyc_splash_apply_now)
+                onClick = {
+                    analytics.logEvent(KYCAnalyticsEvents.VerifyIdentityStart)
+                    presenter.onCTATapped()
+                }
+            }
         }
     }
 
     private val disposable = CompositeDisposable()
-
-    override fun onResume() {
-        super.onResume()
-        disposable += binding.buttonKycSplashApplyNow
-            .throttledClicks()
-            .subscribeBy(
-                onNext = {
-                    analytics.logEvent(KYCAnalyticsEvents.VerifyIdentityStart)
-                    presenter.onCTATapped()
-                },
-                onError = { Timber.e(it) }
-            )
-    }
-
-    override fun onPause() {
-        disposable.clear()
-        super.onPause()
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -121,7 +105,7 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
     override fun displayLoading(isLoading: Boolean) {
         progressDialog = if (isLoading) {
             MaterialProgressDialog(requireContext()).apply {
-                setMessage(R.string.buy_sell_please_wait)
+                setMessage(com.blockchain.stringResources.R.string.buy_sell_please_wait)
                 show()
             }
         } else {
@@ -136,14 +120,6 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
             message,
             type = SnackbarType.Error
         ).show()
-
-    override fun onEmailNotVerified() {
-        disposable += settingsDataManager.getSettings().subscribeBy(onNext = {
-            activity?.let {
-                onBoardingStarter.startEmailOnboarding(it)
-            }
-        }, onError = {})
-    }
 
     override fun createPresenter(): KycSplashPresenter = presenter
 

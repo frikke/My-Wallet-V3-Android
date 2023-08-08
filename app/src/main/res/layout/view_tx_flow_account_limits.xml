@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="?selectableItemBackground"
     android:paddingBottom="@dimen/small_spacing"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -16,6 +15,7 @@
         android:layout_marginStart="@dimen/standard_spacing"
         android:layout_marginTop="@dimen/standard_spacing"
         android:layout_marginEnd="@dimen/tiny_spacing"
+        android:textColor="@color/title"
         android:ellipsize="end"
         android:maxLines="1"
         android:text="@string/deposit_enter_amount_limit_title"
@@ -42,6 +42,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_spacing"
+        android:textColor="@color/body"
         android:layout_marginEnd="@dimen/tiny_spacing"
         android:maxLines="1"
         app:layout_constraintEnd_toStartOf="@id/amount_sheet_limits_icon"

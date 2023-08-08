@@ -4,8 +4,7 @@ import com.blockchain.api.assetdiscovery.data.AssetInformationDto
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
-import com.blockchain.store.impl.Freshness
-import com.blockchain.store.impl.FreshnessMediator
+import com.blockchain.store.impl.IsCachedMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.KeyedFlushableDataSource
 import kotlinx.serialization.Serializable
@@ -22,7 +21,7 @@ class AssetInformationStore(
         ),
         keySerializer = Key.serializer(),
         dataSerializer = AssetInformationDto.serializer(),
-        mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
+        mediator = IsCachedMediator()
     ),
     KeyedFlushableDataSource<AssetInformationStore.Key> {
 

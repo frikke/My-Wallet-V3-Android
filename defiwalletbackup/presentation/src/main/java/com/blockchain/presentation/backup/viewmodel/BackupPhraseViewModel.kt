@@ -12,7 +12,6 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.presentation.analytics.BackupPhraseAnalytics
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupOption
 import com.blockchain.presentation.backup.BackupPhraseArgs
@@ -34,16 +33,18 @@ class BackupPhraseViewModel(
     private val analytics: Analytics,
     private val walletStatusPrefs: WalletStatusPrefs,
     private val authPrefs: AuthPrefs
-) : MviViewModel<BackupPhraseIntent,
+) : MviViewModel<
+    BackupPhraseIntent,
     BackupPhraseViewState,
     BackupPhraseModelState,
     BackupPhraseNavigationEvent,
-    BackupPhraseArgs>(
+    BackupPhraseArgs
+    >(
     initialState = BackupPhraseModelState()
 ) {
     override fun viewCreated(args: BackupPhraseArgs) {
         updateState {
-            it.copy(
+            copy(
                 secondPassword = args.secondPassword,
                 allowSkipBackup = args.allowSkipBackup
             )
@@ -52,20 +53,16 @@ class BackupPhraseViewModel(
         onIntent(BackupPhraseIntent.LoadData)
     }
 
-    override fun reduce(state: BackupPhraseModelState): BackupPhraseViewState {
-        return with(state) {
-            BackupPhraseViewState(
-                showSkipBackup = allowSkipBackup,
-                showLoading = isLoading,
-                showError = isError,
-                mnemonic = mnemonic,
-                backUpStatus = if (hasBackup) BackUpStatus.BACKED_UP else BackUpStatus.NO_BACKUP,
-                copyState = copyState,
-                mnemonicVerificationStatus = mnemonicVerificationStatus,
-                flowState = flowState
-            )
-        }
-    }
+    override fun BackupPhraseModelState.reduce() = BackupPhraseViewState(
+        showSkipBackup = allowSkipBackup,
+        showLoading = isLoading,
+        showError = isError,
+        mnemonic = mnemonic,
+        backUpStatus = if (hasBackup) BackUpStatus.BACKED_UP else BackUpStatus.NO_BACKUP,
+        copyState = copyState,
+        mnemonicVerificationStatus = mnemonicVerificationStatus,
+        flowState = flowState
+    )
 
     override suspend fun handleIntent(modelState: BackupPhraseModelState, intent: BackupPhraseIntent) {
         when (intent) {
@@ -105,15 +102,15 @@ class BackupPhraseViewModel(
 
             BackupPhraseIntent.MnemonicCopied -> {
                 resetCopyState()
-                updateState { it.copy(copyState = CopyState.Copied) }
+                updateState { copy(copyState = CopyState.Copied) }
             }
 
             BackupPhraseIntent.ResetCopy -> {
-                updateState { it.copy(copyState = CopyState.Idle(resetClipboard = true)) }
+                updateState { copy(copyState = CopyState.Idle(resetClipboard = true)) }
             }
 
             BackupPhraseIntent.ClipboardReset -> {
-                updateState { it.copy(copyState = CopyState.Idle(resetClipboard = false)) }
+                updateState { copy(copyState = CopyState.Idle(resetClipboard = false)) }
             }
 
             BackupPhraseIntent.StartUserPhraseVerification -> {
@@ -125,7 +122,7 @@ class BackupPhraseViewModel(
             }
 
             BackupPhraseIntent.ResetVerificationStatus -> {
-                updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE) }
+                updateState { copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE) }
             }
 
             BackupPhraseIntent.GoToPreviousScreen -> {
@@ -133,7 +130,7 @@ class BackupPhraseViewModel(
             }
 
             is BackupPhraseIntent.EndFlow -> {
-                updateState { it.copy(flowState = FlowState.Ended(intent.isSuccessful)) }
+                updateState { copy(flowState = FlowState.Ended(intent.isSuccessful)) }
             }
         }.exhaustive
     }
@@ -155,7 +152,12 @@ class BackupPhraseViewModel(
     }
 
     private fun loadBackupStatus() {
-        updateState { modelState.copy(hasBackup = backupPhraseService.isBackedUp()) }
+        updateState {
+            copy(
+                hasBackup = backupPhraseService.isBackedUp(),
+                allowSkipBackup = allowSkipBackup && backupPhraseService.isBackedUp().not()
+            )
+        }
     }
 
     /**
@@ -185,7 +187,7 @@ class BackupPhraseViewModel(
 
     private fun verifyPhraseAndConfirmBackup(userMnemonic: List<String>) {
         if (userMnemonic != modelState.mnemonic) {
-            updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.INCORRECT) }
+            updateState { copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.INCORRECT) }
         } else {
             confirmRecoveryPhraseBackup(BackupOption.MANUAL)
         }
@@ -193,11 +195,11 @@ class BackupPhraseViewModel(
 
     private fun confirmRecoveryPhraseBackup(backupOption: BackupOption) {
         viewModelScope.launch {
-            updateState { it.copy(isLoading = true) }
+            updateState { copy(isLoading = true) }
 
             backupPhraseService.confirmRecoveryPhraseBackedUp()
                 .doOnSuccess {
-                    updateState { it.copy(isLoading = false) }
+                    updateState { copy(isLoading = false) }
 
                     when (backupOption) {
                         BackupOption.CLOUD -> {
@@ -211,7 +213,7 @@ class BackupPhraseViewModel(
                     }.exhaustive
                 }
                 .doOnFailure {
-                    updateState { it.copy(isLoading = false) }
+                    updateState { copy(isLoading = false) }
                 }
         }
     }

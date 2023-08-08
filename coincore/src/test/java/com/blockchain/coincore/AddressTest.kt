@@ -1,10 +1,10 @@
 package com.blockchain.coincore
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.DomainAddressNotFound
 import com.blockchain.coincore.eth.EthAddress
 import com.blockchain.coincore.eth.EthAsset
+import com.blockchain.testutils.rxInit
 import com.blockchain.testutils.waitForCompletionWithoutErrors
 import info.blockchain.balance.CryptoCurrency
 import io.mockk.every

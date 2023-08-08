@@ -4,22 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.home.presentation.navigation.AccountWalletLinkAlertSheetHost
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.AccountWalletLinkAlertSheetBinding
 
 class AccountWalletLinkAlertSheet : SlidingModalBottomDialog<AccountWalletLinkAlertSheetBinding>() {
 
-    interface Host : SlidingModalBottomDialog.Host {
-        fun logout()
-    }
-
     private val walletId: String by lazy {
-        val missingWalletId = getString(R.string.account_wallet_mismatch_wallet_id_not_found)
+        val missingWalletId =
+            getString(com.blockchain.stringResources.R.string.account_wallet_mismatch_wallet_id_not_found)
         arguments?.getString(WALLET_ID, missingWalletId) ?: missingWalletId
     }
 
-    override val host: Host by lazy {
-        super.host as? Host ?: throw IllegalStateException(
+    override val host: AccountWalletLinkAlertSheetHost by lazy {
+        super.host as? AccountWalletLinkAlertSheetHost ?: throw IllegalStateException(
             "Host fragment is not a AccountWalletLinkAlertSheet.Host"
         )
     }
@@ -30,11 +28,17 @@ class AccountWalletLinkAlertSheet : SlidingModalBottomDialog<AccountWalletLinkAl
     override fun initControls(binding: AccountWalletLinkAlertSheetBinding) {
         with(binding) {
             walletIdText.text = getString(
-                R.string.account_wallet_mismatch_label,
+                com.blockchain.stringResources.R.string.account_wallet_mismatch_label,
                 walletId
             )
-            logoutButton.setOnClickListener { host.logout() }
-            cancelButton.setOnClickListener { dismiss() }
+            logoutButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.logout)
+                onClick = { host.logout() }
+            }
+            cancelButton.apply {
+                text = getString(com.blockchain.stringResources.R.string.common_cancel)
+                onClick = { dismiss() }
+            }
         }
     }
 

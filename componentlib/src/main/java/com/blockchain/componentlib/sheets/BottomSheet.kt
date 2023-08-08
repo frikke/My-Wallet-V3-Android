@@ -2,7 +2,6 @@ package com.blockchain.componentlib.sheets
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -17,7 +16,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,15 +23,15 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.DestructiveMinimalButton
-import com.blockchain.componentlib.button.DestructivePrimaryButton
-import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.MinimalErrorButton
+import com.blockchain.componentlib.button.MinimalPrimaryButton
+import com.blockchain.componentlib.button.MinimalPrimarySmallButton
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark800
 
+// todo othman fix design
 @Composable
 fun BottomSheetTwoButtons(
     onCloseClick: () -> Unit,
@@ -43,9 +41,7 @@ fun BottomSheetTwoButtons(
     subtitle: String = "",
     button1: BottomSheetButton,
     button2: BottomSheetButton,
-    subtitleAlign: TextAlign = TextAlign.Center,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
-    shouldShowHeaderDivider: Boolean = true
+    subtitleAlign: TextAlign = TextAlign.Center
 ) {
     BottomSheet(
         onCloseClick = onCloseClick,
@@ -58,8 +54,6 @@ fun BottomSheetTwoButtons(
             button1.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
             button2.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
         },
-        isDarkTheme = isDarkTheme,
-        shouldShowHeaderDivider = shouldShowHeaderDivider,
     )
 }
 
@@ -71,9 +65,7 @@ fun BottomSheetOneButton(
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
     subtitleAlign: TextAlign = TextAlign.Center,
-    button: BottomSheetButton,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
-    shouldShowHeaderDivider: Boolean = true
+    button: BottomSheetButton
 ) {
     BottomSheet(
         onCloseClick = onCloseClick,
@@ -85,8 +77,6 @@ fun BottomSheetOneButton(
         buttonsContent = {
             button.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
         },
-        isDarkTheme = isDarkTheme,
-        shouldShowHeaderDivider = shouldShowHeaderDivider,
     )
 }
 
@@ -98,8 +88,6 @@ fun BottomSheetNoButtons(
     textAlign: TextAlign = TextAlign.Center,
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
-    shouldShowHeaderDivider: Boolean = true
 ) {
     BottomSheet(
         onCloseClick = onCloseClick,
@@ -109,8 +97,6 @@ fun BottomSheetNoButtons(
         showTitleInHeader = showTitleInHeader,
         subtitle = subtitle,
         buttonsContent = null,
-        isDarkTheme = isDarkTheme,
-        shouldShowHeaderDivider = shouldShowHeaderDivider,
     )
 }
 
@@ -123,62 +109,58 @@ private fun BottomSheet(
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
     buttonsContent: (@Composable ColumnScope.() -> Unit)? = null,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
-    shouldShowHeaderDivider: Boolean = true
 ) {
-    val backgroundColor = if (!isDarkTheme) {
-        Color.White
-    } else {
-        Dark800
-    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
+            .background(
+                AppColors.background,
+                RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
             title = title.takeIf { showTitleInHeader },
             onClosePress = onCloseClick,
-            shouldShowDivider = shouldShowHeaderDivider
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+        Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         if (headerImageResource != null) {
             Image(
                 imageResource = headerImageResource,
-                modifier = Modifier.size(dimensionResource(R.dimen.size_huge))
+                modifier = Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.size_huge))
             )
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         }
 
         if (!showTitleInHeader) {
             Text(
                 text = title,
                 style = AppTheme.typography.title3,
-                color = AppTheme.colors.title,
+                color = AppTheme.colors.title
             )
         }
         if (subtitle.isNotEmpty()) {
-            Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
+            Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.tiny_spacing)))
             Text(
                 text = subtitle,
                 style = AppTheme.typography.paragraph1,
                 textAlign = subtitleAlign,
-                color = AppTheme.colors.title,
+                color = AppTheme.colors.body,
                 modifier = Modifier.padding(
-                    start = dimensionResource(R.dimen.standard_spacing),
-                    end = dimensionResource(R.dimen.standard_spacing)
+                    start = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                    end = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
                 )
             )
         }
 
         Spacer(
             Modifier.size(
-                if (buttonsContent == null)
-                    dimensionResource(R.dimen.small_spacing)
-                else
-                    dimensionResource(R.dimen.standard_spacing)
+                if (buttonsContent == null) {
+                    dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)
+                } else {
+                    dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)
+                }
             )
         )
 
@@ -187,12 +169,12 @@ private fun BottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(horizontal = dimensionResource(R.dimen.standard_spacing)),
+                    .padding(horizontal = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing)),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 content = buttonsContent
             )
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
+            Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         }
     }
 }
@@ -206,27 +188,24 @@ private fun BottomSheetButton.toBottomSheetButtonComposable(modifier: Modifier):
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()
             )
-            ButtonType.MINIMAL -> MinimalButton(
+
+            ButtonType.MINIMAL -> MinimalPrimaryButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()
             )
-            ButtonType.SMALL_MINIMAL -> SmallMinimalButton(
+
+            ButtonType.SMALL_MINIMAL -> MinimalPrimarySmallButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier
             )
-            ButtonType.DESTRUCTIVE_MINIMAL -> DestructiveMinimalButton(
+
+            ButtonType.DESTRUCTIVE_MINIMAL -> MinimalErrorButton(
                 text = text,
                 onClick = onClick,
                 modifier = modifier.fillMaxWidth()
             )
-            ButtonType.DESTRUCTIVE_PRIMARY ->
-                DestructivePrimaryButton(
-                    text = text,
-                    onClick = onClick,
-                    modifier = modifier.fillMaxWidth()
-                )
         }
     }
 }
@@ -238,108 +217,49 @@ data class BottomSheetButton(
 )
 
 enum class ButtonType {
-    PRIMARY, MINIMAL, DESTRUCTIVE_MINIMAL, DESTRUCTIVE_PRIMARY, SMALL_MINIMAL
+    PRIMARY, MINIMAL, DESTRUCTIVE_MINIMAL, SMALL_MINIMAL
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun NoButtonBottomSheet() {
-    AppTheme {
-        AppSurface {
-            BottomSheetNoButtons(
-                onCloseClick = {},
-                title = "NoButtonBottomSheet",
-                headerImageResource = ImageResource.None,
-                subtitle = " NoButtonBottomSheetSubtitle"
-            )
-        }
-    }
+    BottomSheetNoButtons(
+        onCloseClick = {},
+        title = "Failed to load some balances",
+        headerImageResource = ImageResource.None,
+        subtitle = " We couldn’t load the balances and activity of the Ethereum network at this time."
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun NoButtonBottomSheetDark() {
+    NoButtonBottomSheet()
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun OnlyPrimaryTopButtonBottomSheet() {
-    AppTheme {
-        AppSurface {
-            BottomSheetOneButton(
-                onCloseClick = {},
-                title = "NoButtonBottomSheet",
-                headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                subtitle = " NoButtonBottomSheetSubtitle",
-                button = BottomSheetButton(
-                    type = ButtonType.PRIMARY,
-                    onClick = {}, text = "OK"
-                )
-            )
-        }
-    }
+    BottomSheetOneButton(
+        onCloseClick = {},
+        title = "Failed to load some balances",
+        headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
+        subtitle = " We couldn’t load the balances and activity of the Ethereum network at this time.",
+        button = BottomSheetButton(
+            type = ButtonType.PRIMARY,
+            onClick = {},
+            text = "OK"
+        )
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun OnlyPrimaryTopButtonBottomSheetWithNoSubtitle() {
-    AppTheme {
-        AppSurface {
-            BottomSheetOneButton(
-                onCloseClick = {},
-                title = "NoButtonBottomSheet",
-                headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                button = BottomSheetButton(
-                    type = ButtonType.PRIMARY,
-                    onClick = {}, text = "OK"
-                )
-            )
-        }
-    }
+private fun OnlyPrimaryTopButtonBottomSheetDark() {
+    OnlyPrimaryTopButtonBottomSheet()
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun TopAndBottomButtonsSheet() {
-    AppTheme {
-        AppSurface {
-            BottomSheetTwoButtons(
-                onCloseClick = {},
-                title = "NoButtonBottomSheet",
-                headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                subtitle = "NoButtonBottomSheetSubtitle",
-                button1 = BottomSheetButton(
-                    type = ButtonType.PRIMARY,
-                    onClick = {}, text = "OK"
-                ),
-                button2 = BottomSheetButton(
-                    type = ButtonType.DESTRUCTIVE_MINIMAL,
-                    onClick = {}, text = "Cancel"
-                )
-            )
-        }
-    }
-}
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun PrimaryAndMinimalButtonSheet() {
-    AppTheme {
-        AppSurface {
-            BottomSheetTwoButtons(
-                onCloseClick = {},
-                title = "NoButtonBottomSheet",
-                headerImageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                subtitle = "NoButtonBottomSheetSubtitle",
-                button1 = BottomSheetButton(
-                    type = ButtonType.MINIMAL,
-                    onClick = {}, text = "Learn More"
-                ),
-                button2 = BottomSheetButton(
-                    type = ButtonType.PRIMARY,
-                    onClick = {}, text = "Ok"
-                )
-            )
-        }
-    }
-}
-
-@Preview()
+@Preview
 @Composable
 fun PrimaryAndSmallMinimalButtonSheet() {
     AppTheme {
@@ -351,13 +271,21 @@ fun PrimaryAndSmallMinimalButtonSheet() {
                 subtitle = "NoButtonBottomSheetSubtitle",
                 button1 = BottomSheetButton(
                     type = ButtonType.SMALL_MINIMAL,
-                    onClick = {}, text = "Learn More"
+                    onClick = {},
+                    text = "Learn More"
                 ),
                 button2 = BottomSheetButton(
                     type = ButtonType.PRIMARY,
-                    onClick = {}, text = "Ok"
+                    onClick = {},
+                    text = "Ok"
                 )
             )
         }
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PrimaryAndSmallMinimalButtonSheetDark() {
+    PrimaryAndSmallMinimalButtonSheet()
 }

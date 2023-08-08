@@ -1,5 +1,6 @@
 package com.blockchain.core.kyc.data
 
+import com.blockchain.api.kyc.KycApiService
 import com.blockchain.api.kyc.model.KycLimitsDto
 import com.blockchain.api.kyc.model.KycTierDto
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
@@ -12,10 +13,13 @@ import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.kyc.domain.model.TiersMap
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.getDataOrThrow
+import com.blockchain.data.mapData
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
-import com.blockchain.store.getDataOrThrow
-import com.blockchain.store.mapData
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -29,6 +33,8 @@ class KycRepository(
     private val kycTiersStore: KycTiersStore,
     private val userService: UserService,
     private val assetCatalogue: AssetCatalogue,
+    private val kycApiService: KycApiService,
+    private val proveFeatureFlag: FeatureFlag
 ) : KycService {
 
     private fun getKycTiersFlow(freshnessStrategy: FreshnessStrategy): Flow<DataResource<KycTiers>> {
@@ -50,6 +56,15 @@ class KycRepository(
             .subscribeOn(Schedulers.io())
     }
 
+    override fun stateFor(
+        tierLevel: KycTier,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<KycTierState>> {
+        return getKycTiersFlow(freshnessStrategy).mapData {
+            it.stateFor(tierLevel)
+        }
+    }
+
     override fun getHighestApprovedTierLevelLegacy(freshnessStrategy: FreshnessStrategy): Single<KycTier> {
         return getTiersLegacy(freshnessStrategy).map { kycTiers ->
             val approvedTier = KycTier.values().reversed().find {
@@ -58,6 +73,16 @@ class KycRepository(
             approvedTier ?: throw IllegalStateException("No approved tiers")
         }
     }
+
+    override suspend fun shouldLaunchProve(): Outcome<Exception, Boolean> =
+        // NOTE(aromano): currently disabled
+        if (false && proveFeatureFlag.coEnabled()) {
+            kycApiService.getKycFlow().map { response ->
+                response?.nextFlow == "/kyc/prove"
+            }
+        } else {
+            Outcome.Success(false)
+        }
 
     override fun isPendingFor(tierLevel: KycTier, freshnessStrategy: FreshnessStrategy): Single<Boolean> {
         return getTiersLegacy(freshnessStrategy).map { kycTiers ->

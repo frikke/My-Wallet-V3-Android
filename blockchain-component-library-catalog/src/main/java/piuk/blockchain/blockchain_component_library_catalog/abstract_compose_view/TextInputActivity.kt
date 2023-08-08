@@ -35,7 +35,7 @@ class TextInputActivity : AppCompatActivity() {
                 state = defaultState
                 labelText = "Label"
                 placeholderText = "Type Error to show error state"
-                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
+                trailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_alert, null)
             }
 
             findViewById<TextInputView>(R.id.error_text_input).apply {
@@ -47,7 +47,7 @@ class TextInputActivity : AppCompatActivity() {
                 state = errorState
                 labelText = "Label"
                 placeholderText = "Placeholder"
-                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
+                trailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_alert, null)
             }
 
             findViewById<TextInputView>(R.id.success_text_input).apply {
@@ -58,7 +58,7 @@ class TextInputActivity : AppCompatActivity() {
                 }
                 labelText = "Label"
                 state = successState
-                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
+                trailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_alert, null)
             }
 
             findViewById<TextInputView>(R.id.disabled_text_input).apply {
@@ -69,7 +69,7 @@ class TextInputActivity : AppCompatActivity() {
                 }
                 labelText = "Label"
                 state = disabledState
-                trailingIconResource = ImageResource.Local(R.drawable.ic_alert, null)
+                trailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_alert, null)
             }
 
             // Outlined Text Input
@@ -88,8 +88,8 @@ class TextInputActivity : AppCompatActivity() {
                 state = defaultState
                 labelText = "Label"
                 placeholderText = "Type Error to show error state"
-                unfocusedTrailingIconResource = ImageResource.Local(R.drawable.ic_search, null)
-                focusedTrailingIconResource = ImageResource.Local(R.drawable.ic_close_circle, null)
+                unfocusedTrailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_search, null)
+                focusedTrailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle, null)
                 onTrailingIconClicked = {
                     value = ""
                 }
@@ -104,8 +104,8 @@ class TextInputActivity : AppCompatActivity() {
                 state = errorState
                 labelText = "Label"
                 placeholderText = "Placeholder"
-                unfocusedTrailingIconResource = ImageResource.Local(R.drawable.ic_search, null)
-                focusedTrailingIconResource = ImageResource.Local(R.drawable.ic_close_circle, null)
+                unfocusedTrailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_search, null)
+                focusedTrailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle, null)
                 onTrailingIconClicked = {
                     value = ""
                 }
@@ -119,8 +119,8 @@ class TextInputActivity : AppCompatActivity() {
                 }
                 labelText = "Label"
                 state = successState
-                unfocusedTrailingIconResource = ImageResource.Local(R.drawable.ic_search, null)
-                focusedTrailingIconResource = ImageResource.Local(R.drawable.ic_close_circle, null)
+                unfocusedTrailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_search, null)
+                focusedTrailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle, null)
                 onTrailingIconClicked = {
                     value = ""
                 }
@@ -134,8 +134,8 @@ class TextInputActivity : AppCompatActivity() {
                 }
                 labelText = "Label"
                 state = disabledState
-                unfocusedTrailingIconResource = ImageResource.Local(R.drawable.ic_search, null)
-                focusedTrailingIconResource = ImageResource.Local(R.drawable.ic_close_circle, null)
+                unfocusedTrailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_search, null)
+                focusedTrailingIconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_close_circle, null)
             }
     }
 }

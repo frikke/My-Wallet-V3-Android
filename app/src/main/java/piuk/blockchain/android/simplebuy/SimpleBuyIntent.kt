@@ -1,9 +1,11 @@
 package piuk.blockchain.android.simplebuy
 
-import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.recurringbuy.domain.model.EligibleAndNextPaymentRecurringBuy
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyFrequency
+import com.blockchain.core.recurringbuy.domain.model.RecurringBuyState
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.GooglePayAddress
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
@@ -12,16 +14,13 @@ import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.BuySellOrder
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
-import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -72,7 +71,15 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                     fee = dynamicFee as FiatValue,
                     fiatPrice = fiatPrice as FiatValue
                 ),
+                quoteError = null
             )
+    }
+
+    class GetQuotePriceFailed(
+        val error: Exception
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(quoteError = error)
     }
 
     object StopPollingQuotePrice : SimpleBuyIntent()
@@ -106,11 +113,11 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         val limits: TxLimits,
         val assetCode: String,
         val fiatCurrency: FiatCurrency,
-        val usePrefilledAmount: Boolean,
+        val usePrefilledAmount: Boolean
     ) : SimpleBuyIntent()
 
     class PrefillEnterAmount(
-        val amount: Money,
+        val amount: Money
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             require(amount is FiatValue)
@@ -141,18 +148,30 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class Open3dsAuth(private val cardAcquirerCredentials: CardAcquirerCredentials) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(cardAcquirerCredentials = cardAcquirerCredentials)
+            oldState.copy(
+                cardAcquirerCredentials = cardAcquirerCredentials,
+                hasHandled3ds = true
+            )
     }
+
+    data class OpenCvvInput(val paymentId: String) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                securityCodePaymentId = paymentId,
+                openCvvInput = true
+            )
+    }
+
+    object OpenCvvInputHandled : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(openCvvInput = false, hasHandledCvv = true)
+    }
+
+    class CvvInputResult(val cvvUpdateSuccessful: Boolean) : SimpleBuyIntent()
 
     class AuthorisePaymentExternalUrl(private val url: String, private val linkedBank: LinkedBank) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(authorisePaymentUrl = url, linkedBank = linkedBank)
-    }
-
-    class ExchangePriceWithDeltaUpdated(private val exchangePriceWithDelta: ExchangePriceWithDelta) :
-        SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(exchangePriceWithDelta = exchangePriceWithDelta)
     }
 
     class PaymentMethodChangeRequested(val paymentMethod: PaymentMethod) : SimpleBuyIntent() {
@@ -163,13 +182,13 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class FetchPaymentDetails(
         val fiatCurrency: FiatCurrency,
-        val selectedPaymentMethodId: String,
+        val selectedPaymentMethodId: String
     ) : SimpleBuyIntent()
 
     class PaymentMethodsUpdated(
         val paymentOptions: PaymentOptions,
         val selectedPaymentMethod: SelectedPaymentMethod?,
-        val usePrefilledAmount: Boolean,
+        val usePrefilledAmount: Boolean
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState.copy(
@@ -197,7 +216,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         private val allowedAuthMethods: List<String>,
         private val allowedCardNetworks: List<String>,
         private val billingAddressRequired: Boolean,
-        private val billingAddressParameters: BillingAddressParameters,
+        private val billingAddressParameters: BillingAddressParameters
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState.copy(
@@ -231,7 +250,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     class SelectedPaymentMethodUpdate(
-        val paymentMethod: PaymentMethod,
+        val paymentMethod: PaymentMethod
     ) : SimpleBuyIntent() {
         // UndefinedBankAccount has no visual representation in the UI, it just opens WireTransferDetails,
         // hence why we're ignoring it and keeping the current selectedPaymentMethod
@@ -259,7 +278,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
-    object BuyButtonClicked : SimpleBuyIntent() {
+    object EnterAmountBuyButtonClicked : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(confirmationActionRequested = true, orderState = OrderState.INITIALISED)
     }
@@ -279,7 +298,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     data class UpdatedBuyLimitsAndPaymentMethods(
         private val limits: TxLimits,
         private val paymentOptions: PaymentOptions,
-        private val selectedPaymentMethod: SelectedPaymentMethod?,
+        private val selectedPaymentMethod: SelectedPaymentMethod?
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState.copy(
@@ -311,7 +330,8 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         val fiatCurrency: FiatCurrency,
         val selectedPaymentMethodId: String? = null,
         val usePrefilledAmount: Boolean = true,
-        val reloadQuickFillButtons: Boolean = true
+        val reloadQuickFillButtons: Boolean = true,
+        val promptRecurringBuy: Boolean
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(paymentOptions = PaymentOptions(), selectedPaymentMethod = null)
@@ -320,7 +340,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     object FetchEligibility : SimpleBuyIntent()
 
     data class UpgradeEligibilityTransactionsLimit(
-        val transactionsLimit: TransactionsLimit,
+        val transactionsLimit: TransactionsLimit
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(transactionsLimit = transactionsLimit)
@@ -357,6 +377,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
+    // Feynman Specific
     class CreateAndConfirmOrder(
         val googlePayPayload: String? = null,
         val googlePayAddress: GooglePayAddress? = null,
@@ -444,18 +465,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
-    object FinishedFirstBuy : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(showRecurringBuyFirstTimeFlow = true)
-
-        override fun isValidFor(oldState: SimpleBuyState): Boolean {
-            return !oldState.showRecurringBuyFirstTimeFlow
-        }
-    }
-
     class OrderCreated(
         private val buyOrder: BuySellOrder,
-        private val quote: BrokerageQuote,
+        private val quote: BrokerageQuote
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
@@ -465,7 +477,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                 quote = BuyQuote.fromBrokerageQuote(
                     brokerageQuote = quote,
                     fiatCurrency = buyOrder.source.currency as FiatCurrency,
-                    orderFee = buyOrder.fee,
+                    orderFee = buyOrder.fee
                 ),
                 orderValue = buyOrder.orderValue as CryptoValue,
                 paymentSucceeded = buyOrder.state == OrderState.FINISHED,
@@ -475,13 +487,13 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                 } else {
                     RecurringBuyState.ACTIVE
                 },
-                hasQuoteChanged = oldState.quote?.id != null && (oldState.quote.id != quote.id)
+                hasQuoteChanged = oldState.quote == null || (oldState.quote.id != quote.id)
             )
     }
 
     class UpdateBrokerageQuote(
         private val quote: BrokerageQuote,
-        private val currencySource: Currency,
+        private val currencySource: Currency
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
@@ -489,8 +501,16 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                     brokerageQuote = quote,
                     fiatCurrency = currencySource as FiatCurrency
                 ),
-                hasQuoteChanged = oldState.quote?.id != null && (oldState.quote.id != quote.id)
+                hasQuoteChanged = oldState.quote == null || (oldState.quote.id != quote.id)
             )
+    }
+
+    object QuoteChangeConsumed : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
+            return oldState.copy(
+                hasQuoteChanged = false
+            )
+        }
     }
 
     class OrderConfirmed(
@@ -516,12 +536,16 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         private val id: String,
         private val label: String?,
         private val partner: Partner,
-        private val isEligible: Boolean,
+        private val isEligible: Boolean
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 selectedPaymentMethod = SelectedPaymentMethod(
-                    id, partner, label, PaymentMethodType.PAYMENT_CARD, isEligible
+                    id,
+                    partner,
+                    label,
+                    PaymentMethodType.PAYMENT_CARD,
+                    isEligible
                 )
             )
     }
@@ -596,7 +620,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(shouldShowUnlockHigherFunds = true)
     }
 
-    object PaymentPending : SimpleBuyIntent() {
+    object PollingTimedOutWithPaymentPending : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(paymentPending = true, isLoading = false)
     }
@@ -625,7 +649,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class UpdateRecurringFrequencyRemote(private val recurringBuyFrequencyRemote: RecurringBuyFrequency) :
         SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(recurringBuyForExperiment = recurringBuyFrequencyRemote)
+            oldState.copy(suggestedRecurringBuyExperiment = recurringBuyFrequencyRemote)
     }
 
     class RecurringBuyIntervalUpdated(private val recurringBuyFrequency: RecurringBuyFrequency) :
@@ -636,22 +660,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class CreateRecurringBuy(val recurringBuyFrequency: RecurringBuyFrequency) : SimpleBuyIntent()
 
-    class RecurringBuySuggestionAccepted(
-        val recurringBuyFrequency: RecurringBuyFrequency,
-        val googlePayPayload: String? = null,
-        val googlePayAddress: GooglePayAddress? = null
-    ) :
-        SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(
-                confirmationActionRequested = true,
-                isLoading = true
-            )
-    }
-
     class RecurringBuyCreated(
         val recurringBuyId: String,
-        val recurringBuyFrequency: RecurringBuyFrequency,
+        val recurringBuyFrequency: RecurringBuyFrequency
     ) :
         SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
@@ -663,7 +674,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     class RecurringBuyEligibilityUpdated(
-        private val eligibilityNextPaymentList: List<EligibleAndNextPaymentRecurringBuy>,
+        private val eligibilityNextPaymentList: List<EligibleAndNextPaymentRecurringBuy>
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
@@ -676,6 +687,9 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(
                 isRecurringBuyToggled = isRecurringBuyToggled
             )
+
+        override fun isValidFor(oldState: SimpleBuyState): Boolean =
+            oldState.isRecurringBuyToggled != isRecurringBuyToggled
     }
 
     class TxLimitsUpdated(private val limits: TxLimits) : SimpleBuyIntent() {
@@ -688,7 +702,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     object GetSafeConnectTermsOfServiceLink : SimpleBuyIntent()
 
     data class UpdateSafeConnectTermsOfServiceLink(
-        private val termsOfServiceLink: String,
+        private val termsOfServiceLink: String
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
@@ -696,10 +710,41 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
-    object CheckForOrderCompletedSideEvents : SimpleBuyIntent() {
+    object OrderFinishedSuccessfully : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(sideEventsChecked = true)
+            oldState.copy(orderFinishedSuccessfullyHandled = true)
 
-        override fun isValidFor(oldState: SimpleBuyState) = oldState.sideEventsChecked.not()
+        override fun isValidFor(oldState: SimpleBuyState) = !oldState.orderFinishedSuccessfullyHandled
+    }
+
+    object LoadRecurringBuyOptionsSeenState : SimpleBuyIntent()
+
+    data class RecurringBuyOptionsSeenStateLoaded(val seen: Boolean) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(hasSeenRecurringBuyOptions = seen)
+    }
+
+    object RecurringBuyOptionsSeen : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(hasSeenRecurringBuyOptions = true)
+
+        override fun isValidFor(oldState: SimpleBuyState) = !oldState.hasSeenRecurringBuyOptions
+    }
+
+    object LoadAssetUpSellDismissState : SimpleBuyIntent()
+
+    data class AssetUpSellDismissStateLoaded(val show: Boolean) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(shouldUpsellAnotherAsset = show)
+    }
+
+    object PromptRecurringBuyIntervals : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(promptRecurringBuyIntervals = true)
+    }
+
+    object RecurringBuyIntervalsShown : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(promptRecurringBuyIntervals = false)
     }
 }

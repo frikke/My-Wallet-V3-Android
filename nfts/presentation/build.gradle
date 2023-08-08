@@ -6,6 +6,7 @@ android {
         warningsAsErrors true
         abortOnError true
     }
+    namespace 'com.blockchain.nfts'
 }
 
 dependencies {
@@ -17,6 +18,7 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common:presentation')
     implementation project(':analytics:domain')
+    implementation project(':chrome:common')
 
     // Compose
     implementation Libraries.accompanistFlowLayout

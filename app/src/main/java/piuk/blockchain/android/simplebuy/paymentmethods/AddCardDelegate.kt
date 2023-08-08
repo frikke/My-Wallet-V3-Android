@@ -4,6 +4,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagView
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.AddNewCardLayoutBinding
@@ -38,13 +41,20 @@ class AddCardDelegate(
 
         val root: ViewGroup = binding.paymentMethodRoot
         val title: TextView = binding.paymentMethodTitle
+        val badge: TagView = binding.badge
 
         fun bind(paymentMethodItem: PaymentMethodItem) {
             root.setOnClickListener { paymentMethodItem.clickAction() }
-            title.text = if (canUseCreditCards)
-                title.context.getString(R.string.add_credit_or_debit_card_1)
-            else
-                title.context.getString(R.string.add_debit_card)
+            title.text = if (canUseCreditCards) {
+                title.context.getString(com.blockchain.stringResources.R.string.add_credit_or_debit_card_1)
+            } else {
+                title.context.getString(com.blockchain.stringResources.R.string.add_debit_card)
+            }
+            badge.tag =
+                TagViewState(
+                    value = badge.context.getString(com.blockchain.stringResources.R.string.most_popular),
+                    type = TagType.Success()
+                )
         }
     }
 }
