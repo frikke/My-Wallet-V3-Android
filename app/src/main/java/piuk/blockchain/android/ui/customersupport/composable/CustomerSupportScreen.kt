@@ -44,8 +44,6 @@ fun CustomerSupportScreen(
     ) {
         SheetHeader(
             onClosePress = onDismiss,
-            shouldShowDivider = false,
-            backgroundSecondary = false
         )
         Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
         Image(

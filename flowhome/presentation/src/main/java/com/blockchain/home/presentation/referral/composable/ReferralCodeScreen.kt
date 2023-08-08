@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -125,7 +124,7 @@ fun ReferralScreenData(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.light)
+            .background(AppColors.background)
     ) {
         val backgroundUrl = referralInfo.promotionInfo?.backgroundUrl
 
@@ -148,11 +147,12 @@ fun ReferralScreenData(
             horizontalAlignment = Alignment.Start
         ) {
             Box(
-                modifier = Modifier
-                    .padding(AppTheme.dimensions.standardSpacing)
-                    .clickable(true, onClick = onBackPressed)
+                modifier = Modifier.padding(AppTheme.dimensions.standardSpacing)
             ) {
-                Image(Icons.ArrowLeft)
+                Image(
+                    modifier = Modifier.clickable(onClick = onBackPressed),
+                    imageResource = Icons.ArrowLeft.withTint(AppColors.title)
+                )
             }
 
             Column(
@@ -354,7 +354,7 @@ fun SingleReferralCriteria(
             modifier = Modifier
                 .size(AppTheme.dimensions.standardSpacing)
                 .clip(CircleShape)
-                .background(Color.White),
+                .background(AppColors.backgroundSecondary),
             style = ComposeTypographies.Body2,
             color = ComposeColors.Primary,
             markdownText = (index + 1).toString(),
@@ -378,7 +378,7 @@ fun ReferralCriteriaSeparator() {
         modifier = Modifier
             .padding(horizontal = 34.dp) // padding: 24 + (text width: 24 / 2) - (this view width / 2) -> 24 + 12 - 2
             .size(height = AppTheme.dimensions.tinySpacing, width = AppTheme.dimensions.smallestSpacing)
-            .background(Color.White)
+            .background(AppColors.backgroundSecondary)
     )
 }
 
@@ -386,7 +386,7 @@ fun ReferralCriteriaSeparator() {
 // PREVIEWS
 // ///////////////
 
-@Preview(name = "Full Screen", showBackground = true)
+@Preview(name = "Full Screen")
 @Composable
 fun PreviewReferralScreen() {
     ReferralScreenData(
@@ -406,7 +406,7 @@ fun PreviewReferralScreen() {
     )
 }
 
-@Preview(name = "Full Screen", showBackground = true)
+@Preview(name = "Full Screen")
 @Composable
 fun PreviewReferralScreenPromotion() {
     ReferralScreenData(
@@ -436,7 +436,7 @@ fun PreviewReferralScreenPromotion() {
     )
 }
 
-@Preview(name = "Referral Code Copy", showBackground = true)
+@Preview(name = "Referral Code Copy")
 @Composable
 fun PreviewReferralCodeCopy() {
     ReferralCode(
@@ -447,7 +447,7 @@ fun PreviewReferralCodeCopy() {
     )
 }
 
-@Preview(name = "Referral Code Copied", showBackground = true)
+@Preview(name = "Referral Code Copied")
 @Composable
 fun PreviewReferralCodeCopied() {
     ReferralCode(
@@ -458,7 +458,7 @@ fun PreviewReferralCodeCopied() {
     )
 }
 
-@Preview(name = "Referral Criteria", showBackground = true)
+@Preview(name = "Referral Criteria")
 @Composable
 fun PreviewReferralCriteria() {
     ReferralCriteria(
@@ -467,7 +467,7 @@ fun PreviewReferralCriteria() {
     )
 }
 
-@Preview(name = "Single Referral Criteria", showBackground = true)
+@Preview(name = "Single Referral Criteria")
 @Composable
 fun PreviewSingleReferralCriteria() {
     SingleReferralCriteria(
@@ -477,7 +477,7 @@ fun PreviewSingleReferralCriteria() {
     )
 }
 
-@Preview(name = "Single Referral Criteria", showBackground = true)
+@Preview(name = "Single Referral Criteria")
 @Composable
 fun PreviewSingleReferralCriteria_DarkTheme() {
     SingleReferralCriteria(

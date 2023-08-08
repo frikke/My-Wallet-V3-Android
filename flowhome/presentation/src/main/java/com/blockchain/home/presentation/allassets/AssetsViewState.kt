@@ -23,7 +23,7 @@ sealed interface HomeAsset {
     val icon: List<String>
     val name: String
     val balance: DataResource<Money>
-    val fiatBalance: DataResource<Money>
+    val fiatBalance: DataResource<Money?>
 }
 
 data class CustodialAssetState(
@@ -31,7 +31,7 @@ data class CustodialAssetState(
     override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>,
-    override val fiatBalance: DataResource<Money>,
+    override val fiatBalance: DataResource<Money?>,
     val change: DataResource<ValueChange>
 ) : HomeCryptoAsset
 
@@ -40,14 +40,14 @@ data class NonCustodialAssetState(
     override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>,
-    override val fiatBalance: DataResource<Money>
+    override val fiatBalance: DataResource<Money?>
 ) : HomeCryptoAsset
 
 data class FiatAssetState(
     override val icon: List<String>,
     override val name: String,
     override val balance: DataResource<Money>,
-    override val fiatBalance: DataResource<Money>,
+    override val fiatBalance: DataResource<Money?>,
     val account: FiatAccount
 ) : HomeAsset
 

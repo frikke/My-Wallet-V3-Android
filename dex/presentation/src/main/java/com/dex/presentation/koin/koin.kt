@@ -28,7 +28,8 @@ val dexPresentation = module {
                 dexSlippageService = get(),
                 dexNetworkService = get(),
                 assetCatalogue = get(),
-                dexEligibilityService = get()
+                dexEligibilityService = get(),
+                oneTimeAccountPersistenceService = get()
             )
         }
 

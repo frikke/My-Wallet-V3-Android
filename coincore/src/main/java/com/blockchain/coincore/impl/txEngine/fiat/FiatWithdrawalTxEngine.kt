@@ -16,14 +16,14 @@ import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.TransactionsStore
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
-import com.blockchain.domain.paymentmethods.model.LegacyLimits
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.storedatasource.FlushableDataSource
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -68,9 +68,9 @@ class FiatWithdrawalTxEngine(
                 outputCurrency = zeroFiat.currency,
                 sourceCurrency = zeroFiat.currency,
                 targetCurrency = (txTarget as LinkedBankAccount).currency,
-                sourceAccountType = AssetCategory.CUSTODIAL,
-                targetAccountType = AssetCategory.NON_CUSTODIAL,
-                legacyLimits = withdrawFeeAndMinLimit.map { it as LegacyLimits }
+                sourceAccountType = CUSTODIAL_LIMITS_ACCOUNT,
+                targetAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+                legacyLimits = withdrawFeeAndMinLimit.map { it }
             )
         ) { balance, withdrawalFee, limits ->
             PendingTx(
@@ -151,6 +151,7 @@ class FiatWithdrawalTxEngine(
                             ValidationState.UNDER_MIN_LIMIT
                         )
                     )
+
                     pendingTx.isMaxLimitViolated() -> userIsGoldVerified.flatMapCompletable {
                         if (it) {
                             Completable.error(TxValidationFailure(ValidationState.OVER_GOLD_TIER_LIMIT))
@@ -158,11 +159,13 @@ class FiatWithdrawalTxEngine(
                             Completable.error(TxValidationFailure(ValidationState.OVER_SILVER_TIER_LIMIT))
                         }
                     }
+
                     pendingTx.availableBalance < pendingTx.amount -> Completable.error(
                         TxValidationFailure(
                             ValidationState.INSUFFICIENT_FUNDS
                         )
                     )
+
                     else -> Completable.complete()
                 }
             } else {

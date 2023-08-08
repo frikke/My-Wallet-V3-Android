@@ -4,6 +4,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
@@ -83,7 +84,10 @@ class FiatActionsUseCase(
         action: AssetAction
     ) = Singles.zip(
         getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_DEPOSIT),
-        userIdentity.userAccessForFeature(Feature.DepositFiat, freshnessStrategy = FreshnessStrategy.Fresh),
+        userIdentity.userAccessForFeature(
+            Feature.DepositFiat,
+            freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
+        ),
         linkedBanksFactory.eligibleBankPaymentMethods(account.currency).map { paymentMethods ->
             // Ignore any WireTransferMethods In case BankLinkTransfer should launch
             paymentMethods.filter { it == PaymentMethodType.BANK_TRANSFER || !shouldLaunchBankLinkTransfer }

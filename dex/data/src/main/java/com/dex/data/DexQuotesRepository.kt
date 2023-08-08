@@ -128,6 +128,9 @@ class DexQuotesRepository(
                 },
                 message = (it as? NabuApiException)?.let { nabuException ->
                     nabuException.getServerSideErrorInfo()?.description.orEmpty()
+                },
+                id = (it as? NabuApiException)?.let { nabuException ->
+                    nabuException.getServerSideErrorInfo()?.id.orEmpty()
                 }
             )
         }

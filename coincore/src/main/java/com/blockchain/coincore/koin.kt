@@ -275,6 +275,10 @@ val coincoreModule = module {
                 assetCatalogue = get()
             )
         }.bind(TrendingPairsProvider::class)
+
+        scoped<OneTimeAccountPersistenceService> {
+            OneTimeAccountPersistenceRepository
+        }
     }
 
     single {

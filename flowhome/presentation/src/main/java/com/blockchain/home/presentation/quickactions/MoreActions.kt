@@ -82,8 +82,6 @@ private fun MoreActionsScreen(
         SheetHeader(
             title = stringResource(id = com.blockchain.stringResources.R.string.common_more),
             onClosePress = dismiss,
-            shouldShowDivider = false,
-            backgroundSecondary = false
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))

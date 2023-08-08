@@ -123,7 +123,7 @@ fun TransactionFeeExplanationSheet(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = AppTheme.colors.light,
+                color = AppTheme.colors.background,
                 shape = RoundedCornerShape(
                     dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                 )
@@ -133,7 +133,6 @@ fun TransactionFeeExplanationSheet(
         SheetHeader(
             title = title,
             onClosePress = onCloseClick,
-            shouldShowDivider = false
         )
 
         Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))

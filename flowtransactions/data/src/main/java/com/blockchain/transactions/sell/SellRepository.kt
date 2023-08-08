@@ -5,7 +5,9 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.core.buy.domain.SimpleBuyService
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResourceFlows
@@ -22,7 +24,6 @@ import com.blockchain.outcome.map
 import com.blockchain.transactions.common.CryptoAccountWithBalance
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.utils.toFlowDataResource
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.CurrencyPair
@@ -159,16 +160,16 @@ internal class SellRepository(
                 direction
             ).map { it as LegacyLimits },
             sourceAccountType = direction.sourceAccountType(),
-            targetAccountType = AssetCategory.CUSTODIAL,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
         ).awaitOutcome()
     }
 }
 
-private fun TransferDirection.sourceAccountType(): AssetCategory {
+private fun TransferDirection.sourceAccountType(): String {
     return when (this) {
         TransferDirection.FROM_USERKEY,
-        TransferDirection.ON_CHAIN -> AssetCategory.NON_CUSTODIAL
+        TransferDirection.ON_CHAIN -> NON_CUSTODIAL_LIMITS_ACCOUNT
         TransferDirection.INTERNAL,
-        TransferDirection.TO_USERKEY -> AssetCategory.CUSTODIAL
+        TransferDirection.TO_USERKEY -> CUSTODIAL_LIMITS_ACCOUNT
     }
 }

@@ -61,7 +61,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
-import kotlin.math.max
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
 
@@ -179,8 +178,8 @@ data class TransactionState(
 
     override val sourceAccountType: AssetCategory
         get() = when (sendingAccount) {
-            is TradingAccount -> AssetCategory.CUSTODIAL
-            is EarnRewardsAccount.Interest -> AssetCategory.CUSTODIAL
+            is TradingAccount -> AssetCategory.TRADING
+            is EarnRewardsAccount.Interest -> AssetCategory.TRADING
             is CryptoNonCustodialAccount -> AssetCategory.NON_CUSTODIAL
             else -> throw IllegalStateException("$sendingAccount not supported")
         }
@@ -277,18 +276,22 @@ class TransactionModel(
                 fromAccount = intent.fromAccount,
                 passwordRequired = previousState.passwordRequired
             )
+
             is TransactionIntent.InitialiseWithNoSourceOrTargetAccount -> processSourceAccountsListUpdate(
                 intent.action,
                 NullAddress
             )
+
             is TransactionIntent.InitialiseWithTargetAndNoSource -> {
                 processSourceAccountsListUpdate(intent.action, intent.target)
             }
+
             is TransactionIntent.ReInitialiseWithTargetAndNoSource -> processSourceAccountsListUpdate(
                 intent.action,
                 intent.target,
                 true
             )
+
             is TransactionIntent.InitialiseTransaction -> initialiseTransaction(
                 intent.sourceAccount,
                 intent.amount,
@@ -296,6 +299,7 @@ class TransactionModel(
                 intent.action,
                 intent.eligibility
             )
+
             is TransactionIntent.ValidatePassword -> processPasswordValidation(intent.password)
             is TransactionIntent.SourceAccountSelected -> processAccountsListUpdate(
                 selectedTarget = previousState.selectedTarget,
@@ -306,9 +310,11 @@ class TransactionModel(
                 fromAccount = intent.sourceAccount,
                 passwordRequired = previousState.passwordRequired
             )
+
             is TransactionIntent.ExecuteTransaction -> processExecuteTransaction(previousState.secondPassword)
             is TransactionIntent.ValidateInputTargetAddress ->
                 processValidateAddress(intent.targetAddress, intent.expectedCrypto)
+
             is TransactionIntent.CancelTransaction -> processCancelTransaction()
             is TransactionIntent.TargetAddressValidated -> null
             is TransactionIntent.TargetAddressOrDomainInvalid -> null
@@ -321,6 +327,7 @@ class TransactionModel(
                     passwordRequired = intent.passwordRequired
                 )
             }
+
             is TransactionIntent.TargetSelected ->
                 processTargetSelectionConfirmed(
                     sourceAccount = previousState.sendingAccount,
@@ -329,6 +336,7 @@ class TransactionModel(
                     action = previousState.action,
                     passwordRequired = previousState.passwordRequired
                 )
+
             is TransactionIntent.AmountChanged -> processAmountChanged(intent.amount)
             is TransactionIntent.ModifyTxOption -> processModifyTxOptionRequest(intent.confirmation)
             is TransactionIntent.FetchFiatRates -> processGetFiatRate()
@@ -342,12 +350,15 @@ class TransactionModel(
                 interactor.reset()
                 null
             }
+
             is TransactionIntent.RefreshSourceAccounts -> processSourceAccountsListUpdate(
                 previousState.action,
                 previousState.selectedTarget
             )
+
             is TransactionIntent.NavigateBackFromEnterAmount ->
                 processTransactionInvalidation(previousState.action)
+
             is TransactionIntent.SwitchAccountType -> interactor.getTargetAccounts(
                 previousState.sendingAccount,
                 previousState.action
@@ -364,11 +375,13 @@ class TransactionModel(
                 fromAccount = previousState.sendingAccount,
                 passwordRequired = previousState.passwordRequired
             )
+
             is TransactionIntent.StartLinkABank -> processLinkABank(previousState)
             is TransactionIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(
                 model = this,
                 available = previousState.availableBalance
             )
+
             TransactionIntent.CheckAvailableOptionsForFiatDeposit -> processFiatDepositOptions(previousState)
             is TransactionIntent.LoadSendToDomainBannerPref -> processLoadSendToDomainPrefs(intent.prefsKey)
             is TransactionIntent.DismissSendToDomainBanner -> processDismissSendToDomainPrefs(intent.prefsKey)
@@ -376,11 +389,13 @@ class TransactionModel(
                 (previousState.sendingAccount as? LinkedBankAccount)?.accountId,
                 previousState.amount
             )
+
             is TransactionIntent.LoadImprovedPaymentUxFeatureFlag -> processImprovedPaymentUxFF()
             is TransactionIntent.UpdateStakingWithdrawalSeen -> {
                 interactor.updateStakingExplainerAcknowledged(intent.networkTicker)
                 null
             }
+
             is TransactionIntent.ShowSourceSelection ->
                 loadAvailableSourceAccounts(
                     action = previousState.action,
@@ -388,6 +403,7 @@ class TransactionModel(
                     shouldResetBackStack = true,
                     shouldShowPkwOnTrading = interactor.shouldShowPkwOnTradingMode()
                 )
+
             is TransactionIntent.UpdatePrivateKeyFilter -> {
                 interactor.updatePkwFilterState(intent.isPkwAccountFilterActive)
                 loadAvailableSourceAccounts(
@@ -397,11 +413,13 @@ class TransactionModel(
                     shouldShowPkwOnTrading = interactor.shouldShowPkwOnTradingMode()
                 )
             }
+
             is TransactionIntent.LoadRewardsWithdrawalUnbondingDays ->
                 processLoadRewardsWithdrawalUnbondingDays(
                     (previousState.sendingAccount as CryptoAccount).currency,
                     previousState.sendingAccount as EarnRewardsAccount
                 )
+
             is TransactionIntent.LinkBankInfoSuccess,
             is TransactionIntent.LinkBankFailed,
             is TransactionIntent.ClearBackStack,
@@ -682,6 +700,7 @@ class TransactionModel(
                         interactor.userAccessForFeature(Feature.DepositCrypto)
                     } else Single.just(access)
                 }.toMaybe()
+
         AssetAction.InterestDeposit -> interactor.userAccessForFeature(Feature.DepositInterest).toMaybe()
         AssetAction.Send ->
             if (sourceAccount is NonCustodialAccount && (target is TradingAccount || target is EarnRewardsAccount)) {
@@ -691,8 +710,10 @@ class TransactionModel(
                             access !is FeatureAccess.Granted -> Single.just(access)
                             target is EarnRewardsAccount.Interest ->
                                 interactor.userAccessForFeature(Feature.DepositInterest)
+
                             target is EarnRewardsAccount.Staking ->
                                 interactor.userAccessForFeature(Feature.DepositStaking)
+
                             target is EarnRewardsAccount.Active ->
                                 interactor.userAccessForFeature(Feature.DepositStaking) // TODO(EARN):  eligibility
                             else -> Single.just(access)
@@ -707,6 +728,7 @@ class TransactionModel(
             } else {
                 Maybe.empty()
             }
+
         AssetAction.Sell -> interactor.userAccessForFeature(Feature.Sell).toMaybe()
         AssetAction.FiatWithdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
         AssetAction.FiatDeposit -> interactor.userAccessForFeature(Feature.DepositFiat).toMaybe()
@@ -716,10 +738,12 @@ class TransactionModel(
             asset = (target as CryptoAccount).currency,
             action = action
         ).toMaybe()
+
         AssetAction.Buy,
         AssetAction.Receive,
         AssetAction.ViewActivity,
         AssetAction.ViewStatement -> throw IllegalStateException("$action is not part of TxFlow")
+
         AssetAction.InterestWithdraw,
         AssetAction.ActiveRewardsWithdraw,
         AssetAction.StakingWithdraw,
@@ -836,6 +860,7 @@ class TransactionModel(
                 amountChangeDisposable += it
             }
     }
+
     private fun processSetFeeLevel(intent: TransactionIntent.SetFeeLevel): Disposable =
         interactor.updateTransactionFees(intent.feeLevel, intent.customFeeAmount)
             .subscribeBy(
@@ -1008,7 +1033,7 @@ class TransactionModel(
 }
 
 private var firstCall = true
-fun <T> Observable<T>.doOnFirst(onAction: (T) -> Unit): Observable<T> {
+fun <T : Any> Observable<T>.doOnFirst(onAction: (T) -> Unit): Observable<T> {
     firstCall = true
     return this.doOnNext {
         if (firstCall) {

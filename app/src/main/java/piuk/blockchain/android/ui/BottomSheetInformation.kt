@@ -42,7 +42,6 @@ class BottomSheetInformation : ThemedBottomSheetFragment() {
                     BottomSheetOneButton(
                         title = title,
                         subtitle = description,
-                        shouldShowHeaderDivider = false,
                         onCloseClick = { dismiss() },
                         headerImageResource = icon?.let {
                             ImageResource.Local(it)
@@ -60,7 +59,6 @@ class BottomSheetInformation : ThemedBottomSheetFragment() {
                     BottomSheetTwoButtons(
                         title = title,
                         subtitle = description,
-                        shouldShowHeaderDivider = false,
                         onCloseClick = { dismiss() },
                         headerImageResource = icon?.let {
                             ImageResource.Local(it)

@@ -4,6 +4,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
+import com.blockchain.domain.swap.SwapOption
 import info.blockchain.balance.Money
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 
@@ -22,7 +23,7 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val interestRate: Double,
         val stakingRate: Double,
         val activeRewardsRate: Double,
-        val fiatBalance: Money,
+        val fiatBalance: Money?,
         val cryptoBalance: Money,
         val actions: List<StateAwareAction>
     ) : CoinviewNavigationEvent
@@ -47,7 +48,8 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     ) : CoinviewNavigationEvent
 
     data class NavigateToSwap(
-        val cvAccount: CoinviewAccount
+        val cvAccount: CoinviewAccount,
+        val swapOption: SwapOption
     ) : CoinviewNavigationEvent
 
     data class NavigateToActivity(

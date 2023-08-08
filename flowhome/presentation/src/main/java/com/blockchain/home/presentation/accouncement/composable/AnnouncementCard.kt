@@ -76,7 +76,7 @@ fun AnnouncementCard(
         Row(
             modifier = Modifier
                 .clickable(onClick = onClick)
-                .padding(AppTheme.dimensions.smallSpacing)
+                .padding(horizontal = AppTheme.dimensions.smallSpacing, vertical = AppTheme.dimensions.standardSpacing)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {

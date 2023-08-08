@@ -1,7 +1,6 @@
 package com.blockchain.api.earn.active
 
 import com.blockchain.api.earn.EarnRewardsEligibilityDto
-import com.blockchain.api.earn.EarnWithdrawalDto
 import com.blockchain.api.earn.active.data.ActiveRewardsAddressDto
 import com.blockchain.api.earn.active.data.ActiveRewardsBalanceDto
 import com.blockchain.api.earn.active.data.ActiveRewardsLimitsMapDto

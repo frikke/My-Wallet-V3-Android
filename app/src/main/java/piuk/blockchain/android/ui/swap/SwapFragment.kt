@@ -27,14 +27,10 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.kyc.domain.KycService
-import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.earn.TxFlowAnalyticsAccountType
-import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.fiatActions.fiatactions.KycBenefitsSheetHost
-import com.blockchain.koin.newSwapFlowFeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -73,6 +69,8 @@ import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU8
 import retrofit2.HttpException
 
+// todo cleanup + new swap navigation - it's going through this (the old swap) to just end up opening the new one
+// (loadSwapOrKyc) make sure kyc is still handled correctly
 class SwapFragment :
     Fragment(),
     KycBenefitsSheetHost,
@@ -80,7 +78,6 @@ class SwapFragment :
 
     interface Host {
         fun navigateBack()
-        fun navigateToReceive()
         fun navigateToBuy()
     }
 
@@ -91,8 +88,6 @@ class SwapFragment :
 
     private val host: Host
         get() = requireActivity() as Host
-
-    private val newSwapFlowFF: FeatureFlag by inject(newSwapFlowFeatureFlag)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -145,7 +140,7 @@ class SwapFragment :
             host.navigateToBuy()
         }
         binding.cardReceive.setOnClickListener {
-            host.navigateToReceive()
+//            host.navigateToReceive()
         }
 
         analytics.logEvent(SwapAnalyticsEvents.SwapViewedEvent)
@@ -191,22 +186,19 @@ class SwapFragment :
                 coincore.walletsWithAction(action = AssetAction.Swap)
                     .map { it.isNotEmpty() },
                 userIdentity.userAccessForFeature(Feature.Swap),
-                newSwapFlowFF.enabled
             ) { tiers: KycTiers,
                 pairs: List<TrendingPair>,
                 limits: TransferLimits,
                 orders: List<CustodialOrder>,
                 hasAtLeastOneAccountToSwapFrom,
-                eligibility,
-                newSwapFlowFFEnabled ->
+                eligibility ->
                 SwapComposite(
                     tiers,
                     pairs,
                     limits,
                     orders,
                     hasAtLeastOneAccountToSwapFrom,
-                    eligibility,
-                    newSwapFlowFFEnabled
+                    eligibility
                 )
             }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -215,43 +207,8 @@ class SwapFragment :
                 .subscribeBy(
                     onSuccess = { composite ->
                         if (composite.tiers.isVerified()) {
-                            if (composite.newSwapFlowFFEnabled) {
-                                startSwap()
-                                requireActivity().finish()
-                                return@subscribeBy
-                            }
-
-                            showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
-
-                            binding.swapViewFlipper.displayedChild = when {
-                                composite.hasAtLeastOneAccountToSwapFrom -> SWAP_VIEW
-                                else -> SWAP_NO_ACCOUNTS
-                            }
-                            binding.swapHeader.toggleBottomSeparator(false)
-
-                            val onPairClicked = onTrendingPairClicked()
-
-                            binding.swapTrending.initialise(
-                                pairs = composite.pairs,
-                                onSwapPairClicked = onPairClicked,
-                                assetResources = assetResources
-                            )
-
-                            val eligibility = composite.eligibility
-                            if (eligibility is FeatureAccess.Blocked) {
-                                when (val reason = eligibility.reason) {
-                                    is BlockedReason.NotEligible -> showBlockedDueToNotEligible(reason)
-                                    is BlockedReason.InsufficientTier -> showKycUpgradeNow()
-                                    is BlockedReason.Sanctions -> showBlockedDueToSanctions(reason)
-                                    is BlockedReason.TooManyInFlightTransactions,
-                                    is BlockedReason.ShouldAcknowledgeStakingWithdrawal,
-                                    is BlockedReason.ShouldAcknowledgeActiveRewardsWithdrawalWarning -> {
-                                        // noop
-                                    }
-                                }.exhaustive
-                            } else if (!composite.tiers.isInitialisedFor(KycTier.GOLD)) {
-                                showKycUpsellIfEligible(composite.limits)
-                            }
+                            startSwap()
+                            requireActivity().finish()
                         } else {
                             showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
                             binding.swapViewFlipper.displayedChild = KYC_VIEW
@@ -488,7 +445,6 @@ class SwapFragment :
         val orders: List<CustodialOrder>,
         val hasAtLeastOneAccountToSwapFrom: Boolean,
         val eligibility: FeatureAccess,
-        val newSwapFlowFFEnabled: Boolean,
     )
 
     override fun onDestroyView() {

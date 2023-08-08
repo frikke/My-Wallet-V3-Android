@@ -6,16 +6,21 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.data.DataResource
+import com.blockchain.data.combineDataResourceFlows
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.mapData
+import com.blockchain.data.mapListData
+import com.blockchain.domain.swap.SwapOption
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.utils.toFlowDataResource
+import com.dex.domain.DexNetworkService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
@@ -25,7 +30,8 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
 class LoadQuickActionsUseCase(
     private val userFeaturePermissionService: UserFeaturePermissionService,
     private val custodialWalletManager: CustodialWalletManager,
-    private val kycService: KycService
+    private val kycService: KycService,
+    private val dexNetworkService: DexNetworkService,
 ) {
     // todo(othman) remove accounts/total balance args - and use flow once caching is available
     operator fun invoke(
@@ -139,12 +145,14 @@ class LoadQuickActionsUseCase(
                              * Receive button will be enabled if
                              * * Is available for trading ([isAvailableForTrading])
                              */
-                            @Suppress("UnnecessaryVariable")
                             val receiveAccess = featuresAccessData[Feature.DepositCrypto]
                             val canReceive = receiveAccess is FeatureAccess.Granted && isAvailableForTradingData
 
                             val centerButtons = listOfNotNull(
-                                CoinviewQuickAction.Swap(enabled = !isKycRejectedData).takeIf { canSwap },
+                                CoinviewQuickAction.Swap(
+                                    enabled = !isKycRejectedData,
+                                    swapOption = SwapOption.BcdcSwap
+                                ).takeIf { canSwap },
                                 CoinviewQuickAction.Receive(enabled = !isKycRejectedData).takeIf { canReceive },
                                 CoinviewQuickAction.Send(enabled = !isKycRejectedData).takeIf { canSend }
                             )
@@ -178,46 +186,115 @@ class LoadQuickActionsUseCase(
                 if (nonCustodialAccount == null) {
                     flowOf(DataResource.Data(CoinviewQuickActions.none()))
                 } else {
-                    custodialWalletManager.isAssetSupportedForSwap(asset.currency).toFlowDataResource()
-                        .mapData { isSwapAvailable ->
-                            /**
-                             * Send button will be enabled if
-                             * * Balance is positive
-                             */
-                            val canSend = totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
+                    val userEligibleForDexFlow = userFeaturePermissionService.isEligibleFor(Feature.Dex)
 
-                            /**
-                             * Can always receive
-                             */
-                            val canReceive = true
+                    val assetAvailableOnDexFlow = flow {
+                        emit(DataResource.Data(dexNetworkService.supportedNetworks()))
+                    }.mapListData {
+                        it.nativeAssetTicker
+                    }.mapData {
+                        it.contains(asset.currency.coinNetwork?.nativeAssetTicker)
+                    }
 
-                            /**
-                             * Swap button will be enabled if
-                             * * Balance is positive
-                             */
-                            val canSwap =
-                                totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true &&
-                                    isSwapAvailable
+                    val isAvailableForSwapFlow = custodialWalletManager.isAssetSupportedForSwap(asset.currency)
+                        .toFlowDataResource()
 
-                            val centerButtons = listOfNotNull(
-                                CoinviewQuickAction.Send().takeIf { canSend },
-                                CoinviewQuickAction.Receive().takeIf { canReceive }
-                            )
+                    val isSellSupportedFlow = userFeaturePermissionService.getAccessForFeature(Feature.Sell)
+                        .mapData { it is FeatureAccess.Granted }
 
-                            val bottomButtons = listOfNotNull(
-                                CoinviewQuickAction.Swap().takeIf { canSwap }
-                            )
+                    val isAvailableForTradingFlow = custodialWalletManager.isCurrencyAvailableForTrading(asset.currency)
 
-                            /**
-                             * if true, put the centerbottons on the bottom
-                             */
-                            val shouldSwitch = bottomButtons.isEmpty()
+                    val isKycGoldFlow = kycService.stateFor(KycTier.GOLD).mapData { it == KycTierState.Verified }
 
-                            CoinviewQuickActions(
-                                center = if (shouldSwitch) emptyList() else centerButtons,
-                                bottom = if (shouldSwitch) centerButtons else bottomButtons
-                            )
-                        }
+                    combineDataResourceFlows(
+                        userEligibleForDexFlow,
+                        assetAvailableOnDexFlow,
+                        isAvailableForSwapFlow,
+                        isSellSupportedFlow,
+                        isAvailableForTradingFlow,
+                        isKycGoldFlow
+                    ) { userEligibleForDex,
+                        availableForDex,
+                        isAvailableForSwap,
+                        isSellSupported,
+                        isAvailableForTrading,
+                        isKycGold ->
+
+                        val isSwapSupported = isAvailableForSwap && isKycGold
+
+                        val isDexSupported = userEligibleForDex && availableForDex
+
+                        /**
+                         * Send button will be enabled if
+                         * * Balance is positive
+                         */
+                        val canSend = totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
+
+                        /**
+                         * Can always receive
+                         */
+                        val canReceive = true
+
+                        /**
+                         * Get XXX will be available if balance is 0 - could be native swap or dex
+                         */
+                        val noBalanceSwapOption =
+                            if (totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isZero == true) {
+                                when {
+                                    isSwapSupported -> SwapOption.BcdcSwap
+                                    isDexSupported -> SwapOption.Dex
+                                    else -> null
+                                }
+                            } else {
+                                null
+                            }
+
+                        /**
+                         * Swap button will be enabled if
+                         * * Balance is positive
+                         * * swap option: bcdc swap and/or dex
+                         */
+                        val positiveBalanceSwapOption =
+                            if (totalBalance.totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true) {
+                                when {
+                                    isSwapSupported && isDexSupported -> SwapOption.Multiple
+                                    isSwapSupported -> SwapOption.BcdcSwap
+                                    isDexSupported -> SwapOption.Dex
+                                    else -> null
+                                }
+                            } else {
+                                null
+                            }
+
+                        /**
+                         * Can sell if
+                         * * Sell is supported
+                         * * Asset is available for bcdc
+                         * * kyc gold
+                         */
+                        val canSell = isSellSupported && isAvailableForTrading && isKycGold
+
+                        val centerButtons = listOfNotNull(
+                            CoinviewQuickAction.Send().takeIf { canSend },
+                            CoinviewQuickAction.Receive().takeIf { canReceive }
+                        )
+
+                        val bottomButtons = listOfNotNull(
+                            noBalanceSwapOption?.let { CoinviewQuickAction.Get(swapOption = it) },
+                            positiveBalanceSwapOption?.let { CoinviewQuickAction.Swap(swapOption = it) },
+                            CoinviewQuickAction.Sell().takeIf { canSell },
+                        )
+
+                        /**
+                         * if true, put the centerbottons on the bottom
+                         */
+                        val shouldSwitch = bottomButtons.isEmpty()
+
+                        CoinviewQuickActions(
+                            center = if (shouldSwitch) emptyList() else centerButtons,
+                            bottom = if (shouldSwitch) centerButtons else bottomButtons
+                        )
+                    }
                 }
             }
         }

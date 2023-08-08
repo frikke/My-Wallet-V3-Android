@@ -9,9 +9,11 @@ import com.blockchain.data.dataOrElse
 import com.blockchain.data.flatMap
 import com.blockchain.data.map
 import com.blockchain.prices.R
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 
 data class PricesViewState(
+    val walletMode: WalletMode?,
     val selectedFilter: PricesFilter,
     val availableFilters: List<PricesFilter>,
     private val data: DataResource<Map<PricesOutputGroup, List<PriceItemViewState>>>,

@@ -76,7 +76,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.earn.navigation.EarnNavigation
 import com.blockchain.extensions.safeLet
 import com.blockchain.home.presentation.navigation.QrScanNavigation
-import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.Money
 import kotlin.math.min
@@ -111,8 +110,7 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel,
     analytics: Analytics = get(),
     onModeLongClicked: (WalletMode) -> Unit,
-    showDefiIntro: () -> Unit,
-    showCustodialIntro: () -> Unit,
+    showWalletIntro: (WalletMode) -> Unit,
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
     qrScanNavigation: QrScanNavigation,
@@ -121,7 +119,6 @@ fun MultiAppChrome(
     openNftHelp: () -> Unit,
     processAnnouncementUrl: (String) -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
-    nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
 ) {
     DisposableEffect(key1 = viewModel) {
@@ -137,8 +134,7 @@ fun MultiAppChrome(
     LaunchedEffect(key1 = viewModel) {
         navEventsFlowLifecycleAware.collectLatest {
             when (it) {
-                is MultiAppNavigationEvent.DefiIntro -> showDefiIntro()
-                is MultiAppNavigationEvent.CustodialIntro -> showCustodialIntro()
+                is MultiAppNavigationEvent.WalletIntro -> showWalletIntro(it.walletMode)
                 is MultiAppNavigationEvent.AppRating -> showAppRating()
             }
         }
@@ -183,7 +179,6 @@ fun MultiAppChrome(
             openExternalUrl = openExternalUrl,
             openNftHelp = openNftHelp,
             openNftDetail = openNftDetail,
-            nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
         )
@@ -212,7 +207,6 @@ fun MultiAppChromeScreen(
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
-    nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     processAnnouncementUrl: (String) -> Unit,
 ) {
@@ -733,7 +727,6 @@ fun MultiAppChromeScreen(
                     openExternalUrl = openExternalUrl,
                     openNftHelp = openNftHelp,
                     openNftDetail = openNftDetail,
-                    nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl,
                     navigateToMode = {

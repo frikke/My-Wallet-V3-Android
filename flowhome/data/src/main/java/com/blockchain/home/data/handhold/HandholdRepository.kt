@@ -10,8 +10,8 @@ import com.blockchain.data.mapData
 import com.blockchain.earn.domain.service.ActiveRewardsService
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.earn.domain.service.StakingService
-import com.blockchain.home.handhold.HandholStatus
 import com.blockchain.home.handhold.HandholdService
+import com.blockchain.home.handhold.HandholdStatus
 import com.blockchain.home.handhold.HandholdTask
 import com.blockchain.home.handhold.HandholdTasksStatus
 import com.blockchain.nabu.api.getuser.domain.UserService
@@ -39,25 +39,25 @@ class HandholdRepository(
                         HandholdTasksStatus(
                             task = HandholdTask.VerifyEmail,
                             status = if (handholdPrefs.debugHandholdEmailVerified) {
-                                HandholStatus.Complete
+                                HandholdStatus.Complete
                             } else {
-                                HandholStatus.Incomplete
+                                HandholdStatus.Incomplete
                             }
                         ),
                         HandholdTasksStatus(
                             task = HandholdTask.Kyc,
                             status = if (handholdPrefs.debugHandholdKycVerified) {
-                                HandholStatus.Complete
+                                HandholdStatus.Complete
                             } else {
-                                HandholStatus.Incomplete
+                                HandholdStatus.Incomplete
                             }
                         ),
                         HandholdTasksStatus(
                             task = HandholdTask.BuyCrypto,
                             status = if (handholdPrefs.debugHandholdBuyVerified) {
-                                HandholStatus.Complete
+                                HandholdStatus.Complete
                             } else {
-                                HandholStatus.Incomplete
+                                HandholdStatus.Incomplete
                             }
                         )
                     )
@@ -68,7 +68,7 @@ class HandholdRepository(
                 .mapData { user ->
                     HandholdTasksStatus(
                         task = HandholdTask.VerifyEmail,
-                        status = if (user.emailVerified) HandholStatus.Complete else HandholStatus.Incomplete
+                        status = if (user.emailVerified) HandholdStatus.Complete else HandholdStatus.Incomplete
                     )
                 }
 
@@ -77,14 +77,14 @@ class HandholdRepository(
                     HandholdTasksStatus(
                         task = HandholdTask.Kyc,
                         status = when (goldState) {
-                            KycTierState.Verified -> HandholStatus.Complete
+                            KycTierState.Verified -> HandholdStatus.Complete
 
                             KycTierState.Pending,
-                            KycTierState.UnderReview -> HandholStatus.Pending
+                            KycTierState.UnderReview -> HandholdStatus.Pending
 
                             KycTierState.Expired,
                             KycTierState.Rejected,
-                            KycTierState.None -> HandholStatus.Incomplete
+                            KycTierState.None -> HandholdStatus.Incomplete
                         }
                     )
                 }
@@ -105,7 +105,7 @@ class HandholdRepository(
                 DataResource.Data(
                     HandholdTasksStatus(
                         task = HandholdTask.BuyCrypto,
-                        status = if (isBuyTaskComplete) HandholStatus.Complete else HandholStatus.Incomplete
+                        status = if (isBuyTaskComplete) HandholdStatus.Complete else HandholdStatus.Incomplete
                     )
                 )
             }

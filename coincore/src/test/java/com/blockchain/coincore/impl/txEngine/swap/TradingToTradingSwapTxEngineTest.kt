@@ -14,6 +14,7 @@ import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.xlm.XlmCryptoWalletAccount
 import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -33,7 +34,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.CurrencyPair
@@ -577,8 +577,8 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             outputCurrency = eq(SRC_ASSET),
             sourceCurrency = eq(SRC_ASSET),
             targetCurrency = eq(TGT_ASSET),
-            sourceAccountType = eq(AssetCategory.CUSTODIAL),
-            targetAccountType = eq(AssetCategory.CUSTODIAL),
+            sourceAccountType = eq(CUSTODIAL_LIMITS_ACCOUNT),
+            targetAccountType = eq(CUSTODIAL_LIMITS_ACCOUNT),
             legacyLimits = any()
         )
     }

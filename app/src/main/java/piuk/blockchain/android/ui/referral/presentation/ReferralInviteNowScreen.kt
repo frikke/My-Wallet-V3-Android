@@ -40,8 +40,7 @@ fun ReferralInviteNowScreen(
             )
     ) {
         SheetHeader(
-            onClosePress = onNegativeAction,
-            shouldShowDivider = false
+            onClosePress = onNegativeAction
         )
         Column(
             modifier = Modifier

@@ -254,7 +254,7 @@ fun BalanceWithFiatAndCryptoBalance(
         title = cryptoAsset.name,
         tag = cryptoAsset.asset.takeIf { it.isLayer2Token }?.coinNetwork?.shortName ?: "",
         valueCrypto = cryptoAsset.balance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        valueFiat = cryptoAsset.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        valueFiat = cryptoAsset.fiatBalance.map { it?.toStringWithSymbol().orEmpty() }.dataOrElse(""),
         icon = if (cryptoAsset.icon.size == 2) {
             StackedIcon.SmallTag(
                 main = ImageResource.Remote(
@@ -280,9 +280,7 @@ fun BalanceWithPriceChange(
 ) {
     MaskedBalanceChangeTableRow(
         name = cryptoAsset.name,
-        value = cryptoAsset.fiatBalance.map {
-            it.toStringWithSymbol()
-        },
+        value = fiatOrCryptoBalance(cryptoAsset),
         valueChange = cryptoAsset.change,
         icon = if (cryptoAsset.icon.size == 2) {
             StackedIcon.SmallTag(
@@ -299,6 +297,21 @@ fun BalanceWithPriceChange(
             )
         },
         onClick = { onAssetClick(cryptoAsset.asset) }
+    )
+}
+
+/***
+ * if fiatbalance is available, return the fiatbalance, otherwise the
+ * cryptobalance if has loaded.
+ */
+private fun fiatOrCryptoBalance(cryptoAsset: CustodialAssetState): DataResource<String> {
+    val fiatBalanceData = (cryptoAsset.fiatBalance as? DataResource.Data)
+        ?: return cryptoAsset.fiatBalance.map { it?.toStringWithSymbol().orEmpty() }
+    val cryptoBalanceData = (cryptoAsset.balance as? DataResource.Data)
+        ?: return cryptoAsset.balance.map { it.toStringWithSymbol() }
+
+    return DataResource.Data(
+        fiatBalanceData.data?.toStringWithSymbol() ?: cryptoBalanceData.data.toStringWithSymbol()
     )
 }
 

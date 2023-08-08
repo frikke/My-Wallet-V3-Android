@@ -23,6 +23,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icons.Chat
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
@@ -281,6 +282,8 @@ class SettingsFragment :
                     analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Profile))
                     navigator().goToReferralCode()
                 }
+
+                textColor = { AppColors.titleSecondary }
 
                 newState.referralInfo.announcementInfo?.let { announcementInfo ->
                     isCloseable = false

@@ -45,10 +45,10 @@ data class NetworkBalance(
     val currency: Currency,
     val balance: Money,
     val unconfirmedBalance: Money,
-    val exchangeRate: ExchangeRate
+    val exchangeRate: ExchangeRate?
 ) {
-    val totalFiat: Money by lazy {
-        exchangeRate.convert(balance)
+    val totalFiat: Money? by lazy {
+        exchangeRate?.convert(balance)
     }
 }
 

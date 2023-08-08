@@ -192,7 +192,7 @@ class KycNavHostActivity :
     }
 
     override fun onEmailVerificationSkipped() {
-        throw IllegalStateException("Email must be verified")
+        finish()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

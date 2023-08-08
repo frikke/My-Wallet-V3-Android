@@ -19,7 +19,9 @@ import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.trade.model.QuotePrice
@@ -37,7 +39,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -585,8 +586,8 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
             outputCurrency = eq(SRC_ASSET),
             sourceCurrency = eq(SRC_ASSET),
             targetCurrency = eq(TEST_API_FIAT),
-            sourceAccountType = eq(AssetCategory.NON_CUSTODIAL),
-            targetAccountType = eq(AssetCategory.CUSTODIAL),
+            sourceAccountType = eq(NON_CUSTODIAL_LIMITS_ACCOUNT),
+            targetAccountType = eq(CUSTODIAL_LIMITS_ACCOUNT),
             legacyLimits = any()
         )
     }

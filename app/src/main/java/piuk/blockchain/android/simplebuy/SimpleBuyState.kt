@@ -171,7 +171,7 @@ data class SimpleBuyState constructor(
 
     override val sourceAccountType: AssetCategory
         get() = if (selectedPaymentMethod?.paymentMethodType == PaymentMethodType.FUNDS) {
-            AssetCategory.CUSTODIAL
+            AssetCategory.TRADING
         } else {
             AssetCategory.NON_CUSTODIAL
         }

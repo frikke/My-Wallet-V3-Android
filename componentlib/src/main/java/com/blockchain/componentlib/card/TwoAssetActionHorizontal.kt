@@ -52,6 +52,7 @@ private fun TwoAssetActionBody(
                 .size(AppTheme.dimensions.hugeSpacing)
                 .align(Alignment.Center),
             shape = CircleShape,
+            color = AppColors.background,
             border = BorderStroke(AppTheme.dimensions.tinySpacing, AppTheme.colors.background)
         ) {
             Image(

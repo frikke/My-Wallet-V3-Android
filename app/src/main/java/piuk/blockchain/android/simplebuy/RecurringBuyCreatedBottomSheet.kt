@@ -44,7 +44,6 @@ class RecurringBuyCreatedBottomSheet : ComposeModalBottomDialog() {
             headerImageResource = ImageResource.Local(com.blockchain.common.R.drawable.ic_tx_recurring_buy),
             title = title,
             subtitle = subtitle,
-            shouldShowHeaderDivider = false,
             onCloseClick = {},
             button1 = BottomSheetButton(
                 type = ButtonType.MINIMAL,

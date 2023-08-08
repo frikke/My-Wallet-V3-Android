@@ -133,12 +133,14 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 title = resources.getString(com.blockchain.stringResources.R.string.over_your_limit),
                 description = infoDescriptionForPeriodicLimits(
                     when (state.sourceAccountType) {
-                        AssetCategory.CUSTODIAL ->
+                        AssetCategory.TRADING ->
                             com.blockchain.stringResources.R.string.swap_enter_amount_max_limit_from_custodial_info
                         AssetCategory.NON_CUSTODIAL ->
                             com.blockchain.stringResources.R.string.swap_enter_amount_max_limit_from_noncustodial_info
                         AssetCategory.DELEGATED_NON_CUSTODIAL ->
                             com.blockchain.stringResources.R.string.swap_enter_amount_max_limit_from_noncustodial_info
+
+                        AssetCategory.INTEREST -> throw IllegalStateException("Cannot swap an interest account")
                     },
                     effectiveLimitAmount,
                     limitPeriodText,

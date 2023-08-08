@@ -11,7 +11,8 @@ val nftPresentationModule = module {
         viewModel {
             NftCollectionViewModel(
                 coincore = get(),
-                nftService = get()
+                nftService = get(),
+                oneTimeAccountPersistenceService = get()
             )
         }
 

@@ -158,9 +158,13 @@ class SimpleCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
     ) = (holder as SimpleCheckoutItemViewHolder).bind(
         items[position] as SimpleBuyCheckoutItem.SimpleCheckoutItem,
         isFirstItemInList = position == 0,
-        isLastItemInList = items.lastIndex == position
+        isLastItemInList = items.itemsLastIndex() == position
     )
 }
+
+private fun List<SimpleBuyCheckoutItem>.itemsLastIndex() = filter {
+    it !is SimpleBuyCheckoutItem.ReadMoreCheckoutItem
+}.lastIndex
 
 private class SimpleCheckoutItemViewHolder(
     val binding: ItemCheckoutSimpleInfoBinding
@@ -213,7 +217,7 @@ class ComplexCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
     ) = (holder as ComplexCheckoutItemItemViewHolder).bind(
         items[position] as SimpleBuyCheckoutItem.ComplexCheckoutItem,
         isFirstItemInList = position == 0,
-        isLastItemInList = items.lastIndex == position
+        isLastItemInList = items.itemsLastIndex() == position
     )
 }
 
@@ -264,6 +268,7 @@ private class ToggleCheckoutItemItemViewHolder(
         with(binding) {
             root.updateItemBackground(isFirstItemInList = false, isLastItemInList = true)
             toggleRow.apply {
+                transparentBackground = true
                 primaryText = item.title
                 secondaryText = item.subtitle
                 onCheckedChange = { newCheckedState ->
@@ -295,7 +300,7 @@ class ClickableCheckoutItemDelegate(
         items[position] as SimpleBuyCheckoutItem.ClickableCheckoutItem,
         onTooltipClicked,
         isFirstItemInList = position == 0,
-        isLastItemInList = items.lastIndex == position
+        isLastItemInList = items.itemsLastIndex() == position
     )
 }
 
@@ -341,7 +346,7 @@ class ReadMoreDisclaimerCheckoutItemDelegate(
         items[position] as SimpleBuyCheckoutItem.ReadMoreCheckoutItem,
         onCtaClicked,
         isFirstItemInList = position == 0,
-        isLastItemInList = items.lastIndex == position
+        isLastItemInList = items.itemsLastIndex() == position
     )
 }
 
@@ -356,8 +361,6 @@ private class ReadMoreDisclaimerCheckoutItemViewHolder(
         isLastItemInList: Boolean
     ) {
         with(binding) {
-            root.updateItemBackground(isFirstItemInList, isLastItemInList)
-
             infoText.text = item.text
             ctaButton.apply {
                 text = item.cta
@@ -386,7 +389,7 @@ class ExpandableCheckoutItemDelegate(
         items[position] as SimpleBuyCheckoutItem.ExpandableCheckoutItem,
         onTooltipClicked,
         isFirstItemInList = position == 0,
-        isLastItemInList = items.lastIndex == position
+        isLastItemInList = items.itemsLastIndex() == position
     )
 }
 

@@ -2,22 +2,15 @@ package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListScope
-import com.blockchain.chrome.navigation.AssetActionsNavigation
-import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.lazylist.paddedItem
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.activity.list.ActivityViewState
 import com.blockchain.home.presentation.allassets.AssetsViewState
-import com.blockchain.walletmode.WalletMode
-// todo defi
-fun LazyListScope.emptyCard(
-    walletMode: WalletMode,
+
+fun LazyListScope.defiEmptyCard(
     assetsViewState: AssetsViewState,
-    actiityViewState: ActivityViewState,
-    assetActionsNavigation: AssetActionsNavigation
+    onReceiveClicked: () -> Unit
 ) {
-    val state = dashboardState(assetsViewState, actiityViewState)
+    val state = dashboardState(assetsViewState)
 
     if (state == DashboardState.EMPTY) {
         paddedItem(
@@ -25,9 +18,9 @@ fun LazyListScope.emptyCard(
                 PaddingValues(horizontal = AppTheme.dimensions.smallSpacing)
             }
         ) {
-            NonCustodialEmptyStateCard {
-                assetActionsNavigation.navigate(AssetAction.Receive)
-            }
+            NonCustodialEmptyStateCard(
+                onReceiveClicked = onReceiveClicked
+            )
         }
     }
 }
@@ -38,18 +31,9 @@ enum class DashboardState {
 
 fun dashboardState(
     assetsViewState: AssetsViewState,
-    activityViewState: ActivityViewState?
 ): DashboardState {
-    activityViewState ?: return DashboardState.UNKNOWN
-    val hasAnyActivity =
-        (activityViewState.activity as? DataResource.Data)?.data?.any { act -> act.value.isNotEmpty() }
-            ?: return DashboardState.UNKNOWN
-    val hasAnyAssets =
-        (assetsViewState.assets as? DataResource.Data)?.data?.isNotEmpty() ?: return DashboardState.UNKNOWN
-
     val shouldShowEmptyStateForAssets = assetsViewState.showNoResults
-
-    return if (!hasAnyActivity && !hasAnyAssets && shouldShowEmptyStateForAssets) {
+    return if (shouldShowEmptyStateForAssets) {
         DashboardState.EMPTY
     } else DashboardState.NON_EMPTY
 }

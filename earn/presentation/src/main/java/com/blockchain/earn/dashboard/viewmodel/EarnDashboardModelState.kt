@@ -40,23 +40,23 @@ data class CombinedEarnData(
 sealed interface EarnBalanceWithFiat {
     val asset: AssetInfo
     val cryptoBalance: EarnAccountBalance
-    val totalFiat: Money
+    val totalFiat: Money?
 
     data class StakingBalanceWithFiat(
         override val asset: AssetInfo,
         override val cryptoBalance: StakingAccountBalance,
-        override val totalFiat: Money
+        override val totalFiat: Money?
     ) : EarnBalanceWithFiat
 
     data class InterestBalanceWithFiat(
         override val asset: AssetInfo,
         override val cryptoBalance: InterestAccountBalance,
-        override val totalFiat: Money
+        override val totalFiat: Money?
     ) : EarnBalanceWithFiat
 
     data class ActiveRewardsBalanceWithFiat(
         override val asset: AssetInfo,
         override val cryptoBalance: ActiveRewardsAccountBalance,
-        override val totalFiat: Money
+        override val totalFiat: Money?
     ) : EarnBalanceWithFiat
 }

@@ -10,11 +10,11 @@ import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
-import com.blockchain.data.asObservable
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.firstOutcome
 import com.blockchain.data.mapData
 import com.blockchain.data.mapError
+import com.blockchain.data.toObservable
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.rxCompletableOutcome
@@ -82,7 +82,7 @@ internal class ExchangeRatesDataManagerImpl(
         val base = if (shouldInverse) toAsset else fromAsset
         val quote = if (shouldInverse) fromAsset else toAsset
         return priceStore.getCurrentPriceForAsset(base, quote)
-            .asObservable().map {
+            .toObservable().map {
                 ExchangeRate(
                     from = base,
                     to = quote,
@@ -101,7 +101,7 @@ internal class ExchangeRatesDataManagerImpl(
         fromAsset: Currency
     ): Observable<ExchangeRate> =
         priceStore.getCurrentPriceForAsset(fromAsset, userFiat)
-            .asObservable()
+            .toObservable()
             .map {
                 ExchangeRate(
                     from = fromAsset,
@@ -226,9 +226,9 @@ internal class ExchangeRatesDataManagerImpl(
         fiat: Currency
     ): Observable<Prices24HrWithDelta> = Observable.combineLatest(
         priceStore.getCurrentPriceForAsset(fromAsset, fiat)
-            .asObservable(),
+            .toObservable(),
         priceStore.getYesterdayPriceForAsset(fromAsset, fiat)
-            .asObservable()
+            .toObservable()
     ) { current, yesterday ->
         Prices24HrWithDelta(
             delta24h = current.getPriceDelta(yesterday),

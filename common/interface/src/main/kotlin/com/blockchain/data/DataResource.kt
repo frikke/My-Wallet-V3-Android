@@ -499,7 +499,7 @@ fun <T : Any> Flow<DataResource<T?>>.asMaybe(
     }
 }
 
-fun <T : Any> Flow<DataResource<T>>.asObservable(): Observable<T> = filterNot { it is DataResource.Loading }
+fun <T : Any> Flow<DataResource<T>>.toObservable(): Observable<T> = filterNot { it is DataResource.Loading }
     .asObservable()
     .map { storeResponse ->
         when (storeResponse) {
@@ -579,3 +579,10 @@ fun <T, R> Flow<DataResource<T>>.flatMapData(mapper: suspend (T) -> Flow<DataRes
             is DataResource.Loading -> flowOf(it)
         }
     }
+
+fun <T> Flow<DataResource<T>>.printlnData(toString: T.() -> String) = map {
+    (it as? DataResource.Data)?.data?.let {
+        println("---------->>>>>> " + toString(it))
+    }
+    it
+}

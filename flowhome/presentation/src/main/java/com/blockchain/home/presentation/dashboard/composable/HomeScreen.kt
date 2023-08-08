@@ -105,6 +105,7 @@ import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.percentAndPositionOf
 import com.blockchain.stringResources.R
+import com.blockchain.transactions.receive.navigation.ReceiveDestination
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.ui.composable.common.DappSessionUiElement
 import com.blockchain.walletconnect.ui.navigation.WalletConnectDestination
@@ -164,6 +165,10 @@ fun HomeScreen(
     // navigation
     fun openFailedBalancesInfo() {
         navController.navigate(HomeDestination.FailedBalances)
+    }
+
+    fun openReceive() {
+        navController.navigate(ReceiveDestination.Accounts)
     }
 
     fun openAssetsList(assetsCount: Int) {
@@ -286,6 +291,7 @@ fun HomeScreen(
 
                     assetActionsNavigation = assetActionsNavigation,
                     openMoreQuickActions = { openMoreQuickActions(WalletMode.CUSTODIAL) },
+                    openReceive = ::openReceive,
 
                     openCryptoAssets = ::openAssetsList,
                     assetOnClick = ::openCoinview,
@@ -312,6 +318,8 @@ fun HomeScreen(
 
             WalletMode.NON_CUSTODIAL -> {
                 DefiHomeDashboard(
+                    analytics = analytics,
+
                     isSwipingToRefresh = isSwipingToRefresh,
 
                     listState = listState,
@@ -324,6 +332,7 @@ fun HomeScreen(
                     assetActionsNavigation = assetActionsNavigation,
                     openDexSwapOptions = ::openSwapDexOptions,
                     openMoreQuickActions = { openMoreQuickActions(WalletMode.NON_CUSTODIAL) },
+                    openReceive = ::openReceive,
 
                     openFailedBalancesInfo = ::openFailedBalancesInfo,
 
@@ -368,6 +377,7 @@ private fun CustodialHomeDashboard(
 
     assetActionsNavigation: AssetActionsNavigation,
     openMoreQuickActions: () -> Unit,
+    openReceive: () -> Unit,
 
     assetOnClick: (AssetInfo) -> Unit,
     openCryptoAssets: (count: Int) -> Unit,
@@ -412,7 +422,9 @@ private fun CustodialHomeDashboard(
     val assetsViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
     val rbViewModel: RecurringBuysViewModel = getViewModel(scope = payloadScope)
     val rbViewState: RecurringBuysViewState by rbViewModel.viewState.collectAsStateLifecycleAware()
-    val pricesViewModel: PricesViewModel = getViewModel(scope = payloadScope)
+    val pricesViewModel: PricesViewModel = getViewModel(
+        scope = payloadScope, key = WalletMode.CUSTODIAL.name + "prices"
+    )
     val pricesViewState: PricesViewState by pricesViewModel.viewState.collectAsStateLifecycleAware()
     val activityViewModel: CustodialActivityViewModel = getViewModel(scope = payloadScope)
     val activityViewState: ActivityViewState by activityViewModel.viewState.collectAsStateLifecycleAware()
@@ -484,12 +496,9 @@ private fun CustodialHomeDashboard(
                         when (it) {
                             QuickActionsNavEvent.Send -> assetActionsNavigation.navigate(AssetAction.Send)
                             QuickActionsNavEvent.Sell -> assetActionsNavigation.navigate(AssetAction.Sell)
-                            QuickActionsNavEvent.Receive -> assetActionsNavigation.navigate(AssetAction.Receive)
+                            QuickActionsNavEvent.Receive -> openReceive()
                             QuickActionsNavEvent.Buy -> assetActionsNavigation.navigate(AssetAction.Buy)
                             QuickActionsNavEvent.Swap -> assetActionsNavigation.navigate(AssetAction.Swap)
-                            QuickActionsNavEvent.FiatDeposit -> quickActionsViewModel.onIntent(
-                                QuickActionsIntent.FiatAction(AssetAction.FiatDeposit)
-                            )
 
                             QuickActionsNavEvent.FiatWithdraw -> quickActionsViewModel.onIntent(
                                 QuickActionsIntent.FiatAction(AssetAction.FiatWithdraw)
@@ -497,6 +506,8 @@ private fun CustodialHomeDashboard(
 
                             QuickActionsNavEvent.More -> openMoreQuickActions()
                             QuickActionsNavEvent.DexOrSwapOption -> {} // n/a
+                            QuickActionsNavEvent.KycVerificationPrompt ->
+                                navController.navigate(HomeDestination.KycVerificationPrompt)
                         }
                     }
                 }
@@ -552,7 +563,7 @@ private fun CustodialHomeDashboard(
             ) {
                 QuickActions(
                     quickActionItems = quickActionsState.actions.toImmutableList(),
-                    dashboardState = dashboardState(assetsViewState, activityViewState),
+                    dashboardState = dashboardState(assetsViewState),
                     quickActionClicked = {
                         quickActionsViewModel.onIntent(QuickActionsIntent.ActionClicked(it))
                     }
@@ -760,6 +771,8 @@ private fun CustodialHomeDashboard(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DefiHomeDashboard(
+    analytics: Analytics,
+
     isSwipingToRefresh: Boolean,
 
     listState: LazyListState,
@@ -772,6 +785,7 @@ private fun DefiHomeDashboard(
     assetActionsNavigation: AssetActionsNavigation,
     openDexSwapOptions: () -> Unit,
     openMoreQuickActions: () -> Unit,
+    openReceive: () -> Unit,
 
     openFailedBalancesInfo: () -> Unit,
 
@@ -816,6 +830,10 @@ private fun DefiHomeDashboard(
     val assetsViewState: AssetsViewState by homeAssetsViewModel.viewState.collectAsStateLifecycleAware()
     val homeDappsViewModel: HomeDappsViewModel = getViewModel(scope = payloadScope)
     val homeDappsState: HomeDappsViewState by homeDappsViewModel.viewState.collectAsStateLifecycleAware()
+    val pricesViewModel: PricesViewModel = getViewModel(
+        scope = payloadScope, key = WalletMode.NON_CUSTODIAL.name + "prices"
+    )
+    val pricesViewState: PricesViewState by pricesViewModel.viewState.collectAsStateLifecycleAware()
     val activityViewModel: PrivateKeyActivityViewModel = getViewModel(scope = payloadScope)
     val activityViewState: ActivityViewState by activityViewModel.viewState.collectAsStateLifecycleAware()
     val newsViewModel: NewsViewModel = getViewModel(
@@ -854,6 +872,8 @@ private fun DefiHomeDashboard(
                 )
                 // dapps
                 homeDappsViewModel.onIntent(HomeDappsIntent.LoadData)
+                // top movers
+                pricesViewModel.onIntent(PricesIntents.LoadData(PricesLoadStrategy.All))
                 // news
                 newsViewModel.onIntent(NewsIntent.LoadData(walletMode = WalletMode.NON_CUSTODIAL))
             }
@@ -870,6 +890,7 @@ private fun DefiHomeDashboard(
             failedBalancesViewModel.onIntent(FailedBalancesIntent.Refresh)
             homeAssetsViewModel.onIntent(AssetsIntent.Refresh)
             quickActionsViewModel.onIntent(QuickActionsIntent.Refresh)
+            pricesViewModel.onIntent(PricesIntents.Refresh)
             activityViewModel.onIntent(ActivityIntent.Refresh())
             newsViewModel.onIntent(NewsIntent.Refresh)
         }
@@ -884,12 +905,13 @@ private fun DefiHomeDashboard(
                         when (it) {
                             QuickActionsNavEvent.Send -> assetActionsNavigation.navigate(AssetAction.Send)
                             QuickActionsNavEvent.Sell -> assetActionsNavigation.navigate(AssetAction.Sell)
-                            QuickActionsNavEvent.Receive -> assetActionsNavigation.navigate(AssetAction.Receive)
+                            QuickActionsNavEvent.Receive -> openReceive()
                             QuickActionsNavEvent.Swap -> assetActionsNavigation.navigate(AssetAction.Swap)
                             QuickActionsNavEvent.DexOrSwapOption -> openDexSwapOptions()
                             QuickActionsNavEvent.More -> openMoreQuickActions()
+                            QuickActionsNavEvent.KycVerificationPrompt ->
+                                navController.navigate(HomeDestination.KycVerificationPrompt)
                             QuickActionsNavEvent.Buy,
-                            QuickActionsNavEvent.FiatDeposit,
                             QuickActionsNavEvent.FiatWithdraw -> {
                             } // n/a
                         }
@@ -944,7 +966,7 @@ private fun DefiHomeDashboard(
         ) {
             QuickActions(
                 quickActionItems = quickActionsState.actions.toImmutableList(),
-                dashboardState = dashboardState(assetsViewState, activityViewState),
+                dashboardState = dashboardState(assetsViewState),
                 quickActionClicked = {
                     quickActionsViewModel.onIntent(QuickActionsIntent.ActionClicked(it))
                 }
@@ -1003,25 +1025,55 @@ private fun DefiHomeDashboard(
 
         // assets
         val assets = (assetsViewState.assets as? DataResource.Data)?.data
-        assets?.takeIf { it.isNotEmpty() }?.let { data ->
-            homeAssets(
-                locks = null,
-                data = assets,
-                openCryptoAssets = { openCryptoAssets(data.size) },
-                assetOnClick = assetOnClick,
-                fundsLocksOnClick = {}, // n/a nc
-                openFiatActionDetail = {}, // n/a nc
-                showWarning = failedNetworkNames?.isNotEmpty() ?: false,
-                warningOnClick = openFailedBalancesInfo
-            )
+        assets?.let {
+            if (assets.isNotEmpty()) {
+                homeAssets(
+                    locks = null,
+                    data = assets,
+                    openCryptoAssets = { openCryptoAssets(assets.size) },
+                    assetOnClick = assetOnClick,
+                    fundsLocksOnClick = {}, // n/a nc
+                    openFiatActionDetail = {}, // n/a nc
+                    showWarning = failedNetworkNames?.isNotEmpty() ?: false,
+                    warningOnClick = openFailedBalancesInfo
+                )
+            } else {
+                defiEmptyCard(
+                    assetsViewState = assetsViewState,
+                    onReceiveClicked = openReceive
+                )
+            }
         }
 
-        // dapps
-        homeDapps(
-            homeDappsState = homeDappsState,
-            openQrCodeScanner = launchQrScanner,
-            onDappSessionClicked = onDappSessionClicked,
-            onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked,
+        balance?.let { balance ->
+            if (balance.isPositive) {
+                // dapps
+                homeDapps(
+                    homeDappsState = homeDappsState,
+                    openQrCodeScanner = launchQrScanner,
+                    onDappSessionClicked = onDappSessionClicked,
+                    onWalletConnectSeeAllSessionsClicked = onWalletConnectSeeAllSessionsClicked,
+                )
+            }
+        }
+
+        // top movers
+        homeTopMovers(
+            data = pricesViewState.topMovers.toImmutableList(),
+            assetOnClick = { asset ->
+                assetActionsNavigation.coinview(asset)
+
+                pricesViewState.topMovers.percentAndPositionOf(asset)
+                    ?.let { (percentageMove, position) ->
+                        analytics.logEvent(
+                            DashboardAnalyticsEvents.TopMoverAssetClicked(
+                                ticker = asset.networkTicker,
+                                percentageMove = percentageMove,
+                                position = position
+                            )
+                        )
+                    }
+            }
         )
 
         // activity

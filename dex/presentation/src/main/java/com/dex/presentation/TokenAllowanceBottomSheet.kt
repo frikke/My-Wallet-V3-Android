@@ -71,9 +71,7 @@ fun TokenAllowanceBottomSheet(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
-            onClosePress = closeClicked,
-            shouldShowDivider = false,
-            backgroundSecondary = false
+            onClosePress = closeClicked
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))

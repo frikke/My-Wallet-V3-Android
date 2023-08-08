@@ -40,7 +40,8 @@ val coinviewDomainModule = module {
             LoadQuickActionsUseCase(
                 userFeaturePermissionService = get(),
                 custodialWalletManager = get(),
-                kycService = get()
+                kycService = get(),
+                dexNetworkService = get()
             )
         }
     }

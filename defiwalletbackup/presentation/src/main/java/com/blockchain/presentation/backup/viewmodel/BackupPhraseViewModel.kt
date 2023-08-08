@@ -12,7 +12,6 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.presentation.analytics.BackupPhraseAnalytics
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupOption
 import com.blockchain.presentation.backup.BackupPhraseArgs

@@ -68,6 +68,8 @@ dependencies {
         exclude group: 'androidx.compose.foundation'
     }
 
+    implementation Libraries.zxing
+
     implementation Libraries.kotlinImmutableCollections
 
     androidTestImplementation Libraries.composeUiTest

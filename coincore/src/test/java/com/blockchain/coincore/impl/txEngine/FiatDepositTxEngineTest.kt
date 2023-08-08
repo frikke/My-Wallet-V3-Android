@@ -14,7 +14,9 @@ import com.blockchain.coincore.impl.txEngine.fiat.WITHDRAW_LOCKS
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.BankService
@@ -43,7 +45,6 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
@@ -199,8 +200,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             outputCurrency = eq(TEST_USER_FIAT),
             sourceCurrency = eq(TEST_USER_FIAT),
             targetCurrency = eq(TGT_ASSET),
-            sourceAccountType = eq(AssetCategory.NON_CUSTODIAL),
-            targetAccountType = eq(AssetCategory.CUSTODIAL),
+            sourceAccountType = eq(NON_CUSTODIAL_LIMITS_ACCOUNT),
+            targetAccountType = eq(CUSTODIAL_LIMITS_ACCOUNT),
             legacyLimits = any()
         )
     }

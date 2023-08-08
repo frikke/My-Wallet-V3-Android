@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +33,19 @@ import com.blockchain.componentlib.tag.DefaultTag
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallestVerticalSpacer
+import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import kotlinx.coroutines.flow.Flow
+
+@Stable
+data class CryptoAndFiatBalance(
+    val crypto: String,
+    val fiat: String
+)
+
+@Stable
+data class AsyncBalanceUi(
+    val fetcher: Flow<CryptoAndFiatBalance>
+)
 
 @Composable
 fun MaskedBalanceFiatAndCryptoTableRow(
@@ -67,7 +82,38 @@ fun BalanceFiatAndCryptoTableRow(
     title: String,
     titleIcon: ImageResource? = null,
     subtitle: String? = null,
-    tag: String = "",
+    tag: String? = null,
+    balance: AsyncBalanceUi,
+    icon: StackedIcon = StackedIcon.None,
+    defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
+    onClick: (() -> Unit)? = null
+) {
+    val accountBalance by balance.fetcher.collectAsStateLifecycleAware(CryptoAndFiatBalance(crypto = "", fiat = ""))
+
+    BalanceFiatAndCryptoTableRow(
+        maskState = MaskStateConfig.Override(maskEnabled = false),
+        title = title,
+        subtitle = subtitle,
+        tag = tag,
+        titleIcon = titleIcon,
+        valueCrypto = accountBalance.crypto,
+        valueFiat = accountBalance.fiat,
+        contentStart = {
+            CustomStackedIcon(
+                icon = icon,
+                size = defaultIconSize
+            )
+        },
+        onClick = onClick
+    )
+}
+
+@Composable
+fun BalanceFiatAndCryptoTableRow(
+    title: String,
+    titleIcon: ImageResource? = null,
+    subtitle: String? = null,
+    tag: String? = null,
     valueCrypto: String,
     valueFiat: String,
     icon: StackedIcon = StackedIcon.None,
@@ -97,7 +143,7 @@ private fun BalanceFiatAndCryptoTableRow(
     maskState: MaskStateConfig,
     title: String,
     subtitle: String? = null,
-    tag: String = "",
+    tag: String? = null,
     valueCrypto: String,
     titleIcon: ImageResource?,
     valueFiat: String,
@@ -135,7 +181,7 @@ private fun BalanceFiatAndCryptoTableRow(
 
                     Spacer(
                         modifier = Modifier.size(
-                            if (tag.isNotEmpty()) {
+                            if (!tag.isNullOrEmpty()) {
                                 AppTheme.dimensions.composeSmallestSpacing
                             } else if (!subtitle.isNullOrBlank()) {
                                 AppTheme.dimensions.smallestSpacing
@@ -154,16 +200,16 @@ private fun BalanceFiatAndCryptoTableRow(
                             )
                         }
 
-                        if (!subtitle.isNullOrBlank() && tag.isNotEmpty()) {
+                        if (!subtitle.isNullOrBlank() && tag?.isNotEmpty() == true) {
                             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                         }
 
-                        if (tag.isNotEmpty()) {
+                        if (!tag.isNullOrEmpty()) {
                             DefaultTag(text = tag)
                         }
                     }
                 }
-
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.composeSmallestSpacing))
                 Spacer(modifier = Modifier.weight(1F))
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -179,6 +225,7 @@ private fun BalanceFiatAndCryptoTableRow(
                     MaskableText(
                         maskState = maskState,
                         text = valueCrypto,
+                        maxLines = 1,
                         style = AppTheme.typography.paragraph1,
                         color = AppTheme.colors.body
                     )

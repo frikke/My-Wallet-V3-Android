@@ -48,8 +48,6 @@ fun EarnProductComparator(
         SheetHeader(
             title = stringResource(com.blockchain.stringResources.R.string.earn_product_comparator_title),
             onClosePress = onClose,
-            shouldShowDivider = false,
-            backgroundSecondary = false
         )
 
         LargeVerticalSpacer()

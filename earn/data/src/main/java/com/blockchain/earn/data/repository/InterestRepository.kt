@@ -12,7 +12,6 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.data.asObservable
 import com.blockchain.data.asSingle
 import com.blockchain.data.doOnData
 import com.blockchain.data.filterNotLoading
@@ -20,6 +19,7 @@ import com.blockchain.data.flatMapData
 import com.blockchain.data.getDataOrThrow
 import com.blockchain.data.mapData
 import com.blockchain.data.onErrorReturn
+import com.blockchain.data.toObservable
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.data.dataresources.interest.InterestAvailableAssetsStore
 import com.blockchain.earn.data.dataresources.interest.InterestBalancesStore
@@ -82,7 +82,7 @@ internal class InterestRepository(
 
     override fun getBalances(refreshStrategy: FreshnessStrategy): Observable<Map<AssetInfo, InterestAccountBalance>> {
         return getBalancesFlow(refreshStrategy)
-            .asObservable()
+            .toObservable()
             .onErrorReturn { emptyMap() }
     }
 
@@ -91,7 +91,7 @@ internal class InterestRepository(
         refreshStrategy: FreshnessStrategy
     ): Observable<InterestAccountBalance> {
         return getBalancesFlow(refreshStrategy)
-            .asObservable()
+            .toObservable()
             .onErrorReturn { emptyMap() }
             .map { it.getOrDefault(asset, zeroBalance(asset)) }
     }
@@ -113,7 +113,7 @@ internal class InterestRepository(
     // availability
     override fun getAvailableAssetsForInterest(): Single<List<AssetInfo>> {
         return getAvailableAssetsForInterestFlow()
-            .asObservable().firstOrError()
+            .toObservable().firstOrError()
     }
 
     private var interestAvailableAssets: List<AssetInfo> = emptyList()
@@ -146,7 +146,7 @@ internal class InterestRepository(
     // eligibility
     override fun getEligibilityForAssetsLegacy(): Single<Map<AssetInfo, EarnRewardsEligibility>> {
         return getEligibilityForAssets()
-            .asObservable().firstOrError()
+            .toObservable().firstOrError()
     }
 
     override fun getEligibilityForAssets(
@@ -199,7 +199,7 @@ internal class InterestRepository(
     // limits
     override fun getLimitsForAssets(): Single<Map<AssetInfo, InterestLimits>> {
         return getLimitsForAssetsFlow()
-            .asObservable().firstOrError()
+            .toObservable().firstOrError()
     }
 
     override fun getLimitsForAssetsFlow(
@@ -256,7 +256,7 @@ internal class InterestRepository(
     // rate
     override fun getInterestRate(asset: AssetInfo): Single<Double> {
         return getInterestRateFlow(asset)
-            .asObservable().firstOrError()
+            .toObservable().firstOrError()
     }
 
     override fun getInterestRateFlow(asset: AssetInfo, refreshStrategy: FreshnessStrategy): Flow<DataResource<Double>> {

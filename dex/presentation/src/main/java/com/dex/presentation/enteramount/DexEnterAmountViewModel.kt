@@ -1,6 +1,7 @@
 package com.dex.presentation.enteramount
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.coincore.OneTimeAccountPersistenceService
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -72,7 +73,8 @@ class DexEnterAmountViewModel(
     private val dexAllowanceService: AllowanceService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val dexNetworkService: DexNetworkService,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
+    private val oneTimeAccountPersistenceService: OneTimeAccountPersistenceService
 ) : MviViewModel<
     InputAmountIntent,
     InputAmountViewState,
@@ -262,7 +264,8 @@ class DexEnterAmountViewModel(
             is InputAmountIntent.ReceiveCurrencyRequested -> {
                 (intent.currency as? AssetInfo)?.coinNetwork?.let {
                     dexAccountsService.nativeNetworkAccount(it).doOnSuccess { account ->
-                        navigate(AmountNavigationEvent.ReceiveOnAccount(account))
+                        oneTimeAccountPersistenceService.saveAccount(account)
+                        navigate(AmountNavigationEvent.ReceiveOnAccount)
                     }
                 }
             }
@@ -290,8 +293,14 @@ class DexEnterAmountViewModel(
 
             is InputAmountIntent.DepositOnSourceAccountRequested -> {
                 modelState.transaction?.sourceAccount?.let {
-                    intent.receive(it.account)
+                    oneTimeAccountPersistenceService.saveAccount(it.account)
+                    navigate(AmountNavigationEvent.ReceiveOnAccount)
                 }
+            }
+
+            is InputAmountIntent.DepositOnAccountRequested -> {
+                oneTimeAccountPersistenceService.saveAccount(intent.account)
+                navigate(AmountNavigationEvent.ReceiveOnAccount)
             }
 
             InputAmountIntent.RevalidateTransaction -> viewModelScope.launch {
@@ -463,7 +472,7 @@ class DexEnterAmountViewModel(
             )
         }
 
-        if (defAccounts.filter { it.value.fiatBalance.isPositive }.isEmpty()) {
+        if (defAccounts.filter { it.value.fiatBalance?.isPositive == true }.isEmpty()) {
             dexNetworkService.chainId.collectLatest { chainId ->
                 updateState {
                     copy(
@@ -727,7 +736,7 @@ sealed class AmountNavigationEvent : NavigationEvent {
     data class AllowanceTxCompleted(val currencyTicker: String) :
         AmountNavigationEvent()
 
-    data class ReceiveOnAccount(val account: CryptoNonCustodialAccount) : AmountNavigationEvent()
+    object ReceiveOnAccount : AmountNavigationEvent()
 
     data class AllowanceTxUrl(val url: String) :
         AmountNavigationEvent()
@@ -755,7 +764,8 @@ sealed class InputAmountIntent : Intent<AmountModelState> {
     object RevokeSourceCurrencyAllowance : InputAmountIntent()
     data class ReceiveCurrencyRequested(val currency: Currency) : InputAmountIntent()
 
-    data class DepositOnSourceAccountRequested(val receive: (CryptoNonCustodialAccount) -> Unit) : InputAmountIntent()
+    object DepositOnSourceAccountRequested : InputAmountIntent()
+    data class DepositOnAccountRequested(val account: CryptoNonCustodialAccount) : InputAmountIntent()
     data class PollForPendingAllowance(val currency: AssetInfo) : InputAmountIntent() {
         override fun isValidFor(modelState: AmountModelState): Boolean {
             return modelState.operationInProgress !is DexOperation.PollingAllowance

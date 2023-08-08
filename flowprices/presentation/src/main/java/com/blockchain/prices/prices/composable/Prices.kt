@@ -46,6 +46,7 @@ import com.blockchain.prices.prices.PricesViewModel
 import com.blockchain.prices.prices.PricesViewState
 import com.blockchain.prices.prices.nameRes
 import com.blockchain.prices.prices.percentAndPositionOf
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -95,7 +96,7 @@ fun Prices(
             filters = viewState.availableFilters.toImmutableList(),
             selectedFilter = viewState.selectedFilter,
             data = viewState.allAssets.toImmutableList(),
-            topMovers = viewState.topMovers.toImmutableList(),
+            topMovers = viewState.filteredTopMovers(),
             listState = listState,
             onSearchTermEntered = { term ->
                 viewModel.onIntent(PricesIntents.FilterSearch(term = term))
@@ -261,4 +262,13 @@ fun ColumnScope.PricesScreenData(
             Spacer(modifier = Modifier.size(100.dp))
         }
     }
+}
+
+private fun PricesViewState.filteredTopMovers(): DataResource<ImmutableList<PriceItemViewState>> {
+    val isTopMoversSupported = walletMode == WalletMode.CUSTODIAL && selectedFilter == PricesFilter.Tradable
+    return if (isTopMoversSupported) {
+        topMovers
+    } else {
+        DataResource.Data(emptyList())
+    }.toImmutableList()
 }

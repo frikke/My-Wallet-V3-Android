@@ -54,12 +54,13 @@ fun PillAlertType.color() = when (this) {
 @Composable
 fun PillAlert(
     modifier: Modifier = Modifier,
+    color: Color = bgColor,
     config: PillAlert
 ) {
     Row(
         modifier = modifier
             .background(
-                color = bgColor,
+                color = color,
                 shape = AppTheme.shapes.extraLarge
             )
             .padding(

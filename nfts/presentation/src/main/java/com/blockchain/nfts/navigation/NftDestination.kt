@@ -15,4 +15,6 @@ sealed class NftDestination(
     object Detail : NftDestination(
         route = "NftDetail/${ARG_NFT_ID.wrappedArg()}/${ARG_ADDRESS.wrappedArg()}/${ARG_PAGE_KEY.wrappedArg()}"
     )
+
+    object ReceiveAccountDetail : NftDestination("ReceiveAccountDetail")
 }

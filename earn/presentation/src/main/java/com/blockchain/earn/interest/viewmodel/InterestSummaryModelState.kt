@@ -3,6 +3,7 @@ package com.blockchain.earn.interest.viewmodel
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import java.util.Date
 
@@ -10,6 +11,7 @@ data class InterestSummaryModelState(
     val account: BlockchainAccount? = null,
     val errorState: InterestError = InterestError.None,
     val isLoading: Boolean = true,
+    val exchangeRate: ExchangeRate? = null,
     val balance: Money? = null,
     val totalEarned: Money? = null,
     val pendingInterest: Money? = null,

@@ -1,6 +1,7 @@
 package com.blockchain.prices.prices
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
@@ -62,6 +63,7 @@ class PricesViewModel(
     }
 
     override fun PricesModelState.reduce() = PricesViewState(
+        walletMode = walletMode,
         availableFilters = filters,
         selectedFilter = filterBy,
         data = data
@@ -115,21 +117,24 @@ class PricesViewModel(
                     } else PricesOutputGroup.Others
                 }
             },
-        topMovers = if (isTopMoversSupported(walletMode = walletMode, filter = filterBy)) {
-            data.map { list ->
-                list.filter { it.price is DataResource.Data && it.isTradable }
-                    .sortedWith(
-                        compareByDescending { asset ->
-                            asset.price.map { it.delta24h.absoluteValue }.dataOrElse(0.0)
-                        }
-                    )
-                    .take(topMoversCount)
-                    .map {
-                        it.toPriceItemViewState(risingFastPercent = risingFastPercent)
-                    }
+        topMovers = data.map { list ->
+            fun AssetPriceInfo.tradableFilter() = when (loadStrategy) {
+                PricesLoadStrategy.TradableOnly -> isTradable
+                PricesLoadStrategy.All -> true
             }
-        } else {
-            DataResource.Data(emptyList())
+
+            list.filter { it.price is DataResource.Data && it.tradableFilter() }
+                .sortedWith(
+                    compareByDescending { asset ->
+                        asset.price.map {
+                            (it.delta24h.takeIf { !it.isNaN() } ?: 0.0).absoluteValue
+                        }.dataOrElse(0.0)
+                    }
+                )
+                .take(topMoversCount)
+                .map {
+                    it.toPriceItemViewState(risingFastPercent = risingFastPercent)
+                }
         }
     )
 
@@ -284,13 +289,6 @@ class PricesViewModel(
                     }
                 }
         }
-    }
-
-    private fun isTopMoversSupported(
-        walletMode: WalletMode?,
-        filter: PricesFilter
-    ): Boolean {
-        return walletMode == WalletMode.CUSTODIAL && filter == PricesFilter.Tradable
     }
 }
 

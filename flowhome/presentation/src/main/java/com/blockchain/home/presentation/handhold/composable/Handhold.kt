@@ -23,7 +23,7 @@ import com.blockchain.componentlib.tablerow.custom.ViewType
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.conditional
-import com.blockchain.home.handhold.HandholStatus
+import com.blockchain.home.handhold.HandholdStatus
 import com.blockchain.home.handhold.HandholdTask
 import com.blockchain.home.handhold.HandholdTasksStatus
 import com.blockchain.stringResources.R
@@ -68,9 +68,9 @@ fun HandholdTask(
             ),
             trailingComponents = listOf(),
             endIcon = when (taskStatus.status) {
-                HandholStatus.Incomplete -> Icons.ChevronRight.withTint(taskStatus.task.tint())
-                HandholStatus.Pending -> Icons.Filled.Pending.withTint(AppColors.dark)
-                HandholStatus.Complete -> Icons.Filled.Check.withTint(AppColors.success)
+                HandholdStatus.Incomplete -> Icons.ChevronRight.withTint(taskStatus.task.tint())
+                HandholdStatus.Pending -> Icons.Filled.Pending.withTint(AppColors.dark)
+                HandholdStatus.Complete -> Icons.Filled.Check.withTint(AppColors.success)
             }
         )
     }
@@ -101,7 +101,7 @@ private fun HandholdTask.title() = when (this) {
 
 @Composable
 private fun HandholdTasksStatus.subtitle(): String {
-    return if (status == HandholStatus.Pending) {
+    return if (status == HandholdStatus.Pending) {
         stringResource(R.string.in_review)
     } else {
         when (task) {
@@ -120,7 +120,7 @@ private fun HandholdTasksStatus.subtitle(): String {
 private fun PreviewHandholdScreenEmailIncompleteDisabled() {
     HandholdTask(
         taskStatus = HandholdTasksStatus(
-            task = HandholdTask.VerifyEmail, status = HandholStatus.Incomplete
+            task = HandholdTask.VerifyEmail, status = HandholdStatus.Incomplete
         ),
         enabled = false,
         onClick = {}
@@ -132,7 +132,7 @@ private fun PreviewHandholdScreenEmailIncompleteDisabled() {
 private fun PreviewHandholdScreenEmailIncomplete() {
     HandholdTask(
         taskStatus = HandholdTasksStatus(
-            task = HandholdTask.VerifyEmail, status = HandholStatus.Incomplete
+            task = HandholdTask.VerifyEmail, status = HandholdStatus.Incomplete
         ),
         onClick = {}
     )
@@ -149,7 +149,7 @@ private fun PreviewHandholdScreenEmailIncompleteDark() {
 private fun PreviewHandholdScreenEmailComplete() {
     HandholdTask(
         taskStatus = HandholdTasksStatus(
-            task = HandholdTask.VerifyEmail, status = HandholStatus.Complete
+            task = HandholdTask.VerifyEmail, status = HandholdStatus.Complete
         ),
         onClick = {}
     )
@@ -166,7 +166,7 @@ private fun PreviewHandholdScreenEmailCompleteDark() {
 private fun PreviewHandholdScreenKycIncomplete() {
     HandholdTask(
         taskStatus = HandholdTasksStatus(
-            task = HandholdTask.Kyc, status = HandholStatus.Incomplete
+            task = HandholdTask.Kyc, status = HandholdStatus.Incomplete
         ),
         onClick = {}
     )
@@ -183,7 +183,7 @@ private fun PreviewHandholdScreenKycIncompleteDark() {
 private fun PreviewHandholdScreenKycPending() {
     HandholdTask(
         taskStatus = HandholdTasksStatus(
-            task = HandholdTask.Kyc, status = HandholStatus.Pending
+            task = HandholdTask.Kyc, status = HandholdStatus.Pending
         ),
         onClick = {}
     )
@@ -200,7 +200,7 @@ private fun PreviewHandholdScreenKycPendingDark() {
 private fun PreviewHandholdScreenKycComplete() {
     HandholdTask(
         taskStatus = HandholdTasksStatus(
-            task = HandholdTask.Kyc, status = HandholStatus.Complete
+            task = HandholdTask.Kyc, status = HandholdStatus.Complete
         ),
         onClick = {}
     )
@@ -217,7 +217,7 @@ private fun PreviewHandholdScreenKycCompleteDark() {
 private fun PreviewHandholdScreenBuyIncomplete() {
     HandholdTask(
         taskStatus = HandholdTasksStatus(
-            task = HandholdTask.BuyCrypto, status = HandholStatus.Incomplete
+            task = HandholdTask.BuyCrypto, status = HandholdStatus.Incomplete
         ),
         onClick = {}
     )
@@ -234,7 +234,7 @@ private fun PreviewHandholdScreenBuyIncompleteDark() {
 private fun PreviewHandholdScreenBuyComplete() {
     HandholdTask(
         taskStatus = HandholdTasksStatus(
-            task = HandholdTask.BuyCrypto, status = HandholStatus.Complete
+            task = HandholdTask.BuyCrypto, status = HandholdStatus.Complete
         ),
         onClick = {}
     )

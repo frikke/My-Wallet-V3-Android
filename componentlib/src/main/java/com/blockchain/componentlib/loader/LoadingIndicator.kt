@@ -29,7 +29,9 @@ fun LoadingIndicator(
     size: Dp = 24.dp,
     color: Color,
 ) {
-    val transition = rememberInfiniteTransition()
+    val transition = rememberInfiniteTransition(
+        label = "LoadingIndicator"
+    )
     val currentArcStartAngle by transition.animateValue(
         initialValue = 0,
         targetValue = 360,
@@ -39,7 +41,8 @@ fun LoadingIndicator(
                 durationMillis = 1000,
                 easing = LinearEasing
             )
-        )
+        ),
+        label = "LoadingIndicator"
     )
 
     Canvas(

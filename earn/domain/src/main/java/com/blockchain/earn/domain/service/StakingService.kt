@@ -5,9 +5,9 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.EarnRewardsActivity
-import com.blockchain.earn.domain.models.EarnWithdrawal
 import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
+import com.blockchain.earn.domain.models.staking.StakingActivity
 import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
@@ -99,8 +99,8 @@ interface StakingService {
         )
     ): Flow<DataResource<StakingLimits>>
 
-    suspend fun getOngoingWithdrawals(
+    suspend fun getPendingActivity(
         currency: Currency,
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.ForceRefresh)
-    ): Flow<DataResource<List<EarnWithdrawal>>>
+    ): Flow<DataResource<List<StakingActivity>>>
 }

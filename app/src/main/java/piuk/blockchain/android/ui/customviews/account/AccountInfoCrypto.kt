@@ -10,7 +10,6 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.coincore.toUserFiat
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -131,12 +130,12 @@ class AccountInfoCrypto @JvmOverloads constructor(
                 ""
             }
 
-            compositeDisposable += account.balanceRx().map { it.total }
+            compositeDisposable += account.balanceRx()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onNext = { accountBalance ->
-                        valueCrypto = accountBalance.toStringWithSymbol()
-                        valueFiat = accountBalance.toUserFiat(exchangeRates).toStringWithSymbol()
+                        valueCrypto = accountBalance.total.toStringWithSymbol()
+                        valueFiat = accountBalance.totalFiat?.toStringWithSymbol().orEmpty()
                         contentDescription = "${item.title} ${item.subTitle}: " +
                             "${context.getString(com.blockchain.stringResources.R.string.accessibility_balance)} " +
                             "$valueFiat $valueCrypto"

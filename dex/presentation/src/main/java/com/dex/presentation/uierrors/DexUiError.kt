@@ -72,11 +72,14 @@ fun DexTransaction.uiErrors(): List<DexUiError> {
             is DexTxError.FatalTxError -> DexUiError.UnknownError(it.exception)
             is DexTxError.TxInProgress -> DexUiError.TransactionInProgressError(it.coinNetwork)
             is DexTxError.QuoteError ->
-                DexUiError.CommonUiError(
-                    it.title,
-                    it.message
-                )
-
+                if (it.isInsufficientFundsError) {
+                    DexUiError.InsufficientFunds(sourceAccount.account)
+                } else {
+                    DexUiError.CommonUiError(
+                        it.title,
+                        it.message
+                    )
+                }
             is DexTxError.TokenNotAllowed -> DexUiError.TokenNotAllowed(
                 token = sourceAccount.currency,
                 hasBeenApproved = it.hasBeenApproved

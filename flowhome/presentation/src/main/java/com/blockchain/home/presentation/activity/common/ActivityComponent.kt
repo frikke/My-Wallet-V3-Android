@@ -12,6 +12,7 @@ import com.blockchain.componentlib.tablerow.custom.MaskedCustomTableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.TextValue
+import com.blockchain.componentlib.utils.toStackedIcon
 import com.blockchain.image.LogoValue
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonAction
 import com.blockchain.unifiedcryptowallet.domain.activity.model.ActivityButtonStyle

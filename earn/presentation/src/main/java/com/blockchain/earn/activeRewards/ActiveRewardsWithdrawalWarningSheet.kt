@@ -10,10 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,8 +36,6 @@ import com.blockchain.componentlib.theme.SmallVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.earn.R
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.activeRewardsWithdrawalsFeatureFlag
 import org.koin.androidx.compose.get
 
 const val ACTIVE_REWARDS_LEARN_MORE_URL =
@@ -86,12 +81,8 @@ fun ActiveRewardsWithdrawalWarning(
     onLearnMoreClicked: () -> Unit,
     onWithdrawDisabledLearnMoreClicked: () -> Unit,
     onNext: () -> Unit,
-    withdrawalsEnabledFF: FeatureFlag = get(activeRewardsWithdrawalsFeatureFlag)
 ) {
-    var withdrawalsEnabled by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        withdrawalsEnabled = withdrawalsEnabledFF.coEnabled()
-    }
+    var withdrawalsEnabled = true
 
     Column(
         modifier = Modifier
@@ -112,7 +103,6 @@ fun ActiveRewardsWithdrawalWarning(
                     onClose()
                     dismiss()
                 },
-                shouldShowDivider = false
             )
 
             TinyVerticalSpacer()

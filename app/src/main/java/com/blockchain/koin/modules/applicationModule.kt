@@ -53,7 +53,6 @@ import com.blockchain.koin.feynmanEnterAmountFeatureFlag
 import com.blockchain.koin.improvedPaymentUxFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
-import com.blockchain.koin.newSellFlowFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
@@ -69,7 +68,6 @@ import com.blockchain.network.websocket.Options
 import com.blockchain.network.websocket.autoRetry
 import com.blockchain.network.websocket.debugLog
 import com.blockchain.network.websocket.newBlockchainWebSocket
-import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.payments.checkoutcom.CheckoutCardProcessor
 import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
@@ -118,7 +116,6 @@ import piuk.blockchain.android.exchange.ExchangeLinkingImpl
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.internalnotifications.NotificationsCenter
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
-import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.data.QrCodeDataRepository
 import piuk.blockchain.android.scan.domain.QrCodeDataService
@@ -150,7 +147,6 @@ import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.home.DefiBackupNavigationImpl
 import piuk.blockchain.android.ui.home.FiatActionsNavigationImpl
 import piuk.blockchain.android.ui.home.HomeActivityLauncher
-import piuk.blockchain.android.ui.home.NftNavigationImpl
 import piuk.blockchain.android.ui.home.QrScanNavigationImpl
 import piuk.blockchain.android.ui.home.RecurringBuyNavigationImpl
 import piuk.blockchain.android.ui.home.SettingsNavigationImpl
@@ -171,7 +167,6 @@ import piuk.blockchain.android.ui.recover.AccountRecoveryState
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
-import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailIntentHelper
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.BackupWalletUtil
 import piuk.blockchain.android.util.FormatChecker
@@ -310,10 +305,6 @@ val applicationModule = module {
             bind(SupportNavigation::class)
         }
 
-        scoped { (activity: BlockchainActivity) -> NftNavigationImpl(activity = activity) }.apply {
-            bind(NftNavigation::class)
-        }
-
         scoped { (activity: BlockchainActivity, assetActionsNavigation: AssetActionsNavigation) ->
             EarnNavigationImpl(
                 activity = activity,
@@ -347,7 +338,8 @@ val applicationModule = module {
                 activityWebSocketService = get(),
                 unifiedActivityService = get(),
                 storeWiper = get(),
-                intercomEnabledFF = get(intercomChatFeatureFlag)
+                intercomEnabledFF = get(intercomChatFeatureFlag),
+                walletConnectV2Service = get()
             )
         }
 
@@ -629,7 +621,6 @@ val applicationModule = module {
                 custodialWalletManager = get(),
                 userIdentity = get(),
                 simpleBuySyncFactory = get(),
-                newSellFlowFF = get(newSellFlowFeatureFlag)
             )
         }
 
@@ -830,17 +821,6 @@ val applicationModule = module {
             resources = get()
         )
     }.bind(AssetResources::class)
-
-    factory {
-        ReceiveDetailIntentHelper(
-            context = get(),
-            specificAnalytics = get()
-        )
-    }
-
-    factory {
-        QRCodeEncoder()
-    }
 
     factory { FormatChecker() }
 

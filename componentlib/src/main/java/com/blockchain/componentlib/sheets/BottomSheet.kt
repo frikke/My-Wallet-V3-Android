@@ -41,8 +41,7 @@ fun BottomSheetTwoButtons(
     subtitle: String = "",
     button1: BottomSheetButton,
     button2: BottomSheetButton,
-    subtitleAlign: TextAlign = TextAlign.Center,
-    shouldShowHeaderDivider: Boolean = true
+    subtitleAlign: TextAlign = TextAlign.Center
 ) {
     BottomSheet(
         onCloseClick = onCloseClick,
@@ -55,7 +54,6 @@ fun BottomSheetTwoButtons(
             button1.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
             button2.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
         },
-        shouldShowHeaderDivider = shouldShowHeaderDivider
     )
 }
 
@@ -67,8 +65,7 @@ fun BottomSheetOneButton(
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
     subtitleAlign: TextAlign = TextAlign.Center,
-    button: BottomSheetButton,
-    shouldShowHeaderDivider: Boolean = true
+    button: BottomSheetButton
 ) {
     BottomSheet(
         onCloseClick = onCloseClick,
@@ -80,7 +77,6 @@ fun BottomSheetOneButton(
         buttonsContent = {
             button.toBottomSheetButtonComposable(Modifier.wrapContentWidth()).invoke()
         },
-        shouldShowHeaderDivider = shouldShowHeaderDivider
     )
 }
 
@@ -92,7 +88,6 @@ fun BottomSheetNoButtons(
     textAlign: TextAlign = TextAlign.Center,
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
-    shouldShowHeaderDivider: Boolean = true
 ) {
     BottomSheet(
         onCloseClick = onCloseClick,
@@ -102,7 +97,6 @@ fun BottomSheetNoButtons(
         showTitleInHeader = showTitleInHeader,
         subtitle = subtitle,
         buttonsContent = null,
-        shouldShowHeaderDivider = shouldShowHeaderDivider
     )
 }
 
@@ -115,7 +109,6 @@ private fun BottomSheet(
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
     buttonsContent: (@Composable ColumnScope.() -> Unit)? = null,
-    shouldShowHeaderDivider: Boolean = true
 ) {
 
     Column(
@@ -130,8 +123,6 @@ private fun BottomSheet(
         SheetHeader(
             title = title.takeIf { showTitleInHeader },
             onClosePress = onCloseClick,
-            shouldShowDivider = shouldShowHeaderDivider,
-            backgroundSecondary = false
         )
         Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))
         if (headerImageResource != null) {

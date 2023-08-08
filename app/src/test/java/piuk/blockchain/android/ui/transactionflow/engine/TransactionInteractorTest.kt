@@ -4,7 +4,6 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
@@ -21,7 +20,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.USD
@@ -60,10 +58,7 @@ class TransactionInteractorTest {
     private val dismissRecorder: DismissRecorder = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
     private val tradeDataService: TradeDataService = mockk()
-    private val hideDustFF: FeatureFlag = mock()
     private val improvedPaymentUxFF: FeatureFlag = mock()
-    private val localSettingsPrefs: LocalSettingsPrefs = mock()
-    private val dynamicRepository: UniversalDynamicAssetRepository = mock()
     private val stakingService: StakingService = mock()
     private val activeRewardsService: ActiveRewardsService = mock()
     private val transactionPrefs: TransactionPrefs = mock()
@@ -89,8 +84,6 @@ class TransactionInteractorTest {
             dismissRecorder = dismissRecorder,
             fiatCurrenciesService = fiatCurrenciesService,
             tradeDataService = tradeDataService,
-            localSettingsPrefs = localSettingsPrefs,
-            dynamicAssetRepository = dynamicRepository,
             improvedPaymentUxFF = improvedPaymentUxFF,
             stakingService = stakingService,
             activeRewardsService = activeRewardsService,

@@ -92,9 +92,7 @@ fun WalletConnectDappSessionManage(
         modifier = Modifier.background(AppColors.background)
     ) {
         SheetHeader(
-            shouldShowDivider = false,
             onClosePress = onDismiss,
-            backgroundSecondary = false
         )
 
         Column(

@@ -50,7 +50,7 @@ fun AchWithdrawalHoldInfoSheet(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = AppTheme.colors.light,
+                color = AppTheme.colors.background,
                 shape = RoundedCornerShape(
                     dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing)
                 )
@@ -60,7 +60,6 @@ fun AchWithdrawalHoldInfoSheet(
         SheetHeader(
             title = stringResource(id = com.blockchain.stringResources.R.string.withdrawal_holds),
             onClosePress = onCloseClick,
-            shouldShowDivider = false
         )
 
         Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))

@@ -18,8 +18,9 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.asObservable
+import com.blockchain.data.dataOrNull
 import com.blockchain.data.mapData
+import com.blockchain.data.toObservable
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
@@ -32,6 +33,7 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.rx3.asObservable
 
 class FiatCustodialAccount internal constructor(
     override val label: String,
@@ -50,13 +52,13 @@ class FiatCustodialAccount internal constructor(
                 currency,
                 freshnessStrategy
             ),
-            exchangeRates.exchangeRateToUserFiat(currency)
+            exchangeRates.exchangeRateToUserFiatFlow(currency).asObservable()
         ) { balance, rate ->
             AccountBalance(
                 total = balance.total,
                 withdrawable = balance.withdrawable,
                 pending = balance.pending,
-                exchangeRate = rate
+                exchangeRate = rate.dataOrNull()
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
@@ -81,7 +83,7 @@ class FiatCustodialAccount internal constructor(
                         paymentMethodId = fiatTransaction.paymentId
                     )
                 }
-            }.asObservable()
+            }.toObservable()
         }
     }
 

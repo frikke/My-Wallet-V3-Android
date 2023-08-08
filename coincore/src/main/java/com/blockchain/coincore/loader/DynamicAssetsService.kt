@@ -45,8 +45,10 @@ private fun mapCategories(products: Set<DynamicAssetProducts>): Set<AssetCategor
     products.mapNotNull {
         when (it) {
             DynamicAssetProducts.PrivateKey -> AssetCategory.NON_CUSTODIAL
-            DynamicAssetProducts.CustodialWalletBalance -> AssetCategory.CUSTODIAL
-            DynamicAssetProducts.InterestBalance -> AssetCategory.CUSTODIAL
+            DynamicAssetProducts.CustodialWalletBalance -> AssetCategory.TRADING
+            DynamicAssetProducts.InterestBalance,
+            DynamicAssetProducts.Staking,
+            DynamicAssetProducts.EarnCC1W -> AssetCategory.INTEREST
             DynamicAssetProducts.DynamicSelfCustody -> AssetCategory.DELEGATED_NON_CUSTODIAL
             else -> null
         }

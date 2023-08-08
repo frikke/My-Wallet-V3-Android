@@ -2,9 +2,9 @@ package com.blockchain.nabu.datamanagers.repositories.swap
 
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.data.asObservable
 import com.blockchain.data.asSingle
 import com.blockchain.data.mapData
+import com.blockchain.data.toObservable
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toCustodialOrderState
@@ -82,7 +82,7 @@ class CustodialRepository(
                         it.sendingValue.currency == cryptoCurrency &&
                         directions.contains(it.direction)
                 }
-            }.asObservable()
+            }.toObservable()
 
     companion object {
         const val LONG_CACHE = 60000L

@@ -15,12 +15,14 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.toImageResource
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
+import com.blockchain.domain.swap.SwapOption
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.presentation.logo
 import piuk.blockchain.android.ui.coinview.presentation.name
 
 @Composable
 fun CenterQuickActions(
+    assetTicker: String,
     data: DataResource<List<CoinviewQuickAction>>,
     onQuickActionClick: (CoinviewQuickAction) -> Unit
 ) {
@@ -29,6 +31,7 @@ fun CenterQuickActions(
         is DataResource.Error -> Empty()
         is DataResource.Data -> {
             CenterQuickActionsData(
+                assetTicker = assetTicker,
                 data = data,
                 onQuickActionClick = onQuickActionClick
             )
@@ -38,6 +41,7 @@ fun CenterQuickActions(
 
 @Composable
 fun CenterQuickActionsData(
+    assetTicker: String,
     data: DataResource.Data<List<CoinviewQuickAction>>,
     onQuickActionClick: (CoinviewQuickAction) -> Unit
 ) {
@@ -52,7 +56,7 @@ fun CenterQuickActionsData(
                     modifier = Modifier
                         .then(if (index < 2) Modifier.weight(1F) else Modifier)
                         .then(if (index < 2) Modifier else Modifier.requiredWidthIn(min = 48.dp)),
-                    text = action.name().value().takeIf { index < 2 } ?: "",
+                    text = action.name(assetTicker).value().takeIf { index < 2 } ?: "",
                     icon = action.logo().toImageResource(),
                     state = if (action.enabled) ButtonState.Enabled else ButtonState.Disabled,
                     onClick = { onQuickActionClick(action) }
@@ -70,8 +74,13 @@ fun CenterQuickActionsData(
 @Composable
 fun PreviewCenterQuickActions_Data_3() {
     CenterQuickActions(
+        assetTicker = "ETH",
         data = DataResource.Data(
-            listOf(CoinviewQuickAction.Send(), CoinviewQuickAction.Swap(false), CoinviewQuickAction.Receive())
+            listOf(
+                CoinviewQuickAction.Send(),
+                CoinviewQuickAction.Swap(false, SwapOption.BcdcSwap),
+                CoinviewQuickAction.Receive()
+            )
         ),
         onQuickActionClick = {}
     )
@@ -81,6 +90,7 @@ fun PreviewCenterQuickActions_Data_3() {
 @Composable
 fun PreviewCenterQuickActions_Data_1() {
     CenterQuickActions(
+        assetTicker = "ETH",
         data = DataResource.Data(
             listOf(CoinviewQuickAction.Send())
         ),
@@ -92,6 +102,7 @@ fun PreviewCenterQuickActions_Data_1() {
 @Composable
 fun PreviewQuickActionsCenter_Data_0() {
     CenterQuickActions(
+        assetTicker = "ETH",
         data = DataResource.Data(
             listOf()
         ),
@@ -103,6 +114,7 @@ fun PreviewQuickActionsCenter_Data_0() {
 @Composable
 fun PreviewQuickActionsCenter_Data_Error() {
     CenterQuickActions(
+        assetTicker = "ETH",
         data = DataResource.Error(Exception()),
         onQuickActionClick = {}
     )

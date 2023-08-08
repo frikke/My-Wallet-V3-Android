@@ -18,7 +18,8 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.asObservable
+import com.blockchain.data.dataOrNull
+import com.blockchain.data.toObservable
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.earn.domain.models.EarnRewardsActivity
 import com.blockchain.earn.domain.models.EarnRewardsState
@@ -35,6 +36,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.rx3.asObservable
 
 class CustodialInterestAccount(
     override val currency: AssetInfo,
@@ -88,19 +90,19 @@ class CustodialInterestAccount(
                 asset = currency,
                 refreshStrategy = freshnessStrategy
             ),
-            exchangeRates.exchangeRateToUserFiat(currency)
+            exchangeRates.exchangeRateToUserFiatFlow(currency).asObservable()
         ) { balance, rate ->
             AccountBalance(
                 total = balance.totalBalance,
                 withdrawable = balance.actionableBalance,
                 pending = balance.pendingDeposit,
-                exchangeRate = rate
+                exchangeRate = rate.dataOrNull()
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override fun activity(freshnessStrategy: FreshnessStrategy): Observable<ActivitySummaryList> {
         return interestService.getActivityFlow(currency, freshnessStrategy)
-            .asObservable()
+            .toObservable()
             .onErrorResumeNext { Observable.just(emptyList()) }
             .map { interestActivity ->
                 interestActivity.map {

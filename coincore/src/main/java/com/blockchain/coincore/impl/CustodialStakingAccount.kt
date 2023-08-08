@@ -18,7 +18,8 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.asObservable
+import com.blockchain.data.dataOrNull
+import com.blockchain.data.toObservable
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.earn.domain.models.EarnRewardsActivity
 import com.blockchain.earn.domain.models.EarnRewardsState
@@ -36,6 +37,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.rx3.asObservable
 
 class CustodialStakingAccount(
     override val currency: AssetInfo,
@@ -88,14 +90,14 @@ class CustodialStakingAccount(
             stakingService.getBalanceForAsset(
                 currency = currency,
                 refreshStrategy = freshnessStrategy
-            ).asObservable(),
-            exchangeRates.exchangeRateToUserFiat(currency)
+            ).toObservable(),
+            exchangeRates.exchangeRateToUserFiatFlow(currency).asObservable()
         ) { balance, rate ->
             AccountBalance(
                 total = balance.totalBalance,
                 withdrawable = balance.availableBalance,
                 pending = balance.pendingDeposit,
-                exchangeRate = rate
+                exchangeRate = rate.dataOrNull()
             )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
@@ -103,7 +105,7 @@ class CustodialStakingAccount(
         stakingService.getActivity(
             asset = currency,
             refreshStrategy = freshnessStrategy
-        ).asObservable()
+        ).toObservable()
             .onErrorResumeNext { Observable.just(emptyList()) }
             .map { stakingActivity ->
                 stakingActivity.map { activity ->
@@ -151,6 +153,7 @@ class CustodialStakingAccount(
             return@zip when (tier) {
                 KycTier.BRONZE,
                 KycTier.SILVER -> emptySet()
+
                 KycTier.GOLD -> setOf(
                     StateAwareAction(
                         when (depositInterestEligibility) {
@@ -169,6 +172,7 @@ class CustodialStakingAccount(
         return when (assetAction) {
             AssetAction.ViewActivity,
             AssetAction.ViewStatement -> Single.just(ActionState.Available)
+
             AssetAction.Send,
             AssetAction.Swap,
             AssetAction.Sell,
@@ -182,6 +186,7 @@ class CustodialStakingAccount(
             AssetAction.ActiveRewardsDeposit,
             AssetAction.ActiveRewardsWithdraw,
             AssetAction.Receive -> Single.just(ActionState.Unavailable)
+
             AssetAction.StakingDeposit -> stateAwareActions.map { set ->
                 set.firstOrNull { it.action == assetAction }?.state ?: ActionState.Unavailable
             }

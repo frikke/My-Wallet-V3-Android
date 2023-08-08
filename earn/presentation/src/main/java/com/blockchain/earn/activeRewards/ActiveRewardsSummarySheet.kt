@@ -75,9 +75,7 @@ fun ActiveRewardsSummarySheet(
                 startImage = StackedIcon.SingleIcon(
                     ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty())
                 ),
-                shouldShowDivider = false,
                 onClosePress = onClosePressed,
-                backgroundSecondary = false
             )
 
             Column(

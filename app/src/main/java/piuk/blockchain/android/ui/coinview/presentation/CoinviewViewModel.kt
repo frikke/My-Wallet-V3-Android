@@ -35,6 +35,7 @@ import com.blockchain.data.filterNotLoading
 import com.blockchain.data.map
 import com.blockchain.data.mapData
 import com.blockchain.data.updateDataWith
+import com.blockchain.domain.swap.SwapOption
 import com.blockchain.image.LocalLogo
 import com.blockchain.image.LogoValue
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -319,7 +320,8 @@ class CoinviewViewModel(
 
                             CoinviewAccountsState(
                                 assetName = asset.currency.displayTicker,
-                                totalBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
+                                totalBalance = totalBalance.totalFiatBalance?.toStringWithSymbol()
+                                    ?: totalBalance.totalCryptoBalance[AssetFilter.All]?.toStringWithSymbol().orEmpty(),
                                 accounts = accounts.accounts.map { cvAccount ->
                                     val account: CryptoAccount = cvAccount.account.let { blockchainAccount ->
                                         when (blockchainAccount) {
@@ -451,7 +453,7 @@ class CoinviewViewModel(
         title = account.currency.name,
         subtitle = TextValue.StringValue(cvAccount.address.abbreviate(startLength = 4, endLength = 4)),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it?.toStringWithSymbol().orEmpty() }.dataOrElse(""),
         logo = l1Network?.let { LogoValue.SmallTag(account.currency.logo, it.logo) }
             ?: LogoValue.SingleIcon(account.currency.logo),
         assetColor = asset.currency.colour
@@ -468,7 +470,7 @@ class CoinviewViewModel(
             listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it?.toStringWithSymbol().orEmpty() }.dataOrElse(""),
         logo = LogoValue.SingleIcon(LocalLogo.StakingRewards),
         assetColor = asset.currency.colour
     )
@@ -484,7 +486,7 @@ class CoinviewViewModel(
             listOf(DecimalFormat("0.#").format(cvAccount.activeRewardsRate))
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it?.toStringWithSymbol().orEmpty() }.dataOrElse(""),
         logo = LogoValue.SingleIcon(LocalLogo.ActiveRewards),
         assetColor = asset.currency.colour
     )
@@ -500,7 +502,7 @@ class CoinviewViewModel(
             listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
         ),
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it?.toStringWithSymbol().orEmpty() }.dataOrElse(""),
         logo = LogoValue.SingleIcon(LocalLogo.PassiveRewards),
         assetColor = asset.currency.colour
     )
@@ -513,7 +515,7 @@ class CoinviewViewModel(
         title = asset.currency.name,
         subtitle = null,
         cryptoBalance = cvAccount.cryptoBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
-        fiatBalance = cvAccount.fiatBalance.map { it.toStringWithSymbol() }.dataOrElse(""),
+        fiatBalance = cvAccount.fiatBalance.map { it?.toStringWithSymbol().orEmpty() }.dataOrElse(""),
         logo = LogoValue.SingleIcon(asset.currency.logo),
         assetColor = asset.currency.colour
     )
@@ -939,7 +941,17 @@ class CoinviewViewModel(
                     is CoinviewQuickAction.Swap -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToSwap(
-                                cvAccount = modelState.actionableAccount()
+                                cvAccount = modelState.actionableAccount(),
+                                swapOption = intent.quickAction.swapOption
+                            )
+                        )
+                    }
+
+                    is CoinviewQuickAction.Get -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToSwap(
+                                cvAccount = modelState.actionableAccount(isPositiveBalanceRequired = false),
+                                swapOption = intent.quickAction.swapOption
                             )
                         )
                     }
@@ -1352,7 +1364,8 @@ class CoinviewViewModel(
 
             AssetAction.Swap -> navigate(
                 CoinviewNavigationEvent.NavigateToSwap(
-                    cvAccount = account
+                    cvAccount = account,
+                    swapOption = SwapOption.BcdcSwap
                 )
             )
 

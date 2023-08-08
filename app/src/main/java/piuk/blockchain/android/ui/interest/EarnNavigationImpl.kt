@@ -5,7 +5,6 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.utils.openUrl
-import com.blockchain.domain.common.model.BuySellViewType
 import com.blockchain.earn.R
 import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.dashboard.EarnAccessBlockedBottomSheet
@@ -18,7 +17,6 @@ import com.blockchain.earn.staking.StakingSummaryBottomSheet
 import com.blockchain.home.presentation.navigation.HomeLaunch
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
-import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 
@@ -76,13 +74,6 @@ class EarnNavigationImpl(
                 canBuy = navigationEvent.availableToBuy
             )
 
-            is EarnDashboardNavigationEvent.OpenBuy -> launchBuySell(
-                BuySellViewType.TYPE_BUY,
-                navigationEvent.assetInfo,
-                false
-            )
-
-            is EarnDashboardNavigationEvent.OpenReceive -> launchReceive(navigationEvent.networkTicker)
             EarnDashboardNavigationEvent.OpenKyc -> startKycClicked()
 
             is EarnDashboardNavigationEvent.OpenProductComparator ->
@@ -122,17 +113,6 @@ class EarnNavigationImpl(
                 canBuy
             )
         )
-    }
-
-    override fun launchBuySell(viewType: BuySellViewType, asset: AssetInfo?, reload: Boolean) {
-        assetActionsNavigation.buyCrypto(
-            currency = asset!!,
-            amount = null
-        )
-    }
-
-    override fun launchReceive(cryptoTicker: String) {
-        assetActionsNavigation.receive(cryptoTicker)
     }
 
     override fun startKycClicked() {

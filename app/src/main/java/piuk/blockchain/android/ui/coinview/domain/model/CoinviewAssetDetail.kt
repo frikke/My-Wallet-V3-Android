@@ -18,5 +18,5 @@ sealed interface CoinviewAssetDetail {
 
 data class CoinviewAssetTotalBalance(
     val totalCryptoBalance: Map<AssetFilter, Money>,
-    val totalFiatBalance: Money
+    val totalFiatBalance: Money?
 )

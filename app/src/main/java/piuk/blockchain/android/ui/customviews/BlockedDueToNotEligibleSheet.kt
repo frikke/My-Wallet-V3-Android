@@ -55,7 +55,6 @@ class BlockedDueToNotEligibleSheet : ComposeModalBottomDialog() {
             title = getString(com.blockchain.stringResources.R.string.account_restricted),
             showTitleInHeader = true,
             subtitle = descriptionText ?: getString(descriptionResId!!),
-            shouldShowHeaderDivider = false,
             onCloseClick = { dismiss() },
             headerImageResource = null,
             button1 = BottomSheetButton(

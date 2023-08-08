@@ -84,7 +84,6 @@ fun AchTermsAndConditionsSheet(
         SheetHeader(
             title = stringResource(id = com.blockchain.stringResources.R.string.terms_and_conditions),
             onClosePress = onCloseClick,
-            shouldShowDivider = false
         )
 
         Spacer(Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_spacing)))

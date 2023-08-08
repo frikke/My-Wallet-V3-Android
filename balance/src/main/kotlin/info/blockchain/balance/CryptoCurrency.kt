@@ -3,7 +3,8 @@ package info.blockchain.balance
 import java.io.Serializable
 
 enum class AssetCategory {
-    CUSTODIAL,
+    TRADING,
+    INTEREST,
     NON_CUSTODIAL,
     DELEGATED_NON_CUSTODIAL
 }
@@ -24,10 +25,9 @@ interface AssetInfo : Currency, Serializable {
 }
 
 val Currency.isCustodialOnly: Boolean
-    get() = categories == setOf(AssetCategory.CUSTODIAL)
-
-val AssetInfo.isNonCustodialOnly: Boolean
-    get() = categories.size == 1 && categories.contains(AssetCategory.NON_CUSTODIAL)
+    get() = categories.all {
+        it == AssetCategory.TRADING || it == AssetCategory.INTEREST
+    }
 
 val AssetInfo.isDelegatedNonCustodial: Boolean
     get() = categories.contains(AssetCategory.DELEGATED_NON_CUSTODIAL)
@@ -36,7 +36,7 @@ val AssetInfo.isNonCustodial: Boolean
     get() = categories.contains(AssetCategory.NON_CUSTODIAL) || isDelegatedNonCustodial
 
 val Currency.isLayer2Token: Boolean
-    get() = (this as? AssetInfo)?.l2identifier != null && (this as? AssetInfo)?.coinNetwork != null
+    get() = (this as? AssetInfo)?.coinNetwork?.nativeAssetTicker != this.networkTicker
 
 fun Currency.isNetworkNativeAsset(): Boolean =
     (this as? AssetInfo)?.coinNetwork?.nativeAssetTicker == networkTicker
@@ -77,6 +77,7 @@ open class CryptoCurrency(
             other !is AssetInfo -> false
             other.networkTicker == networkTicker &&
                 other.l2identifier == l2identifier -> true
+
             else -> false
         }
 
@@ -90,7 +91,7 @@ open class CryptoCurrency(
         displayTicker = "BTC",
         networkTicker = "BTC",
         name = "Bitcoin",
-        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
+        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.TRADING),
         precisionDp = 8,
         requiredConfirmations = 3,
         startDate = 1282089600L, // 2010-08-18 00:00:00 UTC
@@ -118,7 +119,7 @@ open class CryptoCurrency(
         displayTicker = "ETH",
         networkTicker = "ETH",
         name = "Ethereum",
-        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
+        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.TRADING),
         precisionDp = 18,
         coinNetwork = CoinNetwork(
             explorerUrl = "https://www.blockchain.com/eth/tx",
@@ -146,7 +147,7 @@ open class CryptoCurrency(
         displayTicker = "BCH",
         networkTicker = "BCH",
         name = "Bitcoin Cash",
-        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
+        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.TRADING),
         precisionDp = 8,
         requiredConfirmations = 3,
         coinNetwork = CoinNetwork(
@@ -174,7 +175,7 @@ open class CryptoCurrency(
         displayTicker = "XLM",
         networkTicker = "XLM",
         name = "Stellar",
-        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
+        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.TRADING),
         precisionDp = 7,
         requiredConfirmations = 1,
         coinNetwork = CoinNetwork(

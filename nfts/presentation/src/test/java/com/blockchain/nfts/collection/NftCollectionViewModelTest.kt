@@ -6,6 +6,7 @@ import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.OneTimeAccountPersistenceService
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
@@ -15,8 +16,10 @@ import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftAssetsPage
 import com.blockchain.nfts.domain.service.NftService
 import com.blockchain.testutils.CoroutineTestRule
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -39,6 +42,7 @@ class NftCollectionViewModelTest {
 
     private val coincore = mockk<Coincore>()
     private val nftService = mockk<NftService>()
+    private val oneTimeAccountPersistenceService = mockk<OneTimeAccountPersistenceService>()
 
     private lateinit var viewModel: NftCollectionViewModel
 
@@ -54,9 +58,10 @@ class NftCollectionViewModelTest {
 
     @Before
     fun setUp() {
-        viewModel = NftCollectionViewModel(coincore, nftService)
+        viewModel = NftCollectionViewModel(coincore, nftService, oneTimeAccountPersistenceService)
 
         every { coincore[any<String>()] } returns asset
+        every { oneTimeAccountPersistenceService.saveAccount(any()) } just Runs
         every { asset.accountGroup(any()) } returns Maybe.just(accountGroup)
         every { accountGroup.accounts } returns listOf(singleAccount)
         every { singleAccount.receiveAddress } returns Single.just(receiveAddress)
@@ -112,7 +117,7 @@ class NftCollectionViewModelTest {
         viewModel.navigationEventFlow.test {
             viewModel.onIntent(NftCollectionIntent.ShowReceiveAddress)
             awaitItem().run {
-                assertEquals(NftCollectionNavigationEvent.ShowReceiveAddress(singleAccount), this)
+                assertEquals(NftCollectionNavigationEvent.ShowReceiveAddress, this)
             }
         }
     }

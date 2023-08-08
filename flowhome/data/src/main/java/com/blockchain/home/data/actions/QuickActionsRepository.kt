@@ -48,6 +48,7 @@ class QuickActionsRepository(
             WalletMode.NON_CUSTODIAL -> {
                 allActionsForDefi(freshnessStrategy)
             }
+
             WalletMode.CUSTODIAL -> {
                 allActionsForBrokerage(freshnessStrategy)
             }
@@ -66,7 +67,7 @@ class QuickActionsRepository(
 
         val balanceFlow =
             totalWalletModeBalance(WalletMode.CUSTODIAL, freshnessStrategy)
-                .map { it.totalFiat.isPositive }
+                .map { it.totalFiat?.isPositive == true }
                 .catch { emit(false) }
                 .distinctUntilChanged().debounce(200)
 
@@ -125,10 +126,6 @@ class QuickActionsRepository(
                     state = if (balanceIsPositive) ActionState.Available else ActionState.Unavailable
                 ),
                 StateAwareAction(
-                    action = AssetAction.FiatDeposit,
-                    state = features[Feature.WithdrawFiat].toAvailability()
-                ),
-                StateAwareAction(
                     action = AssetAction.FiatWithdraw,
                     state = if (features[Feature.WithdrawFiat].toAvailability() == ActionState.Available &&
                         fiatBalanceIsPositive
@@ -149,6 +146,7 @@ class QuickActionsRepository(
             AssetAction.Buy,
             AssetAction.FiatDeposit,
             AssetAction.Receive -> true
+
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
             AssetAction.Send,

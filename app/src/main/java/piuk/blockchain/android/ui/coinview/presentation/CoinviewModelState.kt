@@ -102,7 +102,10 @@ data class CoinviewModelState(
                 }
 
                 (isTradingAccount || isPrivateKeyAccount) && isValidBalance
-            } ?: error("No actionable account found - maybe a quick action is active when it should be disabled")
+            } ?: error(
+                "No actionable account found - maybe a quick action is active when it should be disabled -- " +
+                    "or you're expecting a zero balance account if so make sure isPositiveBalanceRequired = false "
+            )
         }
     }
 }

@@ -76,7 +76,6 @@ internal class UnifiedBalancesRepository(
                                     } else it.currency == wallet.currency.networkTicker &&
                                         it.account.index == wallet.index
                                 }.mapNotNull {
-                                    if (it.price == null) return@mapNotNull null
                                     val cc = assetCatalogue.fromNetworkTicker(it.currency)
                                     NetworkBalance(
                                         currency = cc ?: return@mapNotNull null,
@@ -86,11 +85,13 @@ internal class UnifiedBalancesRepository(
                                         unconfirmedBalance = it.pending?.amount?.let { amount ->
                                             Money.fromMinor(cc, amount)
                                         } ?: return@mapNotNull null,
-                                        exchangeRate = ExchangeRate(
-                                            from = cc,
-                                            to = currencyPrefs.selectedFiatCurrency,
-                                            rate = it.price
-                                        )
+                                        exchangeRate = it.price?.let { price ->
+                                            ExchangeRate(
+                                                from = cc,
+                                                to = currencyPrefs.selectedFiatCurrency,
+                                                rate = price
+                                            )
+                                        }
                                     )
                                 }
                             }

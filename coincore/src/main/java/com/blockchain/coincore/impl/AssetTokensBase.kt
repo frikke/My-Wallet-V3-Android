@@ -38,6 +38,7 @@ import com.blockchain.utils.unsafeLazy
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.isCustodial
 import info.blockchain.wallet.LabeledAccount
@@ -163,7 +164,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         ).asSingle().onErrorReturn { false }
 
     private fun loadCustodialAccounts(): Single<SingleAccountList> {
-        if (currency.isCustodial.not()) {
+        if (AssetCategory.TRADING !in currency.categories) {
             return Single.just(emptyList())
         }
         return custodialAccountsAccess.map {
@@ -189,9 +190,6 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     abstract fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList>
 
     private fun loadInterestAccounts(): Single<SingleAccountList> {
-        if (currency.isCustodial.not()) {
-            return Single.just(emptyList())
-        }
         return custodialAccountsAccess.flatMap { hasCustodialAccess ->
             if (!hasCustodialAccess) return@flatMap Single.just(emptyList())
             interestService.isAssetAvailableForInterest(currency).onErrorReturn { false }.map {
@@ -216,9 +214,6 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     }
 
     private fun loadStakingAccounts(): Single<SingleAccountList> {
-        if (currency.isCustodial.not()) {
-            return Single.just(emptyList())
-        }
         return custodialAccountsAccess.flatMap { hasCustodialAccess ->
             if (!hasCustodialAccess) return@flatMap Single.just(emptyList())
             stakingService.getAvailabilityForAsset(currency).onErrorReturn { false }.asSingle().map {
@@ -243,10 +238,6 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     }
 
     private fun loadActiveRewardsAccounts(): Single<SingleAccountList> {
-        if (currency.isCustodial.not()) {
-            return Single.just(emptyList())
-        }
-
         return custodialAccountsAccess.flatMap { hasCustodialAccess ->
             if (!hasCustodialAccess) {
                 Single.just(emptyList())

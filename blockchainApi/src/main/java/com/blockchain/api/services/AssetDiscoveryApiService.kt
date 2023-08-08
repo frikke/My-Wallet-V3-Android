@@ -27,6 +27,8 @@ enum class DynamicAssetProducts {
     HWS, // HotWalletService supports it
     CustodialWalletBalance, // Can have a custodial/simplebuy balance of this currency
     InterestBalance, // Can have an interest balance
+    EarnCC1W, // Can have an active rewards
+    Staking, // Can have an interest balance
     DynamicSelfCustody
 }
 

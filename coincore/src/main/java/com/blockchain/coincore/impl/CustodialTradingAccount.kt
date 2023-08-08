@@ -23,6 +23,7 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
+import com.blockchain.data.dataOrNull
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -51,6 +52,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
 
 class CustodialTradingAccount(
@@ -108,13 +110,13 @@ class CustodialTradingAccount(
                 asset = currency,
                 refreshStrategy = freshnessStrategy
             ),
-            exchangeRates.exchangeRateToUserFiat(currency)
+            exchangeRates.exchangeRateToUserFiatFlow(currency).asObservable()
         ) { balance, rate ->
             AccountBalance(
                 total = balance.total,
                 withdrawable = balance.withdrawable,
                 pending = balance.pending,
-                exchangeRate = rate
+                exchangeRate = rate.dataOrNull()
             )
         }
 
@@ -170,6 +172,7 @@ class CustodialTradingAccount(
             AssetAction.StakingDeposit -> balanceRx().firstOrError().flatMap { stakingDepositEligibility(it) }
             AssetAction.ActiveRewardsDeposit -> balanceRx().firstOrError()
                 .flatMap { activeRewardsDepositEligibility(it) }
+
             AssetAction.ViewStatement,
             AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw,
@@ -373,6 +376,7 @@ class CustodialTradingAccount(
                     recurringBuyId = order.recurringBuyId
                 )
             }
+
             OrderType.BUY -> {
                 CustodialTradingActivitySummaryItem(
                     exchangeRates = exchangeRates,
@@ -391,6 +395,7 @@ class CustodialTradingAccount(
                     depositPaymentId = order.depositPaymentId
                 )
             }
+
             OrderType.SELL -> {
                 TradeActivitySummaryItem(
                     exchangeRates = exchangeRates,

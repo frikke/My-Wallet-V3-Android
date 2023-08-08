@@ -23,10 +23,10 @@ data class AccountBalance internal constructor(
     val total: Money,
     val withdrawable: Money,
     val pending: Money,
-    val exchangeRate: ExchangeRate
+    val exchangeRate: ExchangeRate?
 ) {
-    val totalFiat: Money by lazy {
-        exchangeRate.convert(total)
+    val totalFiat: Money? by lazy {
+        exchangeRate?.convert(total)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -92,15 +92,24 @@ data class AccountBalance internal constructor(
     }
 }
 
-fun List<AccountBalance>.total(currency: Currency): AccountBalance =
-    fold(AccountBalance.zero(currency, ExchangeRate.identityExchangeRate(currency))) { a, v ->
+fun List<AccountBalance>.total(currency: Currency): AccountBalance {
+    val zero = AccountBalance.zero(currency, ExchangeRate.identityExchangeRate(currency))
+    return fold(zero) { a, v ->
         AccountBalance(
-            total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
-            withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
-            pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
-            exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
+            total = (a.exchangeRate?.convert(a.total) ?: zero.total) + (v.exchangeRate?.convert(v.total) ?: zero.total),
+            withdrawable = (a.exchangeRate?.convert(a.withdrawable) ?: zero.withdrawable) + (
+                v.exchangeRate?.convert(
+                    v.withdrawable
+                ) ?: zero.withdrawable
+                ),
+            pending = (a.exchangeRate?.convert(a.pending) ?: zero.pending) + (
+                v.exchangeRate?.convert(v.pending)
+                    ?: zero.pending
+                ),
+            exchangeRate = ExchangeRate.identityExchangeRate(currency)
         )
     }
+}
 
 interface BlockchainAccount {
 
@@ -289,21 +298,36 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
                 if (map.values.all { it is DataResource.Error } && map.size == accounts.size) {
                     throw map.values.filterIsInstance<DataResource.Error>().first().error
                 } else {
+                    val zero = AccountBalance.zero(
+                        currency = baseCurrency,
+                        exchangeRate = ExchangeRate.identityExchangeRate(baseCurrency)
+                    )
                     map.values.filterIsInstance<DataResource.Data<AccountBalance>>().map { it.data }
                         .filter { it.total.isPositive }
                         .fold(
-                            AccountBalance.zero(
-                                currency = baseCurrency,
-                                exchangeRate = ExchangeRate.identityExchangeRate(baseCurrency)
-                            )
+                            zero
                         ) { a, v ->
                             AccountBalance(
-                                total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
-                                withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(
-                                    v.withdrawable
-                                ),
-                                pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
-                                exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
+                                total = (a.exchangeRate?.convert(a.total) ?: zero.total) + (
+                                    v.exchangeRate?.convert(
+                                        v.total
+                                    )
+                                        ?: zero.total
+                                    ),
+                                withdrawable = (
+                                    a.exchangeRate?.convert(a.withdrawable)
+                                        ?: zero.total
+                                    ) + (
+                                    v.exchangeRate?.convert(v.withdrawable)
+                                        ?: zero.total
+                                    ),
+                                pending = (a.exchangeRate?.convert(a.pending) ?: zero.total) + (
+                                    v.exchangeRate?.convert(
+                                        v.pending
+                                    )
+                                        ?: zero.total
+                                    ),
+                                exchangeRate = ExchangeRate.identityExchangeRate(baseCurrency)
                             )
                         }
                 }

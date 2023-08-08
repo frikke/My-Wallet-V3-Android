@@ -66,7 +66,7 @@ class DynamicAssetServiceTest {
                 precisionDp = 12,
                 requiredConfirmations = 1,
                 colour = "#0C6CF2",
-                categories = setOf(AssetCategory.CUSTODIAL)
+                categories = setOf(AssetCategory.TRADING)
             )
         )
     }

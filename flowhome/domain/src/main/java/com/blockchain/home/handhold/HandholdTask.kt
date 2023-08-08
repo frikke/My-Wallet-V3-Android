@@ -2,13 +2,13 @@ package com.blockchain.home.handhold
 
 data class HandholdTasksStatus(
     val task: HandholdTask,
-    val status: HandholStatus
+    val status: HandholdStatus
 ) {
-    val isComplete: Boolean = status == HandholStatus.Complete
-    val isIncomplete: Boolean = status == HandholStatus.Incomplete
+    val isComplete: Boolean = status == HandholdStatus.Complete
+    val isIncomplete: Boolean = status == HandholdStatus.Incomplete
 }
 
-enum class HandholStatus {
+enum class HandholdStatus {
     Incomplete,
     Pending,
     Complete

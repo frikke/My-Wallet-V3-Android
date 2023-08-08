@@ -23,7 +23,6 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.core.announcements.DismissRecorder
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
@@ -53,7 +52,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.utils.mapList
 import com.blockchain.utils.rxSingleOutcome
@@ -95,9 +93,7 @@ class TransactionInteractor(
     private val dismissRecorder: DismissRecorder,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val tradeDataService: TradeDataService,
-    private val localSettingsPrefs: LocalSettingsPrefs,
     private val improvedPaymentUxFF: FeatureFlag,
-    private val dynamicAssetRepository: UniversalDynamicAssetRepository,
     private val stakingService: StakingService,
     private val transactionPrefs: TransactionPrefs,
     private val activeRewardsService: ActiveRewardsService

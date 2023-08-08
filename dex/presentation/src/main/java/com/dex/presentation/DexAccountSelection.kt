@@ -98,7 +98,7 @@ fun DexAccountSelection(
                             title = dexAccount.currency.name,
                             tag = dexAccount.currency.takeIf { it.isLayer2Token }?.coinNetwork?.shortName ?: "",
                             valueCrypto = dexAccount.balance.toStringWithSymbol(),
-                            valueFiat = dexAccount.fiatBalance.toStringWithSymbol(),
+                            valueFiat = dexAccount.fiatBalance?.toStringWithSymbol().orEmpty(),
                             icon = StackedIcon.SingleIcon(
                                 icon = ImageResource.Remote(dexAccount.currency.logo)
                             ),

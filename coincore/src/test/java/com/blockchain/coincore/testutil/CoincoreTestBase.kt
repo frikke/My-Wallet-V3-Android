@@ -139,7 +139,7 @@ open class CoincoreTestBase {
             displayTicker = "NOPE",
             networkTicker = "NOPE",
             name = "Not a real thing",
-            categories = setOf(AssetCategory.CUSTODIAL),
+            categories = setOf(AssetCategory.TRADING),
             precisionDp = 8,
             requiredConfirmations = 3,
             colour = "000000"
@@ -149,7 +149,7 @@ open class CoincoreTestBase {
             displayTicker = "NOPE2",
             networkTicker = "NOPE2",
             name = "Not a real thing",
-            categories = setOf(AssetCategory.CUSTODIAL),
+            categories = setOf(AssetCategory.TRADING),
             precisionDp = 8,
             requiredConfirmations = 3,
             colour = "000000"
@@ -178,7 +178,7 @@ object CoinCoreFakeData {
         displayTicker = "NOPE",
         networkTicker = "NOPE",
         name = "Not a real thing",
-        categories = setOf(AssetCategory.CUSTODIAL),
+        categories = setOf(AssetCategory.TRADING),
         precisionDp = 8,
         requiredConfirmations = 3,
         colour = "000000"
@@ -188,7 +188,7 @@ object CoinCoreFakeData {
         displayTicker = "NOPE2",
         networkTicker = "NOPE2",
         name = "Not a real thing",
-        categories = setOf(AssetCategory.CUSTODIAL),
+        categories = setOf(AssetCategory.TRADING),
         precisionDp = 8,
         requiredConfirmations = 3,
         colour = "000000"

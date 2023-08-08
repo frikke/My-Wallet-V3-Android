@@ -18,7 +18,9 @@ import com.blockchain.coincore.impl.txEngine.MissingLimitsException
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.TransactionsStore
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartner
@@ -26,7 +28,6 @@ import com.blockchain.domain.paymentmethods.model.BankPartnerCallbackProvider
 import com.blockchain.domain.paymentmethods.model.BankPaymentApproval
 import com.blockchain.domain.paymentmethods.model.BankTransferAction
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
-import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
@@ -41,7 +42,6 @@ import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.network.PollService
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.secondsToDays
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -93,10 +93,10 @@ class FiatDepositTxEngine(
                     outputCurrency = sourceAccountCurrency,
                     sourceCurrency = sourceAccountCurrency,
                     targetCurrency = (txTarget as FiatAccount).currency,
-                    sourceAccountType = AssetCategory.NON_CUSTODIAL,
-                    targetAccountType = AssetCategory.CUSTODIAL,
+                    sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+                    targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
                     legacyLimits = Single.just(paymentMethodLimits).map {
-                        it as LegacyLimits
+                        it
                     }
                 ).map { limits ->
                     PendingTx(

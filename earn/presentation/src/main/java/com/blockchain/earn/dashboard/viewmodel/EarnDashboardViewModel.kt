@@ -14,6 +14,7 @@ import com.blockchain.data.doOnData
 import com.blockchain.data.filterNotLoading
 import com.blockchain.data.flatMapData
 import com.blockchain.data.mapData
+import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.domain.models.active.ActiveRewardsAccountBalance
 import com.blockchain.earn.domain.models.interest.InterestAccountBalance
@@ -31,13 +32,11 @@ import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
-import java.math.BigDecimal
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.rx3.await
-import kotlinx.coroutines.rx3.awaitSingle
 import kotlinx.coroutines.rx3.awaitSingleOrNull
 import timber.log.Timber
 
@@ -158,16 +157,6 @@ class EarnDashboardViewModel(
             }
 
             EarnDashboardIntent.StartKycClicked -> navigate(EarnDashboardNavigationEvent.OpenKyc)
-            is EarnDashboardIntent.OnNavigateToAction -> {
-                when (intent.action) {
-                    AssetAction.Buy -> navigate(EarnDashboardNavigationEvent.OpenBuy(intent.assetInfo))
-                    AssetAction.Receive -> navigate(
-                        EarnDashboardNavigationEvent.OpenReceive(intent.assetInfo.networkTicker)
-                    )
-
-                    else -> throw IllegalStateException("Earn dashboard: ${intent.action} not valid for navigation")
-                }
-            }
 
             is EarnDashboardIntent.FinishOnboarding -> {
                 walletStatusPrefs.hasSeenEarnProductIntro = true
@@ -271,12 +260,10 @@ class EarnDashboardViewModel(
 
     private suspend fun showAcquireOrSummaryForEarnType(earnType: EarnType, assetTicker: String) {
         assetCatalogue.fromNetworkTicker(assetTicker)?.let { currency ->
-            val tradingAccount = coincore[currency].accountGroup(AssetFilter.Trading).awaitSingle().accounts.first()
-            val pkwAccountsBalance =
-                coincore[currency].accountGroup(AssetFilter.NonCustodial).awaitSingleOrNull()?.accounts?.map {
-                    it.balance().firstOrNull()
-                }?.toList()?.sumOf { it?.total?.toBigDecimal() ?: BigDecimal.ZERO } ?: Money.zero(currency)
-                    .toBigDecimal()
+            val tradingAccount =
+                coincore[currency].accountGroup(AssetFilter.Trading).awaitSingleOrNull()
+            val pkwAccounts =
+                coincore[currency].accountGroup(AssetFilter.NonCustodial).awaitSingleOrNull()
 
             val earnBalance = when (earnType) {
                 EarnType.Active -> modelState.earnData?.activeRewardsBalancesWithFiat
@@ -286,8 +273,8 @@ class EarnDashboardViewModel(
                 asset.networkTicker
             }?.get(assetTicker)?.cryptoBalance?.totalBalance
 
-            if (tradingAccount.balance().firstOrNull()?.total?.isPositive == true ||
-                pkwAccountsBalance > BigDecimal.ZERO ||
+            if (tradingAccount?.balance()?.firstOrNull()?.total?.isPositive == true ||
+                pkwAccounts?.balance()?.firstOrNull()?.total?.isPositive == true ||
                 earnBalance?.isPositive == true
             ) {
                 when (earnType) {
@@ -309,17 +296,20 @@ class EarnDashboardViewModel(
                     freshnessStrategy = FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale)
                 ).filterNotLoading()
                     .doOnData { availableToBuy ->
-                        navigate(
-                            EarnDashboardNavigationEvent.OpenBuyOrReceiveSheet(
-                                when (earnType) {
-                                    EarnType.Passive -> AssetAction.InterestDeposit
-                                    EarnType.Staking -> AssetAction.StakingDeposit
-                                    EarnType.Active -> AssetAction.ActiveRewardsDeposit
-                                },
-                                availableToBuy,
-                                tradingAccount
+                        val account = tradingAccount?.accounts?.firstOrNull() ?: pkwAccounts?.accounts?.firstOrNull()
+                        account?.let {
+                            navigate(
+                                EarnDashboardNavigationEvent.OpenBuyOrReceiveSheet(
+                                    when (earnType) {
+                                        EarnType.Passive -> AssetAction.InterestDeposit
+                                        EarnType.Staking -> AssetAction.StakingDeposit
+                                        EarnType.Active -> AssetAction.ActiveRewardsDeposit
+                                    },
+                                    availableToBuy,
+                                    account
+                                )
                             )
-                        )
+                        }
                     }.firstOrNull()
             }
         } ?: Timber.e("Earn Dashboard - unknown asset $assetTicker")
@@ -395,7 +385,7 @@ class EarnDashboardViewModel(
 
         data.stakingBalancesWithFiat.map { (asset, balances) ->
 
-            totalEarningBalanceFiat += balances.totalFiat
+            totalEarningBalanceFiat += balances.totalFiat ?: Money.zero(currencyPrefs.selectedFiatCurrency)
 
             val totalBalance = balances.cryptoBalance.totalBalance
 
@@ -439,7 +429,7 @@ class EarnDashboardViewModel(
 
         data.interestBalancesWithFiat.map { (asset, balances) ->
 
-            totalEarningBalanceFiat += balances.totalFiat
+            totalEarningBalanceFiat += balances.totalFiat ?: Money.zero(currencyPrefs.selectedFiatCurrency)
 
             val totalBalance = balances.cryptoBalance.totalBalance
 
@@ -485,7 +475,7 @@ class EarnDashboardViewModel(
 
         data.activeRewardsBalancesWithFiat.map { (asset, balances) ->
 
-            totalEarningBalanceFiat += balances.totalFiat
+            totalEarningBalanceFiat += balances.totalFiat ?: Money.zero(currencyPrefs.selectedFiatCurrency)
 
             val totalBalance = balances.cryptoBalance.totalBalance
 
@@ -648,6 +638,12 @@ class EarnDashboardViewModel(
                             balances,
                             exchangeRate.convert(balances.totalBalance)
                         )
+                    }.onErrorReturn {
+                        EarnBalanceWithFiat.StakingBalanceWithFiat(
+                            asset,
+                            balances,
+                            null
+                        )
                     }
                 }
 
@@ -673,6 +669,12 @@ class EarnDashboardViewModel(
                             asset,
                             balances,
                             exchangeRate.convert(balances.totalBalance)
+                        )
+                    }.onErrorReturn {
+                        EarnBalanceWithFiat.InterestBalanceWithFiat(
+                            asset,
+                            balances,
+                            null
                         )
                     }
                 }
@@ -701,6 +703,12 @@ class EarnDashboardViewModel(
                             asset,
                             balances,
                             exchangeRate.convert(balances.totalBalance)
+                        )
+                    }.onErrorReturn {
+                        EarnBalanceWithFiat.ActiveRewardsBalanceWithFiat(
+                            asset,
+                            balances,
+                            null
                         )
                     }
                 }

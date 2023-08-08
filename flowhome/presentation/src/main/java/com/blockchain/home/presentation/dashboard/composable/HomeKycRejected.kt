@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.Surface
@@ -55,7 +56,10 @@ private fun KycRejectedCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing),
+                .padding(
+                    vertical = AppTheme.dimensions.standardSpacing,
+                    horizontal = AppTheme.dimensions.smallSpacing
+                ),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -86,14 +90,16 @@ private fun KycRejectedCard(
             Text(
                 text = stringResource(R.string.dashboard_kyc_blocked_description),
                 style = AppTheme.typography.body1,
-                color = AppTheme.colors.title,
+                color = AppTheme.colors.body,
                 textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             PrimaryButton(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .requiredHeightIn(min = 56.dp),
                 text = stringResource(R.string.go_to_defi),
                 onClick = onClick
             )

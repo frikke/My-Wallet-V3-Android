@@ -5,6 +5,7 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.data.DataResource
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue
@@ -20,6 +21,8 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.rx3.asFlow
 import org.junit.Before
 import org.junit.Test
 
@@ -50,8 +53,8 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
     @Test
     fun `Balance is fetched correctly and is non-zero`() {
-        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
-            .thenReturn(Observable.just(TEST_TO_USER_RATE_1))
+        whenever(exchangeRates.exchangeRateToUserFiatFlow(TEST_ASSET))
+            .thenReturn(flowOf(DataResource.Data(TEST_TO_USER_RATE_1)))
 
         val balance = TradingAccountBalance(
             total = 100.testValue(TEST_ASSET),
@@ -74,8 +77,8 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
     @Test
     fun `Balance is fetched correctly and is zero`() {
-        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
-            .thenReturn(Observable.just(TEST_TO_USER_RATE_1))
+        whenever(exchangeRates.exchangeRateToUserFiatFlow(TEST_ASSET))
+            .thenReturn(flowOf(DataResource.Data(TEST_TO_USER_RATE_1)))
 
         val balance = TradingAccountBalance(
             total = 0.testValue(TEST_ASSET),
@@ -104,9 +107,9 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
         val rateSource = Observable.zip(
             Observable.interval(1, TimeUnit.SECONDS, scheduler),
             Observable.fromIterable(rates)
-        ) { /* tick */ _, rate -> rate as ExchangeRate }
+        ) { /* tick */ _, rate -> rate as ExchangeRate }.map { DataResource.Data(it) }.asFlow()
 
-        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
+        whenever(exchangeRates.exchangeRateToUserFiatFlow(TEST_ASSET))
             .thenReturn(rateSource)
 
         val balance = TradingAccountBalance(
@@ -139,7 +142,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
             networkTicker = "NOPE",
             displayTicker = "NOPE",
             name = "Not a real thing",
-            categories = setOf(AssetCategory.CUSTODIAL),
+            categories = setOf(AssetCategory.TRADING),
             precisionDp = 8,
             requiredConfirmations = 3,
             colour = "000000"

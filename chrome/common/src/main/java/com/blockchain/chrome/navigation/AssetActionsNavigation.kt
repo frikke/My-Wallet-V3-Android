@@ -4,7 +4,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.navigation.ActivityResultNavigation
@@ -13,8 +12,6 @@ import info.blockchain.balance.AssetInfo
 @Stable
 interface AssetActionsNavigation : ActivityResultNavigation {
     fun navigate(assetAction: AssetAction)
-    fun receive(currency: String)
-    fun receive(account: CryptoNonCustodialAccount)
     fun buyCrypto(
         currency: AssetInfo,
         amount: String? = null,
@@ -34,8 +31,6 @@ interface AssetActionsNavigation : ActivityResultNavigation {
     fun stakingSummary(networkTicker: String)
     fun activeRewardsSummary(networkTicker: String)
     fun startKyc()
-
-    fun initNewTxFlowFFs()
 }
 
 val LocalAssetActionsNavigationProvider = staticCompositionLocalOf<AssetActionsNavigation> {

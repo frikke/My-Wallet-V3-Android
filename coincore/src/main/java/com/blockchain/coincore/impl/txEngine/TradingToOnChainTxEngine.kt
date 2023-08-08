@@ -23,7 +23,9 @@ import com.blockchain.core.TransactionsStore
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.custodial.fees.WithdrawFeesStore
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
@@ -36,7 +38,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.then
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -115,8 +116,8 @@ class TradingToOnChainTxEngine(
                 outputCurrency = sourceAsset,
                 sourceCurrency = sourceAsset,
                 targetCurrency = (txTarget as CryptoAddress).asset,
-                sourceAccountType = AssetCategory.CUSTODIAL,
-                targetAccountType = AssetCategory.NON_CUSTODIAL,
+                sourceAccountType = CUSTODIAL_LIMITS_ACCOUNT,
+                targetAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
                 legacyLimits = maxFeeAndMin.map { feeAndMin ->
                     object : LegacyLimits {
                         override val min: Money

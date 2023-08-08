@@ -20,6 +20,7 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeBalanceService
 import com.blockchain.walletmode.WalletModeService
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -101,12 +102,7 @@ class MultiAppViewModel(
                 walletModeService.updateEnabledWalletMode(intent.walletMode)
 
                 if (shouldOnboardWalletForMode(intent.walletMode)) {
-                    navigate(
-                        when (intent.walletMode) {
-                            WalletMode.CUSTODIAL -> MultiAppNavigationEvent.CustodialIntro
-                            WalletMode.NON_CUSTODIAL -> MultiAppNavigationEvent.DefiIntro
-                        }
-                    )
+                    navigate(MultiAppNavigationEvent.WalletIntro(intent.walletMode))
                 }
             }
 
@@ -137,6 +133,7 @@ class MultiAppViewModel(
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun loadBalance() {
         // total balance to be shown on top
         viewModelScope.launch {
@@ -205,8 +202,12 @@ class MultiAppViewModel(
                 (modelState.custodialBalance as? DataResource.Data)?.data?.isZero == true
             }
         }
-        return noBalance &&
-            !walletStatusPrefs.hasSeenDefiOnboarding &&
-            !walletModePrefs.userDefaultedToPKW
+
+        val hasNotSeenOnboarding = when (walletMode) {
+            WalletMode.CUSTODIAL -> !walletStatusPrefs.hasSeenCustodialOnboarding
+            WalletMode.NON_CUSTODIAL -> !walletStatusPrefs.hasSeenDefiOnboarding
+        }
+
+        return noBalance && hasNotSeenOnboarding
     }
 }

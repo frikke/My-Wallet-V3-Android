@@ -60,13 +60,11 @@ class UpsellBuyBottomSheet :
                 Card(shape = AppTheme.shapes.large, elevation = 0.dp, backgroundColor = AppTheme.colors.light) {
                     Column {
                         SheetHeader(
-                            shouldShowDivider = false,
                             onClosePress = {
                                 host.onCloseUpsellAnotherAsset()
                                 analytics.logEvent(UpsellBuyDismissed)
                                 dismiss()
                             },
-                            backgroundSecondary = false
                         )
 
                         UpsellBuyScreen(

@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.core.kyc.domain.KycService
-import com.blockchain.data.asObservable
+import com.blockchain.data.toObservable
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -50,7 +50,7 @@ class SettingsInteractor internal constructor(
     }
 
     private fun getReferralData(): Single<ReferralInfo> {
-        return referralService.fetchReferralData().asObservable().firstOrError()
+        return referralService.fetchReferralData().toObservable().firstOrError()
             .onErrorResumeWith { Single.just(ReferralInfo.NotAvailable) }
     }
 

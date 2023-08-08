@@ -466,14 +466,7 @@ class TransactionFlowActivity :
             }
         }
 
-        // TODO(aromano): Funky code, but was the least intrusive way of feature flagging this,
-        //                since TransactionFlowActivity is used in dozens of places it would have required FFing everywhere
-        var newSwapFlowFFEnabled = false
-        var newSellFlowFFEnabled = false
-        private fun shouldUseNewFlow(action: AssetAction): Boolean = when {
-            action == AssetAction.Swap && newSwapFlowFFEnabled -> true
-            action == AssetAction.Sell && newSellFlowFFEnabled -> true
-            else -> false
-        }
+        private fun shouldUseNewFlow(action: AssetAction): Boolean =
+            action in listOf(AssetAction.Swap, AssetAction.Sell)
     }
 }

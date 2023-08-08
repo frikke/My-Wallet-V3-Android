@@ -67,12 +67,19 @@ class DexAccountsRepository(
     ): DexAccount {
         val chainId = coinNetwork.chainId
         require(chainId != null)
-        val defFundedAccount = dexSourceAccounts(chainId = chainId).map { accounts ->
-            accounts.maxByOrNull { it.fiatBalance }
-        }.flowOn(coroutineDispatcher).firstOrNull()
+        val availableSourceAccounts = dexSourceAccounts(chainId = chainId).flowOn(coroutineDispatcher).firstOrNull()
 
-        if (defFundedAccount != null)
-            return defFundedAccount
+        val nativeTokenAccount =
+            availableSourceAccounts?.firstOrNull { it.currency.networkTicker == coinNetwork.nativeAssetTicker }
+
+        val maxFundedAccount =
+            availableSourceAccounts?.maxByOrNull { it.fiatBalance ?: Money.zero(currencyPrefs.selectedFiatCurrency) }
+
+        if (maxFundedAccount != null) {
+            return maxFundedAccount
+        }
+        if (nativeTokenAccount != null)
+            return nativeTokenAccount
         val nativeCurrency =
             assetCatalogue.assetInfoFromNetworkTicker(coinNetwork.nativeAssetTicker) ?: throw IllegalStateException("")
         val nativeAccount =

@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -39,11 +41,10 @@ import com.blockchain.nfts.navigation.ARG_ADDRESS
 import com.blockchain.nfts.navigation.ARG_NFT_ID
 import com.blockchain.nfts.navigation.ARG_PAGE_KEY
 import com.blockchain.nfts.navigation.NftDestination
-import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.nfts.navigation.nftGraph
-import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.WalletModePrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.transactions.receive.navigation.receiveGraph
 import com.blockchain.walletconnect.ui.navigation.WalletConnectV2Navigation
 import com.blockchain.walletconnect.ui.navigation.walletConnectGraph
 import com.blockchain.walletmode.WalletMode
@@ -57,7 +58,6 @@ import org.koin.core.parameter.parametersOf
 @OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun MultiAppNavHost(
-    superAppMvpPrefs: SuperAppMvpPrefs = get(),
     walletModePrefs: WalletModePrefs = get(),
     walletStatusPrefs: WalletStatusPrefs = get(),
     startPhraseRecovery: () -> Unit,
@@ -67,11 +67,11 @@ fun MultiAppNavHost(
     settingsNavigation: SettingsNavigation,
     qrScanNavigation: QrScanNavigation,
     supportNavigation: SupportNavigation,
-    nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     defiBackupNavigation: DefiBackupNavigation,
     openExternalUrl: (url: String) -> Unit,
-    processAnnouncementUrl: (url: String) -> Unit
+    processAnnouncementUrl: (url: String) -> Unit,
+    openDex: MutableState<Boolean>
 ) {
     val multiAppViewModel: MultiAppViewModel = getViewModel(scope = payloadScope)
 
@@ -101,6 +101,21 @@ fun MultiAppNavHost(
         }
     }
 
+    // open dex
+    LaunchedEffect(openDex.value) {
+        if (openDex.value) {
+            navController.popBackStack(ChromeDestination.Main.route, inclusive = false)
+
+            multiAppViewModel.onIntent(
+                MultiAppIntents.BottomNavigationItemSelected(ChromeBottomNavigationItem.Dex)
+            )
+
+            openDex.value = false
+        }
+    }
+
+    // todo(othman) add chrome pill here to be accessible in single screens also
+    // box{sheetlayout; pill}
     val chromePill: ChromePill = get(scope = payloadScope)
     CompositionLocalProvider(
         LocalChromePillProvider provides chromePill,
@@ -149,7 +164,6 @@ fun MultiAppNavHost(
                     qrScanNavigation = qrScanNavigation,
                     showAppRating = showAppRating,
                     openExternalUrl = openExternalUrl,
-                    nftNavigation = nftNavigation,
                     earnNavigation = earnNavigation,
                     processAnnouncementUrl = processAnnouncementUrl
                 )
@@ -197,6 +211,10 @@ fun MultiAppNavHost(
                     navController = navController,
                     onLaunchQrCodeScan = { qrScanNavigation.launchQrScan() },
                 )
+
+                receiveGraph(
+                    onBackPressed = navController::popBackStack
+                )
             }
         }
     }
@@ -208,7 +226,6 @@ private fun NavGraphBuilder.chrome(
     startPhraseRecovery: () -> Unit,
     showAppRating: () -> Unit,
     qrScanNavigation: QrScanNavigation,
-    nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     openExternalUrl: (url: String) -> Unit,
     processAnnouncementUrl: (url: String) -> Unit
@@ -217,31 +234,11 @@ private fun NavGraphBuilder.chrome(
         MultiAppChrome(
             viewModel = viewModel,
             onModeLongClicked = { walletMode ->
-                when (walletMode) {
-                    WalletMode.CUSTODIAL -> {
-                        navController.navigate(
-                            HomeDestination.CustodialIntro,
-                        )
-                    }
-                    WalletMode.NON_CUSTODIAL -> {
-                        navController.navigate(
-                            HomeDestination.DefiIntro,
-                        )
-                    }
-                }
+                navController.navigateToWalletIntro(walletMode)
             },
             startPhraseRecovery = startPhraseRecovery,
-            showDefiIntro = {
-                navController.navigate(
-                    destination = HomeDestination.DefiIntro,
-                    args = listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, true))
-                )
-            },
-            showCustodialIntro = {
-                navController.navigate(
-                    destination = HomeDestination.CustodialIntro,
-                    args = listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, true))
-                )
+            showWalletIntro = { walletMode ->
+                navController.navigateToWalletIntro(walletMode)
             },
             qrScanNavigation = qrScanNavigation,
             graphNavController = navController,
@@ -260,9 +257,20 @@ private fun NavGraphBuilder.chrome(
                     )
                 )
             },
-            nftNavigation = nftNavigation,
             earnNavigation = earnNavigation,
             processAnnouncementUrl = processAnnouncementUrl,
         )
     }
+}
+
+private fun NavHostController.navigateToWalletIntro(
+    walletMode: WalletMode
+) {
+    navigate(
+        when (walletMode) {
+            WalletMode.CUSTODIAL -> HomeDestination.CustodialIntro
+            WalletMode.NON_CUSTODIAL -> HomeDestination.DefiIntro
+        },
+        args = listOf(NavArgument(ARG_IS_FROM_MODE_SWITCH, true))
+    )
 }

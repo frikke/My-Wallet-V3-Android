@@ -1,7 +1,7 @@
 package com.blockchain.api.earn.staking
 
 import com.blockchain.api.earn.EarnRewardsEligibilityDto
-import com.blockchain.api.earn.EarnWithdrawalDto
+import com.blockchain.api.earn.staking.data.StakingActivityDto
 import com.blockchain.api.earn.staking.data.StakingAddressDto
 import com.blockchain.api.earn.staking.data.StakingBalanceDto
 import com.blockchain.api.earn.staking.data.StakingLimitsMapDto
@@ -37,8 +37,9 @@ internal interface StakingApi {
         @Query("ccy") cryptoCurrencyTicker: String
     ): Outcome<Exception, StakingAddressDto>
 
-    @GET("earn/withdrawal-requests")
+    @GET("earn/bonding-txs")
     suspend fun getWithdrawalRequests(
-        @Query("product") product: String = "STAKING"
-    ): Outcome<Exception, List<EarnWithdrawalDto>>
+        @Query("product") product: String = "STAKING",
+        @Query("ccy") cryptoCurrencyTicker: String
+    ): Outcome<Exception, StakingActivityDto>
 }

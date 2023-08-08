@@ -1,7 +1,7 @@
 package com.blockchain.earn.data.dataresources.active
 
-import com.blockchain.api.earn.EarnWithdrawalDto
 import com.blockchain.api.earn.active.ActiveRewardsApiService
+import com.blockchain.api.earn.active.EarnWithdrawalDto
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness

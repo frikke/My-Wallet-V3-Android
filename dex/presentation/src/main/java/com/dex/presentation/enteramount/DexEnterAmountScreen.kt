@@ -42,9 +42,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.flowWithLifecycle
-import androidx.navigation.NavController
 import com.blockchain.analytics.Analytics
 import com.blockchain.chrome.LocalChromePillProvider
+import com.blockchain.chrome.LocalNavControllerProvider
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.componentlib.alert.PillAlert
@@ -118,9 +118,6 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun DexEnterAmountScreen(
     listState: LazyListState,
-    navController: NavController,
-    startReceiving: () -> Unit,
-    receiveOnAccount: (CryptoNonCustodialAccount) -> Unit,
     savedStateHandle: SavedStateHandle?,
     viewModel: DexEnterAmountViewModel = getViewModel(scope = payloadScope),
     dexIntroPrefs: DexPrefs = get(),
@@ -128,6 +125,8 @@ fun DexEnterAmountScreen(
     launchQrScanner: () -> Unit,
     analytics: Analytics = get(),
 ) {
+    val navController = LocalNavControllerProvider.current
+
     LaunchedEffect(Unit) {
         if (!dexIntroPrefs.dexIntroShown) {
             navController.navigate(DexDestination.Intro.route)
@@ -167,7 +166,7 @@ fun DexEnterAmountScreen(
                 }
 
                 if (savedStateHandle?.contains(DEPOSIT_FOR_ACCOUNT_REQUESTED) == true) {
-                    viewModel.onIntent(InputAmountIntent.DepositOnSourceAccountRequested(receiveOnAccount))
+                    viewModel.onIntent(InputAmountIntent.DepositOnSourceAccountRequested)
                     savedStateHandle.remove<Boolean>(DEPOSIT_FOR_ACCOUNT_REQUESTED)
                 }
             }
@@ -235,7 +234,9 @@ fun DexEnterAmountScreen(
                 }
 
                 is AmountNavigationEvent.AllowanceTxUrl -> uriHandler.openUri(event.url)
-                is AmountNavigationEvent.ReceiveOnAccount -> receiveOnAccount(event.account)
+                AmountNavigationEvent.ReceiveOnAccount -> {
+                    navController.navigate(DexDestination.ReceiveAccountDetail.route)
+                }
             }
         }
     }
@@ -306,7 +307,9 @@ fun DexEnterAmountScreen(
                     onTokenAllowanceApproveButPending = {
                         viewModel.onIntent(InputAmountIntent.PollForPendingAllowance(it))
                     },
-                    receive = receiveOnAccount,
+                    receive = {
+                        viewModel.onIntent(InputAmountIntent.DepositOnAccountRequested(account = it))
+                    },
                     onAlertErrorClicked = { title, description ->
                         navController.navigate(
                             DexDestination.DexExtraInfoSheet.routeWithTitleAndDescription(
@@ -352,7 +355,9 @@ fun DexEnterAmountScreen(
                         navController.navigate(DexDestination.Settings.route)
                         keyboardController?.hide()
                     },
-                    receive = startReceiving
+                    receive = {
+                        navController.navigate(DexDestination.ReceiveAccounts.route)
+                    }
                 )
             }
         }

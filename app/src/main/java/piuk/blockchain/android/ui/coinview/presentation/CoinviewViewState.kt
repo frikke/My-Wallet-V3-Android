@@ -126,14 +126,15 @@ sealed interface CoinviewRecurringBuysState {
 }
 
 // Quick actions
-fun CoinviewQuickAction.name() = when (this) {
+fun CoinviewQuickAction.name(assetTicker: String) = when (this) {
     is CoinviewQuickAction.Buy -> com.blockchain.stringResources.R.string.common_buy
     is CoinviewQuickAction.Sell -> com.blockchain.stringResources.R.string.common_sell
     is CoinviewQuickAction.Send -> com.blockchain.stringResources.R.string.common_send
     is CoinviewQuickAction.Receive -> com.blockchain.stringResources.R.string.common_receive
     is CoinviewQuickAction.Swap -> com.blockchain.stringResources.R.string.common_swap
+    is CoinviewQuickAction.Get -> com.blockchain.stringResources.R.string.common_get_asset
 }.run {
-    TextValue.IntResValue(this)
+    TextValue.IntResValue(this, args = listOf(assetTicker))
 }
 
 fun CoinviewQuickAction.logo() = when (this) {
@@ -141,7 +142,8 @@ fun CoinviewQuickAction.logo() = when (this) {
     is CoinviewQuickAction.Sell -> LocalLogo.Sell
     is CoinviewQuickAction.Send -> LocalLogo.Send
     is CoinviewQuickAction.Receive -> LocalLogo.Receive
-    is CoinviewQuickAction.Swap -> LocalLogo.Swap
+    is CoinviewQuickAction.Swap,
+    is CoinviewQuickAction.Get -> LocalLogo.Swap
 }
 
 // Info

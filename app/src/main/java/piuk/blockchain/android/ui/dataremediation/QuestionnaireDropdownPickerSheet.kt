@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,9 +26,9 @@ import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import kotlinx.coroutines.flow.MutableStateFlow
-import piuk.blockchain.android.R
 
 class QuestionnaireDropdownPickerSheet : ComposeModalBottomDialog() {
 
@@ -158,14 +159,13 @@ private fun Screen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppColors.background)
+            .imePadding()
+            .background(AppColors.background, shape = AppTheme.shapes.veryLarge.topOnly())
     ) {
         SheetHeader(
             title = title,
             byline = instructions,
-            onClosePress = onClosePress,
-            shouldShowDivider = false,
-            backgroundSecondary = false
+            onClosePress = onClosePress
         )
 
         CancelableOutlinedSearch(
@@ -192,6 +192,7 @@ private fun Screen(
                 ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             content = {
+
                 items(
                     items = stateVisibleChoices,
                     key = { it.id },

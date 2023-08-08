@@ -251,6 +251,7 @@ fun CoinviewScreen(
                                 )
                             ) {
                                 CenterQuickActions(
+                                    assetTicker = asset.data.asset.networkTicker,
                                     data = quickActionsCenter,
                                     onQuickActionClick = onQuickActionClick
                                 )
@@ -331,6 +332,7 @@ fun CoinviewScreen(
 
                         Column(modifier = Modifier.fillMaxWidth()) {
                             BottomQuickActions(
+                                assetTicker = asset.data.asset.displayTicker,
                                 data = quickActionsBottom,
                                 onQuickActionClick = onQuickActionClick
                             )
@@ -344,7 +346,8 @@ fun CoinviewScreen(
             targetValue = if (pillAlert is CoinviewPillAlertState.None) -300 else 0,
             animationSpec = tween(
                 durationMillis = ANIMATION_DURATION
-            )
+            ),
+            label = ""
         )
 
         var savedAlertForAnimation: CoinviewPillAlertState? by remember { mutableStateOf(null) }

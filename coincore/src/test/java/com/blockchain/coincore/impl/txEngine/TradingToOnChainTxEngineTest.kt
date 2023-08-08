@@ -15,7 +15,9 @@ import com.blockchain.coincore.erc20.Erc20NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoAccountCompoundGroupTest.Companion.testValue
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
@@ -31,7 +33,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
@@ -216,8 +217,8 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             outputCurrency = eq(ASSET),
             sourceCurrency = eq(ASSET),
             targetCurrency = eq(ASSET),
-            sourceAccountType = eq(AssetCategory.CUSTODIAL),
-            targetAccountType = eq(AssetCategory.NON_CUSTODIAL),
+            sourceAccountType = eq(CUSTODIAL_LIMITS_ACCOUNT),
+            targetAccountType = eq(NON_CUSTODIAL_LIMITS_ACCOUNT),
             legacyLimits = any()
         )
     }

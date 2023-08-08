@@ -5,13 +5,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -31,6 +34,7 @@ import com.blockchain.componentlib.icons.Plus
 import com.blockchain.componentlib.icons.Swap
 import com.blockchain.componentlib.icons.Verified
 import com.blockchain.componentlib.icons.withBackground
+import com.blockchain.componentlib.sheets.SheetNub
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
@@ -49,6 +53,7 @@ import org.koin.androidx.compose.get
 
 @Composable
 fun KycUpgradeNowScreen(
+    isBottomSheet: Boolean = false,
     startKycClicked: () -> Unit,
     analytics: Analytics = get(scope = payloadScope),
     kycService: KycService = get(scope = payloadScope)
@@ -69,6 +74,7 @@ fun KycUpgradeNowScreen(
     }
 
     KycUpgradeNow(
+        isBottomSheet = isBottomSheet,
         ctaClicked = {
             highestTier?.let {
                 AnalyticsType.GetVerifiedClicked.log(analytics, it)
@@ -80,13 +86,19 @@ fun KycUpgradeNowScreen(
 
 @Composable
 private fun KycUpgradeNow(
+    isBottomSheet: Boolean = false,
     ctaClicked: () -> Unit
 ) {
     Column(
         Modifier
             .background(AppColors.background)
-            .padding(AppTheme.dimensions.smallSpacing)
+            .padding(AppTheme.dimensions.smallSpacing),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if (isBottomSheet) {
+            SheetNub()
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
+        }
         Row {
             Image(Icons.Filled.Verified.withTint(AppTheme.colors.primary))
 

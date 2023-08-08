@@ -14,7 +14,7 @@ data class FiatCurrency private constructor(
     override val name: String
         get() = java.util.Currency.getInstance(currencyCode).getDisplayName(Locale.getDefault())
     override val categories: Set<AssetCategory>
-        get() = setOf(AssetCategory.CUSTODIAL)
+        get() = setOf(AssetCategory.TRADING)
     override val precisionDp: Int
         get() = java.util.Currency.getInstance(currencyCode).defaultFractionDigits
     override val logo: String

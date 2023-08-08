@@ -4,6 +4,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
+import com.blockchain.earn.domain.models.staking.StakingActivityType
 import info.blockchain.balance.Money
 import java.util.Date
 
@@ -25,17 +26,19 @@ data class StakingSummaryViewState(
     val earnFrequency: EarnRewardsFrequency,
     val canDeposit: Boolean,
     val canWithdraw: Boolean,
-    val pendingWithdrawals: List<EarnWithdrawalUiElement>,
+    val pendingActivity: List<StakingActivityViewState>,
     val unbondingDays: Int
 ) : ViewState
 
-data class EarnWithdrawalUiElement(
+data class StakingActivityViewState(
     val currency: String,
     val amountCrypto: String,
     val amountFiat: String,
-    val unbondingStartDate: String,
-    val unbondingExpiryDate: String,
-    val withdrawalTimestamp: Date?
+    val startDate: String,
+    val expiryDate: String,
+    val timestamp: Date?,
+    val durationDays: Int,
+    val type: StakingActivityType
 )
 
 sealed class StakingError {

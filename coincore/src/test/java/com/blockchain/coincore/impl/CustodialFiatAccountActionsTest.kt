@@ -7,6 +7,7 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
+import com.blockchain.data.DataResource
 import com.blockchain.domain.paymentmethods.BankService
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -18,6 +19,8 @@ import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
+import javax.xml.crypto.Data
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 
@@ -29,8 +32,8 @@ class CustodialFiatAccountActionsTest : CoincoreTestBase() {
 
     @Before
     fun setup() {
-        whenever(exchangeRates.exchangeRateToUserFiat(TEST_FIAT_ASSET))
-            .thenReturn(Observable.just(TEST_TO_USER_RATE))
+        whenever(exchangeRates.exchangeRateToUserFiatFlow(TEST_FIAT_ASSET))
+            .thenReturn(flowOf(DataResource.Data(TEST_TO_USER_RATE)))
     }
 
     @Test

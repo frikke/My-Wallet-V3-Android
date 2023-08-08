@@ -76,7 +76,6 @@ class NoBalanceActionBottomSheet : ThemedBottomSheetFragment() {
                         super.dismiss()
                     }
                 ),
-                shouldShowHeaderDivider = false
             )
         } else {
             require(details.secondaryButton != null)
@@ -104,7 +103,6 @@ class NoBalanceActionBottomSheet : ThemedBottomSheetFragment() {
                         super.dismiss()
                     }
                 ),
-                shouldShowHeaderDivider = false
             )
         }
     }

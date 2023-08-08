@@ -62,6 +62,7 @@ fun EmailVerification(
         key = verificationRequired.toString(),
         parameters = { parametersOf(verificationRequired) }
     ),
+    legacyToolbar: Boolean = false,
     closeOnClick: () -> Unit,
     nextOnClick: () -> Unit
 ) {
@@ -72,6 +73,7 @@ fun EmailVerification(
         status = viewState.status,
         showResendingEmailInProgress = viewState.showResendingEmailInProgress,
         snackbarMessage = viewState.snackbarMessage,
+        legacyToolbar = legacyToolbar,
         resendEmailClicked = {
             viewModel.onIntent(EmailVerificationIntent.ResendEmailClicked)
         },
@@ -86,6 +88,7 @@ private fun EmailVerificationScreen(
     status: EmailVerificationStatus,
     showResendingEmailInProgress: Boolean,
     snackbarMessage: EmailVerificationNotification?,
+    legacyToolbar: Boolean = false,
     resendEmailClicked: () -> Unit,
     closeOnClick: () -> Unit,
     nextOnClick: () -> Unit
@@ -122,14 +125,15 @@ private fun EmailVerificationScreen(
                 .background(AppColors.background)
         ) {
 
-            TinyVerticalSpacer()
+            if (!legacyToolbar) {
+                TinyVerticalSpacer()
 
-            SheetFlatHeader(
-                icon = StackedIcon.None,
-                title = "",
-                onCloseClick = closeOnClick
-            )
-
+                SheetFlatHeader(
+                    icon = StackedIcon.None,
+                    title = "",
+                    onCloseClick = closeOnClick
+                )
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()

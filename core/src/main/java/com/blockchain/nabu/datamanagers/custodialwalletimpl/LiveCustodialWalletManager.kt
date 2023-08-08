@@ -13,10 +13,10 @@ import com.blockchain.core.recurringbuy.domain.RecurringBuyService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.data.asObservable
 import com.blockchain.data.asSingle
 import com.blockchain.data.getDataOrThrow
 import com.blockchain.data.mapData
+import com.blockchain.data.toObservable
 import com.blockchain.domain.common.model.Seconds
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
@@ -216,7 +216,7 @@ class LiveCustodialWalletManager(
                     type = type
                 )
             )
-        ).asObservable().map { response ->
+        ).toObservable().map { response ->
             response.items.filter {
                 assetCatalogue.fromNetworkTicker(
                     it.amount.symbol
@@ -339,7 +339,7 @@ class LiveCustodialWalletManager(
                         (order.source.currency.networkTicker == asset.networkTicker)
                 }
             }
-            .asObservable()
+            .toObservable()
 
     override fun getBuyOrder(orderId: String): Single<BuySellOrder> =
         nabuService.getBuyOrder(orderId).map { it.toDomainOrThrow() }

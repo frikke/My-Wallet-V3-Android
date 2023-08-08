@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -475,11 +474,7 @@ private fun ProductComparatorCta(onOpenProductComparator: () -> Unit) {
                     text = stringResource(id = com.blockchain.stringResources.R.string.common_go),
                     onClick = onOpenProductComparator,
                     state = ButtonState.Enabled,
-                    modifier = Modifier
-                        .wrapContentWidth(align = Alignment.End)
-                        .padding(start = AppTheme.dimensions.smallSpacing)
-                        .wrapContentWidth(align = Alignment.End)
-                        .weight(1f)
+                    modifier = Modifier.padding(start = AppTheme.dimensions.smallSpacing)
                 )
             }
         )
@@ -655,7 +650,7 @@ private fun EarningScreen(
                         ),
                         tag = asset.type.description(),
                         valueCrypto = asset.balanceCrypto.toStringWithSymbol(),
-                        valueFiat = asset.balanceFiat.toStringWithSymbol(),
+                        valueFiat = asset.balanceFiat?.toStringWithSymbol().orEmpty(),
                         icon = StackedIcon.SingleIcon(ImageResource.Remote(asset.iconUrl)),
                         onClick = { onItemClicked(asset) }
                     )

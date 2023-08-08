@@ -63,7 +63,7 @@ const val DEFI_LEARN_MORE_URL =
 fun DefiIntroScreen(
     analytics: Analytics = get(),
     viewModel: DefiIntroViewModel = getViewModel(scope = payloadScope),
-    enableDeFiOnClick: () -> Unit
+    getStartedOnClick: () -> Unit
 ) {
     DisposableEffect(Unit) {
         viewModel.markAsSeen()
@@ -79,7 +79,7 @@ fun DefiIntroScreen(
         },
         onGetStartedClicked = {
             analytics.logEvent(OnboardingAnalyticsEvents.OnboardingContinueClicked)
-            enableDeFiOnClick()
+            getStartedOnClick()
         }
     )
 }

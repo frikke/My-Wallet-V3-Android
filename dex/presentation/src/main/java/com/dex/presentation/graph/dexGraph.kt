@@ -148,6 +148,8 @@ sealed class DexDestination(
     object SelectDestinationAccount : DexDestination("SelectDestinationAccount")
     object Settings : DexDestination("Settings")
     object SelectNetwork : DexDestination("SelectNetwork")
+    object ReceiveAccounts : DexDestination("ReceiveAccounts")
+    object ReceiveAccountDetail : DexDestination("ReceiveAccountDetail")
     object Confirmation : DexDestination("Confirmation")
     object InProgress : DexDestination("InProgress")
     object TokenAllowanceSheet : DexDestination(route = "TokenAllowanceSheet/${ARG_ALLOWANCE_TX.wrappedArg()}}")

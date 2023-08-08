@@ -11,10 +11,11 @@ import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.theme.AppTheme
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.koin.android.ext.android.inject
 
-abstract class ComposeModalBottomDialog : ThemedBottomSheetFragment() {
+abstract class ComposeModalBottomDialog : ThemedBottomSheetFragment(
+    cancelableOnTouchOutside = false
+) {
 
     interface Host : HostedBottomSheet.Host
 
@@ -32,7 +33,7 @@ abstract class ComposeModalBottomDialog : ThemedBottomSheetFragment() {
     protected val analytics: Analytics by inject()
 
     final override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = BottomSheetDialog(requireActivity())
+        val dialog = super.onCreateDialog(savedInstanceState)
         dialog.setContentView(
             ComposeView(requireContext()).apply {
                 setContent {
@@ -43,18 +44,11 @@ abstract class ComposeModalBottomDialog : ThemedBottomSheetFragment() {
             }
         )
 
-        dialog.setCanceledOnTouchOutside(false)
-
         val layout =
             dialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
         bottomSheetBehavior = BottomSheetBehavior.from(layout)
 
         bottomSheetBehavior.addBottomSheetCallback(bottomSheetCallback)
-
-        dialog.setOnShowListener {
-            bottomSheetBehavior.skipCollapsed = true
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
 
         if (makeSheetNonCollapsible) {
             makeSheetSticky()

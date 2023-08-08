@@ -31,9 +31,7 @@ fun SwapInputErrorScreen(
             .background(AppColors.background)
     ) {
         SheetHeader(
-            onClosePress = closeClicked,
-            shouldShowDivider = false,
-            backgroundSecondary = false
+            onClosePress = closeClicked
         )
 
         val title = when (inputError) {

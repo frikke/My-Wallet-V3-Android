@@ -65,7 +65,7 @@ class InterestServiceTest {
         displayTicker = "CRYPTO1",
         networkTicker = "CRYPTO1",
         name = "Crypto_1",
-        categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+        categories = setOf(AssetCategory.TRADING, AssetCategory.NON_CUSTODIAL),
         precisionDp = 8,
         requiredConfirmations = 5,
         colour = "#123456"

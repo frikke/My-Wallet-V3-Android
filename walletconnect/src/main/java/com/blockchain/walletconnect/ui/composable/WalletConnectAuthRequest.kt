@@ -98,11 +98,9 @@ private fun WalletConnectAuthRequestScreen(
         Column {
 
             SheetHeader(
-                shouldShowDivider = false,
                 onClosePress = {
                     onDismiss()
                 },
-                backgroundSecondary = false
             )
 
             Column(

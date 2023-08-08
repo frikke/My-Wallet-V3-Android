@@ -12,6 +12,7 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.DataResource
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -62,8 +63,8 @@ class CustodialTradingAccountActionsTest : KoinTest {
 
     @Before
     fun setup() {
-        whenever(exchangeRates.exchangeRateToUserFiat(TEST_ASSET))
-            .thenReturn(Observable.just(TEST_TO_USER_RATE))
+        whenever(exchangeRates.exchangeRateToUserFiatFlow(TEST_ASSET))
+            .thenReturn(flowOf(DataResource.Data(TEST_TO_USER_RATE)))
     }
 
     @get:Rule
@@ -800,7 +801,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             displayTicker = "NOPE",
             networkTicker = "NOPE",
             name = "Not a real thing",
-            categories = setOf(AssetCategory.CUSTODIAL),
+            categories = setOf(AssetCategory.TRADING),
             precisionDp = 8,
             requiredConfirmations = 3,
             colour = "000000"

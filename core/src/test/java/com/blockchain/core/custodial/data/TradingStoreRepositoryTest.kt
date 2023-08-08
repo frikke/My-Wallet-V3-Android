@@ -33,7 +33,7 @@ class TradingStoreRepositoryTest {
         displayTicker = "CRYPTO1",
         networkTicker = "CRYPTO1",
         name = "Crypto_1",
-        categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+        categories = setOf(AssetCategory.TRADING, AssetCategory.NON_CUSTODIAL),
         precisionDp = 8,
         requiredConfirmations = 5,
         colour = "#123456"
@@ -43,7 +43,7 @@ class TradingStoreRepositoryTest {
         displayTicker = "CRYPTO2",
         networkTicker = "CRYPTO2",
         name = "Crypto_2",
-        categories = setOf(AssetCategory.CUSTODIAL),
+        categories = setOf(AssetCategory.TRADING),
         precisionDp = 8,
         requiredConfirmations = 5,
         colour = "#123456"

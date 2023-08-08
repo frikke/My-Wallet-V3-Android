@@ -22,7 +22,6 @@ class EarnFieldExplainerBottomSheet(private val earnField: EarnFieldExplainer) :
                     onCloseClick = { dismiss() },
                     title = stringResource(id = earnField.titleResId),
                     subtitle = stringResource(id = earnField.descriptionResId),
-                    shouldShowHeaderDivider = false,
                     button = BottomSheetButton(
                         type = ButtonType.PRIMARY,
                         text = stringResource(com.blockchain.stringResources.R.string.common_got_it),

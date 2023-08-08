@@ -13,6 +13,7 @@ import com.blockchain.storedatasource.StoreWiper
 import com.blockchain.unifiedcryptowallet.domain.activity.service.UnifiedActivityService
 import com.blockchain.utils.then
 import com.blockchain.utils.thenSingle
+import com.blockchain.walletconnect.domain.WalletConnectV2Service
 import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
@@ -34,7 +35,8 @@ class CredentialsWiper(
     private val nabuDataManager: NabuDataManager,
     private val storeWiper: StoreWiper,
     private val notificationTransmitter: NotificationTransmitter,
-    private val intercomEnabledFF: FeatureFlag
+    private val intercomEnabledFF: FeatureFlag,
+    private val walletConnectV2Service: WalletConnectV2Service,
 ) {
     fun wipe() {
         notificationTokenManager.revokeAccessToken().then {
@@ -50,6 +52,11 @@ class CredentialsWiper(
                 notificationTransmitter.postEvent(NotificationEvent.Logout)
             }
         }.onErrorComplete()
+            .then {
+                rxCompletable {
+                    walletConnectV2Service.disconnectAllSessions()
+                }
+            }
             .then {
                 rxCompletable { storeWiper.wipe() }
             }.thenSingle {

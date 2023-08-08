@@ -32,6 +32,7 @@ class SheetHeaderView @JvmOverloads constructor(
                     byline = byline,
                     startImage = StackedIcon.SingleIcon(startImageResource),
                     onClosePress = onClosePress,
+                    secondaryBackground = true
                 )
             }
         }

@@ -13,6 +13,7 @@ import com.blockchain.home.presentation.activity.list.composable.Activity
 import com.blockchain.home.presentation.allassets.composable.CryptoAssets
 import com.blockchain.home.presentation.failedbalances.composable.FailedBalances
 import com.blockchain.home.presentation.fiat.fundsdetail.composable.FiatFundDetail
+import com.blockchain.home.presentation.onboarding.common.KycVerificationPrompt
 import com.blockchain.home.presentation.onboarding.custodial.composable.CustodialIntroScreen
 import com.blockchain.home.presentation.onboarding.defi.composable.DefiIntroScreen
 import com.blockchain.home.presentation.quickactions.MoreActions
@@ -33,8 +34,13 @@ fun NavGraphBuilder.homeGraph(
     assetActionsNavigation: AssetActionsNavigation,
     onBackPressed: () -> Unit
 ) {
-    composable(navigationEvent = HomeDestination.CustodialIntro) {
-        CustodialIntroScreen(launchApp = launchApp)
+    composable(navigationEvent = HomeDestination.CustodialIntro) { backStackEntry ->
+        val isFromModeSwitch = backStackEntry.arguments?.getComposeArgument(ARG_IS_FROM_MODE_SWITCH)
+            ?.toBoolean() ?: false
+
+        CustodialIntroScreen(
+            getStartedOnClick = if (isFromModeSwitch) onBackPressed else launchApp
+        )
     }
 
     composable(navigationEvent = HomeDestination.DefiIntro) { backStackEntry ->
@@ -42,7 +48,7 @@ fun NavGraphBuilder.homeGraph(
             ?.toBoolean() ?: false
 
         DefiIntroScreen(
-            enableDeFiOnClick = if (isFromModeSwitch) onBackPressed else launchApp
+            getStartedOnClick = if (isFromModeSwitch) onBackPressed else launchApp
         )
     }
 
@@ -164,6 +170,15 @@ fun NavGraphBuilder.homeGraph(
         ChromeSingleScreen {
             NewsArticlesScreen(
                 onBackPressed = onBackPressed
+            )
+        }
+    }
+
+    bottomSheet(navigationEvent = HomeDestination.KycVerificationPrompt) {
+        ChromeBottomSheet(onClose = onBackPressed) {
+            KycVerificationPrompt(
+                onVerifyClicked = { assetActionsNavigation.startKyc() },
+                onDismissClicked = onBackPressed,
             )
         }
     }

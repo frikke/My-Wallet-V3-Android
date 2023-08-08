@@ -33,16 +33,20 @@ data class AssetsModelState(
 
     val assets: DataResource<List<AssetBalance>>
         get() {
-            return accounts.map {
-                it.groupBy { it.singleAccount.currency.networkTicker }
+            return accounts.map { accountsBalance ->
+                accountsBalance.groupBy { it.singleAccount.currency.networkTicker }
                     .values
-                    .mapNotNull {
+                    .mapNotNull { balances ->
+                        val account = balances.firstOrNull()?.singleAccount ?: return@mapNotNull null
                         AssetBalance(
-                            singleAccount = it.firstOrNull()?.singleAccount ?: return@mapNotNull null,
-                            balance = it.map { acc -> acc.balance }.sumAvailableBalances(),
-                            fiatBalance = it.map { acc -> acc.fiatBalance }.sumAvailableBalances(),
-                            majorCurrencyBalance = it.map { acc -> acc.usdBalance }.sumAvailableBalances(),
-                            exchangeRate24hWithDelta = it.firstOrNull()?.exchangeRate24hWithDelta
+                            singleAccount = account,
+                            balance = balances.map { acc -> acc.balance }.sumAvailableBalances().map {
+                                it ?: Money.zero(account.currency)
+                            },
+                            fiatBalance = balances.map { acc -> acc.fiatBalance }.sumAvailableBalances(),
+                            majorCurrencyBalance = balances.map { acc -> acc.majorCurrencyBalance }
+                                .sumAvailableBalances(),
+                            exchangeRate24hWithDelta = balances.firstOrNull()?.exchangeRate24hWithDelta
                                 ?: return@mapNotNull null
                         )
                     }
@@ -50,6 +54,6 @@ data class AssetsModelState(
         }
 }
 
-private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money> {
-    return merge { it.total() }
+private fun List<DataResource<Money?>>.sumAvailableBalances(): DataResource<Money?> {
+    return merge { monies -> monies.filterNotNull().takeIf { it.isNotEmpty() }?.total() }
 }

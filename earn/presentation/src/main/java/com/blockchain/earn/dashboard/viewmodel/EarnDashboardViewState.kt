@@ -42,7 +42,7 @@ data class EarnAsset(
     val rate: Double,
     val eligibility: EarnRewardsEligibility,
     val balanceCrypto: Money,
-    val balanceFiat: Money,
+    val balanceFiat: Money?,
     val type: EarnType
 )
 

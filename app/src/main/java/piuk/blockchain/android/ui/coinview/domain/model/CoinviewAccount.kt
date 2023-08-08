@@ -23,7 +23,7 @@ sealed interface CoinviewAccount {
     val isEnabled: Boolean
     val account: BlockchainAccount
     val cryptoBalance: DataResource<Money>
-    val fiatBalance: DataResource<Money>
+    val fiatBalance: DataResource<Money?>
 
     val isClickable: Boolean
         get() = cryptoBalance is DataResource.Data && fiatBalance is DataResource.Data
@@ -37,7 +37,7 @@ sealed interface CoinviewAccount {
             override val isEnabled: Boolean,
             override val account: BlockchainAccount,
             override val cryptoBalance: DataResource<Money>,
-            override val fiatBalance: DataResource<Money>
+            override val fiatBalance: DataResource<Money?>
         ) : Custodial {
             override val filter: AssetFilter = AssetFilter.Trading
         }
@@ -46,7 +46,7 @@ sealed interface CoinviewAccount {
             override val isEnabled: Boolean,
             override val account: BlockchainAccount,
             override val cryptoBalance: DataResource<Money>,
-            override val fiatBalance: DataResource<Money>,
+            override val fiatBalance: DataResource<Money?>,
             val interestRate: Double
         ) : Custodial {
             override val filter: AssetFilter = AssetFilter.Interest
@@ -56,7 +56,7 @@ sealed interface CoinviewAccount {
             override val isEnabled: Boolean,
             override val account: BlockchainAccount,
             override val cryptoBalance: DataResource<Money>,
-            override val fiatBalance: DataResource<Money>,
+            override val fiatBalance: DataResource<Money?>,
             val stakingRate: Double
         ) : Custodial {
             override val filter: AssetFilter = AssetFilter.Staking
@@ -66,7 +66,7 @@ sealed interface CoinviewAccount {
             override val isEnabled: Boolean,
             override val account: BlockchainAccount,
             override val cryptoBalance: DataResource<Money>,
-            override val fiatBalance: DataResource<Money>,
+            override val fiatBalance: DataResource<Money?>,
             val activeRewardsRate: Double
         ) : Custodial {
             override val filter: AssetFilter = AssetFilter.ActiveRewards
@@ -79,7 +79,7 @@ sealed interface CoinviewAccount {
     data class PrivateKey(
         override val account: SingleAccount,
         override val cryptoBalance: DataResource<Money>,
-        override val fiatBalance: DataResource<Money>,
+        override val fiatBalance: DataResource<Money?>,
         override val isEnabled: Boolean,
         val address: String
     ) : CoinviewAccount {

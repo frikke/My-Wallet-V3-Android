@@ -3,7 +3,7 @@ package com.blockchain.coincore.impl
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.data.asObservable
+import com.blockchain.data.toObservable
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
@@ -40,7 +40,7 @@ internal class BackendNotificationUpdater(
         FreshnessStrategy.Cached(RefreshStrategy.RefreshIfStale).withKey(
             json.encodeToString(item.copy(addressList = item.addressList.sorted()))
         )
-    ).asObservable().firstOrError()
+    ).toObservable().firstOrError()
 
     companion object {
         private val REQUIRED_ASSETS = setOf(

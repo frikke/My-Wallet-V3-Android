@@ -17,12 +17,14 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.toImageResource
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
+import com.blockchain.domain.swap.SwapOption
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.presentation.logo
 import piuk.blockchain.android.ui.coinview.presentation.name
 
 @Composable
 fun BottomQuickActions(
+    assetTicker: String,
     data: DataResource<List<CoinviewQuickAction>>,
     onQuickActionClick: (CoinviewQuickAction) -> Unit
 ) {
@@ -32,6 +34,7 @@ fun BottomQuickActions(
 
         is DataResource.Data -> {
             BottomQuickActionData(
+                assetTicker = assetTicker,
                 data = data,
                 onQuickActionClick = onQuickActionClick
             )
@@ -41,6 +44,7 @@ fun BottomQuickActions(
 
 @Composable
 fun BottomQuickActionData(
+    assetTicker: String,
     data: DataResource.Data<List<CoinviewQuickAction>>,
     onQuickActionClick: (CoinviewQuickAction) -> Unit
 ) {
@@ -62,7 +66,7 @@ fun BottomQuickActionData(
             data.data.forEachIndexed { index, action ->
                 SecondaryButton(
                     modifier = Modifier.weight(1F),
-                    text = action.name().value(),
+                    text = action.name(assetTicker).value(),
                     icon = action.logo().toImageResource().withTint(AppColors.backgroundSecondary),
                     state = if (action.enabled) ButtonState.Enabled else ButtonState.Disabled,
                     onClick = { onQuickActionClick(action) }
@@ -80,6 +84,7 @@ fun BottomQuickActionData(
 @Composable
 fun PreviewBottomQuickActions_Data_2() {
     BottomQuickActions(
+        assetTicker = "ETH",
         data = DataResource.Data(
             listOf(CoinviewQuickAction.Send(), CoinviewQuickAction.Receive(false))
         ),
@@ -91,8 +96,9 @@ fun PreviewBottomQuickActions_Data_2() {
 @Composable
 fun PreviewBottomQuickActions_Data_1() {
     BottomQuickActions(
+        assetTicker = "ETH",
         data = DataResource.Data(
-            listOf(CoinviewQuickAction.Send())
+            listOf(CoinviewQuickAction.Get(swapOption = SwapOption.BcdcSwap))
         ),
         onQuickActionClick = {}
     )
@@ -102,6 +108,7 @@ fun PreviewBottomQuickActions_Data_1() {
 @Composable
 fun PreviewQuickActionsBottom_Data_0() {
     BottomQuickActions(
+        assetTicker = "ETH",
         data = DataResource.Data(
             listOf()
         ),

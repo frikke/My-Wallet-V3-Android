@@ -13,6 +13,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.dataOrElse
@@ -33,11 +36,13 @@ import com.blockchain.presentation.pulltorefresh.PullToRefresh
 import com.blockchain.utils.CurrentTimeProvider
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class QuickActionsViewModel(
@@ -48,7 +53,9 @@ class QuickActionsViewModel(
     private val quickActionsService: QuickActionsService,
     private val fiatActions: FiatActionsUseCase,
     private val dispatcher: CoroutineDispatcher,
-    private val handholdService: HandholdService
+    private val handholdService: HandholdService,
+    private val walletModeService: WalletModeService,
+    private val kycService: KycService,
 ) : MviViewModel<
     QuickActionsIntent,
     QuickActionsViewState,
@@ -65,7 +72,6 @@ class QuickActionsViewModel(
 
     override fun QuickActionsModelState.reduce(): QuickActionsViewState {
         return maxQuickActionsOnScreen?.let { maxQuickActionsOnScreen ->
-
             val quickActionItemsCount = if (quickActions.size <= maxQuickActionsOnScreen) {
                 maxQuickActionsOnScreen
             } else {
@@ -107,6 +113,9 @@ class QuickActionsViewModel(
     override suspend fun handleIntent(modelState: QuickActionsModelState, intent: QuickActionsIntent) {
         when (intent) {
             is QuickActionsIntent.LoadActions -> {
+
+                val isDefiOnly = onlyDefiAvailable()
+
                 updateState {
                     copy(maxQuickActionsOnScreen = intent.maxQuickActionsOnScreen)
                 }
@@ -117,8 +126,9 @@ class QuickActionsViewModel(
                     )
                 }
 
-                loadActions(intent.walletMode)
+                loadActions(intent.walletMode, isDefiOnly)
                 loadDexState()
+                loadKycState()
             }
 
             is QuickActionsIntent.FiatAction -> {
@@ -145,8 +155,30 @@ class QuickActionsViewModel(
             }
 
             is QuickActionsIntent.ActionClicked -> {
-                navigate(intent.action.navigationEvent())
+                val navEvent = intent.action.navigationEvent()
+
+                if (navEvent.needsToCompleteKycFirst()) {
+                    navigate(QuickActionsNavEvent.KycVerificationPrompt)
+                } else {
+                    navigate(navEvent)
+                }
             }
+        }
+    }
+
+    private fun QuickActionsNavEvent.needsToCompleteKycFirst(): Boolean {
+        return when (this) {
+            QuickActionsNavEvent.Swap,
+            QuickActionsNavEvent.FiatWithdraw,
+            QuickActionsNavEvent.Sell,
+            QuickActionsNavEvent.Buy -> {
+                !modelState.isKycCompleted
+            }
+            QuickActionsNavEvent.Receive,
+            QuickActionsNavEvent.Send,
+            QuickActionsNavEvent.DexOrSwapOption,
+            QuickActionsNavEvent.More,
+            QuickActionsNavEvent.KycVerificationPrompt -> false
         }
     }
 
@@ -171,7 +203,23 @@ class QuickActionsViewModel(
         }
     }
 
-    private fun loadActions(walletMode: WalletMode) {
+    private suspend fun loadKycState() {
+        viewModelScope.launch(dispatcher) {
+            kycService.stateFor(tierLevel = KycTier.GOLD)
+                .mapData { goldState ->
+                    goldState == KycTierState.Verified
+                }
+                .collectLatest {
+                    updateState {
+                        copy(
+                            isKycCompleted = it.dataOrElse(false)
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun loadActions(walletMode: WalletMode, isDefiOnly: Boolean) {
         loadActionsJob?.cancel()
         loadActionsJob = viewModelScope.launch(dispatcher) {
 
@@ -184,7 +232,7 @@ class QuickActionsViewModel(
             }
 
             combine(
-                isHandholdVisibleFlow,
+                isHandholdVisibleFlow.filterNotLoading(),
                 quickActionsService.availableQuickActionsForWalletMode(walletMode)
             ) { isHandholdVisible, actions ->
                 isHandholdVisible.dataOrElse(false) to actions
@@ -195,7 +243,9 @@ class QuickActionsViewModel(
                             // show only available actions
                             actions.filter { it.state == ActionState.Available }
                         } else {
-                            actions
+                            // if we are in defi only mode, the user can't sell
+                            if (isDefiOnly) actions.filter { it.action != AssetAction.Sell }
+                            else actions
                         }
                     )
                 }
@@ -220,7 +270,7 @@ class QuickActionsViewModel(
             AssetAction.Buy -> QuickActionsNavEvent.Buy
             AssetAction.FiatWithdraw -> QuickActionsNavEvent.FiatWithdraw
             AssetAction.Receive -> QuickActionsNavEvent.Receive
-            AssetAction.FiatDeposit -> QuickActionsNavEvent.FiatDeposit
+            AssetAction.FiatDeposit,
             AssetAction.InterestDeposit,
             AssetAction.InterestWithdraw,
             AssetAction.ViewActivity,
@@ -249,13 +299,6 @@ class QuickActionsViewModel(
             when {
                 account == NullFiatAccount -> fiatActions.noEligibleAccount(
                     fiatCurrenciesService.selectedTradingCurrency
-                )
-
-                action == AssetAction.FiatDeposit -> fiatActions.deposit(
-                    account = account,
-                    action = action,
-                    shouldLaunchBankLinkTransfer = false,
-                    shouldSkipQuestionnaire = false
                 )
 
                 action == AssetAction.FiatWithdraw -> handleWithdraw(
@@ -298,6 +341,11 @@ class QuickActionsViewModel(
                 }
             }
     }
+
+    private suspend fun onlyDefiAvailable(): Boolean {
+        val modes = walletModeService.availableModes()
+        return modes.size == 1 && modes.first() == WalletMode.NON_CUSTODIAL
+    }
 }
 
 fun StateAwareAction.toQuickActionItem(): QuickActionItem {
@@ -321,7 +369,7 @@ fun StateAwareAction.toQuickActionItem(): QuickActionItem {
         )
 
         AssetAction.Receive -> QuickActionItem(
-            title = com.blockchain.stringResources.R.string.common_receive,
+            title = com.blockchain.stringResources.R.string.common_deposit,
             enabled = this.state == ActionState.Available,
             action = QuickAction.TxAction(AssetAction.Receive)
         )
@@ -330,12 +378,6 @@ fun StateAwareAction.toQuickActionItem(): QuickActionItem {
             title = com.blockchain.stringResources.R.string.common_send,
             enabled = this.state == ActionState.Available,
             action = QuickAction.TxAction(AssetAction.Send)
-        )
-
-        AssetAction.FiatDeposit -> QuickActionItem(
-            title = com.blockchain.stringResources.R.string.common_add_cash,
-            enabled = this.state == ActionState.Available,
-            action = QuickAction.TxAction(AssetAction.FiatDeposit)
         )
 
         AssetAction.FiatWithdraw -> QuickActionItem(
@@ -357,14 +399,6 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
             title = com.blockchain.stringResources.R.string.common_send,
             subtitle = com.blockchain.stringResources.R.string.transfer_to_other_wallets,
             action = QuickAction.TxAction(AssetAction.Send),
-            enabled = this.state == ActionState.Available
-        )
-
-        AssetAction.FiatDeposit -> MoreActionItem(
-            icon = R.drawable.ic_more_deposit,
-            title = com.blockchain.stringResources.R.string.common_add_cash,
-            subtitle = com.blockchain.stringResources.R.string.add_cash_from_your_bank_or_card,
-            action = QuickAction.TxAction(AssetAction.FiatDeposit),
             enabled = this.state == ActionState.Available
         )
 
@@ -408,6 +442,7 @@ fun StateAwareAction.toMoreActionItem(): MoreActionItem {
             enabled = this.state == ActionState.Available
         )
 
+        AssetAction.FiatDeposit,
         AssetAction.ViewActivity,
         AssetAction.ViewStatement,
         AssetAction.InterestDeposit,
@@ -428,7 +463,8 @@ data class QuickActionsModelState(
     private val dexFFEnabled: Boolean = false,
     private val dexEligible: Boolean = false,
     val walletMode: WalletMode? = null,
-    val lastFreshDataTime: Long = 0
+    val lastFreshDataTime: Long = 0,
+    val isKycCompleted: Boolean = false
 ) : ModelState {
     fun canUseDex() =
         dexFFEnabled && dexEligible && walletMode == WalletMode.NON_CUSTODIAL
@@ -478,5 +514,5 @@ data class QuickActionsViewState(
 ) : ViewState
 
 enum class QuickActionsNavEvent : NavigationEvent {
-    Buy, Sell, Receive, Send, Swap, DexOrSwapOption, More, FiatDeposit, FiatWithdraw
+    Buy, Sell, Receive, Send, Swap, DexOrSwapOption, More, FiatWithdraw, KycVerificationPrompt
 }

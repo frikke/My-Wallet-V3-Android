@@ -31,8 +31,6 @@ fun SellInputErrorScreen(
     ) {
         SheetHeader(
             onClosePress = closeClicked,
-            shouldShowDivider = false,
-            backgroundSecondary = false
         )
 
         val title = when (inputError) {

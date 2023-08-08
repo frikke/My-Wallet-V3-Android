@@ -37,13 +37,13 @@ sealed interface AssetFilter {
 data class SingleAccountBalance(
     val singleAccount: SingleAccount,
     val balance: DataResource<Money>,
-    val fiatBalance: DataResource<Money>,
-    val majorCurrencyRate: DataResource<ExchangeRate>,
-    val exchangeRate24hWithDelta: DataResource<Prices24HrWithDelta>
+    val fiatBalance: DataResource<Money?>,
+    val majorCurrencyRate: DataResource<ExchangeRate?>,
+    val exchangeRate24hWithDelta: DataResource<Prices24HrWithDelta?>
 ) {
-    val usdBalance: DataResource<Money>
+    val majorCurrencyBalance: DataResource<Money?>
         get() = combineDataResources(balance, majorCurrencyRate) { balance, majorRate ->
-            majorRate.convert(balance)
+            majorRate?.convert(balance)
         }
 }
 
@@ -54,13 +54,13 @@ data class SingleAccountBalance(
 data class AssetBalance(
     val singleAccount: SingleAccount,
     val balance: DataResource<Money>,
-    val fiatBalance: DataResource<Money>,
-    val majorCurrencyBalance: DataResource<Money>,
-    val exchangeRate24hWithDelta: DataResource<Prices24HrWithDelta>
+    val fiatBalance: DataResource<Money?>,
+    val majorCurrencyBalance: DataResource<Money?>,
+    val exchangeRate24hWithDelta: DataResource<Prices24HrWithDelta?>
 )
 
 fun AssetBalance.isSmallBalance(): Boolean {
-    return (majorCurrencyBalance as? DataResource.Data<Money>)?.data?.let { majorCurrencyBalance ->
+    return (majorCurrencyBalance as? DataResource.Data<Money?>)?.data?.let { majorCurrencyBalance ->
         majorCurrencyBalance < Money.fromMajor(majorCurrencyBalance.currency, 1.toBigDecimal())
     } ?: true
 }

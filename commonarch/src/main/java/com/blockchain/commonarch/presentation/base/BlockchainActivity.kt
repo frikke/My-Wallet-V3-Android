@@ -38,6 +38,7 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.theme.Theme
 import com.blockchain.theme.ThemeService
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -123,7 +124,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        themeService.applyCurrentTheme()
+        themeService.setTheme(Theme.LightMode)
 
         processDeathOccurredAndThisIsNotLauncherActivity =
             isFirstActivityToBeCreated && this !is ManifestLauncherActivity

@@ -1,6 +1,5 @@
 package com.blockchain.nfts.collection.navigation
 
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 
 sealed interface NftCollectionNavigationEvent : NavigationEvent {
@@ -9,7 +8,7 @@ sealed interface NftCollectionNavigationEvent : NavigationEvent {
      */
     data class ShopExternal(val url: String) : NftCollectionNavigationEvent
 
-    data class ShowReceiveAddress(val account: CryptoAccount) : NftCollectionNavigationEvent
+    object ShowReceiveAddress : NftCollectionNavigationEvent
 
     object ShowHelp : NftCollectionNavigationEvent
 

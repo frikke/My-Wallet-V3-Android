@@ -51,7 +51,7 @@ internal class SpinnerAnalyticsTrackerImpl(
 
     private suspend fun getTimeout(): Int {
         return timeout ?: remoteConfigService.getRawJson(TIMEOUT_KEY)
-            .awaitOutcome().getOrDefault("5").toInt()
+            .awaitOutcome().getOrDefault("5").toIntOrNull() ?: 5
             .also { timeout = it }
     }
 }

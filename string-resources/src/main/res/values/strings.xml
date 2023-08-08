@@ -15,6 +15,7 @@
     <string name="common_receive">Receive</string>
     <string name="common_rewards">Rewards</string>
     <string name="common_swap">Swap</string>
+    <string name="common_get_asset">Get %1$s</string>
     <string name="common_new">New</string>
     <string name="common_swap_from">Swap from</string>
     <string name="common_swap_select_account">Select %1$s account</string>
@@ -97,6 +98,7 @@
     <string name="common_crypto">Crypto</string>
     <string name="common_completed">Completed</string>
     <string name="common_dont_allow">Don’t Allow</string>
+    <string name="common_crypto_deposit">Crypto deposit</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -2506,6 +2508,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="receive_network_alert_title">%1$s on %2$s Network</string>
     <string name="receive_network_alert_subtitle">Please send %1$s on the %2$s Network for this address only. We cannot recover lost funds.</string>
     <string name="receive_network_warning">Only receive %1$s on the %2$s network</string>
+    <string name="receive_asset_memo_title">Memo: %1$s</string>
+    <string name="receive_asset_memo_description">If you send funds without the %1$s Memo Text, your funds will be lost and not credited to your account. Please send only %1$s to this address.</string>
 
     <!-- Funds locks !-->
     <string name="funds_locked_warning_title">On Hold</string>
@@ -3524,7 +3528,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="complete_your_profile">Complete your profile</string>
     <string name="other_amount">Other amount</string>
     <string name="to_get_started_transfer_to_your_wallets">To get started, transfer to your wallets</string>
-    <string name="nc_empty_state_title">To get started, deposit crypto to your DeFi Wallet</string>
+    <string name="nc_empty_state_title">To get started, fund\nyour DeFi Wallet with crypto</string>
+    <string name="nc_empty_state_description">Transfer crypto from another wallet</string>
     <string name="nc_empty_state_cta">Deposit Crypto</string>
     <string name="transfer_from_your_trading_account">Transfer from your Blockchain.com Account, send from any exchange, or ask a friend!</string>
     <string name="earn_up_to">Earn up to 10%</string>
@@ -3539,8 +3544,8 @@ If you want to know more about our verification process visit our <annotation li
     <string name="cross_chain_limited_tokens">Cross-chain, limited token pairs</string>
     <string name="dex_swap">DEX Swap</string>
     <string name="single_chain_eth_tokens">Swap thousands of tokens on Ethereum and Polygon</string>
-    <string name="announcement_recovery_title">Never lose access to your DeFi Wallet</string>
-    <string name="announcement_recovery_subtitle">Backup your DeFi Wallet</string>
+    <string name="announcement_recovery_title">Secure your wallet</string>
+    <string name="announcement_recovery_subtitle">Backup your Recovery Phrase</string>
     <string name="announcements_all_done">🎉 You’re all caught up!</string>
     <string name="prices_top_movers">Top Movers</string>
     <string name="other_tokens">Other tokens</string>
@@ -3649,6 +3654,10 @@ If you want to know more about our verification process visit our <annotation li
     <string name="earn_staking_withdrawal_queue_notice_title">Unstaking Information</string>
     <string name="earn_staking_withdrawal_queue_notice_description">The unbonding period depends on the network queue. The current unbonding period is %1$s days.</string>
     <string name="earn_staking_withdrawal_locked_countdown_message">You will be able to request another withdrawal in %1$s min.</string>
+    <string name="earn_staking_bonding_asset">Staked %1$s</string>
+    <string name="earn_staking_bonding_days">Bonding (%1$s days)</string>
+    <string name="earn_staking_unbonding_asset">Withdrew %1$s</string>
+    <string name="earn_staking_unbonding_days">Unbonding (%1$s days)</string>
 
     <string name="news_author">Published by %1$s</string>
     <string name="news_home_title">Latest News</string>
@@ -3684,7 +3693,7 @@ If you want to know more about our verification process visit our <annotation li
     <string name="dashboard_kyc_rejected_with_balance_description">Any funds you had in the account section are safe. To send them to the DeFi Wallet, please contact our Support Center.</string>
     <string name="dashboard_kyc_rejected_with_balance_support">Contact Support Center</string>
     <string name="dashboard_kyc_blocked_title">We couldn’t verify your identity</string>
-    <string name="dashboard_kyc_blocked_description">It seems we\'re unable to verify your identity. \n\nHowever, you can still use our DeFi Wallet.</string>
+    <string name="dashboard_kyc_blocked_description">It seems we\'re unable to verify your identity. However, you can still use our DeFi Wallet.</string>
     <string name="go_to_defi">Go to DeFi Wallet</string>
 
     <plurals name="years_ago">
@@ -3728,4 +3737,11 @@ If you want to know more about our verification process visit our <annotation li
     <string name="custodial_intro_defi_disclaimer">If you would like Blockchain.com to custody your funds, use our Blockchain.com Account.</string>
     <string name="custodial_intro_title">Welcome to your\nBlockchain.com Account</string>
     <string name="custodial_intro_description">With the Blockchain.com Account, your funds are held in our custody system.</string>
+    <string name="kyc_prompt_title">Before you continue</string>
+    <string name="kyc_prompt_description">To start trading crypto, we first need to verify your identity.</string>
+    <string name="kyc_prompt_tag">About 2 minutes</string>
+    <string name="kyc_prompt_cta">Verify my identity</string>
+    <string name="deposit_address_copied">Address copied</string>
+    <string name="deposit_memo_copied">Memo copied</string>
+
 </resources>

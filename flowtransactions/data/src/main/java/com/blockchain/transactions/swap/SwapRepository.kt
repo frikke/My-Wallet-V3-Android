@@ -9,7 +9,9 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.announcements.DismissRecorder
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.data.DataResource
 import com.blockchain.data.dataOrElse
@@ -19,7 +21,6 @@ import com.blockchain.data.flatMapData
 import com.blockchain.data.mapData
 import com.blockchain.data.mapListData
 import com.blockchain.domain.experiments.RemoteConfigService
-import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.earn.domain.service.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -34,7 +35,6 @@ import com.blockchain.transactions.swap.model.ShouldUpsellPassiveRewardsResult
 import com.blockchain.utils.awaitOutcome
 import com.blockchain.utils.toFlowDataResource
 import com.blockchain.walletmode.WalletMode
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -224,7 +224,7 @@ internal class SwapRepository(
                 fiat,
                 Product.TRADE,
                 direction
-            ).map { it as LegacyLimits },
+            ).map { it },
             sourceAccountType = direction.sourceAccountType(),
             targetAccountType = direction.targetAccountType(),
         ).awaitOutcome()
@@ -287,21 +287,23 @@ internal class SwapRepository(
     }
 }
 
-private fun TransferDirection.sourceAccountType(): AssetCategory {
+private fun TransferDirection.sourceAccountType(): String {
     return when (this) {
         TransferDirection.FROM_USERKEY,
-        TransferDirection.ON_CHAIN -> AssetCategory.NON_CUSTODIAL
+        TransferDirection.ON_CHAIN -> NON_CUSTODIAL_LIMITS_ACCOUNT
+
         TransferDirection.INTERNAL,
-        TransferDirection.TO_USERKEY -> AssetCategory.CUSTODIAL
+        TransferDirection.TO_USERKEY -> CUSTODIAL_LIMITS_ACCOUNT
     }
 }
 
-private fun TransferDirection.targetAccountType(): AssetCategory {
+private fun TransferDirection.targetAccountType(): String {
     return when (this) {
         TransferDirection.TO_USERKEY,
-        TransferDirection.ON_CHAIN -> AssetCategory.NON_CUSTODIAL
+        TransferDirection.ON_CHAIN -> NON_CUSTODIAL_LIMITS_ACCOUNT
+
         TransferDirection.INTERNAL,
-        TransferDirection.FROM_USERKEY -> AssetCategory.CUSTODIAL
+        TransferDirection.FROM_USERKEY -> CUSTODIAL_LIMITS_ACCOUNT
     }
 }
 

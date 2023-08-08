@@ -72,8 +72,7 @@ class AccountExplainerBottomSheet : ThemedBottomSheetFragment() {
                             explainerAcceptedToAnalytics(selectedAccount, networkTicker)
                             super.dismiss()
                         }
-                    ),
-                    shouldShowHeaderDivider = false
+                    )
                 )
             }
         }

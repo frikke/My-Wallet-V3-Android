@@ -14,7 +14,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
-import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -70,8 +69,6 @@ private fun NoNetworkFundsScreen(
     ) {
         SheetHeader(
             onClosePress = closeClicked,
-            shouldShowDivider = false,
-            backgroundSecondary = false
         )
 
         Column(

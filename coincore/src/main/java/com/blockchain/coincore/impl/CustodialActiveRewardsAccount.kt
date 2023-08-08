@@ -19,7 +19,7 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.data.asObservable
+import com.blockchain.data.toObservable
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.earn.domain.models.EarnRewardsActivity
 import com.blockchain.earn.domain.models.EarnRewardsState
@@ -86,7 +86,7 @@ class CustodialActiveRewardsAccount(
             activeRewardsService.getBalanceForAsset(
                 currency = currency,
                 refreshStrategy = freshnessStrategy
-            ).asObservable(),
+            ).toObservable(),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             AccountBalance(
@@ -101,7 +101,7 @@ class CustodialActiveRewardsAccount(
         activeRewardsService.getActivity(
             asset = currency,
             refreshStrategy = freshnessStrategy
-        ).asObservable()
+        ).toObservable()
             .onErrorResumeNext { Observable.just(emptyList()) }
             .map { activeRewardsActivity ->
                 activeRewardsActivity.map { activity ->

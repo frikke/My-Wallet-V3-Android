@@ -49,7 +49,6 @@ import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.dashboard.DashboardAnalyticsEvents
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatActionErrorState
 import com.blockchain.home.presentation.fiat.fundsdetail.FiatFundsDetail
@@ -179,8 +178,6 @@ fun FiatFundDetailScreenData(
                             shape = CircleShape
                         )
                     ),
-                    shouldShowDivider = false,
-                    backgroundSecondary = false
                 )
 
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
@@ -210,7 +207,7 @@ fun FiatFundDetailScreenData(
 
                                 DefaultTableRow(
                                     primaryText = stringResource(
-                                        com.blockchain.stringResources.R.string.common_add_cash
+                                        com.blockchain.stringResources.R.string.common_deposit
                                     ),
                                     secondaryText = stringResource(
                                         com.blockchain.stringResources.R.string.fiat_funds_detail_deposit_details

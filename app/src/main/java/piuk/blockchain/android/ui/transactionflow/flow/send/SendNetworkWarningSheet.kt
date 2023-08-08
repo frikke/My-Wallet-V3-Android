@@ -88,7 +88,6 @@ class SendNetworkWarningSheet : ThemedBottomSheetFragment() {
                 onClick = { dismiss() },
                 text = stringResource(id = com.blockchain.stringResources.R.string.common_ok)
             ),
-            shouldShowHeaderDivider = false
         )
     }
 

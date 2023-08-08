@@ -141,8 +141,6 @@ fun StakingAccountInfo(
                 dismiss()
             },
             title = stringResource(id = com.blockchain.stringResources.R.string.default_label_staking_wallet),
-            shouldShowDivider = false,
-            backgroundSecondary = false,
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(id = com.blockchain.componentlib.R.dimen.standard_spacing)))

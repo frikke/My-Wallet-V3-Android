@@ -32,8 +32,6 @@ fun BasicSheet(
     ) {
         SheetHeader(
             onClosePress = closeClicked,
-            shouldShowDivider = false,
-            backgroundSecondary = false
         )
 
         Column(

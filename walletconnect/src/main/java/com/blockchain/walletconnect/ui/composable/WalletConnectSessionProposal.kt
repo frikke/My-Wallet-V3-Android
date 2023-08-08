@@ -123,9 +123,7 @@ private fun WalletConnectSessionProposalScreen(
         Column {
 
             SheetHeader(
-                shouldShowDivider = false,
                 onClosePress = onClosePress,
-                backgroundSecondary = false
             )
 
             Column(
@@ -179,11 +177,9 @@ fun WalletConnectSessionNotSupported(
         Column {
 
             SheetHeader(
-                shouldShowDivider = false,
                 onClosePress = {
                     onDismiss()
                 },
-                backgroundSecondary = false
             )
 
             Column(

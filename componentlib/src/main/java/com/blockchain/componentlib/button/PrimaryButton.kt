@@ -15,7 +15,6 @@ import com.blockchain.componentlib.button.common.ButtonIconColor
 import com.blockchain.componentlib.button.common.ButtonStyle
 import com.blockchain.componentlib.icons.Icons
 import com.blockchain.componentlib.icons.Plus
-import com.blockchain.componentlib.theme.AppColors
 
 class PrimaryButtonView @JvmOverloads constructor(
     context: Context,
@@ -45,6 +44,10 @@ private val bgColor @Composable get() = if (isSystemInDarkTheme()) bgColorDark e
 private val disabledBgColorLight = Color(0XFF65A5FF)
 private val disabledBgColorDark = Color(0XFF1656B9)
 private val disabledBgColor @Composable get() = if (isSystemInDarkTheme()) disabledBgColorDark else disabledBgColorLight
+
+private val textColorLight = Color(0XFFFFFFFF)
+private val textColorDark = Color(0XFF07080D)
+private val textColor @Composable get() = if (isSystemInDarkTheme()) textColorDark else textColorLight
 
 @Composable
 fun PrimaryButton(
@@ -99,7 +102,7 @@ private fun PrimaryButton(
     Button(
         modifier = modifier,
         text = text,
-        textColor = AppColors.backgroundSecondary,
+        textColor = textColor,
         backgroundColor = bgColor,
         disabledBackgroundColor = disabledBgColor,
         state = state,

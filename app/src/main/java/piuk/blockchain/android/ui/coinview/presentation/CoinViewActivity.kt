@@ -8,6 +8,8 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.EarnRewardsAccount
+import com.blockchain.coincore.OneTimeAccountPersistenceService
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.impl.CustodialTradingAccount
@@ -19,6 +21,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.utils.openUrl
+import com.blockchain.domain.swap.SwapOption
 import com.blockchain.earn.activeRewards.ActiveRewardsSummaryBottomSheet
 import com.blockchain.earn.activeRewards.viewmodel.ActiveRewardsError
 import com.blockchain.earn.interest.InterestSummaryBottomSheet
@@ -28,10 +31,12 @@ import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.home.presentation.recurringbuy.detail.RecurringBuyDetailsSheet
 import com.blockchain.koin.payloadScope
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.extensions.putAccount
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
+import com.blockchain.transactions.receive.detail.ReceiveAccountDetailFragment
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -48,10 +53,10 @@ import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.models.KycEntryPoint
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
+import piuk.blockchain.android.ui.swap.SwapSelectorSheet
 import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedEvent
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailActivity
 
 class CoinViewActivity :
     MVIActivity<CoinviewViewState>(),
@@ -65,13 +70,16 @@ class CoinViewActivity :
     KycUpgradeNowSheet.Host,
     InterestSummaryBottomSheet.Host,
     StakingSummaryBottomSheet.Host,
-    ActiveRewardsSummaryBottomSheet.Host {
+    ActiveRewardsSummaryBottomSheet.Host,
+    SwapSelectorSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
     override val scope: Scope = payloadScope
     private val viewModel: CoinviewViewModel by viewModel()
+
+    private val oneTimeAccountPersistenceService: OneTimeAccountPersistenceService by scopedInject()
 
     private val originName: LaunchOrigin? by lazy {
         enumValueOfOrNull<LaunchOrigin>(intent.getStringExtra(ORIGIN_NAME).orEmpty())
@@ -219,23 +227,33 @@ class CoinViewActivity :
                     )
                 }
 
-                startActivity(
-                    ReceiveDetailActivity.newIntent(
-                        context = this,
-                        account = navigationEvent.cvAccount.account as CryptoAccount
-                    )
-                )
+                oneTimeAccountPersistenceService.saveAccount(navigationEvent.cvAccount.account as SingleAccount)
+                showBottomSheet(ReceiveAccountDetailFragment.newInstance())
             }
 
             is CoinviewNavigationEvent.NavigateToSwap -> {
                 analytics.logEvent(SwapAnalyticsEvents.CoinViewSwapClickedEvent)
-                startActivity(
-                    TransactionFlowActivity.newIntent(
-                        context = this,
-                        action = AssetAction.Swap,
-                        sourceAccount = navigationEvent.cvAccount.account
-                    )
-                )
+                when (navigationEvent.swapOption) {
+                    SwapOption.BcdcSwap -> {
+                        startActivity(
+                            TransactionFlowActivity.newIntent(
+                                context = this,
+                                action = AssetAction.Swap,
+                                sourceAccount = navigationEvent.cvAccount.account
+                            )
+                        )
+                    }
+
+                    SwapOption.Dex -> {
+                        closeWithDexResult()
+                    }
+
+                    SwapOption.Multiple -> {
+                        showBottomSheet(
+                            SwapSelectorSheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount)
+                        )
+                    }
+                }
             }
 
             is CoinviewNavigationEvent.NavigateToActivity -> {
@@ -289,6 +307,7 @@ class CoinViewActivity :
                     )
                 )
             }
+
             CoinviewNavigationEvent.NavigateToSupport -> {
                 startActivity(SupportCentreActivity.newIntent(this, SUPPORT_SUBJECT_NO_ASSET))
                 finish()
@@ -371,7 +390,7 @@ class CoinViewActivity :
         interestRate: Double,
         stakingRate: Double,
         activeRewardsRate: Double,
-        fiatBalance: Money,
+        fiatBalance: Money?,
         balanceCrypto: Money,
         actions: List<StateAwareAction>
     ) {
@@ -493,6 +512,7 @@ class CoinViewActivity :
                     com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
                     error.assetTicker
                 )
+
                 InterestError.Other -> getString(com.blockchain.stringResources.R.string.earn_summary_sheet_error_other)
                 InterestError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
@@ -563,6 +583,7 @@ class CoinViewActivity :
                     com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
                     error.assetTicker
                 )
+
                 StakingError.Other -> getString(com.blockchain.stringResources.R.string.earn_summary_sheet_error_other)
                 StakingError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
@@ -578,14 +599,35 @@ class CoinViewActivity :
                     com.blockchain.stringResources.R.string.earn_summary_sheet_error_unknown_asset,
                     error.assetTicker
                 )
+
                 ActiveRewardsError.Other -> getString(
                     com.blockchain.stringResources.R.string.earn_summary_sheet_error_other
                 )
+
                 ActiveRewardsError.None -> getString(com.blockchain.stringResources.R.string.empty)
             },
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
         ).show()
+
+    override fun onSwapSelectorOpenSwap(account: CryptoAccount) {
+        startActivity(
+            TransactionFlowActivity.newIntent(
+                context = this,
+                action = AssetAction.Swap,
+                sourceAccount = account
+            )
+        )
+    }
+
+    override fun onSwapSelectorOpenDex() {
+        closeWithDexResult()
+    }
+
+    private fun closeWithDexResult() {
+        setResult(RESULT_DEX)
+        finish()
+    }
 
     override fun onSheetClosed() {}
     // host calls/
@@ -593,6 +635,8 @@ class CoinViewActivity :
     companion object {
         private const val ORIGIN_NAME = "ORIGIN_NAME"
         const val ACCOUNT_FOR_ACTIVITY = "ACCOUNT_FOR_ACTIVITY"
+
+        const val RESULT_DEX = 100
 
         fun newIntent(
             context: Context,

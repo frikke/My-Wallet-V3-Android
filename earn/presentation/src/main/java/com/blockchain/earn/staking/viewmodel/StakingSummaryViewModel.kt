@@ -12,9 +12,10 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.combineDataResources
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
-import com.blockchain.earn.domain.models.EarnWithdrawal
 import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
+import com.blockchain.earn.domain.models.staking.StakingActivity
+import com.blockchain.earn.domain.models.staking.StakingActivityType
 import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.featureflag.FeatureFlag
@@ -66,9 +67,29 @@ class StakingSummaryViewModel(
         earnFrequency = frequency,
         canDeposit = canDeposit,
         canWithdraw = canWithdraw,
-        pendingWithdrawals = reducePendingWithdrawals(pendingWithdrawals),
+        pendingActivity = pendingActivity.reduce(),
         unbondingDays = unbondingDays
     )
+
+    private fun List<StakingActivity>.reduce(): List<StakingActivityViewState> {
+        return sortedBy { it.expiryDate }
+            .map {
+                StakingActivityViewState(
+                    currency = it.currency,
+                    amountCrypto = it.amountCrypto?.let { amount ->
+                        "${it.type.amountSign}${amount.toStringWithSymbol()}"
+                    } ?: "",
+                    amountFiat = it.amountCrypto?.let { amount ->
+                        "${it.type.amountSign}${amount.toUserFiat(exchangeRatesDataManager).toStringWithSymbol()}"
+                    } ?: "",
+                    startDate = it.startDate?.toFormattedDate() ?: "",
+                    expiryDate = it.expiryDate?.toFormattedDate() ?: "",
+                    timestamp = it.startDate,
+                    durationDays = it.durationDays,
+                    type = it.type
+                )
+            }
+    }
 
     override suspend fun handleIntent(modelState: StakingSummaryModelState, intent: StakingSummaryIntent) {
         when (intent) {
@@ -101,8 +122,8 @@ class StakingSummaryViewModel(
             stakingService.getLimitsForAsset(currency as AssetInfo),
             stakingService.getRatesForAsset(currency),
             stakingService.getEligibilityForAsset(currency),
-            stakingService.getOngoingWithdrawals(currency)
-        ) { account, tradingAccount, balance, limits, rate, eligibility, withdrawals ->
+            stakingService.getPendingActivity(currency)
+        ) { account, tradingAccount, balance, limits, rate, eligibility, activity ->
             combineDataResources(
                 DataResource.Data(account),
                 DataResource.Data(tradingAccount),
@@ -110,9 +131,18 @@ class StakingSummaryViewModel(
                 limits,
                 rate,
                 eligibility,
-                withdrawals
-            ) { a, t, b, l, r, e, w ->
-                StakingSummaryData(a, t, b, l, r, e, w)
+                activity
+            ) { accountData, tradingAccountData, balanceData, limitsData,
+                ratesData, eligibilityData, pendingActivity ->
+                StakingSummaryData(
+                    account = accountData,
+                    tradingAccount = tradingAccountData,
+                    balance = balanceData,
+                    limits = limitsData,
+                    rates = ratesData,
+                    eligibility = eligibilityData,
+                    pendingActivity = pendingActivity
+                )
             }
         }.collectLatest { summary ->
             when (summary) {
@@ -136,7 +166,7 @@ class StakingSummaryViewModel(
                             canWithdraw = balance.availableBalance.isPositive &&
                                 withdrawalsEnabled &&
                                 !limits.withdrawalsDisabled,
-                            pendingWithdrawals = pendingWithdrawals,
+                            pendingActivity = pendingActivity,
                             unbondingDays = limits.unbondingDays
                         )
                     }
@@ -150,22 +180,6 @@ class StakingSummaryViewModel(
             }
         }
     }
-
-    private fun reducePendingWithdrawals(pendingWithdrawals: List<EarnWithdrawal>): List<EarnWithdrawalUiElement> =
-        pendingWithdrawals.map {
-            EarnWithdrawalUiElement(
-                currency = it.currency,
-                amountCrypto = it.amountCrypto?.let { amount ->
-                    "-${amount.toStringWithSymbol()}"
-                } ?: "",
-                amountFiat = it.amountCrypto?.let { amount ->
-                    "-${amount.toUserFiat(exchangeRatesDataManager).toStringWithSymbol()}"
-                } ?: "",
-                unbondingStartDate = it.unbondingStartDate?.toFormattedDate() ?: "",
-                unbondingExpiryDate = it.unbondingExpiryDate?.toFormattedDate() ?: "",
-                withdrawalTimestamp = it.unbondingStartDate
-            )
-        }
 }
 
 @Parcelize
@@ -180,5 +194,11 @@ private data class StakingSummaryData(
     val limits: StakingLimits,
     val rates: StakingRewardsRates,
     val eligibility: EarnRewardsEligibility,
-    val pendingWithdrawals: List<EarnWithdrawal>
+    val pendingActivity: List<StakingActivity>
 )
+
+private val StakingActivityType.amountSign: String
+    get() = when (this) {
+        StakingActivityType.Bonding -> ""
+        StakingActivityType.Unbonding -> "-"
+    }

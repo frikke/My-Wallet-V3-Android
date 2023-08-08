@@ -12,10 +12,10 @@ import com.blockchain.earn.data.dataresources.interest.InterestLimitsStore
 import com.blockchain.earn.data.dataresources.interest.InterestRateForAllStore
 import com.blockchain.earn.data.dataresources.interest.InterestRateStore
 import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
+import com.blockchain.earn.data.dataresources.staking.StakingBondingStore
 import com.blockchain.earn.data.dataresources.staking.StakingEligibilityStore
 import com.blockchain.earn.data.dataresources.staking.StakingLimitsStore
 import com.blockchain.earn.data.dataresources.staking.StakingRatesStore
-import com.blockchain.earn.data.dataresources.staking.StakingWithdrawalsStore
 import com.blockchain.earn.data.repository.ActiveRewardsRepository
 import com.blockchain.earn.data.repository.InterestRepository
 import com.blockchain.earn.data.repository.StakingRepository
@@ -108,7 +108,7 @@ val earnDataModule = module {
                 currencyPrefs = get(),
                 stakingApi = get(),
                 historicRateFetcher = get(),
-                stakingWithdrawalsStore = get()
+                stakingBondingStore = get()
             )
         }
 
@@ -172,7 +172,7 @@ val earnDataModule = module {
         }
 
         scoped {
-            StakingWithdrawalsStore(
+            StakingBondingStore(
                 stakingApiService = get()
             )
         }

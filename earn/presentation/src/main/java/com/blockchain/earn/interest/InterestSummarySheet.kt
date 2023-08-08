@@ -42,7 +42,6 @@ import com.blockchain.earn.common.EarnFieldExplainer
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
 import com.blockchain.earn.interest.viewmodel.InterestError
 import com.blockchain.earn.interest.viewmodel.InterestSummaryViewState
-import com.blockchain.extensions.safeLet
 import com.blockchain.utils.toFormattedDate
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -72,8 +71,6 @@ fun InterestSummarySheet(
                 startImage = StackedIcon.SingleIcon(
                     ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty())
                 ),
-                shouldShowDivider = false,
-                backgroundSecondary = false,
                 onClosePress = onClosePressed
             )
 
@@ -116,37 +113,27 @@ fun InterestSummarySheet(
                     Column(modifier = Modifier.fillMaxWidth()) {
                         TinyVerticalSpacer()
 
-                        safeLet(
-                            state.totalEarnedFiat,
-                            state.totalEarnedCrypto
-                        ) { earnedFiat, earnedCrypto ->
-                            TextWithTooltipTableRow(
-                                startText = stringResource(
-                                    com.blockchain.stringResources.R.string.staking_summary_total_earned
-                                ),
-                                endTitle = earnedFiat.toStringWithSymbol(),
-                                endSubtitle = earnedCrypto.toStringWithSymbol(),
-                                isTappable = false
-                            )
+                        TextWithTooltipTableRow(
+                            startText = stringResource(
+                                com.blockchain.stringResources.R.string.staking_summary_total_earned
+                            ),
+                            endTitle = state.totalEarnedFiat?.toStringWithSymbol().orEmpty(),
+                            endSubtitle = state.totalEarnedCrypto?.toStringWithSymbol().orEmpty(),
+                            isTappable = false
+                        )
 
-                            TinyVerticalSpacer()
-                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                            TinyVerticalSpacer()
-                        }
+                        TinyVerticalSpacer()
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        TinyVerticalSpacer()
 
-                        safeLet(
-                            state.pendingInterestFiat,
-                            state.pendingInterestCrypto
-                        ) { pendingEarnedFiat, pendingEarnedCrypto ->
-                            TextWithTooltipTableRow(
-                                startText = stringResource(
-                                    com.blockchain.stringResources.R.string.earn_interest_accrued_this_month
-                                ),
-                                endTitle = pendingEarnedFiat.toStringWithSymbol(),
-                                endSubtitle = pendingEarnedCrypto.toStringWithSymbol(),
-                                onClick = { onExplainerClicked(EarnFieldExplainer.MonthlyAccruedInterest) }
-                            )
-                        }
+                        TextWithTooltipTableRow(
+                            startText = stringResource(
+                                com.blockchain.stringResources.R.string.earn_interest_accrued_this_month
+                            ),
+                            endTitle = state.pendingInterestFiat?.toStringWithSymbol().orEmpty(),
+                            endSubtitle = state.pendingInterestCrypto?.toStringWithSymbol(),
+                            onClick = { onExplainerClicked(EarnFieldExplainer.MonthlyAccruedInterest) }
+                        )
                     }
                 }
 

@@ -50,6 +50,7 @@ import com.blockchain.serializers.jsonSerializers
 import com.blockchain.store_caches_inmemory.storeCachesInMemoryModule
 import com.blockchain.store_persisters_persistedjsonsqldelight.storePersistersJsonSqlDelightModule
 import com.blockchain.transactions.koin.commonTransactionsPresentationModule
+import com.blockchain.transactions.koin.receivePresentationModule
 import com.blockchain.transactions.koin.sellTransactionsPresentationModule
 import com.blockchain.transactions.koin.swapTransactionsPresentationModule
 import com.blockchain.transactions.koin.transactionsDataModule
@@ -92,7 +93,6 @@ import piuk.blockchain.android.ui.reset.resetAccountModule
 import piuk.blockchain.android.ui.settings.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
 import piuk.blockchain.android.ui.transactionflow.transactionModule
-import piuk.blockchain.android.ui.transfer.receive.receiveCryptoModule
 import piuk.blockchain.android.util.accessibilityModule
 import piuk.blockchain.com.internalFeatureFlagsModule
 import timber.log.Timber
@@ -147,7 +147,6 @@ object KoinStarter {
                     nabuUrlModule,
                     metadataModule,
                     notificationModule,
-                    receiveCryptoModule,
                     resetAccountModule,
                     secureChannelPresentationModule,
                     secureChannelDataModule,
@@ -185,7 +184,8 @@ object KoinStarter {
                     commonTransactionsPresentationModule, swapTransactionsPresentationModule,
                     sellTransactionsPresentationModule, transactionsDataModule,
                     newsDataModule, newsPresentationModule,
-                    kycPresentationModule
+                    kycPresentationModule,
+                    receivePresentationModule
                 )
             )
         }

@@ -26,12 +26,12 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.CopyText
 import com.blockchain.componentlib.utils.OpenUrl
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
+import com.blockchain.componentlib.utils.toStackedIcon
 import com.blockchain.componentlib.utils.value
 import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.activity.common.ActivityComponentItem
 import com.blockchain.home.presentation.activity.common.ActivitySectionCard
 import com.blockchain.home.presentation.activity.common.ClickAction
-import com.blockchain.home.presentation.activity.common.toStackedIcon
 import com.blockchain.home.presentation.activity.detail.ActivityDetail
 import com.blockchain.home.presentation.activity.detail.ActivityDetailIntent
 import com.blockchain.home.presentation.activity.detail.ActivityDetailViewState

@@ -44,7 +44,7 @@ class LoaderActivity :
 
     override val alwaysDisableScreenshots: Boolean = true
 
-    override val statusbarColor = ModeBackgroundColor.None
+    override val statusbarColor = ModeBackgroundColor.Current
 
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
 

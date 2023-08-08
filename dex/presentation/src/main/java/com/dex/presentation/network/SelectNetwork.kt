@@ -63,9 +63,7 @@ private fun SelectNetworkScreen(
     ) {
         SheetHeader(
             title = stringResource(id = com.blockchain.stringResources.R.string.select_network),
-            onClosePress = closeClicked,
-            shouldShowDivider = false,
-            backgroundSecondary = false
+            onClosePress = closeClicked
         )
 
         Networks(

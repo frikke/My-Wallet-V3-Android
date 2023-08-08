@@ -16,7 +16,6 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.gwei
 import com.blockchain.testutils.numberToBigDecimal
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
@@ -607,7 +606,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             networkTicker = "DUMMY",
             displayTicker = "DUMMY",
             name = "Dummies",
-            categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+            categories = setOf(AssetCategory.TRADING, AssetCategory.NON_CUSTODIAL),
             precisionDp = 8,
             coinNetwork = coinNetwork,
             l2identifier = CONTRACT_ADDRESS,

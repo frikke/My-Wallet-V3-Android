@@ -145,12 +145,13 @@ class BuySellFragment :
         with(binding) {
             buySellEmpty.gone()
             when (action) {
-                is BuySellIntroAction.DisplayBuySellIntro -> {
-                    renderBuySellUi(action.newSellFlowFFEnabled)
+                BuySellIntroAction.DisplayBuySellIntro -> {
+                    renderBuySellUi()
                 }
+
                 BuySellIntroAction.UserNotEligible -> renderNotEligibleUi()
                 is BuySellIntroAction.StartBuyWithSelectedAsset -> {
-                    renderBuySellUi(false)
+                    renderBuySellUi()
                     if (!hasReturnedFromBuyActivity) {
                         hasReturnedFromBuyActivity = false
                         startActivityForResult(
@@ -169,6 +170,7 @@ class BuySellFragment :
                         )
                     }
                 }
+
                 else -> startActivity(
                     SimpleBuyActivity.newIntent(
                         context = activity as Context,
@@ -214,9 +216,9 @@ class BuySellFragment :
         }
     }
 
-    private fun renderBuySellUi(newSellFlowFFEnabled: Boolean) {
+    private fun renderBuySellUi() {
         with(binding) {
-            showBuyOrSell(showView, newSellFlowFFEnabled)
+            showBuyOrSell(showView)
             buySellFragmentContainer.visible()
             notEligibleIcon.gone()
             notEligibleTitle.gone()
@@ -224,8 +226,8 @@ class BuySellFragment :
         }
     }
 
-    fun showBuyOrSell(view: BuySellViewType, newSellFlowFFEnabled: Boolean) {
-        if (view == BuySellViewType.TYPE_SELL && newSellFlowFFEnabled) {
+    private fun showBuyOrSell(view: BuySellViewType) {
+        if (view == BuySellViewType.TYPE_SELL) {
             startActivity(
                 TransactionFlowActivity.newIntent(
                     context = requireActivity(),
@@ -236,14 +238,11 @@ class BuySellFragment :
             requireActivity().finish()
             return
         }
-
         childFragmentManager.showFragment(
-            fragment = when (view) {
-                BuySellViewType.TYPE_BUY -> BuySelectAssetFragment.newInstance(
-                    fromRecurringBuy = arguments?.getBoolean(ARG_FROM_RECURRING_BUY) ?: false
-                )
-                BuySellViewType.TYPE_SELL -> SellIntroFragment.newInstance()
-            },
+            fragment =
+            BuySelectAssetFragment.newInstance(
+                fromRecurringBuy = arguments?.getBoolean(ARG_FROM_RECURRING_BUY) ?: false
+            ),
             containerId = binding.buySellFragmentContainer.id,
             reloadFragment = false
         )

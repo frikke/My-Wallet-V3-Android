@@ -13,7 +13,9 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.makeExternalAssetAddress
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
@@ -26,7 +28,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.utils.emptySubscribe
 import com.blockchain.utils.thenSingle
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -227,20 +228,21 @@ abstract class QuotedEngine(
         } ?: throw IllegalStateException("Method only support cryptovalues")
 }
 
-private fun TransferDirection.sourceAccountType(): AssetCategory {
+private fun TransferDirection.sourceAccountType(): String {
     return when (this) {
         TransferDirection.FROM_USERKEY,
-        TransferDirection.ON_CHAIN -> AssetCategory.NON_CUSTODIAL
+        TransferDirection.ON_CHAIN -> NON_CUSTODIAL_LIMITS_ACCOUNT
+
         TransferDirection.INTERNAL,
-        TransferDirection.TO_USERKEY -> AssetCategory.CUSTODIAL
+        TransferDirection.TO_USERKEY -> CUSTODIAL_LIMITS_ACCOUNT
     }
 }
 
-private fun TransferDirection.targetAccountType(): AssetCategory {
+private fun TransferDirection.targetAccountType(): String {
     return when (this) {
         TransferDirection.TO_USERKEY,
-        TransferDirection.ON_CHAIN -> AssetCategory.NON_CUSTODIAL
+        TransferDirection.ON_CHAIN -> NON_CUSTODIAL_LIMITS_ACCOUNT
         TransferDirection.INTERNAL,
-        TransferDirection.FROM_USERKEY -> AssetCategory.CUSTODIAL
+        TransferDirection.FROM_USERKEY -> CUSTODIAL_LIMITS_ACCOUNT
     }
 }

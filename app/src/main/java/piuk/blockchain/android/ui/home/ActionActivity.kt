@@ -13,18 +13,22 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.BuySellViewType
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.stringResources.R
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityActionBinding
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.brokerage.BuySellFragment
 import piuk.blockchain.android.ui.swap.SwapFragment
-import piuk.blockchain.android.ui.transfer.receive.ReceiveFragment
 import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
+
+private const val receiveErrorMsg = "Old receive tried to open - review any missing places"
+private object LegacyReceiveException : Exception(receiveErrorMsg)
 
 class ActionActivity :
     BlockchainActivity(),
@@ -53,6 +57,8 @@ class ActionActivity :
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
+    private val remoteLogger: RemoteLogger by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -75,14 +81,17 @@ class ActionActivity :
                 updateToolbarTitle(getString(R.string.toolbar_send))
                 TransferSendFragment.newInstance()
             }
+
             AssetAction.Swap -> {
                 updateToolbarTitle(getString(R.string.toolbar_swap))
                 SwapFragment.newInstance()
             }
+
             AssetAction.Receive -> {
-                updateToolbarTitle(getString(R.string.toolbar_receive))
-                ReceiveFragment.newInstance(cryptoTicker = cryptoTicker)
+                remoteLogger.logException(LegacyReceiveException, receiveErrorMsg)
+                error(receiveErrorMsg)
             }
+
             AssetAction.Sell,
             AssetAction.Buy -> {
                 BuySellFragment.newInstance(
@@ -91,6 +100,7 @@ class ActionActivity :
                             updateToolbarTitle(getString(R.string.common_sell))
                             BuySellViewType.TYPE_SELL
                         }
+
                         else -> {
                             updateToolbarTitle(getString(R.string.common_buy))
                             BuySellViewType.TYPE_BUY
@@ -100,6 +110,7 @@ class ActionActivity :
                     fromRecurringBuy = intent.getBooleanExtra(ARG_FROM_RECURRING_BUY, false)
                 )
             }
+
             else -> {
                 throw IllegalStateException("$action is not supported")
             }
@@ -125,10 +136,6 @@ class ActionActivity :
         finish()
     }
 
-    override fun navigateToReceive() {
-        finishWithResult(ActivityResult.StartReceive(cryptoTicker))
-    }
-
     override fun navigateToBuy() {
         finishWithResult(ActivityResult.StartBuyIntro)
     }
@@ -149,10 +156,6 @@ class ActionActivity :
         val intent = Intent()
         when (result) {
             ActivityResult.StartKyc -> intent.putExtra(RESULT_START_KYC, true)
-            is ActivityResult.StartReceive -> {
-                intent.putExtra(RESULT_START_RECEIVE, true)
-                intent.putExtra(CRYPTO_TICKER, cryptoTicker)
-            }
             ActivityResult.StartBuyIntro -> intent.putExtra(RESULT_START_BUY_INTRO, true)
             ActivityResult.ViewActivity -> intent.putExtra(RESULT_VIEW_ACTIVITY, true)
         }
@@ -163,7 +166,6 @@ class ActionActivity :
     companion object {
         private const val ACTION = "action"
         private const val RESULT_START_KYC = "RESULT_START_KYC"
-        private const val RESULT_START_RECEIVE = "RESULT_START_RECEIVE"
         private const val RESULT_START_BUY_INTRO = "RESULT_START_BUY_INTRO"
         private const val RESULT_VIEW_ACTIVITY = "RESULT_VIEW_ACTIVITY"
         private const val CRYPTO_TICKER = "CRYPTO_TICKER"
@@ -192,7 +194,6 @@ class ActionActivity :
 
     sealed class ActivityResult {
         object StartKyc : ActivityResult()
-        class StartReceive(val cryptoTicker: String? = null) : ActivityResult()
         object StartBuyIntro : ActivityResult()
         object ViewActivity : ActivityResult()
     }
@@ -203,13 +204,11 @@ class ActionActivity :
 
         override fun parseResult(resultCode: Int, intent: Intent?): ActivityResult? {
             val startKyc = intent?.getBooleanExtra(RESULT_START_KYC, false) ?: false
-            val startReceive = intent?.getBooleanExtra(RESULT_START_RECEIVE, false) ?: false
             val startBuyIntro = intent?.getBooleanExtra(RESULT_START_BUY_INTRO, false) ?: false
 
             return when {
                 resultCode != Activity.RESULT_OK -> null
                 startKyc -> ActivityResult.StartKyc
-                startReceive -> ActivityResult.StartReceive(intent?.getStringExtra(CRYPTO_TICKER))
                 startBuyIntro -> ActivityResult.StartBuyIntro
                 else -> null
             }

@@ -19,7 +19,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.AppDivider
 import com.blockchain.componentlib.basic.CloseIcon
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.icon.CustomStackedIcon
@@ -35,12 +34,11 @@ fun SheetHeader(
     byline: String? = null,
     startImage: StackedIcon? = null,
     onClosePress: () -> Unit,
-    shouldShowDivider: Boolean = true,
-    backgroundSecondary: Boolean = true
+    secondaryBackground: Boolean = false
 ) {
 
     Surface(
-        color = if (backgroundSecondary) AppColors.backgroundSecondary else AppColors.background,
+        color = if (secondaryBackground) AppColors.backgroundSecondary else AppColors.background,
         shape = AppTheme.shapes.large.topOnly()
     ) {
         Box {
@@ -80,17 +78,8 @@ fun SheetHeader(
                             top = AppTheme.dimensions.mediumSpacing,
                             end = AppTheme.dimensions.smallSpacing
                         ),
-                        isScreenBackgroundSecondary = backgroundSecondary,
+                        isScreenBackgroundSecondary = secondaryBackground,
                         onClick = onClosePress
-                    )
-                }
-                if (shouldShowDivider) {
-                    AppDivider(
-                        if (backgroundSecondary) {
-                            AppColors.background
-                        } else {
-                            AppColors.medium
-                        }
                     )
                 }
             }
@@ -134,7 +123,7 @@ private fun SheetHeaderTitle(
 private fun SheetHeaderPreview() {
     SheetHeader(
         title = "Title",
-        onClosePress = { /* no-op */ }
+        onClosePress = { /* no-op */ },
     )
 }
 
@@ -148,7 +137,7 @@ private fun PreviewSheetHeaderPreviewDark() {
 @Composable
 private fun SheetHeaderNoTitle() {
     SheetHeader(
-        onClosePress = { /* no-op */ }
+        onClosePress = { /* no-op */ },
     )
 }
 
@@ -158,7 +147,7 @@ private fun SheetHeaderBylinePreview() {
     SheetHeader(
         title = "Title",
         byline = "Byline",
-        onClosePress = { /* no-op */ }
+        onClosePress = { /* no-op */ },
     )
 }
 
@@ -173,7 +162,7 @@ private fun SheetHeaderWithStartIconPreview() {
                 id = R.drawable.ic_qr_code,
                 contentDescription = null
             )
-        )
+        ),
     )
 }
 
@@ -189,6 +178,6 @@ private fun SheetHeaderBylineWithStartIconPreview() {
                 id = R.drawable.ic_qr_code,
                 contentDescription = null
             )
-        )
+        ),
     )
 }

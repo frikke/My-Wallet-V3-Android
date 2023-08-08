@@ -3,6 +3,8 @@ package com.blockchain.chrome
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
@@ -23,6 +25,8 @@ import com.blockchain.chrome.navigation.WalletLinkAndOpenBankingNavigation
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.EarnRewardsAccount
+import com.blockchain.coincore.OneTimeAccountPersistenceService
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -62,9 +66,9 @@ import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.home.presentation.navigation.WCSessionIntent
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
-import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.presentation.customviews.kyc.KycUpgradeNowSheet
 import com.blockchain.presentation.sheets.NoBalanceActionBottomSheet
+import com.blockchain.transactions.receive.detail.ReceiveAccountDetailFragment
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletconnect.ui.networks.SelectNetworkBottomSheet
@@ -77,7 +81,6 @@ import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
@@ -103,6 +106,7 @@ class MultiAppActivity :
     SelectNetworkBottomSheet.Host,
     NoBalanceActionBottomSheet.Host,
     KycUpgradeNowSheet.Host,
+    MultiAppActions,
     KoinScopeComponent {
 
     override val statusbarColor: ModeBackgroundColor = ModeBackgroundColor.None
@@ -150,18 +154,16 @@ class MultiAppActivity :
     private lateinit var transactionFlowNavigation: TransactionFlowNavigation
     private lateinit var authNavigation: AuthNavigation
 
-    private val nftNavigation: NftNavigation = payloadScope.get {
-        parametersOf(
-            this
-        )
-    }
-
     private val earnNavigation: EarnNavigation = payloadScope.get {
         parametersOf(
             this,
             assetActionsNavigation
         )
     }
+
+    private var openDex: MutableState<Boolean> = mutableStateOf(false)
+
+    private val oneTimeAccountPersistenceService: OneTimeAccountPersistenceService by scopedInject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -180,15 +182,13 @@ class MultiAppActivity :
                 settingsNavigation = settingsNavigation,
                 qrScanNavigation = qrScanNavigation,
                 supportNavigation = supportNavigation,
-                nftNavigation = nftNavigation,
                 earnNavigation = earnNavigation,
                 defiBackupNavigation = defiBackupNavigation,
                 openExternalUrl = ::openExternalUrl,
-                processAnnouncementUrl = ::processAnnouncementUrl
+                processAnnouncementUrl = ::processAnnouncementUrl,
+                openDex = openDex
             )
         }
-
-        assetActionsNavigation.initNewTxFlowFFs()
 
         qrScanNavigation = payloadScope.get {
             parametersOf(
@@ -430,7 +430,9 @@ class MultiAppActivity :
 
             is Destination.CustomerSupportDestination -> settingsNavigation.launchSupportCenter()
             is Destination.StartKycDestination -> assetActionsNavigation.startKyc()
-            is Destination.AssetReceiveDestination -> assetActionsNavigation.receive(destination.networkTicker)
+            is Destination.AssetReceiveDestination -> {
+                // todo we only have ticker here - open receiveaccountdetail
+            }
             Destination.SettingsAddCardDestination -> settingsNavigation.settings(SettingsDestination.CardLinking)
             Destination.SettingsAddBankDestination -> settingsNavigation.settings(SettingsDestination.BankLinking)
             Destination.DashboardDestination,
@@ -738,12 +740,17 @@ class MultiAppActivity :
 
     override fun navigateToAction(action: AssetAction, selectedAccount: BlockchainAccount, assetInfo: AssetInfo) {
         when (action) {
-            AssetAction.Buy -> assetActionsNavigation.buyCrypto(
-                currency = assetInfo,
-                amount = null
-            )
+            AssetAction.Buy -> {
+                assetActionsNavigation.buyCrypto(
+                    currency = assetInfo,
+                    amount = null
+                )
+            }
 
-            AssetAction.Receive -> assetActionsNavigation.receive(assetInfo.networkTicker)
+            AssetAction.Receive -> {
+                oneTimeAccountPersistenceService.saveAccount(selectedAccount as SingleAccount)
+                showBottomSheet(ReceiveAccountDetailFragment.newInstance())
+            }
             else -> throw IllegalStateException("Earn dashboard: ${intent.action} not valid for navigation")
         }
     }
@@ -777,4 +784,12 @@ class MultiAppActivity :
 
     override fun onSheetClosed() {
     }
+
+    override fun navigateToDex() {
+        openDex.value = true
+    }
+}
+
+interface MultiAppActions {
+    fun navigateToDex()
 }

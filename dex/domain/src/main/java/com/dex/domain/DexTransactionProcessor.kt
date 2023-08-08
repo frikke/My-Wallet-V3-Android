@@ -151,17 +151,17 @@ class DexTransactionProcessor(
                     }
                 }.onEach {
                     _isFetchingQuote.emit(false)
-                }.collectLatest {
-                    when (it) {
+                }.collectLatest { outcome ->
+                    when (outcome) {
                         is Outcome.Success -> {
-                            (it.value as? DexQuote.ExchangeQuote)?.let { exchangeQuote ->
+                            (outcome.value as? DexQuote.ExchangeQuote)?.let { exchangeQuote ->
                                 _quoteTtl.emit(QuoteTTL(exchangeQuote.quoteTtl))
                             }
-                            updateTxQuote(it.value)
+                            updateTxQuote(outcome.value)
                         }
 
                         is Outcome.Failure -> {
-                            (it.failure as? DexTxError.QuoteError)?.let { qError ->
+                            (outcome.failure as? DexTxError.QuoteError)?.let { qError ->
                                 updateQuoteError(qError)
                             }
                         }
@@ -487,9 +487,12 @@ sealed class DexTxError {
             get() = true
     }
 
-    data class QuoteError(val title: String?, val message: String?) : DexTxError() {
+    data class QuoteError(val title: String?, val message: String?, private val id: String?) : DexTxError() {
         override val allowsQuotesFetching: Boolean
             get() = true
+
+        val isInsufficientFundsError: Boolean
+            get() = id == "dex.quote.insufficient.funds"
     }
 
     data class TokenNotAllowed(val hasBeenApproved: Boolean) : DexTxError() {

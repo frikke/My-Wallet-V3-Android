@@ -162,6 +162,7 @@ sealed class EarnAnalytics(
     }
 }
 
+@Deprecated("use from common:presentation")
 enum class TxFlowAnalyticsAccountType {
     TRADING, USERKEY, SAVINGS, EXTERNAL;
 

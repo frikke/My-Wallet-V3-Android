@@ -44,7 +44,7 @@ dependencies {
     implementation project(':deeplinking')
     implementation project(':notifications')
     implementation project(':flowprices:presentation')
-    implementation project(':flowhome:presentation')
+    implementation project(':fiatActions')
 
     implementation Libraries.composeUi
     implementation Libraries.composePreview
@@ -52,6 +52,8 @@ dependencies {
     implementation Libraries.accompanistNavigationMaterial
 
     implementation Libraries.kotlinImmutableCollections
+
+    implementation Libraries.rxKotlin
 
     // koin
     implementation Libraries.koinAndroid

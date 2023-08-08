@@ -59,7 +59,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun CustodialIntroScreen(
     viewModel: CustodialIntroViewModel = getViewModel(scope = payloadScope),
-    launchApp: () -> Unit,
+    getStartedOnClick: () -> Unit,
 ) {
 
     DisposableEffect(key1 = viewModel) {
@@ -71,7 +71,7 @@ fun CustodialIntroScreen(
     val viewState by viewModel.viewState.collectAsStateWithLifecycle()
     CustodialIntro(
         onGetStartedClicked = {
-            launchApp()
+            getStartedOnClick()
         },
         isEligibleForEarnData = viewState.isEligibleForEarn
     )

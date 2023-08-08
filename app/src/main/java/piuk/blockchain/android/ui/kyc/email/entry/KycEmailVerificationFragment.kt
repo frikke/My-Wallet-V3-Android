@@ -4,14 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import com.blockchain.chrome.composable.ChromeSingleScreen
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.navigation.ModeBackgroundColor
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.payloadScope
 import com.blockchain.kyc.email.EmailVerification
 import com.blockchain.walletmode.WalletMode
@@ -45,25 +44,19 @@ class KycEmailVerificationFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // allow to draw on status and navigation bars
-        WindowCompat.setDecorFitsSystemWindows(requireActivity().window, false)
-
         return ComposeView(requireContext()).apply {
             setContent {
+
+                val legacyToolbar = arguments?.getBoolean("legacyToolbar") == true
 
                 val systemUiController = rememberSystemUiController()
                 systemUiController.setStatusBarColor(Color.Transparent)
 
-                AppTheme {
+                if (legacyToolbar) {
+                    Screen()
+                } else {
                     ChromeSingleScreen(backgroundColor = ModeBackgroundColor.Override(WalletMode.CUSTODIAL)) {
-                        EmailVerification(
-                            verificationRequired = emailMustBeValidated,
-                            closeOnClick = {}, // n/a
-                            nextOnClick = {
-                                emailEntryHost.onEmailEntryFragmentUpdated(showSkipButton = false)
-                                emailEntryHost.onEmailVerified()
-                            }
-                        )
+                        Screen()
                     }
                 }
             }
@@ -91,6 +84,19 @@ class KycEmailVerificationFragment :
                     putBoolean(CAN_SKIP, canBeSkipped)
                 }
             }
+    }
+
+    @Composable
+    fun Screen() {
+        EmailVerification(
+            verificationRequired = emailMustBeValidated,
+            legacyToolbar = arguments?.getBoolean("legacyToolbar") == true,
+            closeOnClick = { emailEntryHost.onEmailVerificationSkipped() },
+            nextOnClick = {
+                emailEntryHost.onEmailEntryFragmentUpdated(showSkipButton = false)
+                emailEntryHost.onEmailVerified()
+            }
+        )
     }
 }
 

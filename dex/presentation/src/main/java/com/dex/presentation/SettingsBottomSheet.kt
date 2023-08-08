@@ -81,13 +81,12 @@ private fun SettingsBottomSheetScreen(
         SheetHeader(
             title = stringResource(id = R.string.allowed_slippage),
             onClosePress = closeClicked,
-            shouldShowDivider = false
         )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(AppColors.backgroundSecondary)
+                .background(AppColors.background)
         ) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 

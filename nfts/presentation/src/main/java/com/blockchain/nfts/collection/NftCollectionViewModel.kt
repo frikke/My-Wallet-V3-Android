@@ -6,6 +6,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.OneTimeAccountPersistenceService
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
@@ -26,7 +27,8 @@ import kotlinx.coroutines.rx3.awaitSingle
 
 class NftCollectionViewModel(
     private val coincore: Coincore,
-    private val nftService: NftService
+    private val nftService: NftService,
+    private val oneTimeAccountPersistenceService: OneTimeAccountPersistenceService
 ) : MviViewModel<
     NftCollectionIntent,
     NftCollectionViewState,
@@ -84,7 +86,8 @@ class NftCollectionViewModel(
 
             NftCollectionIntent.ShowReceiveAddress -> {
                 check(modelState.account != null) { "account not initialized" }
-                navigate(NftCollectionNavigationEvent.ShowReceiveAddress(modelState.account))
+                oneTimeAccountPersistenceService.saveAccount(modelState.account)
+                navigate(NftCollectionNavigationEvent.ShowReceiveAddress)
             }
 
             NftCollectionIntent.ShowHelp -> {

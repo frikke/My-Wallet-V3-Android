@@ -85,9 +85,7 @@ private fun ThemeScreen(
         ) {
             SheetHeader(
                 title = stringResource(id = R.string.settings_theme_title),
-                onClosePress = closeOnClick,
-                shouldShowDivider = false,
-                backgroundSecondary = false
+                onClosePress = closeOnClick
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))

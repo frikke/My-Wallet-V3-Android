@@ -18,6 +18,7 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
+import com.blockchain.componentlib.utils.QRCodeEncoder
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.presentation.extensions.getAccount
@@ -31,9 +32,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogAccountEditBinding
-import piuk.blockchain.android.scan.QRCodeEncoder
 import timber.log.Timber
 
 class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
@@ -281,7 +280,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
 
     private fun generateQrCode(qrString: String) =
         try {
-            QRCodeEncoder().encodeAsBitmap(
+            QRCodeEncoder.encodeAsBitmap(
                 qrString,
                 QR_CODE_DIMENSION
             )

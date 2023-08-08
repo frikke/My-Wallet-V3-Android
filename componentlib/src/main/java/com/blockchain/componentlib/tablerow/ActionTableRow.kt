@@ -36,10 +36,10 @@ fun ActionTableRow(
     title: String,
     titleIcon: ImageResource? = null,
     subtitle: String? = null,
-    tag: String = "",
-    icon: StackedIcon = StackedIcon.None,
+    tag: String? = null,
+    icon: StackedIcon? = null,
     defaultIconSize: Dp = AppTheme.dimensions.standardSpacing,
-    actionIcon: ImageResource.Local = Icons.ChevronRight,
+    actionIcon: ImageResource.Local = Icons.ChevronRight.withTint(AppColors.muted),
     onClick: () -> Unit
 ) {
     ActionTableRow(
@@ -48,10 +48,12 @@ fun ActionTableRow(
         tag = tag,
         titleIcon = titleIcon,
         contentStart = {
-            CustomStackedIcon(
-                icon = icon,
-                size = defaultIconSize
-            )
+            icon?.let {
+                CustomStackedIcon(
+                    icon = icon,
+                    size = defaultIconSize
+                )
+            }
         },
         actionIcon = actionIcon,
         onClick = onClick
@@ -62,10 +64,10 @@ fun ActionTableRow(
 private fun ActionTableRow(
     title: String,
     subtitle: String? = null,
-    tag: String = "",
+    tag: String? = null,
     titleIcon: ImageResource?,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
-    actionIcon: ImageResource.Local = Icons.ChevronRight,
+    actionIcon: ImageResource.Local = Icons.ChevronRight.withTint(AppColors.muted),
     onClick: () -> Unit
 ) {
     TableRow(
@@ -99,7 +101,7 @@ private fun ActionTableRow(
 
                     Spacer(
                         modifier = Modifier.size(
-                            if (tag.isNotEmpty()) {
+                            if (!tag.isNullOrBlank()) {
                                 AppTheme.dimensions.composeSmallestSpacing
                             } else if (!subtitle.isNullOrBlank()) {
                                 AppTheme.dimensions.smallestSpacing
@@ -118,11 +120,11 @@ private fun ActionTableRow(
                             )
                         }
 
-                        if (!subtitle.isNullOrBlank() && tag.isNotEmpty()) {
+                        if (!subtitle.isNullOrBlank() && !tag.isNullOrBlank()) {
                             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
                         }
 
-                        if (tag.isNotEmpty()) {
+                        if (!tag.isNullOrBlank()) {
                             DefaultTag(text = tag)
                         }
                     }
@@ -146,6 +148,7 @@ private fun ActionTableRow() {
     ActionTableRow(
         title = "Bitcoin",
         subtitle = "BTC",
+        tag = "ETH",
         onClick = {}
     )
 }

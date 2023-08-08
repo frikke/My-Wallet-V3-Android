@@ -24,7 +24,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.ExchangeRate
@@ -102,8 +101,8 @@ class LimitsDataManagerImplTest {
             outputCurrency = OUTPUT_CRYPTO_CURRENCY,
             sourceCurrency = OUTPUT_CRYPTO_CURRENCY,
             targetCurrency = CryptoCurrency.ETHER,
-            sourceAccountType = AssetCategory.NON_CUSTODIAL,
-            targetAccountType = AssetCategory.CUSTODIAL,
+            sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
             legacyLimits = legacyLimitsSingle
         ).test()
             .assertComplete()
@@ -136,8 +135,8 @@ class LimitsDataManagerImplTest {
             outputCurrency = OUTPUT_FIAT_CURRENCY,
             sourceCurrency = OUTPUT_FIAT_CURRENCY,
             targetCurrency = CryptoCurrency.ETHER,
-            sourceAccountType = AssetCategory.NON_CUSTODIAL,
-            targetAccountType = AssetCategory.CUSTODIAL,
+            sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
             legacyLimits = legacyLimitsSingle
         ).test()
             .assertComplete()
@@ -186,8 +185,8 @@ class LimitsDataManagerImplTest {
             outputCurrency = OUTPUT_CRYPTO_CURRENCY,
             sourceCurrency = OUTPUT_CRYPTO_CURRENCY,
             targetCurrency = CryptoCurrency.ETHER,
-            sourceAccountType = AssetCategory.NON_CUSTODIAL,
-            targetAccountType = AssetCategory.CUSTODIAL,
+            sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
             legacyLimits = legacyLimitsSingle
         ).test()
             .assertComplete()
@@ -242,8 +241,8 @@ class LimitsDataManagerImplTest {
             outputCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
             sourceCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
             targetCurrency = "ETH",
-            sourceAccountType = AssetCategory.NON_CUSTODIAL.name,
-            targetAccountType = AssetCategory.CUSTODIAL.name
+            sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT
         )
         verify(assetCatalogue, atLeastOnce()).fromNetworkTicker(OUTPUT_CRYPTO_CURRENCY.networkTicker)
         verify(exchangeRatesDataManager).exchangeRateLegacy(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
@@ -271,8 +270,8 @@ class LimitsDataManagerImplTest {
             outputCurrency = OUTPUT_FIAT_CURRENCY,
             sourceCurrency = OUTPUT_FIAT_CURRENCY,
             targetCurrency = CryptoCurrency.ETHER,
-            sourceAccountType = AssetCategory.NON_CUSTODIAL,
-            targetAccountType = AssetCategory.CUSTODIAL,
+            sourceAccountType = NON_CUSTODIAL_LIMITS_ACCOUNT,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
             legacyLimits = legacyLimitsSingle
         ).test()
             .assertComplete()
@@ -286,8 +285,8 @@ class LimitsDataManagerImplTest {
             OUTPUT_FIAT_CURRENCY.networkTicker,
             OUTPUT_FIAT_CURRENCY.networkTicker,
             "ETH",
-            AssetCategory.NON_CUSTODIAL.name,
-            AssetCategory.CUSTODIAL.name
+            NON_CUSTODIAL_LIMITS_ACCOUNT,
+            CUSTODIAL_LIMITS_ACCOUNT
         )
     }
 

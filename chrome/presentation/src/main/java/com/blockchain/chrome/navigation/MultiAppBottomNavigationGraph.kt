@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.blockchain.chrome.ChromeBottomNavigationItem
 import com.blockchain.chrome.composable.bottomNavigationItems
-import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.chrome.ChromeGridScreen
 import com.blockchain.componentlib.chrome.ChromeListScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
@@ -22,7 +21,6 @@ import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import com.blockchain.home.presentation.navigation.QrScanNavigation
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.collection.screen.NftCollection
-import com.blockchain.nfts.navigation.NftNavigation
 import com.blockchain.prices.prices.composable.Prices
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -45,7 +43,6 @@ fun MultiAppBottomNavigationHost(
     navController: NavController,
     openNftHelp: () -> Unit,
     openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
-    nftNavigation: NftNavigation,
     earnNavigation: EarnNavigation,
     processAnnouncementUrl: (String) -> Unit,
 ) {
@@ -119,15 +116,10 @@ fun MultiAppBottomNavigationHost(
                 content = { listState, _ ->
                     DexEnterAmountScreen(
                         listState = listState,
-                        navController = navController,
                         savedStateHandle = navController.currentBackStackEntry
                             ?.savedStateHandle,
-                        startReceiving = { assetActionsNavigation.navigate(AssetAction.Receive) },
                         openSettings = openSettings,
                         launchQrScanner = launchQrScanner,
-                        receiveOnAccount = {
-                            assetActionsNavigation.receive(it)
-                        },
                     )
                 },
                 refreshComplete = refreshComplete,
@@ -193,7 +185,6 @@ fun MultiAppBottomNavigationHost(
                         openExternalUrl = openExternalUrl,
                         openNftHelp = openNftHelp,
                         openNftDetail = openNftDetail,
-                        nftNavigation = nftNavigation
                     )
                 }
             )

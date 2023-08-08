@@ -199,6 +199,9 @@
         <argument
             android:name="mustBeValidated"
             app:argType="boolean" />
+        <argument
+            android:name="legacyToolbar"
+            app:argType="boolean" />
     </navigation>
     <action
         android:id="@+id/action_StartTier2NeedMoreInfo"

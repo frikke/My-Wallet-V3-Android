@@ -67,8 +67,6 @@ private fun FailedBalancesScreen(
     ) {
         SheetHeader(
             onClosePress = dismiss,
-            shouldShowDivider = false,
-            backgroundSecondary = false
         )
 
         Column(

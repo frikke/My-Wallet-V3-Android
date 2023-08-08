@@ -1,7 +1,7 @@
 package com.blockchain.api.earn.staking
 
 import com.blockchain.api.earn.EarnRewardsEligibilityDto
-import com.blockchain.api.earn.EarnWithdrawalDto
+import com.blockchain.api.earn.staking.data.StakingActivityDto
 import com.blockchain.api.earn.staking.data.StakingAddressDto
 import com.blockchain.api.earn.staking.data.StakingBalanceDto
 import com.blockchain.api.earn.staking.data.StakingLimitsMapDto
@@ -34,6 +34,6 @@ class StakingApiService internal constructor(
     suspend fun getAccountAddress(cryptoTicker: String): Outcome<Exception, StakingAddressDto> =
         stakingApi.getAddress(cryptoTicker)
 
-    suspend fun getStakingWithdrawals(): Outcome<Exception, List<EarnWithdrawalDto>> =
-        stakingApi.getWithdrawalRequests()
+    suspend fun getBondingActivity(ticker: String): Outcome<Exception, StakingActivityDto> =
+        stakingApi.getWithdrawalRequests(cryptoCurrencyTicker = ticker)
 }

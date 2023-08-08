@@ -1,8 +1,9 @@
 package com.blockchain.earn.data.repository
 
-import com.blockchain.api.earn.EarnWithdrawalDto
 import com.blockchain.api.earn.staking.StakingApiService
 import com.blockchain.api.earn.staking.data.StakingBalanceDto
+import com.blockchain.api.earn.staking.data.StakingDepositActivityDto
+import com.blockchain.api.earn.staking.data.StakingWithdrawalActivityDto
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.data.DataResource
@@ -15,17 +16,18 @@ import com.blockchain.data.mapData
 import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.eligibility.model.EarnRewardsEligibility
 import com.blockchain.earn.data.dataresources.staking.StakingBalanceStore
+import com.blockchain.earn.data.dataresources.staking.StakingBondingStore
 import com.blockchain.earn.data.dataresources.staking.StakingEligibilityStore
 import com.blockchain.earn.data.dataresources.staking.StakingLimitsStore
 import com.blockchain.earn.data.dataresources.staking.StakingRatesStore
-import com.blockchain.earn.data.dataresources.staking.StakingWithdrawalsStore
 import com.blockchain.earn.data.mapper.toEarnRewardsActivity
 import com.blockchain.earn.data.mapper.toIneligibilityReason
 import com.blockchain.earn.domain.models.EarnRewardsActivity
 import com.blockchain.earn.domain.models.EarnRewardsFrequency.Companion.toRewardsFrequency
-import com.blockchain.earn.domain.models.EarnWithdrawal
 import com.blockchain.earn.domain.models.StakingRewardsRates
 import com.blockchain.earn.domain.models.staking.StakingAccountBalance
+import com.blockchain.earn.domain.models.staking.StakingActivity
+import com.blockchain.earn.domain.models.staking.StakingActivityType
 import com.blockchain.earn.domain.models.staking.StakingLimits
 import com.blockchain.earn.domain.service.StakingService
 import com.blockchain.outcome.Outcome
@@ -57,7 +59,7 @@ class StakingRepository(
     private val currencyPrefs: CurrencyPrefs,
     private val stakingApi: StakingApiService,
     private val historicRateFetcher: HistoricRateFetcher,
-    private val stakingWithdrawalsStore: StakingWithdrawalsStore
+    private val stakingBondingStore: StakingBondingStore
 ) : StakingService {
 
     // we use the rates endpoint to determine whether the user has access to staking cryptos
@@ -257,15 +259,14 @@ class StakingRepository(
             mapAssetWithLimits[asset] ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
         }
 
-    override suspend fun getOngoingWithdrawals(
+    override suspend fun getPendingActivity(
         currency: Currency,
         refreshStrategy: FreshnessStrategy
-    ): Flow<DataResource<List<EarnWithdrawal>>> =
-        stakingWithdrawalsStore.stream(refreshStrategy)
-            .mapData { withdrawalList ->
-                withdrawalList.map {
-                    it.toEarnWithdrawal(currency)
-                }
+    ): Flow<DataResource<List<StakingActivity>>> =
+        stakingBondingStore.stream(refreshStrategy.withKey(currency.networkTicker))
+            .mapData {
+                it.deposits.map { it.toStakingActivity(currency) } +
+                    it.withdrawals.map { it.toStakingActivity(currency) }
             }
 
     private fun StakingBalanceDto.toStakingBalance(currency: Currency): StakingAccountBalance =
@@ -277,15 +278,26 @@ class StakingRepository(
             totalRewards = Money.fromMinor(currency, totalRewards.toBigInteger())
         )
 
-    private fun EarnWithdrawalDto.toEarnWithdrawal(currency: Currency): EarnWithdrawal =
-        EarnWithdrawal(
+    private fun StakingWithdrawalActivityDto.toStakingActivity(currency: Currency): StakingActivity =
+        StakingActivity(
             product = product,
             currency = this.currency,
-            userId = userId,
-            maxRequested = maxRequested,
             amountCrypto = amount?.let { Money.fromMinor(currency, it.toBigInteger()) },
-            unbondingStartDate = unbondingStartDate?.let { it.fromIso8601ToUtc()?.toLocalTime() },
-            unbondingExpiryDate = unbondingExpiry?.let { it.fromIso8601ToUtc()?.toLocalTime() }
+            startDate = unbondingStartDate?.let { it.fromIso8601ToUtc()?.toLocalTime() },
+            expiryDate = unbondingExpiryDate?.let { it.fromIso8601ToUtc()?.toLocalTime() },
+            durationDays = unbondingDays,
+            type = StakingActivityType.Unbonding
+        )
+
+    private fun StakingDepositActivityDto.toStakingActivity(currency: Currency): StakingActivity =
+        StakingActivity(
+            product = product,
+            currency = this.currency,
+            amountCrypto = amount?.let { Money.fromMinor(currency, it.toBigInteger()) },
+            startDate = bondingStartDate?.let { it.fromIso8601ToUtc()?.toLocalTime() },
+            expiryDate = bondingExpiryDate?.let { it.fromIso8601ToUtc()?.toLocalTime() },
+            durationDays = bondingDays,
+            type = StakingActivityType.Bonding
         )
 
     companion object {

@@ -73,7 +73,7 @@ class AccountActionsBottomSheet : ThemedBottomSheetFragment() {
     }
 
     private val stateAwareActions by lazy { arguments?.getSerializable(STATE_AWARE_ACTIONS) as Array<StateAwareAction> }
-    private val balanceFiat by lazy { arguments?.getSerializable(BALANCE_FIAT) as Money }
+    private val balanceFiat by lazy { arguments?.getSerializable(BALANCE_FIAT) as Money? }
     private val balanceCrypto by lazy { arguments?.getSerializable(BALANCE_CRYPTO) as Money }
     private val interestRate: Double by lazy { arguments?.getDouble(INTEREST_RATE) ?: 0.0 }
     private val stakingRate: Double by lazy { arguments?.getDouble(STAKING_RATE) ?: 0.0 }
@@ -96,7 +96,7 @@ class AccountActionsBottomSheet : ThemedBottomSheetFragment() {
             ?: throw IllegalStateException("Host activity is not a AccountActionsBottomSheet.Host")
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         logEventWalletViewed(selectedAccount)
 
         val items =
@@ -129,12 +129,10 @@ class AccountActionsBottomSheet : ThemedBottomSheetFragment() {
                             } ?: StackedIcon.SingleIcon(
                                 ImageResource.Remote(selectedAccount.currency.logo)
                             ),
-                            shouldShowDivider = false,
-                            backgroundSecondary = false,
                         )
                         DefaultTableRow(
                             backgroundColor = AppColors.background,
-                            primaryText = balanceFiat.toStringWithSymbol(),
+                            primaryText = balanceFiat?.toStringWithSymbol().orEmpty(),
                             secondaryText = balanceCrypto.toStringWithSymbol(),
                             endTag = when (selectedAccount) {
                                 is EarnRewardsAccount.Interest -> {
@@ -627,7 +625,7 @@ class AccountActionsBottomSheet : ThemedBottomSheetFragment() {
 
         fun newInstance(
             selectedAccount: BlockchainAccount,
-            balanceFiat: Money,
+            balanceFiat: Money?,
             balanceCrypto: Money,
             interestRate: Double,
             stakingRate: Double,

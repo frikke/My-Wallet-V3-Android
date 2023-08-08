@@ -25,7 +25,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.RefreshStrategy
-import com.blockchain.data.asObservable
+import com.blockchain.data.toObservable
 import com.blockchain.domain.transactions.TransferDirection
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
@@ -238,7 +238,7 @@ abstract class CryptoNonCustodialAccount(
         return unifiedBalancesService.balanceForWallet(
             this@CryptoNonCustodialAccount,
             freshnessStrategy
-        ).asObservable().map {
+        ).toObservable().map {
             AccountBalance(
                 total = it.balance,
                 pending = it.unconfirmedBalance,

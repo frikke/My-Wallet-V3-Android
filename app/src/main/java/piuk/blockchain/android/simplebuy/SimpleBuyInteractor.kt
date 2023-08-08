@@ -8,7 +8,9 @@ import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.core.limits.CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.NON_CUSTODIAL_LIMITS_ACCOUNT
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
@@ -37,7 +39,6 @@ import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
-import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
@@ -77,7 +78,6 @@ import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.serializers.StringMapSerializer
 import com.blockchain.utils.rxSingleOutcome
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CurrencyPair
 import info.blockchain.balance.FiatCurrency
@@ -166,16 +166,16 @@ class SimpleBuyInteractor(
             outputCurrency = sourceCurrency,
             sourceCurrency = sourceCurrency,
             targetCurrency = targetCurrency,
-            targetAccountType = AssetCategory.CUSTODIAL,
+            targetAccountType = CUSTODIAL_LIMITS_ACCOUNT,
             sourceAccountType = if (paymentMethodType == PaymentMethodType.FUNDS) {
-                AssetCategory.CUSTODIAL
+                CUSTODIAL_LIMITS_ACCOUNT
             } else {
-                AssetCategory.NON_CUSTODIAL
+                NON_CUSTODIAL_LIMITS_ACCOUNT
             },
             legacyLimits = custodialWalletManager.getProductTransferLimits(
                 currency = sourceCurrency,
                 product = Product.BUY
-            ).map { it as LegacyLimits }
+            ).map { it }
         )
     }
 
@@ -321,6 +321,7 @@ class SimpleBuyInteractor(
                                     SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_BUT_NOT_ELIGIBLE)
                                 }
                             }
+
                     it.isRejectedForAny() -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.FAILED))
                     it.isInReviewForAny() -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.IN_REVIEW))
                     else -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.PENDING))
@@ -379,6 +380,7 @@ class SimpleBuyInteractor(
                     providerAccountId = providerAccountId,
                     accountId = accountId
                 )
+
             BankPartner.YAPILY ->
                 BankProviderAccountAttributes(
                     institutionId = accountId,
@@ -416,10 +418,12 @@ class SimpleBuyInteractor(
                             SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_BUT_NOT_ELIGIBLE)
                         }
                     }
+
                 it.isRejectedFor(KycTier.GOLD) -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.FAILED))
                 it.isPendingFor(KycTier.GOLD) -> Single.just(
                     SimpleBuyIntent.KycStateUpdated(KycState.IN_REVIEW)
                 )
+
                 else -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.PENDING))
             }
         }.onErrorReturn { SimpleBuyIntent.KycStateUpdated(KycState.PENDING) }
@@ -733,6 +737,7 @@ class SimpleBuyInteractor(
                 amountString.isEmpty() -> {
                     Money.fromMajor(fiatCurrency, BigDecimal(DEFAULT_MIN_PREFILL_AMOUNT))
                 }
+
                 amountString.isNotEmpty() -> Money.fromMajor(fiatCurrency, BigDecimal(amountString))
                 else -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
             }

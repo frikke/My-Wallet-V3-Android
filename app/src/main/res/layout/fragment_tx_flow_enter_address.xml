@@ -156,7 +156,6 @@
                         android:padding="@dimen/tiny_spacing"
                         android:textColor="@color/body"
                         android:visibility="gone"
-                        app:layout_constraintTop_toBottomOf="@id/qrImage"
                         tools:text="Text"
                         tools:visibility="visible" />
 

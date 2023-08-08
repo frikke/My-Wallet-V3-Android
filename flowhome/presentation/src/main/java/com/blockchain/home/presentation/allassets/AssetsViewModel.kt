@@ -102,9 +102,17 @@ class AssetsViewModel(
                 .allFiatAndSectionCrypto(sectionSize.size)
         },
         filters = filters,
-        showNoResults = assets.map { assets ->
-            assets.none { it.shouldBeFiltered(this) } && assets.isNotEmpty()
-        }.dataOrElse(false),
+        showNoResults = assets
+            .map { assets ->
+                val notFundingOrLoadingAssets = assets.filter {
+                    (it.balance as? DataResource.Data)?.data?.let { balance ->
+                        balance.isPositive
+                    } ?: true
+                }
+                notFundingOrLoadingAssets.all {
+                    it.balance is DataResource.Data && it.shouldBeFiltered(this)
+                } || notFundingOrLoadingAssets.isEmpty()
+            }.dataOrElse(false),
         showFilterIcon = !assets.allSmallBalances().dataOrElse(true),
         fundsLocks = fundsLocks.map {
             it?.takeIf { it.locks.isNotEmpty() && it.onHoldTotalAmount.isPositive }
@@ -121,12 +129,12 @@ class AssetsViewModel(
         return map { asset ->
             asset.toHomeAsset()
         }.sortedWith(
-            object : Comparator<HomeAsset> {
-                override fun compare(p0: HomeAsset, p1: HomeAsset): Int {
-                    val p0Balance = (p0.fiatBalance as? DataResource.Data) ?: return 0
-                    val p1Balance = (p1.fiatBalance as? DataResource.Data) ?: return 0
-                    return p1Balance.data.compareTo(p0Balance.data)
-                }
+            compareBy<HomeAsset> {
+                (it.fiatBalance as? DataResource.Data)?.data == null
+            }.thenComparator { p0: HomeAsset, p1: HomeAsset ->
+                val p0Balance = (p0.fiatBalance as? DataResource.Data)?.data
+                val p1Balance = (p1.fiatBalance as? DataResource.Data)?.data
+                compareValues(p1Balance, p0Balance)
             }
         )
     }
@@ -162,7 +170,9 @@ class AssetsViewModel(
                 balance = balance,
                 fiatBalance = fiatBalance,
                 change = exchangeRate24hWithDelta.map { value ->
-                    ValueChange.fromValue(value.delta24h)
+                    value?.let {
+                        ValueChange.fromValue(it.delta24h)
+                    } ?: ValueChange.None(0.toDouble())
                 }
             )
         }
@@ -431,13 +441,13 @@ class AssetsViewModel(
                     balances.firstOrNull { it is DataResource.Error }
                         ?: balances.first { it is DataResource.Loading }
 
-                balances.all { balance -> balance is DataResource.Data } -> cryptoAccounts.map {
+                balances.all { balance -> balance is DataResource.Data } -> cryptoAccounts.asSequence().map {
                     when {
                         it.balance is DataResource.Data && it.exchangeRate24hWithDelta is DataResource.Data -> {
                             val exchangeRate24hWithDelta = (it.exchangeRate24hWithDelta as DataResource.Data).data
                             val balance = (it.balance as DataResource.Data).data
                             DataResource.Data(
-                                exchangeRate24hWithDelta.previousRate.convert(balance)
+                                exchangeRate24hWithDelta?.previousRate?.convert(balance)
                             )
                         }
 
@@ -445,9 +455,10 @@ class AssetsViewModel(
                         it.exchangeRate24hWithDelta is DataResource.Error -> it.exchangeRate24hWithDelta
                         else -> DataResource.Loading
                     }
-                }.filterIsInstance<DataResource.Data<Money>>()
+                }.filterIsInstance<DataResource.Data<Money?>>()
                     .map { it.data }
-                    .filter { it.isPositive }
+                    .filter { it?.isPositive == true }
+                    .filterNotNull()
                     .fold(Money.zero(modelState.userFiat)) { acc, t ->
                         acc.plus(t)
                     }.let {
@@ -462,8 +473,7 @@ class AssetsViewModel(
     private fun Iterable<SingleAccountBalance>.totalAccounts(): Money {
         return map {
             it.fiatBalance
-        }.filterIsInstance<DataResource.Data<Money>>()
-            .map { it.data }
+        }.filterIsInstance<DataResource.Data<Money?>>().mapNotNull { it.data }
             .filter { it.isPositive }
             .fold(Money.zero(modelState.userFiat)) { acc, t ->
                 acc.plus(t)
@@ -505,8 +515,8 @@ private fun DataResource<List<SingleAccountBalance>>.withBalancedAccounts(
     return DataResource.Data(
         balances.mapNotNull { (account, balance) ->
             val oldAccount = accounts.firstOrNull { it.singleAccount == account }
-            oldAccount?.let {
-                it.copy(
+            oldAccount?.let { accountBalance ->
+                accountBalance.copy(
                     balance = balance.map { it.total },
                     fiatBalance = balance.map { it.totalFiat }
                 )

@@ -14,6 +14,8 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.chrome.LocalNavControllerProvider
+import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.componentlib.chrome.MenuOptionsScreen
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.data.DataResource
@@ -26,7 +28,7 @@ import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
-import com.blockchain.nfts.navigation.NftNavigation
+import com.blockchain.nfts.navigation.NftDestination
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.getViewModel
 
@@ -39,9 +41,10 @@ fun NftCollection(
     launchQrScanner: () -> Unit,
     openExternalUrl: (url: String) -> Unit,
     openNftHelp: () -> Unit,
-    openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit,
-    nftNavigation: NftNavigation
+    openNftDetail: (nftId: String, address: String, pageKey: String?) -> Unit
 ) {
+    val navController = LocalNavControllerProvider.current
+
     val viewState: NftCollectionViewState by viewModel.viewState.collectAsStateLifecycleAware()
 
     DisposableEffect(key1 = viewModel) {
@@ -70,7 +73,8 @@ fun NftCollection(
                     openNftHelp()
                 }
                 is NftCollectionNavigationEvent.ShowReceiveAddress -> {
-                    nftNavigation.showReceiveSheet(it.account)
+                    navController.navigate(NftDestination.ReceiveAccountDetail)
+//                    nftNavigation.showReceiveSheet(it.account)
                 }
                 is NftCollectionNavigationEvent.ShowDetail -> {
                     openNftDetail(it.nftId, it.address, it.pageKey)

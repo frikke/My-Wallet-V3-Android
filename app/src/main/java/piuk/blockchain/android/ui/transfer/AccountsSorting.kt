@@ -132,7 +132,9 @@ class SellAccountsSorting(
                     account
                 }
                 Single.just(sortedGroups)
-            }.onErrorReturn { accountList }
+            }.onErrorReturn {
+                accountList
+            }
         sortedList
     }
 }
@@ -140,7 +142,7 @@ class SellAccountsSorting(
 class DefaultAccountsSorting(private val currencyPrefs: CurrencyPrefs) : AccountsSorting {
 
     private data class AccountData(
-        val totalBalance: Money,
+        val totalBalance: Money?,
         val account: SingleAccount
     )
 

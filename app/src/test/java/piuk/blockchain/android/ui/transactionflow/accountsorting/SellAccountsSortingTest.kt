@@ -5,6 +5,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.data.DataResource
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -19,6 +20,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
 import java.math.BigInteger
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.transfer.DefaultAccountsSorting
@@ -97,8 +99,8 @@ class SellAccountsSortingTest {
             currency = ethMock,
             label = "ethCustodialAccount",
             exchangeRates = mock {
-                on { exchangeRateToUserFiat(CryptoCurrency.ETHER) }.thenReturn(
-                    Observable.just(ExchangeRate(BigDecimal.ONE, CryptoCurrency.ETHER, FiatCurrency.Dollars))
+                on { exchangeRateToUserFiatFlow(CryptoCurrency.ETHER) }.thenReturn(
+                    flowOf(DataResource.Data(ExchangeRate(BigDecimal.ONE, CryptoCurrency.ETHER, FiatCurrency.Dollars)))
                 )
             },
             custodialWalletManager = mock(),
@@ -124,8 +126,8 @@ class SellAccountsSortingTest {
             currency = btcMock,
             label = "btcCustodialAccount",
             exchangeRates = mock {
-                on { exchangeRateToUserFiat(CryptoCurrency.BTC) }.thenReturn(
-                    Observable.just(ExchangeRate(BigDecimal.ONE, CryptoCurrency.BTC, FiatCurrency.Dollars))
+                on { exchangeRateToUserFiatFlow(CryptoCurrency.BTC) }.thenReturn(
+                    flowOf(DataResource.Data(ExchangeRate(BigDecimal.ONE, CryptoCurrency.BTC, FiatCurrency.Dollars)))
                 )
             },
             custodialWalletManager = mock(),
@@ -220,8 +222,8 @@ class SellAccountsSortingTest {
             currency = ethMock,
             label = "ethCustodialAccount",
             exchangeRates = mock {
-                on { exchangeRateToUserFiat(CryptoCurrency.ETHER) }.thenReturn(
-                    Observable.just(ExchangeRate(BigDecimal.ONE, CryptoCurrency.ETHER, FiatCurrency.Dollars))
+                on { exchangeRateToUserFiatFlow(CryptoCurrency.ETHER) }.thenReturn(
+                    flowOf(DataResource.Data(ExchangeRate(BigDecimal.ONE, CryptoCurrency.ETHER, FiatCurrency.Dollars)))
                 )
             },
             custodialWalletManager = mock(),
@@ -246,8 +248,8 @@ class SellAccountsSortingTest {
             currency = ethMock,
             label = "ethCustodialAccount2",
             exchangeRates = mock {
-                on { exchangeRateToUserFiat(CryptoCurrency.ETHER) }.thenReturn(
-                    Observable.just(ExchangeRate(BigDecimal.ONE, CryptoCurrency.ETHER, FiatCurrency.Dollars))
+                on { exchangeRateToUserFiatFlow(CryptoCurrency.ETHER) }.thenReturn(
+                    flowOf(DataResource.Data(ExchangeRate(BigDecimal.ONE, CryptoCurrency.ETHER, FiatCurrency.Dollars)))
                 )
             },
             custodialWalletManager = mock(),
@@ -272,8 +274,8 @@ class SellAccountsSortingTest {
             currency = btcMock,
             label = "btcCustodialAccount",
             exchangeRates = mock {
-                on { exchangeRateToUserFiat(CryptoCurrency.BTC) }.thenReturn(
-                    Observable.just(ExchangeRate(BigDecimal.ONE, CryptoCurrency.BTC, FiatCurrency.Dollars))
+                on { exchangeRateToUserFiatFlow(CryptoCurrency.BTC) }.thenReturn(
+                    flowOf(DataResource.Data(ExchangeRate(BigDecimal.ONE, CryptoCurrency.BTC, FiatCurrency.Dollars)))
                 )
             },
             custodialWalletManager = mock(),
@@ -298,8 +300,8 @@ class SellAccountsSortingTest {
             currency = btcMock,
             label = "btcCustodialAccount2",
             exchangeRates = mock {
-                on { exchangeRateToUserFiat(CryptoCurrency.BTC) }.thenReturn(
-                    Observable.just(ExchangeRate(BigDecimal.ONE, CryptoCurrency.BTC, FiatCurrency.Dollars))
+                on { exchangeRateToUserFiatFlow(CryptoCurrency.BTC) }.thenReturn(
+                    flowOf(DataResource.Data(ExchangeRate(BigDecimal.ONE, CryptoCurrency.BTC, FiatCurrency.Dollars)))
                 )
             },
             custodialWalletManager = mock(),

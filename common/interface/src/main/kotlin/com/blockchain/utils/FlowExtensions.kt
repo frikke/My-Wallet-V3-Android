@@ -4,6 +4,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
+fun <T> Flow<T>.println(toString: T.() -> String) = map {
+    println("---------->>>>>> " + toString(it))
+    it
+}
+
 fun <T, R> Flow<Iterable<T>>.mapList(transform: (T) -> R): Flow<List<R>> = map { list ->
     list.map(transform)
 }

@@ -1,11 +1,15 @@
 package com.blockchain.earn.staking
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -36,27 +40,39 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.icon.CustomStackedIcon
+import com.blockchain.componentlib.icons.Icons
+import com.blockchain.componentlib.icons.Receive
+import com.blockchain.componentlib.icons.Send
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBarWithSmallText
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.tablerow.FlexibleTableRow
+import com.blockchain.componentlib.tablerow.TableRowHeader
 import com.blockchain.componentlib.tablerow.custom.StackedIcon
 import com.blockchain.componentlib.tablerow.custom.TextWithTooltipTableRow
 import com.blockchain.componentlib.theme.AppColors
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.LargeVerticalSpacer
+import com.blockchain.componentlib.theme.SmallHorizontalSpacer
 import com.blockchain.componentlib.theme.SmallVerticalSpacer
+import com.blockchain.componentlib.theme.SmallestVerticalSpacer
 import com.blockchain.componentlib.theme.StandardVerticalSpacer
 import com.blockchain.componentlib.theme.TinyHorizontalSpacer
 import com.blockchain.componentlib.theme.TinyVerticalSpacer
 import com.blockchain.componentlib.theme.topOnly
 import com.blockchain.earn.common.EarnFieldExplainer
-import com.blockchain.earn.common.EarnPendingWithdrawals
 import com.blockchain.earn.domain.models.EarnRewardsFrequency
+import com.blockchain.earn.domain.models.staking.StakingActivityType
+import com.blockchain.earn.staking.viewmodel.StakingActivityViewState
 import com.blockchain.earn.staking.viewmodel.StakingError
 import com.blockchain.earn.staking.viewmodel.StakingSummaryViewState
 import com.blockchain.extensions.safeLet
 import com.blockchain.stringResources.R
 import kotlinx.coroutines.delay
+
+private val List<StakingActivityViewState>.withdrawals: List<StakingActivityViewState>
+    get() = filter { it.type == StakingActivityType.Unbonding }
 
 @Composable
 fun StakingSummarySheet(
@@ -82,8 +98,6 @@ fun StakingSummarySheet(
                 startImage = StackedIcon.SingleIcon(
                     ImageResource.Remote(state.balanceCrypto?.currency?.logo.orEmpty())
                 ),
-                shouldShowDivider = false,
-                backgroundSecondary = false,
                 onClosePress = onClosePressed
             )
 
@@ -183,15 +197,11 @@ fun StakingSummarySheet(
 
                 LargeVerticalSpacer()
 
-                val hasPendingWithdrawals by remember(state.pendingWithdrawals) {
-                    mutableStateOf(state.pendingWithdrawals.isNotEmpty())
-                }
-
                 if (state.shouldShowWithdrawWarning()) {
                     StakingWithdrawalNotice(onLearnMorePressed = withdrawDisabledLearnMore)
                 } else {
-                    if (hasPendingWithdrawals) {
-                        EarnPendingWithdrawals(pendingWithdrawals = state.pendingWithdrawals)
+                    if (state.pendingActivity.isNotEmpty()) {
+                        PendingActivity(pendingActivity = state.pendingActivity)
                         StandardVerticalSpacer()
                     }
 
@@ -204,8 +214,8 @@ fun StakingSummarySheet(
 
                 LargeVerticalSpacer()
 
-                if (hasPendingWithdrawals) {
-                    val withdrawalTimestamp = state.pendingWithdrawals.last().withdrawalTimestamp?.time ?: 0L
+                if (state.pendingActivity.withdrawals.isNotEmpty()) {
+                    val withdrawalTimestamp = state.pendingActivity.withdrawals.last().timestamp?.time ?: 0L
                     val timeBetweenWithdrawals = 5 * 60 * 1000 // 5 minutes in milliseconds
                     val unlockTime = withdrawalTimestamp + timeBetweenWithdrawals
 
@@ -286,41 +296,6 @@ fun StakingSummarySheet(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun StakingSummarySheetPreview() {
-    AppTheme {
-        StakingSummarySheet(
-            state = StakingSummaryViewState(
-                account = null,
-                tradingAccount = null,
-                errorState = StakingError.None,
-                isLoading = false,
-                balanceCrypto = null,
-                balanceFiat = null,
-                stakedCrypto = null,
-                stakedFiat = null,
-                bondingCrypto = null,
-                bondingFiat = null,
-                earnedCrypto = null,
-                earnedFiat = null,
-                stakingRate = 5.0,
-                commissionRate = 1.0,
-                earnFrequency = EarnRewardsFrequency.Weekly,
-                canDeposit = true,
-                canWithdraw = true,
-                pendingWithdrawals = emptyList(),
-                unbondingDays = 2
-            ),
-            onWithdrawPressed = { _, _ -> },
-            onDepositPressed = {},
-            withdrawDisabledLearnMore = {},
-            onClosePressed = {},
-            onExplainerClicked = {}
-        )
-    }
-}
-
 @Composable
 fun StakingWithdrawalNotice(onLearnMorePressed: () -> Unit) {
     Card(
@@ -363,11 +338,91 @@ fun StakingWithdrawalNotice(onLearnMorePressed: () -> Unit) {
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun StakingWithdrawalNoticePreview() {
-    AppTheme {
-        StakingWithdrawalNotice(onLearnMorePressed = {})
+private fun PendingActivity(
+    pendingActivity: List<StakingActivityViewState>
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        TableRowHeader(title = stringResource(id = R.string.common_pending_activity))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+            color = Color.Transparent
+        ) {
+            Column {
+                pendingActivity.forEach { activity ->
+                    FlexibleTableRow(
+                        paddingValues = PaddingValues(AppTheme.dimensions.smallSpacing),
+                        contentStart = {
+                            CustomStackedIcon(
+                                icon = StackedIcon.SingleIcon(
+                                    when (activity.type) {
+                                        StakingActivityType.Bonding -> Icons.Receive
+                                        StakingActivityType.Unbonding -> Icons.Send
+                                    }.withTint(AppColors.title)
+                                )
+                            )
+                        },
+                        content = {
+                            SmallHorizontalSpacer()
+
+                            Column {
+                                SimpleText(
+                                    text = stringResource(
+                                        when (activity.type) {
+                                            StakingActivityType.Bonding -> R.string.earn_staking_bonding_asset
+                                            StakingActivityType.Unbonding -> R.string.earn_staking_unbonding_asset
+                                        },
+                                        activity.currency
+                                    ),
+                                    style = ComposeTypographies.Body2,
+                                    color = ComposeColors.Title,
+                                    gravity = ComposeGravities.Start
+                                )
+
+                                SmallestVerticalSpacer()
+
+                                SimpleText(
+                                    text = stringResource(
+                                        when (activity.type) {
+                                            StakingActivityType.Bonding -> R.string.earn_staking_bonding_days
+                                            StakingActivityType.Unbonding -> R.string.earn_staking_unbonding_days
+                                        },
+                                        activity.durationDays
+                                    ),
+                                    style = ComposeTypographies.Paragraph1,
+                                    color = ComposeColors.Primary,
+                                    gravity = ComposeGravities.Start
+                                )
+                            }
+                            SmallHorizontalSpacer()
+                        },
+                        contentEnd = {
+                            Column(horizontalAlignment = Alignment.End) {
+                                SimpleText(
+                                    text = activity.expiryDate,
+                                    style = ComposeTypographies.Caption1,
+                                    color = ComposeColors.Body,
+                                    gravity = ComposeGravities.End
+                                )
+
+                                SmallestVerticalSpacer()
+
+                                SimpleText(
+                                    text = activity.amountCrypto,
+                                    style = ComposeTypographies.Caption1,
+                                    color = ComposeColors.Body,
+                                    gravity = ComposeGravities.End
+                                )
+                            }
+                        },
+                        onContentClicked = {}
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -432,3 +487,102 @@ private fun formatDuration(duration: Long): String {
     val seconds = (duration / 1000) % 60
     return String.format("%02d:%02d", minutes, seconds)
 }
+
+@Preview
+@Composable
+fun StakingSummarySheetPreview() {
+    StakingSummarySheet(
+        state = StakingSummaryViewState(
+            account = null,
+            tradingAccount = null,
+            errorState = StakingError.None,
+            isLoading = false,
+            balanceCrypto = null,
+            balanceFiat = null,
+            stakedCrypto = null,
+            stakedFiat = null,
+            bondingCrypto = null,
+            bondingFiat = null,
+            earnedCrypto = null,
+            earnedFiat = null,
+            stakingRate = 5.0,
+            commissionRate = 1.0,
+            earnFrequency = EarnRewardsFrequency.Weekly,
+            canDeposit = true,
+            canWithdraw = true,
+            pendingActivity = previewPendingActivity,
+            unbondingDays = 2
+        ),
+        onWithdrawPressed = { _, _ -> },
+        onDepositPressed = {},
+        withdrawDisabledLearnMore = {},
+        onClosePressed = {},
+        onExplainerClicked = {}
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun StakingSummarySheetPreviewDark() {
+    StakingSummarySheetPreview()
+}
+
+@Preview
+@Composable
+fun StakingWithdrawalNoticePreview() {
+    StakingWithdrawalNotice(onLearnMorePressed = {})
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun StakingWithdrawalNoticePreviewDark() {
+    StakingWithdrawalNoticePreview()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewEarnPendingWithdrawals() {
+    PendingActivity(
+        pendingActivity = previewPendingActivity
+    )
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewEarnPendingWithdrawalsDark() {
+    PreviewEarnPendingWithdrawals()
+}
+
+private val previewPendingActivity = listOf(
+    StakingActivityViewState(
+        currency = "BTC",
+        amountCrypto = "-0.00000001 BTC",
+        amountFiat = "-£0.01",
+        startDate = "2021-05-01",
+        expiryDate = "2021-05-02",
+        timestamp = null,
+        durationDays = 5,
+        type = StakingActivityType.Bonding
+    ),
+    StakingActivityViewState(
+        currency = "BTC",
+        amountCrypto = "-0.00000001 BTC",
+        amountFiat = "-£0.01",
+        startDate = "2021-05-01",
+        expiryDate = "2021-05-02",
+        timestamp = null,
+        durationDays = 5,
+        type = StakingActivityType.Unbonding
+
+    ),
+    StakingActivityViewState(
+        currency = "BTC",
+        amountCrypto = "-0.00000001 BTC",
+        amountFiat = "-£0.01",
+        startDate = "2021-05-01",
+        expiryDate = "2021-05-02",
+        timestamp = null,
+        durationDays = 5,
+        type = StakingActivityType.Bonding
+    )
+)

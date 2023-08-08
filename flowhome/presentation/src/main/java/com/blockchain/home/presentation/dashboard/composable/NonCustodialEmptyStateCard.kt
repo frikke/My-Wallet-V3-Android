@@ -72,7 +72,7 @@ fun NonCustodialEmptyStateCard(
 
                 SimpleText(
                     text = stringResource(
-                        id = com.blockchain.stringResources.R.string.transfer_from_your_trading_account
+                        id = com.blockchain.stringResources.R.string.nc_empty_state_description
                     ),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Body,

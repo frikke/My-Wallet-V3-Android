@@ -112,7 +112,6 @@ android {
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].toString(),
                     DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
-            buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['prodGooglePlacesApiKey']}\""
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
             buildConfigField "String", "EVM_NODE_API_URL", "\"${buildProperties.secrets['evmApiServer']}\""
@@ -174,7 +173,6 @@ android {
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].toString(),
                     DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
-            buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['prodGooglePlacesApiKey']}\""
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
             buildConfigField "String", "EVM_NODE_API_URL", "\"${buildProperties.secrets['evmApiServer']}\""
@@ -237,7 +235,6 @@ android {
                     LOGIN_LINK_HOST    : buildProperties.secrets['stagingLoginLink'].toString(),
                     DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
-            buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['stagingGooglePlacesApiKey']}\""
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['stagingExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['stagingApiServer']}\""
             buildConfigField "String", "EVM_NODE_API_URL", "\"${buildProperties.secrets['evmApiServer']}\""
@@ -434,6 +431,7 @@ dependencies {
 
     implementation project(':flowtransactions:presentation')
     implementation project(':flowtransactions:data')
+    implementation project(':flowtransactions:domain')
 
     implementation project(':fraud:data')
     implementation project(':fraud:domain')
@@ -452,6 +450,7 @@ dependencies {
     implementation project(':fiatActions')
     implementation project(':componentlib')
     implementation project(':dex:presentation')
+    implementation project(':dex:domain')
     implementation project(':dex:data')
 
     implementation project(':news:data')
